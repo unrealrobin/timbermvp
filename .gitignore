@@ -1,0 +1,31 @@
+# Ignore intermediate build files
+Intermediate/
+
+# Ignore saved data
+Saved/
+
+# Ignore compiled binaries
+Binaries/
+
+# Ignore logs
+Logs/
+
+# Ignore derived data cache
+DerivedDataCache/
+
+# Ignore project files
+*.uproject.*
+
+# Ignore user-specific settings
+*.sln.DotSettings.user
+*.suo
+*.userprefs
+
+# Ignore Rider IDE files
+.idea/
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore Windows specific files
+Thumbs.db

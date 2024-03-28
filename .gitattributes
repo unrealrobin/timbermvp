@@ -1,0 +1,60 @@
+# Unreal Engine asset files
+*.uasset filter=lfs diff=lfs merge=lfs -text
+*.umap filter=lfs diff=lfs merge=lfs -text
+
+# Graphics (Textures, Models, etc.)
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.tga filter=lfs diff=lfs merge=lfs -text
+*.bmp filter=lfs diff=lfs merge=lfs -text
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.ai filter=lfs diff=lfs merge=lfs -text
+*.svg filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.obj filter=lfs diff=lfs merge=lfs -text
+*.gltf filter=lfs diff=lfs merge=lfs -text
+
+# Audio files
+*.wav filter=lfs diff=lfs merge=lfs -text
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.ogg filter=lfs diff=lfs merge=lfs -text
+
+# Video files
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+
+# Animation files
+*.anim filter=lfs diff=lfs merge=lfs -text
+
+# Other large binary files
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.dat filter=lfs diff=lfs merge=lfs -text
+
+# Exclude certain files from LFS tracking
+#*.txt -text -filter -merge -diff
+
+
+
+#Notes:
+#Asset Files: Unreal Engine asset files (.uasset, .umap) are typically large and are best managed with Git LFS.
+
+#Graphics Files: Common image formats, model files, and Adobe files are included.
+
+#Audio and Video Files: Common audio and video formats are tracked to handle potentially large file sizes.
+
+#Animation Files: Animation-specific formats like .anim (for custom animation files) are included.
+
+#Other Binaries: Generic binary formats are also tracked.
+
+#Exclusions: Theres a commented-out example for excluding certain file types from LFS tracking. You can uncomment and adjust it to fit your needs.
+
+#Customization:
+#Tailor to Your Project: Depending on the specific assets and file types your project uses, you may need to add or remove entries.
+
+#Initial Setup: Remember to set up this .gitattributes file before adding large files to ensure theyre correctly managed by Git LFS.
+
+#Git LFS Initialization: Ensure that Git LFS is initialized in your repository (git lfs install) before you start adding files.
+
+#This .gitattributes file should provide a good starting point for most basic Unreal Engine 5 game projects, ensuring that large files are efficiently managed and version-controlled with Git LFS.

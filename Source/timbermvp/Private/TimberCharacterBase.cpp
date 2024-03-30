@@ -18,17 +18,7 @@ void ATimberCharacterBase::BeginPlay()
 	
 }
 
-// Called every frame
-void ATimberCharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-}
 
-// Called to bind functionality to input
-void ATimberCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-}
 

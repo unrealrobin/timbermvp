@@ -20,6 +20,8 @@ public:
 	//Constructor
 	ATimberPlayableCharacter();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")

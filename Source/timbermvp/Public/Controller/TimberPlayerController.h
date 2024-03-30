@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "TimberPlayerController.generated.h"
 
+class UInputMappingContext;
 /**
  * 
  */
@@ -17,14 +18,23 @@ class TIMBERMVP_API ATimberPlayerController : public APlayerController
 
 public:
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere)
 	UInputAction* MoveAction;
+
+	UFUNCTION()
+	void Move(const FInputActionValue& Value);
 
 protected:
 
 	virtual void SetupInputComponent() override;
+
+private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputMappingContext> TimberInputMappingContext;
 	
-	void Move(const FInputActionValue& Value);
+	
 	
 	
 };

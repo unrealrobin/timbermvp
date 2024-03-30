@@ -3,11 +3,15 @@
 
 #include "Character/TimberCharacterBase.h"
 
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/MovementComponent.h"
+
 // Sets default values
 ATimberCharacterBase::ATimberCharacterBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+ 	PrimaryActorTick.bCanEverTick = false;
+	
+	CharacterMovementComponent = CreateDefaultSubobject<UMovementComponent>("MovementComponent");
 
 }
 
@@ -15,6 +19,19 @@ ATimberCharacterBase::ATimberCharacterBase()
 void ATimberCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+}
+
+void ATimberCharacterBase::DecreaseHealth(int DecreaseAmount)
+{
+	if(CurrentHealth - DecreaseAmount <= 0 )
+	{
+		Destroy();
+	}
+
+	CurrentHealth -= DecreaseAmount;
+
+	return;
 	
 }
 

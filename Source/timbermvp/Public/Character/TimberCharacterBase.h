@@ -6,21 +6,32 @@
 #include "GameFramework/Character.h"
 #include "TimberCharacterBase.generated.h"
 
+/* Forward Declarations*/
+
+class UMovementComponent;
+class USkeletalMeshComponent;
+
 UCLASS()
 class TIMBERMVP_API ATimberCharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+	
 	ATimberCharacterBase();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere, Category="Character Component")
+	UMovementComponent* CharacterMovementComponent;
 
 public:	
-	
+	int TotalHealth = 100;
+	int CurrentHealth = 100;
+
+	UFUNCTION()
+	void DecreaseHealth(int DecreaseAmount);
 
 	
 

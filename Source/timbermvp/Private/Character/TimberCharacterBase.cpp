@@ -1,7 +1,7 @@
 // Property of Paracosm Industries. Dont use my shit.
 
 
-#include "TimberCharacterBase.h"
+#include "Character/TimberCharacterBase.h"
 
 // Sets default values
 ATimberCharacterBase::ATimberCharacterBase()

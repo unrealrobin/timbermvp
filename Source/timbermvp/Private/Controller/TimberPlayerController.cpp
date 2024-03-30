@@ -10,7 +10,7 @@ void ATimberPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 	//Binding Move Function
-	EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Ongoing, this, &ATimberPlayerController::Move);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Ongoing, this, &ATimberPlayerController::Move);
 }
 
 void ATimberPlayerController::Move(const FInputActionValue& Value)

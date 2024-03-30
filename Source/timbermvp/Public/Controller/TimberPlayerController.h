@@ -18,7 +18,7 @@ class TIMBERMVP_API ATimberPlayerController : public APlayerController
 public:
 
 	UPROPERTY(EditAnywhere)
-	UInputAction* InputAction;
+	UInputAction* MoveAction;
 
 protected:
 

@@ -23,8 +23,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(EditAnywhere, Category="Character Component")
-	UMovementComponent* CharacterMovementComponent;
+	/*UPROPERTY(EditAnywhere, Category="Character Component")
+	UMovementComponent* CharacterMovementComponent;*/
 
 public:	
 	int TotalHealth = 100;

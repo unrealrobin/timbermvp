@@ -30,6 +30,9 @@ protected:
 
 	virtual void SetupInputComponent() override;
 
+	FVector ForwardMoveDirection;
+	FVector RightMoveDirection;
+
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputMappingContext> TimberInputMappingContext;

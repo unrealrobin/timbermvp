@@ -11,7 +11,7 @@ ATimberCharacterBase::ATimberCharacterBase()
 {
  	PrimaryActorTick.bCanEverTick = false;
 	
-	CharacterMovementComponent = CreateDefaultSubobject<UMovementComponent>("MovementComponent");
+	
 
 }
 

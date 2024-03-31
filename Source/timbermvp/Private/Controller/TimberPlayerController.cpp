@@ -4,7 +4,6 @@
 #include "Controller/TimberPlayerController.h"
 
 #include "EnhancedInputSubsystems.h"
-#include "Character/TimberPlayableCharacter.h"
 
 void ATimberPlayerController::BeginPlay()
 {
@@ -38,14 +37,15 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 
 	APawn* ControlledPawn = GetPawn();
 
-	check(ControlledPawn);
-
-	const float ValueMagnitude = Value.GetMagnitude();
-
-	const FVector Direction = ControlledPawn->GetActorForwardVector();
-
-	ControlledPawn->AddMovementInput(Direction, 1.0f);
-	
+	if (ControlledPawn)
+	{
+		ForwardMoveDirection = ControlledPawn->GetActorForwardVector();
+		RightMoveDirection = ControlledPawn->GetActorRightVector();
+		
+		ControlledPawn->AddMovementInput(ForwardMoveDirection, Value.Get<FVector2D>().X, false);
+		ControlledPawn->AddMovementInput(RightMoveDirection, Value.Get<FVector2D>().Y, false);
+	}
 }
+
 
 

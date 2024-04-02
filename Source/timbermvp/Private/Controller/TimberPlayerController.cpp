@@ -26,14 +26,11 @@ void ATimberPlayerController::SetupInputComponent()
 
 	//Binding Move Function
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Move);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ATimberPlayerController::MoveComplete);
 }
 
 void ATimberPlayerController::Move(const FInputActionValue& Value)
 {
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Red, "Move Button Pressed",true);
-	}
 
 	InputActionValue = Value;
 
@@ -47,6 +44,11 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 		ControlledPawn->AddMovementInput(ForwardMoveDirection, Value.Get<FVector2D>().X, false);
 		ControlledPawn->AddMovementInput(RightMoveDirection, Value.Get<FVector2D>().Y, false);
 	}
+}
+
+void ATimberPlayerController::MoveComplete(const FInputActionValue& Value)
+{
+	InputActionValue = FVector2d(0.f,0.f);
 }
 
 

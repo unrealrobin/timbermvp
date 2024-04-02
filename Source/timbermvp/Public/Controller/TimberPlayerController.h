@@ -25,6 +25,9 @@ public:
 
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
+	UFUNCTION()
+	void MoveComplete(const FInputActionValue& Value);
+	
 
 	FInputActionValue InputActionValue;
 

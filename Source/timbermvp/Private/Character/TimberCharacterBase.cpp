@@ -30,8 +30,6 @@ void ATimberCharacterBase::DecreaseHealth(int DecreaseAmount)
 	}
 
 	CurrentHealth -= DecreaseAmount;
-
-	return;
 	
 }
 

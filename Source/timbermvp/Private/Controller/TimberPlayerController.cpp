@@ -35,6 +35,8 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Red, "Move Button Pressed",true);
 	}
 
+	InputActionValue = Value;
+
 	APawn* ControlledPawn = GetPawn();
 
 	if (ControlledPawn)

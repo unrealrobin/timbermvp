@@ -26,11 +26,17 @@ public:
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 
+	FInputActionValue InputActionValue;
+
+	UFUNCTION(BlueprintCallable)
+	FInputActionValue GetInputActionValue(){return InputActionValue;}
+
 protected:
 
 	virtual void SetupInputComponent() override;
-
+	UPROPERTY(BlueprintReadOnly)
 	FVector ForwardMoveDirection;
+	UPROPERTY(BlueprintReadOnly)
 	FVector RightMoveDirection;
 
 private:

@@ -7,6 +7,9 @@ Saved/
 # Ignore compiled binaries
 Binaries/
 
+# Ignore Potential Assets List
+Assets/
+
 # Ignore logs
 Logs/
 

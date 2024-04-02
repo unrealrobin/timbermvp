@@ -26,9 +26,13 @@ protected:
 	/*UPROPERTY(EditAnywhere, Category="Character Component")
 	UMovementComponent* CharacterMovementComponent;*/
 
-public:	
-	int TotalHealth = 100;
-	int CurrentHealth = 100;
+public:
+	UPROPERTY(BlueprintReadOnly)
+	float TotalHealth = 100.0f;
+	UPROPERTY(BlueprintReadOnly)
+	float CurrentHealth = 100.0f;
+	UPROPERTY(BlueprintReadOnly)
+	float Speed = 0.f;
 
 	UFUNCTION()
 	void DecreaseHealth(int DecreaseAmount);

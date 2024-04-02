@@ -8,6 +8,8 @@
 #include "TimberAnimInstance.generated.h"
 
 
+class ATimberPlayerController;
+class ATimberCharacterBase;
 /**
  * 
  */
@@ -22,5 +24,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	FInputActionValue InputActionValue;
+
+private:
+
+	ATimberCharacterBase* TimberCharacterBase;
+	ATimberPlayerController* TimberPlayerController;
 	
 };

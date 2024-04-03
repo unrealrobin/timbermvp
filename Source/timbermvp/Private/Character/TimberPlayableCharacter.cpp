@@ -9,6 +9,7 @@
 void ATimberPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 
 }

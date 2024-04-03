@@ -21,6 +21,8 @@ void ATimberPlayerController::BeginPlay()
 	
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
+	
+	
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -60,16 +62,22 @@ void ATimberPlayerController::MoveComplete(const FInputActionValue& Value)
 
 void ATimberPlayerController::LookUp(const FInputActionValue& Value)
 {
-	float ClampedPitch = FMath::Clamp(Value.Get<float>(), -0.5f, 0.5f);
-	//Pitch is up and down
-	TimberCharacter->AddControllerPitchInput(ClampedPitch);
+	const float CurrentPitch = TimberCharacter->GetControlRotation().Pitch;
+	const float ClampedPitch = FMath::Clamp(CurrentPitch + Value.Get<float>(), ViewPitchMin, ViewPitchMax);
+	
+	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
+	UpdatedRotation.Pitch = ClampedPitch;
+
+	GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Red, FString::Printf(TEXT("Pitch: %f"), UpdatedRotation.Pitch));
+	
+	SetControlRotation(UpdatedRotation);
 }
 
 void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 {
-	float ClampedYaw = FMath::Clamp(Value.Get<float>(), -0.5f, 0.5f);
-	//Yaw is left and right
-	TimberCharacter->AddControllerYawInput(ClampedYaw);
+	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
+	UpdatedRotation.Yaw = UpdatedRotation.Yaw + Value.Get<float>();
+	SetControlRotation(UpdatedRotation);
 }
 
 

@@ -62,6 +62,9 @@ protected:
 	ATimberPlayableCharacter* TimberCharacter;
 	UPROPERTY(BlueprintReadOnly)
 	USpringArmComponent* TimberCharacterSpringArmComponent;
+	float ViewPitchMax = 20.0f;
+	float ViewPitchMin = -70.0f;
+	
 
 private:
 	UPROPERTY(EditAnywhere)

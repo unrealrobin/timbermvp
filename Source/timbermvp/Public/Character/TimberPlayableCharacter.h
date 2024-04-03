@@ -22,11 +22,14 @@ public:
 
 	virtual void BeginPlay() override;
 
+	/*Components*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	USpringArmComponent* CameraSpringArm;
-
 	USpringArmComponent* GetSpringArmComponent() {return CameraSpringArm;}
-	
+
+	/*Attributes / Defaults*/
+	bool IsRunning = true;
+	float MaxRunSpeed = 1000.f;
 };

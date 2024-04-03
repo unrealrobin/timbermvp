@@ -4,13 +4,14 @@
 #include "Character/TimberPlayableCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 void ATimberPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
 }
 

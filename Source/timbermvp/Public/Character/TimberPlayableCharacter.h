@@ -26,5 +26,7 @@ public:
 	UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	USpringArmComponent* CameraSpringArm;
+
+	USpringArmComponent* GetSpringArmComponent() {return CameraSpringArm;}
 	
 };

@@ -7,6 +7,8 @@
 #include "EnhancedInputComponent.h"
 #include "TimberPlayerController.generated.h"
 
+class ATimberPlayableCharacter;
+class USpringArmComponent;
 class UInputMappingContext;
 /**
  * 
@@ -20,13 +22,27 @@ public:
 
 	virtual void BeginPlay() override;
 
+
+/*Input Actions*/
 	UPROPERTY(EditAnywhere)
 	UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* LookUpAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* LookRightAction;
 
+	
+/*Player Controls*/
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 	UFUNCTION()
 	void MoveComplete(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void LookUp(const FInputActionValue& Value);
+	UFUNCTION()
+	void LookRight(const FInputActionValue& Value);
+	
 	
 
 	FInputActionValue InputActionValue;
@@ -41,6 +57,11 @@ protected:
 	FVector ForwardMoveDirection;
 	UPROPERTY(BlueprintReadOnly)
 	FVector RightMoveDirection;
+
+	UPROPERTY(BlueprintReadOnly)
+	ATimberPlayableCharacter* TimberCharacter;
+	UPROPERTY(BlueprintReadOnly)
+	USpringArmComponent* TimberCharacterSpringArmComponent;
 
 private:
 	UPROPERTY(EditAnywhere)

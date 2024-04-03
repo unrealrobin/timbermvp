@@ -9,8 +9,7 @@
 void ATimberPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("Pawn Begin Play: possessed by %s"), *GetNameSafe(GetController()));
+	
 
 }
 

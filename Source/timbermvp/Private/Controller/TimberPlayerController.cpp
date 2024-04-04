@@ -2,10 +2,10 @@
 
 
 #include "Controller/TimberPlayerController.h"
-
 #include "EnhancedInputSubsystems.h"
 #include "Character/TimberPlayableCharacter.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 void ATimberPlayerController::BeginPlay()
 {
@@ -21,6 +21,8 @@ void ATimberPlayerController::BeginPlay()
 	
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
+	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
+	TimberPlayerController = this;
 	
 	
 }
@@ -39,11 +41,17 @@ void ATimberPlayerController::SetupInputComponent()
 	&ATimberPlayerController::LookRight);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, 
 	&ATimberPlayerController::CharacterJump);
+	
+}
+
+void ATimberPlayerController::CantJump()
+{
+	CanJump = false;
 }
 
 void ATimberPlayerController::Move(const FInputActionValue& Value)
 {
-	InputActionValue = Value;
+	MoveInputActionValue = Value;
 
 	APawn* ControlledPawn = GetPawn();
 
@@ -59,7 +67,7 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 
 void ATimberPlayerController::MoveComplete(const FInputActionValue& Value)
 {
-	InputActionValue = FVector2d(0.f,0.f);
+	MoveInputActionValue = FVector2d(0.f,0.f);
 }
 
 void ATimberPlayerController::LookUp(const FInputActionValue& Value)
@@ -84,7 +92,16 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 
 void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 {
-	TimberCharacter->Jump();
+	if(TimberCharacterMovementComponent->IsFalling())
+	{
+		CanJump = false;
+	}else
+	{
+		CanJump = true;
+		TimberCharacter->Jump();
+	}
+	
+	
 }
 
 

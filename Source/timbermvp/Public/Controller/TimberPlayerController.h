@@ -7,9 +7,12 @@
 #include "EnhancedInputComponent.h"
 #include "TimberPlayerController.generated.h"
 
+
 class ATimberPlayableCharacter;
+class UCharacterMovementComponent;
 class USpringArmComponent;
 class UInputMappingContext;
+
 /**
  * 
  */
@@ -23,7 +26,7 @@ public:
 	virtual void BeginPlay() override;
 
 
-/*Input Actions*/
+	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
 	UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere)
@@ -34,7 +37,7 @@ public:
 	UInputAction* JumpAction;
 
 	
-/*Player Controls*/
+	/*Player Controls*/
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 	UFUNCTION()
@@ -48,10 +51,10 @@ public:
 	
 	
 
-	FInputActionValue InputActionValue;
+	FInputActionValue MoveInputActionValue;
 
 	UFUNCTION(BlueprintCallable)
-	FInputActionValue GetInputActionValue(){return InputActionValue;}
+	FInputActionValue GetMoveInputActionValue(){return MoveInputActionValue;}
 
 protected:
 
@@ -64,13 +67,22 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	ATimberPlayableCharacter* TimberCharacter;
+	UPROPERTY(BlueprintReadOnly)
+	UCharacterMovementComponent* TimberCharacterMovementComponent;
+	UPROPERTY(BlueprintReadOnly)
+	ATimberPlayerController* TimberPlayerController;
 
 	/*Camera Controls*/
 	UPROPERTY(BlueprintReadOnly)
 	USpringArmComponent* TimberCharacterSpringArmComponent;
 	float ViewPitchMax = 20.0f;
 	float ViewPitchMin = -70.0f;
-	
+
+	/*Jump Controls*/
+	UPROPERTY(BlueprintReadWrite)
+	bool CanJump = false;
+	UFUNCTION(BlueprintCallable)
+	void CantJump();
 
 private:
 	UPROPERTY(EditAnywhere)

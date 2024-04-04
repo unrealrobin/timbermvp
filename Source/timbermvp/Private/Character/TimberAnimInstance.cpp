@@ -28,7 +28,7 @@ void UTimberAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	
 	if(TimberPlayerController && TimberCharacterBase)
 	{
-		InputActionValue = TimberPlayerController->GetInputActionValue();
+		InputActionValue = TimberPlayerController->GetMoveInputActionValue();
 	}
 	
 	

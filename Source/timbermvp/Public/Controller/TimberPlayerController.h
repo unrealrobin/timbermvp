@@ -30,6 +30,8 @@ public:
 	UInputAction* LookUpAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* LookRightAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* JumpAction;
 
 	
 /*Player Controls*/
@@ -37,11 +39,12 @@ public:
 	void Move(const FInputActionValue& Value);
 	UFUNCTION()
 	void MoveComplete(const FInputActionValue& Value);
-	
 	UFUNCTION()
 	void LookUp(const FInputActionValue& Value);
 	UFUNCTION()
 	void LookRight(const FInputActionValue& Value);
+	UFUNCTION()
+	void CharacterJump(const FInputActionValue& Value);
 	
 	
 
@@ -53,6 +56,7 @@ public:
 protected:
 
 	virtual void SetupInputComponent() override;
+	
 	UPROPERTY(BlueprintReadOnly)
 	FVector ForwardMoveDirection;
 	UPROPERTY(BlueprintReadOnly)
@@ -60,6 +64,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	ATimberPlayableCharacter* TimberCharacter;
+
+	/*Camera Controls*/
 	UPROPERTY(BlueprintReadOnly)
 	USpringArmComponent* TimberCharacterSpringArmComponent;
 	float ViewPitchMax = 20.0f;

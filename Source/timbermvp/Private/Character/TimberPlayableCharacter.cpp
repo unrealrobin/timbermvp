@@ -11,7 +11,7 @@ void ATimberPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	GetCharacterMovement()->MaxWalkSpeed = 800.f;
 
 }
 

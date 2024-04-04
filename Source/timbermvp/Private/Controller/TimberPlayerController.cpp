@@ -37,6 +37,8 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookUp);
 	EnhancedInputComponent->BindAction(LookRightAction, ETriggerEvent::Triggered, this, 
 	&ATimberPlayerController::LookRight);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, 
+	&ATimberPlayerController::CharacterJump);
 }
 
 void ATimberPlayerController::Move(const FInputActionValue& Value)
@@ -78,6 +80,11 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
 	UpdatedRotation.Yaw = UpdatedRotation.Yaw + Value.Get<float>();
 	SetControlRotation(UpdatedRotation);
+}
+
+void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
+{
+	TimberCharacter->Jump();
 }
 
 

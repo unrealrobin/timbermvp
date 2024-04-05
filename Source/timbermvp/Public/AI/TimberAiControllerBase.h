@@ -13,5 +13,7 @@ UCLASS()
 class TIMBERMVP_API ATimberAiControllerBase : public AAIController
 {
 	GENERATED_BODY()
+
+	
 	
 };

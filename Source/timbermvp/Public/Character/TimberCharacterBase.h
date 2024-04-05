@@ -34,9 +34,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float InitialSpeed = 0.f;
 	UPROPERTY(BlueprintReadOnly)
-	float MaxForwardSpeed = 600.f;
+	float MaxForwardSpeed = 800.f;
 	UPROPERTY(BlueprintReadOnly)
-	float MaxBackwardSpeed = 600.f;
+	float MaxBackwardSpeed = 500.f;
 
 	UFUNCTION()
 	void DecreaseHealth(int DecreaseAmount);

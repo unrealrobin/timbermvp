@@ -29,6 +29,7 @@ void ATestObj::BeginPlay()
 
 	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &ATestObj::SetInteractItem);
 	CollisionCapsule->OnComponentEndOverlap.AddDynamic(this, &ATestObj::UnSetInteractItem);
+	InitialLeverRotation = StaticMeshAttachment->GetRelativeRotation();
 	
 }
 
@@ -42,8 +43,12 @@ void ATestObj::Tick(float DeltaTime)
 void ATestObj::Interact()
 {
 	//TODO: Spawn a Wave of enemies on a spline demo.
-
-	//StaticMeshAttachment->AddRelativeRotation();
+	if(InitialLeverRotation == StaticMeshAttachment->GetRelativeRotation())
+	{
+		FRotator NewRotation = LeverOnRotation;
+		StaticMeshAttachment->SetRelativeRotation(NewRotation);
+	};
+	
 	if(GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "TestObj: Interaction function called.");
@@ -67,6 +72,7 @@ void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor*
 void ATestObj::UnSetInteractItem(
 	UPrimitiveComponent*OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	StaticMeshAttachment->AddLocalRotation(FRotator3d(0.0f, 0.0f, 0.0f));
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
 	PlayerController->SetInteractableItem(nullptr);

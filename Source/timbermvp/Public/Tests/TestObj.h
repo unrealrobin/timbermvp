@@ -41,6 +41,6 @@ public:
 	void UnSetInteractItem(UPrimitiveComponent*OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
-	
-
+	FRotator InitialLeverRotation;
+	FRotator LeverOnRotation = FRotator(0.0f, 0.0f, -50.0f);
 };

@@ -8,6 +8,7 @@
 #include "TimberPlayerController.generated.h"
 
 
+class IInteractable;
 class ATimberPlayableCharacter;
 class UCharacterMovementComponent;
 class USpringArmComponent;
@@ -35,6 +36,8 @@ public:
 	UInputAction* LookRightAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* JumpAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* InteractAction;
 
 	
 	/*Player Controls*/
@@ -48,13 +51,15 @@ public:
 	void LookRight(const FInputActionValue& Value);
 	UFUNCTION()
 	void CharacterJump(const FInputActionValue& Value);
+	UFUNCTION()
+	void Interact(const FInputActionValue& Value);
 	
-	
-
 	FInputActionValue MoveInputActionValue;
 
 	UFUNCTION(BlueprintCallable)
 	FInputActionValue GetMoveInputActionValue(){return MoveInputActionValue;}
+
+	void SetInteractableItem(IInteractable* Item);
 
 protected:
 
@@ -83,6 +88,10 @@ protected:
 	bool CanJump = false;
 	UFUNCTION(BlueprintCallable)
 	void CantJump();
+
+	/*Interactable Items*/
+	IInteractable* InteractableItem;
+	
 
 private:
 	UPROPERTY(EditAnywhere)

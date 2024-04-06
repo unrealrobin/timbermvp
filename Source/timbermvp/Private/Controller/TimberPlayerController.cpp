@@ -2,6 +2,7 @@
 
 
 #include "Controller/TimberPlayerController.h"
+#include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -23,6 +24,7 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	TimberPlayerController = this;
+
 	
 	
 }
@@ -41,12 +43,18 @@ void ATimberPlayerController::SetupInputComponent()
 	&ATimberPlayerController::LookRight);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, 
 	&ATimberPlayerController::CharacterJump);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
 	
 }
 
 void ATimberPlayerController::CantJump()
 {
 	CanJump = false;
+}
+
+void ATimberPlayerController::SetInteractableItem(IInteractable* Item)
+{
+	InteractableItem = Item;
 }
 
 void ATimberPlayerController::Move(const FInputActionValue& Value)
@@ -99,6 +107,23 @@ void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 	{
 		CanJump = true;
 		TimberCharacter->Jump();
+	}
+	
+	
+}
+
+void ATimberPlayerController::Interact(const FInputActionValue& Value)
+{
+	if(Value.Get<bool>() && InteractableItem)
+	{
+		if(InteractableItem)
+		{
+			InteractableItem->Interact();
+			if(GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "E: Interacting with Item");
+			}
+		}
 	}
 	
 	

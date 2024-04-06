@@ -72,6 +72,12 @@ void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor*
 void ATestObj::UnSetInteractItem(
 	UPrimitiveComponent*OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+
+	if(InitialLeverRotation != StaticMeshAttachment->GetRelativeRotation())
+	{
+		StaticMeshAttachment->SetRelativeRotation(InitialLeverRotation);
+	};
+	
 	StaticMeshAttachment->AddLocalRotation(FRotator3d(0.0f, 0.0f, 0.0f));
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());

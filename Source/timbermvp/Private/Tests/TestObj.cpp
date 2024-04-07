@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
+#include "GameModes/TimberGameModeBase.h"
 
 // Sets default values
 ATestObj::ATestObj()
@@ -42,17 +43,17 @@ void ATestObj::Tick(float DeltaTime)
 
 void ATestObj::Interact()
 {
-	//TODO: Spawn a Wave of enemies on a spline demo.
+	//Rotates the Lever to Show it is being interacted with
 	if(InitialLeverRotation == StaticMeshAttachment->GetRelativeRotation())
 	{
 		FRotator NewRotation = LeverOnRotation;
 		StaticMeshAttachment->SetRelativeRotation(NewRotation);
 	};
+
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	GameMode->SpawnWave(EnemyToSpawn);
 	
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "TestObj: Interaction function called.");
-	}
+	
 }
 
 void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)

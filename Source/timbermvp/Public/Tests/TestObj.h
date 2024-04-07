@@ -7,6 +7,7 @@
 #include "Interfaces/Interactable.h"
 #include "TestObj.generated.h"
 
+class ATimberEnemyCharacter;
 class UCapsuleComponent;
 
 UCLASS()
@@ -39,6 +40,9 @@ public:
 	void SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	UFUNCTION()
 	void UnSetInteractItem(UPrimitiveComponent*OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	TSubclassOf<ATimberEnemyCharacter> EnemyToSpawn;
 
 protected:
 	FRotator InitialLeverRotation;

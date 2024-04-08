@@ -24,8 +24,12 @@ void ATimberGameModeBase::BeginPlay()
 void ATimberGameModeBase::SpawnWave(TSubclassOf<ATimberEnemyCharacter> TimberEnemy)
 {
 	FActorSpawnParameters DemoSpawnParameter;
-	GetWorld()->SpawnActor<ATimberEnemyCharacter>(TimberEnemy, EnemySpawnPointLocations[0],FRotator::ZeroRotator,
-	DemoSpawnParameter);
+	if(TimberEnemy)
+	{
+		GetWorld()->SpawnActor<ATimberEnemyCharacter>(TimberEnemy, EnemySpawnPointLocations[0],FRotator::ZeroRotator,
+	DemoSpawnParameter);	
+	}
+	
 	
 }
 

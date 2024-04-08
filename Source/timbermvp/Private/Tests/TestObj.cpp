@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "GameModes/TimberGameModeBase.h"
 
 // Sets default values
@@ -50,8 +51,12 @@ void ATestObj::Interact()
 		StaticMeshAttachment->SetRelativeRotation(NewRotation);
 	};
 
+	// Calls the GameMode to Spawn the Enemy
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	GameMode->SpawnWave(EnemyToSpawn);
+	if(GameMode && EnemyToSpawn)
+	{
+		GameMode->SpawnWave(EnemyToSpawn);
+	}
 	
 	
 }

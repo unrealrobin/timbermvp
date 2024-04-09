@@ -53,7 +53,7 @@ void ATestObj::Interact()
 
 	// Calls the GameMode to Spawn the Enemy
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	if(GameMode && EnemyToSpawn)
+	if(GameMode)
 	{
 		GameMode->SpawnWave(EnemyToSpawn);
 	}

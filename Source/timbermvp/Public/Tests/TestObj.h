@@ -42,7 +42,7 @@ public:
 	void UnSetInteractItem(UPrimitiveComponent*OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UPROPERTY(EditAnywhere, Category = "Enemy")
-	TSubclassOf<ATimberEnemyCharacter> EnemyToSpawn;
+	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemyToSpawn;
 
 protected:
 	FRotator InitialLeverRotation;

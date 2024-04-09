@@ -20,14 +20,21 @@ class TIMBERMVP_API ATimberGameModeBase : public AGameModeBase
 public:
 	virtual void BeginPlay() override;
 
-	void SpawnWave(TSubclassOf<ATimberEnemyCharacter> TimberEnemy);
+	void SpawnWave(TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn);
 
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> TimberEnemySpawnPoints;
+	
 	TArray<FVector> EnemySpawnPointLocations;
-
+	
 	void GatherAllSpawnLocation(TArray<AActor*> SpawnPoints);
+	
+	UPROPERTY(EditAnywhere, Category="Wave Spawn")
+	int NumberOfEnemiesToSpawn = 10;
+
+	//Default Spawn Parameters
+	FActorSpawnParameters DemoSpawnParameter;
 	
 };

@@ -22,9 +22,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
-	/*UPROPERTY(EditAnywhere, Category="Character Component")
-	UMovementComponent* CharacterMovementComponent;*/
 
 public:
 	UPROPERTY(BlueprintReadOnly)
@@ -40,7 +37,5 @@ public:
 
 	UFUNCTION()
 	void DecreaseHealth(int DecreaseAmount);
-
 	
-
 };

@@ -32,4 +32,6 @@ public:
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
 	float MaxRunSpeed = 1000.f;
+
+	
 };

@@ -38,7 +38,8 @@ public:
 	UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* InteractAction;
-
+	UPROPERTY(EditAnywhere)
+	UInputAction* LightMeleeAttackAction;
 	
 	/*Player Controls*/
 	UFUNCTION()
@@ -53,7 +54,11 @@ public:
 	void CharacterJump(const FInputActionValue& Value);
 	UFUNCTION()
 	void Interact(const FInputActionValue& Value);
-	
+	UFUNCTION()
+	void LightMeleeAttack(const FInputActionValue& Value);
+
+	// Stores the value of the Move input action
+	// 
 	FInputActionValue MoveInputActionValue;
 
 	UFUNCTION(BlueprintCallable)

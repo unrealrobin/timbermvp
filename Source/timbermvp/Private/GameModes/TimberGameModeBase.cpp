@@ -26,9 +26,6 @@ void ATimberGameModeBase::BeginPlay()
 //Called from Spawning Object.
 void ATimberGameModeBase::SpawnWave(TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn)
 {
-	
-	
-
 	for (int i = 0;  i <= NumberOfEnemiesToSpawn; i++)
 	{
 		//Random Spawn Location Index
@@ -39,7 +36,6 @@ void ATimberGameModeBase::SpawnWave(TArray<TSubclassOf<ATimberEnemyCharacter>> E
 		EnemySpawnPointLocations[RandomLocation],
 		FRotator::ZeroRotator, DemoSpawnParameter);
 	}
-	
 }
 
 // Populated Enemy Spawn Point Locations, An Array of Vectors (locations), with all the Spawn points on the map.

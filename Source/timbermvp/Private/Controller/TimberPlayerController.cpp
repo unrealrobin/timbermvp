@@ -129,5 +129,17 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 	
 }
 
+void ATimberPlayerController::LightMeleeAttack(const FInputActionValue& Value)
+{
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Light Melee Attack");
+	}
+
+	//Todo: Implement Light Melee Attack & Animation
+}
+
+
+
 
 

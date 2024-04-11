@@ -45,12 +45,12 @@ public:
 	float MaxRunSpeed = 1000.f;
 
 	/*Weapon Slots*/
-	UPROPERTY(EditAnywhere, Category="Weapons")
-	ATimberWeaponBase* WeaponOne;
-	UPROPERTY(EditAnywhere, Category="Weapons")
-	ATimberWeaponBase* WeaponTwo;
-	UPROPERTY(EditAnywhere, Category="Weapons")
-	ATimberWeaponBase* WeaponThree;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
+	TSubclassOf<ATimberWeaponBase> WeaponOne;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
+	TSubclassOf<ATimberWeaponBase> WeaponTwo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
+	TSubclassOf<ATimberWeaponBase> WeaponThree;
 
 	/*Getters & Setters*/
 	//TODO:: Implement Getters and Setters for CurrentWeaponState

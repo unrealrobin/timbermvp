@@ -39,7 +39,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	UInputAction* InteractAction;
 	UPROPERTY(EditAnywhere)
-	UInputAction* LightMeleeAttackAction;
+	UInputAction* EquipWeaponOneAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* EquipWeaponTwoAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* EquipWeaponThreeAction;
 	
 	/*Player Controls*/
 	UFUNCTION()
@@ -55,7 +59,11 @@ public:
 	UFUNCTION()
 	void Interact(const FInputActionValue& Value);
 	UFUNCTION()
-	void LightMeleeAttack(const FInputActionValue& Value);
+	void EquipWeaponOne(const FInputActionValue& Value);
+	UFUNCTION()
+	void EquipWeaponTwo(const FInputActionValue& Value);
+	UFUNCTION()
+	void EquipWeaponThree(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	// 

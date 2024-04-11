@@ -8,6 +8,17 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+
+UENUM(BlueprintType)
+enum class EWeaponState : uint8
+{
+	Unequipped UMETA(DisplayName = "None"),
+	AxeEquipped UMETA(DisplayName = "AxeEquipped"),
+	ChainsawEquipped UMETA(DisplayName = "ChainsawEquipped"),
+	PistolEquipped UMETA(DisplayName = "PistolEquipped"),
+	
+};
+
 /**
  * 
  */
@@ -33,5 +44,12 @@ public:
 	bool IsRunning = true;
 	float MaxRunSpeed = 1000.f;
 
+	/*Getters & Setters*/
+	//TODO:: Implement Getters and Setters for CurrentWeaponState
+
+protected:
+	
+	// TODO: Create an Array that Holds 3 Weapon. Melee Axe, Chainsaw, Rifle
+	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
 	
 };

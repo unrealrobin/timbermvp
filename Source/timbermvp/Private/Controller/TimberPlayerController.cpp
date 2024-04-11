@@ -129,14 +129,33 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 	
 }
 
-void ATimberPlayerController::LightMeleeAttack(const FInputActionValue& Value)
+void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
+	//TODO: Change Weapon State to EWeaponState::AxeEquipped
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Light Melee Attack");
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Weapon 1 Equipped");
 	}
 
-	//Todo: Implement Light Melee Attack & Animation
+	
+}
+
+void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
+{
+	//TODO: Change Weapon State to EWeaponState::ChainsawEquipped
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Weapon 2 Equipped");
+	}
+}
+
+void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
+{
+	//TODO: Change Weapon State to EWeaponState::PistolEquipped
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Weapon 3 Equipped");
+	}
 }
 
 

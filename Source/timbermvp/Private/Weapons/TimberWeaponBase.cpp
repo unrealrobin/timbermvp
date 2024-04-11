@@ -1,7 +1,7 @@
 // Property of Paracosm Industries. Dont use my shit.
 
 
-#include "TimberWeaponBase.h"
+#include "Weapons/TimberWeaponBase.h"
 
 #include "Components/CapsuleComponent.h"
 

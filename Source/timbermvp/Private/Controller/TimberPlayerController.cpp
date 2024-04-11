@@ -75,7 +75,9 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 
 void ATimberPlayerController::MoveComplete(const FInputActionValue& Value)
 {
+	//This just resets the MoveInputActionValue to 0,0 after the last input is released. Otherwise the character will keep moving in the last direction.
 	MoveInputActionValue = FVector2d(0.f,0.f);
+	
 }
 
 void ATimberPlayerController::LookUp(const FInputActionValue& Value)

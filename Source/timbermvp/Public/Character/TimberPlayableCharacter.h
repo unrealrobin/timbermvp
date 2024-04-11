@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/TimberCharacterBase.h"
+#include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
 class USpringArmComponent;
@@ -30,7 +31,6 @@ class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
 public:
 	//Constructor
 	ATimberPlayableCharacter();
-
 	virtual void BeginPlay() override;
 
 	/*Components*/
@@ -44,12 +44,18 @@ public:
 	bool IsRunning = true;
 	float MaxRunSpeed = 1000.f;
 
+	/*Weapon Slots*/
+	UPROPERTY(EditAnywhere, Category="Weapons")
+	ATimberWeaponBase* WeaponOne;
+	UPROPERTY(EditAnywhere, Category="Weapons")
+	ATimberWeaponBase* WeaponTwo;
+	UPROPERTY(EditAnywhere, Category="Weapons")
+	ATimberWeaponBase* WeaponThree;
+
 	/*Getters & Setters*/
 	//TODO:: Implement Getters and Setters for CurrentWeaponState
 
 protected:
-	
-	// TODO: Create an Array that Holds 3 Weapon. Melee Axe, Chainsaw, Rifle
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
 	
 };

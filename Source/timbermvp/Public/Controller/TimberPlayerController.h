@@ -44,6 +44,9 @@ public:
 	UInputAction* EquipWeaponTwoAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* EquipWeaponThreeAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* StandardAction
+	;
 	
 	/*Player Controls*/
 	UFUNCTION()
@@ -64,6 +67,8 @@ public:
 	void EquipWeaponTwo(const FInputActionValue& Value);
 	UFUNCTION()
 	void EquipWeaponThree(const FInputActionValue& Value);
+	UFUNCTION()
+	void StandardAttack(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	// 

@@ -15,6 +15,11 @@ void ATimberPlayableCharacter::BeginPlay()
 
 }
 
+void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
+{
+	CurrentWeaponState = NewWeaponState;
+}
+
 ATimberPlayableCharacter::ATimberPlayableCharacter()
 {
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");

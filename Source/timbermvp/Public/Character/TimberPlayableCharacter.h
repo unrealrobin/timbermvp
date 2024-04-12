@@ -47,15 +47,23 @@ public:
 	/*Weapon Slots*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponOne;
+	UPROPERTY(BlueprintReadOnly, Category="Weapons")
+	ATimberWeaponBase* WeaponOneInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponTwo;
+	UPROPERTY(BlueprintReadOnly, Category="Weapons")
+	ATimberWeaponBase* WeaponTwoInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
+	UPROPERTY(BlueprintReadOnly, Category="Weapons")
+	ATimberWeaponBase* WeaponThreeInstance;
 
 	/*Getters & Setters*/
-	//TODO:: Implement Getters and Setters for CurrentWeaponState
+	EWeaponState GetCurrentWeaponState() {return CurrentWeaponState;}
+	void SetCurrentWeaponState(EWeaponState NewWeaponState);
 
 protected:
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
 	
 };

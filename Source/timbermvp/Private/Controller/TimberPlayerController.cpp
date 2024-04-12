@@ -40,14 +40,13 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Move);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ATimberPlayerController::MoveComplete);
 	EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookUp);
-	EnhancedInputComponent->BindAction(LookRightAction, ETriggerEvent::Triggered, this, 
-	&ATimberPlayerController::LookRight);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, 
-	&ATimberPlayerController::CharacterJump);
+	EnhancedInputComponent->BindAction(LookRightAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookRight);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::CharacterJump);
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
 	EnhancedInputComponent->BindAction(EquipWeaponOneAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponOne);
 	EnhancedInputComponent->BindAction(EquipWeaponTwoAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponTwo);
 	EnhancedInputComponent->BindAction(EquipWeaponThreeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponThree);
+	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
 	
 }
 
@@ -137,20 +136,18 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 
 void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
-	//TODO: Change Weapon State to EWeaponState::AxeEquipped
-	if(GEngine)
+	if(TimberCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Weapon 1 Equipped");
-	}
-
-	if(TimberCharacter && TimberCharacter->WeaponOne)
-	{
+		//Setting WeaponState on Character
+		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
+		
 		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 		const FActorSpawnParameters SpawnParams;
 		ATimberWeaponBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponBase>(TimberCharacter->WeaponOne, 
 		FVector(0.f, 0.f, 0.f), FRotator(0.f, 0.f, 0.f), SpawnParams);
 		SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("Hand_RSocket"));
+		TimberCharacter->WeaponOneInstance = SpawnedActor;
 	}
 }
 
@@ -169,6 +166,44 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	if(GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Weapon 3 Equipped");
+	}
+}
+
+void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
+{
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Standard Melee Attack");
+	}
+
+	if(TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
+	{
+		//TODO:: Play Animation for Axe Standard Melee Attack
+		switch (TimberCharacter->GetCurrentWeaponState())
+		{
+		case EWeaponState::AxeEquipped:
+			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Calling Play Montage");
+				TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
+				
+			}
+			break;
+		case EWeaponState::ChainsawEquipped:
+			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Chainsaw");
+			}
+			break;
+		case EWeaponState::PistolEquipped:
+			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Pistol");
+			}
+			break;
+		case EWeaponState::Unequipped:
+			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "No Weapon Equipped");
+			}
+			break;
+		}
 	}
 }
 

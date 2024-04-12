@@ -148,6 +148,7 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("Hand_RSocket"));
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
+		SpawnedActor->SetOwner(TimberCharacter);
 	}
 }
 

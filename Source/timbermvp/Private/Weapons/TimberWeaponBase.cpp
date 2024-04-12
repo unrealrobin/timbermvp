@@ -28,18 +28,21 @@ void ATimberWeaponBase::BeginPlay()
 
 void ATimberWeaponBase::HandlePlayAttackMontage() const
 {
+	
 	// Getting Character and Character Anim Instance
 	ATimberPlayableCharacter* TimberPlayableCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
 	if(!TimberPlayableCharacter) return;
+	
 	UAnimInstance* AnimInstance = TimberPlayableCharacter->GetMesh()->GetAnimInstance();
 	if(!AnimInstance) return;
 	
+	
 	//Creating an Array of Section Names and Selecting a Random Animation from Montage
-	//TArray<FName> StandardAttackSectionNames = {StandardAttack1, StandardAttack2};
-	//const int32 RandomAnim = FMath::RandRange(0, StandardAttackSectionNames.Num() - 1);
+	TArray<FName> StandardAttackSectionNames = {StandardAttack1, StandardAttack2};
+	const int32 RandomAnim = FMath::RandRange(0, StandardAttackSectionNames.Num() - 1);
 	
 	AnimInstance->Montage_Play(AttackMontage, 1.f);
-	AnimInstance->Montage_JumpToSection(StandardAttack1, AttackMontage);
+	AnimInstance->Montage_JumpToSection(StandardAttackSectionNames[RandomAnim], AttackMontage);
 	
 	
 }

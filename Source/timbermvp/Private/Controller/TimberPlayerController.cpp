@@ -143,11 +143,31 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		
 		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 		const FActorSpawnParameters SpawnParams;
+
+		//Socket Rotation and Location
+		const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("AxeSocket");
+		const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("AxeSocket");
+
+		FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("AxeSocket", ERelativeTransformSpace::RTS_World);
+		FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
+		FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
+		
+		
+
+		//Spawn the Actor
 		ATimberWeaponBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponBase>(TimberCharacter->WeaponOne, 
-		FVector(0.f, 0.f, 0.f), FRotator(0.f, 0.f, 0.f), SpawnParams);
+		SocketWorldLocation, SocketWorldRotation, SpawnParams);
+
+		//Attach Actor to the Socket Location
 		SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
-		FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("Hand_RSocket"));
+		FAttachmentTransformRules::SnapToTargetIncludingScale, "AxeSocket");
+
+	
+
+		//Set the Newly Spawned Weapon to the WeaponOneInstance on Leeroy
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
+
+		//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
 		SpawnedActor->SetOwner(TimberCharacter);
 	}
 }

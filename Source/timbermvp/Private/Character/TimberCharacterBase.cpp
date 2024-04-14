@@ -3,9 +3,6 @@
 
 #include "Character/TimberCharacterBase.h"
 
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/MovementComponent.h"
-
 // Sets default values
 ATimberCharacterBase::ATimberCharacterBase()
 {
@@ -20,16 +17,20 @@ void ATimberCharacterBase::BeginPlay()
 	
 }
 
-void ATimberCharacterBase::DecreaseHealth(int DecreaseAmount)
+void ATimberCharacterBase::DecreaseHealth(float DecreaseAmount)
 {
-	if(CurrentHealth - DecreaseAmount <= 0 )
+	CurrentHealth -= DecreaseAmount;
+
+	if (CurrentHealth <= 0)
 	{
+		//Kills the Actor and Removes from Level.
+
+		//TODO:: Implement a Destroy Override for Each Enemy to Include a Death Animation.
 		Destroy();
 	}
-
-	CurrentHealth -= DecreaseAmount;
-	
 }
+
+
 
 
 

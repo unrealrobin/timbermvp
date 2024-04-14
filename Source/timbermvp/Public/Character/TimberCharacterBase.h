@@ -36,6 +36,6 @@ public:
 	float MaxBackwardSpeed = 500.f;
 
 	UFUNCTION()
-	void DecreaseHealth(int DecreaseAmount);
+	void DecreaseHealth(float DecreaseAmount);
 	
 };

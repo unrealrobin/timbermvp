@@ -4,7 +4,9 @@
 #include "Weapons/TimberWeaponBase.h"
 
 #include "Character/TimberPlayableCharacter.h"
+#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ATimberWeaponBase::ATimberWeaponBase()
@@ -16,6 +18,12 @@ ATimberWeaponBase::ATimberWeaponBase()
 	RootComponent = CapsuleComponent;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(CapsuleComponent);
+
+	//Used For Box Trace Multi Start & Stop
+	TraceBoxStart = CreateDefaultSubobject<UBoxComponent>("TraceBoxStart");
+	TraceBoxStart->SetupAttachment(RootComponent);
+	TraceBoxEnd = CreateDefaultSubobject<UBoxComponent>("TraceBoxEnd");
+	TraceBoxEnd->SetupAttachment(RootComponent);
 
 }
 
@@ -44,6 +52,30 @@ void ATimberWeaponBase::HandlePlayAttackMontage() const
 	AnimInstance->Montage_Play(AttackMontage, 1.f);
 	AnimInstance->Montage_JumpToSection(StandardAttackSectionNames[RandomAnim], AttackMontage);
 	
+	
+}
+
+void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
+{
+	//TODO:: Implement this function to be called for Event Notifys in the Animations Montages.
+	/*if(ShouldReadyCollision)
+	{
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	else
+	{
+		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}*/
+}
+
+//
+void ATimberWeaponBase::HandleWeaponCollision(
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	//TODO:: Ensure that we are ignoring self. Configure Collisions in all Weapon BPs. Store all Hit Actors in an Array.
+
+	//UKismetSystemLibrary::BoxTraceMulti(GetWorld(), TraceBoxStart->GetComponentLocation(), TraceBoxEnd->GetComponentLocation(),FVector(10, 10, 10), FRotator(0, 0, 0), ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, TArray<FHitResult>(), true);
 	
 }
 

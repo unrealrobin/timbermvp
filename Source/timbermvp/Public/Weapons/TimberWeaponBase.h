@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TimberWeaponBase.generated.h"
 
+class UBoxComponent;
 class UCapsuleComponent;
 
 UCLASS()
@@ -22,10 +23,16 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadWrite, Category="Weapon Details")
-	float BaseWeaponDamage = 0.0f;
+	float BaseWeaponDamage = 11.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Components")
+	USceneComponent* TraceBoxStart;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Components")
+	USceneComponent* TraceBoxEnd;
 
 public:
 
@@ -44,4 +51,10 @@ public:
 
 	UFUNCTION()
 	void HandlePlayAttackMontage() const;
+
+	UFUNCTION()
+	void ReadyWeaponCollision(bool ShouldReadyCollision) const;
+
+	UFUNCTION()
+	void HandleWeaponCollision(AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

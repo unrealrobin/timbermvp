@@ -59,7 +59,7 @@ public:
 	ATimberWeaponBase* WeaponThreeInstance;
 
 	/*Getters & Setters*/
-	EWeaponState GetCurrentWeaponState() {return CurrentWeaponState;}
+	EWeaponState GetCurrentWeaponState() const {return CurrentWeaponState;} 
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);
 
 protected:

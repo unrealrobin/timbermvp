@@ -4,6 +4,7 @@
 #include "Weapons/TimberWeaponBase.h"
 
 #include "Character/TimberPlayableCharacter.h"
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -57,7 +58,7 @@ void ATimberWeaponBase::HandlePlayAttackMontage() const
 
 void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 {
-	//TODO:: Implement this function to be called for Event Notifys in the Animations Montages.
+	//TODO:: Implement this function to be called from Event Notifys in the Animations Montages.
 	/*if(ShouldReadyCollision)
 	{
 		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -76,6 +77,45 @@ void ATimberWeaponBase::HandleWeaponCollision(
 	//TODO:: Ensure that we are ignoring self. Configure Collisions in all Weapon BPs. Store all Hit Actors in an Array.
 
 	//UKismetSystemLibrary::BoxTraceMulti(GetWorld(), TraceBoxStart->GetComponentLocation(), TraceBoxEnd->GetComponentLocation(),FVector(10, 10, 10), FRotator(0, 0, 0), ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, TArray<FHitResult>(), true);
+	
+}
+
+void ATimberWeaponBase::PerformStandardAttack()
+{
+	FVector StartTracePoint =  TraceBoxStart->GetComponentLocation();
+	FVector EndTracePoint = TraceBoxEnd->GetComponentLocation();
+
+	//Will store the hit result of all Hit Actors
+	TArray<FHitResult> HitResults;
+
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActors(IgnoredActors);
+	QueryParams.bTraceComplex = true;
+	QueryParams.bReturnPhysicalMaterial = false;
+
+	bool bHit = GetWorld()->SweepMultiByChannel(
+		HitResults,
+		StartTracePoint,
+		EndTracePoint,
+		FQuat::Identity,
+		ECC_GameTraceChannel1,
+		FCollisionShape::MakeBox(FVector(10, 10, 10)),
+		QueryParams);
+
+	if(bHit)
+	{
+		for (const FHitResult& Hit : HitResults)
+		{
+			ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(Hit.GetActor());
+			if(HitEnemy)
+			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, "Enemy Hit");
+			}
+		}
+	}
 	
 }
 

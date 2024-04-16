@@ -105,6 +105,8 @@ void ATimberWeaponBase::PerformStandardAttack()
 		FCollisionShape::MakeBox(FVector(10, 10, 10)),
 		QueryParams);
 
+	GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, "Performed Standard Attack");
+
 	if(bHit)
 	{
 		for (const FHitResult& Hit : HitResults)

@@ -7,7 +7,6 @@
 #include "TimberWeaponBase.generated.h"
 
 class UBoxComponent;
-class UCapsuleComponent;
 
 UCLASS()
 class TIMBERMVP_API ATimberWeaponBase : public AActor
@@ -45,18 +44,15 @@ public:
 	FName HeavyCombo = "Heavy_Combo";
 
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
-	UCapsuleComponent* CapsuleComponent;
+	UBoxComponent* WeaponBoxComponent;
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
 	UStaticMeshComponent* StaticMesh;
 
 	UFUNCTION()
 	void HandlePlayAttackMontage() const;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void ReadyWeaponCollision(bool ShouldReadyCollision) const;
-
-	UFUNCTION()
-	void HandleWeaponCollision(AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void PerformStandardAttack();

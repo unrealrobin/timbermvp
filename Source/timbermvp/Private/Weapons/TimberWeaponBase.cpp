@@ -6,8 +6,7 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
+
 
 // Sets default values
 ATimberWeaponBase::ATimberWeaponBase()
@@ -15,10 +14,10 @@ ATimberWeaponBase::ATimberWeaponBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
-	RootComponent = CapsuleComponent;
+	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>("CapsuleComponent");
+	RootComponent = WeaponBoxComponent;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
-	StaticMesh->SetupAttachment(CapsuleComponent);
+	StaticMesh->SetupAttachment(WeaponBoxComponent);
 
 	//Used For Box Trace Multi Start & Stop
 	TraceBoxStart = CreateDefaultSubobject<UBoxComponent>("TraceBoxStart");
@@ -53,32 +52,21 @@ void ATimberWeaponBase::HandlePlayAttackMontage() const
 	AnimInstance->Montage_Play(AttackMontage, 1.f);
 	AnimInstance->Montage_JumpToSection(StandardAttackSectionNames[RandomAnim], AttackMontage);
 	
-	
 }
 
 void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 {
 	//TODO:: Implement this function to be called from Event Notifys in the Animations Montages.
-	/*if(ShouldReadyCollision)
+	if(ShouldReadyCollision)
 	{
-		BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 	else
 	{
-		BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}*/
+		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
-//
-void ATimberWeaponBase::HandleWeaponCollision(
-	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-	const FHitResult& SweepResult)
-{
-	//TODO:: Ensure that we are ignoring self. Configure Collisions in all Weapon BPs. Store all Hit Actors in an Array.
-
-	//UKismetSystemLibrary::BoxTraceMulti(GetWorld(), TraceBoxStart->GetComponentLocation(), TraceBoxEnd->GetComponentLocation(),FVector(10, 10, 10), FRotator(0, 0, 0), ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForDuration, TArray<FHitResult>(), true);
-	
-}
 
 void ATimberWeaponBase::PerformStandardAttack()
 {
@@ -96,21 +84,24 @@ void ATimberWeaponBase::PerformStandardAttack()
 	QueryParams.bTraceComplex = true;
 	QueryParams.bReturnPhysicalMaterial = false;
 
+	//Sweeping Against the Pawn Channel
 	bool bHit = GetWorld()->SweepMultiByChannel(
 		HitResults,
 		StartTracePoint,
 		EndTracePoint,
 		FQuat::Identity,
-		ECC_GameTraceChannel1,
+		ECC_Pawn,
 		FCollisionShape::MakeBox(FVector(10, 10, 10)),
 		QueryParams);
 
-	GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, "Performed Standard Attack");
+	//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, "Performed Standard Attack");
 
 	if(bHit)
 	{
 		for (const FHitResult& Hit : HitResults)
 		{
+			//TODO:: Make an Interface to cast the Hit Actor to and check if it is an Enemy
+			//TODO:: Then call the Interface Function to take damage.
 			ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(Hit.GetActor());
 			if(HitEnemy)
 			{

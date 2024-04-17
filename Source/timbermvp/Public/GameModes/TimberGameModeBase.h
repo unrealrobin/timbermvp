@@ -32,7 +32,7 @@ protected:
 	void GatherAllSpawnLocation(TArray<AActor*> SpawnPoints);
 	
 	UPROPERTY(EditAnywhere, Category="Wave Spawn")
-	int NumberOfEnemiesToSpawn = 10;
+	int NumberOfEnemiesToSpawn = 2;
 
 	//Default Spawn Parameters
 	FActorSpawnParameters DemoSpawnParameter;

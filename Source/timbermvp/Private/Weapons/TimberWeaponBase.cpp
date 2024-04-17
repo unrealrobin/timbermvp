@@ -25,8 +25,10 @@ ATimberWeaponBase::ATimberWeaponBase()
 	TraceBoxEnd = CreateDefaultSubobject<UBoxComponent>("TraceBoxEnd");
 	TraceBoxEnd->SetupAttachment(RootComponent);
 
-}
+	//Collision Handeling
+	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponBase::OnWeaponOverlapBegin);
 
+}
 // Called when the game starts or when spawned
 void ATimberWeaponBase::BeginPlay()
 {
@@ -60,11 +62,23 @@ void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 	if(ShouldReadyCollision)
 	{
 		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Weapon Collision Ready", false);
 	}
 	else
 	{
 		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		WeaponBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+		GEngine->AddOnScreenDebugMessage(2, 3.0, FColor::Green, "Weapon Collision Not Ready", false);
 	}
+}
+
+void ATimberWeaponBase::OnWeaponOverlapBegin(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	GEngine->AddOnScreenDebugMessage(5, 5.0, FColor::Green, "Some Overlap Happened", false);
+	PerformStandardAttack();
 }
 
 
@@ -91,22 +105,26 @@ void ATimberWeaponBase::PerformStandardAttack()
 		EndTracePoint,
 		FQuat::Identity,
 		ECC_Pawn,
-		FCollisionShape::MakeBox(FVector(10, 10, 10)),
+		FCollisionShape::MakeBox(FVector(100, 100, 100)),
 		QueryParams);
 
 	//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, "Performed Standard Attack");
 
 	if(bHit)
 	{
+		
 		for (const FHitResult& Hit : HitResults)
 		{
+			
 			//TODO:: Make an Interface to cast the Hit Actor to and check if it is an Enemy
 			//TODO:: Then call the Interface Function to take damage.
-			ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(Hit.GetActor());
+			IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(Hit.GetActor());
 			if(HitEnemy)
 			{
-				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, "Enemy Hit");
+				HitEnemy->TakeDamage();
+				GEngine->AddOnScreenDebugMessage(4, 3.0, FColor::Green, "Enemy Hit", false);
 			}
+			
 		}
 	}
 	

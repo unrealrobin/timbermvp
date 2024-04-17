@@ -90,8 +90,6 @@ void ATimberPlayerController::LookUp(const FInputActionValue& Value)
 	
 	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
 	UpdatedRotation.Pitch = ClampedPitch;
-
-	GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Red, FString::Printf(TEXT("Pitch: %f"), UpdatedRotation.Pitch));
 	
 	SetControlRotation(UpdatedRotation);
 }
@@ -124,10 +122,6 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 		if(InteractableItem)
 		{
 			InteractableItem->Interact();
-			if(GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "E: Interacting with Item");
-			}
 		}
 	}
 	
@@ -192,11 +186,6 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 {
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Standard Melee Attack");
-	}
-
 	if(TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
 	{
 		//TODO:: Play Animation for Axe Standard Melee Attack
@@ -204,9 +193,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 		{
 		case EWeaponState::AxeEquipped:
 			{
-				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Calling Play Montage");
 				TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
-				
 			}
 			break;
 		case EWeaponState::ChainsawEquipped:

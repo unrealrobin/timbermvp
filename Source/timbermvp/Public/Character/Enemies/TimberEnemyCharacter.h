@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Character/TimberCharacterBase.h"
+#include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase
+class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public IDamageableEnemy
 {
 	GENERATED_BODY()
 
@@ -23,7 +24,7 @@ public:
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 
-	
+	virtual void TakeDamage() override;
 	
 	
 };

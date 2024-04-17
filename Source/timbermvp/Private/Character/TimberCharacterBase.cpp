@@ -3,6 +3,8 @@
 
 #include "Character/TimberCharacterBase.h"
 
+#include "Components/CapsuleComponent.h"
+
 // Sets default values
 ATimberCharacterBase::ATimberCharacterBase()
 {
@@ -14,9 +16,13 @@ ATimberCharacterBase::ATimberCharacterBase()
 void ATimberCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UCapsuleComponent* EnemyCapsuleComponent = GetCapsuleComponent();
+	
 	
 }
 
+//TODO:: Maybe remove this.
 void ATimberCharacterBase::DecreaseHealth(float DecreaseAmount)
 {
 	CurrentHealth -= DecreaseAmount;

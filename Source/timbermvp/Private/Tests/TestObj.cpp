@@ -6,7 +6,6 @@
 #include "Components/CapsuleComponent.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
-#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "GameModes/TimberGameModeBase.h"
 
 // Sets default values
@@ -68,11 +67,6 @@ void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor*
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
 	PlayerController->SetInteractableItem(Cast<IInteractable>(this));
-	
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Overlapped: Set Interactable Item to IIterface");
-	}
 }
 
 void ATestObj::UnSetInteractItem(
@@ -88,7 +82,6 @@ void ATestObj::UnSetInteractItem(
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
 	PlayerController->SetInteractableItem(nullptr);
-	GEngine->AddOnScreenDebugMessage(2, 5.0f, FColor::Green, "End Overlap: Set Interactable Item to null");
 
 }
 

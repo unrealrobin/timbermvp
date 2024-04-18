@@ -24,15 +24,16 @@ ATimberWeaponBase::ATimberWeaponBase()
 	TraceBoxStart->SetupAttachment(RootComponent);
 	TraceBoxEnd = CreateDefaultSubobject<UBoxComponent>("TraceBoxEnd");
 	TraceBoxEnd->SetupAttachment(RootComponent);
-
-	//Collision Handeling
-	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponBase::OnWeaponOverlapBegin);
-
+	
 }
 // Called when the game starts or when spawned
 void ATimberWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Collision Handeling
+	WeaponBoxComponent->SetGenerateOverlapEvents(true);
+	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponBase::OnWeaponOverlapBegin);
 	
 }
 
@@ -61,13 +62,13 @@ void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 	//TODO:: Implement this function to be called from Event Notifys in the Animations Montages.
 	if(ShouldReadyCollision)
 	{
-		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
 		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Weapon Collision Ready", false);
 	}
 	else
 	{
-		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		WeaponBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 		GEngine->AddOnScreenDebugMessage(2, 3.0, FColor::Green, "Weapon Collision Not Ready", false);
 	}
@@ -77,8 +78,8 @@ void ATimberWeaponBase::OnWeaponOverlapBegin(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(5, 5.0, FColor::Green, "Some Overlap Happened", false);
-	PerformStandardAttack();
+	GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Some Overlap Happened", false);
+	
 }
 
 
@@ -115,9 +116,6 @@ void ATimberWeaponBase::PerformStandardAttack()
 		
 		for (const FHitResult& Hit : HitResults)
 		{
-			
-			//TODO:: Make an Interface to cast the Hit Actor to and check if it is an Enemy
-			//TODO:: Then call the Interface Function to take damage.
 			IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(Hit.GetActor());
 			if(HitEnemy)
 			{

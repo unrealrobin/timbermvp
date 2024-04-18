@@ -79,7 +79,7 @@ void ATimberWeaponBase::OnWeaponOverlapBegin(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Some Overlap Happened", false);
-	
+	PerformStandardAttack();
 }
 
 

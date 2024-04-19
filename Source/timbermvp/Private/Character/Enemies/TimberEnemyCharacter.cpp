@@ -18,11 +18,17 @@ void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
-void ATimberEnemyCharacter::TakeDamage()
+void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 {
-	if(GEngine)
+	CurrentHealth -= DamageAmount;
+
+	if(CurrentHealth <= 0.f)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Enemy just got Hit.");
+		UE_LOG(LogTemp, Warning, TEXT("Target has been Destroyed"));
 		Destroy();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 }

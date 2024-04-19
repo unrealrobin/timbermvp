@@ -24,7 +24,7 @@ public:
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 
-	virtual void TakeDamage() override;
+	virtual void TakeDamage(float DamageAmount) override;
 	
 	
 };

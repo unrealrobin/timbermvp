@@ -3,6 +3,7 @@
 
 #include "Weapons/TimberWeaponBase.h"
 
+#include "ActorReferencesUtils.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
@@ -33,7 +34,11 @@ void ATimberWeaponBase::BeginPlay()
 
 	//Collision Handeling
 	WeaponBoxComponent->SetGenerateOverlapEvents(true);
+	WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponBase::OnWeaponOverlapBegin);
+	WeaponBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATimberWeaponBase::OnWeaponOverlapEnd);
+
+	
 	
 }
 
@@ -65,7 +70,8 @@ void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
-		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Weapon Collision Ready", false);
+		
+		
 	}
 	else
 	{
@@ -78,8 +84,17 @@ void ATimberWeaponBase::OnWeaponOverlapBegin(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Some Overlap Happened", false);
+	
+	if(OtherActor == GetOwner() || OtherActor == this) return;
+	if(ActorsToIgnore.Contains(OtherActor)) return;
 	PerformStandardAttack();
+	ActorsToIgnore.Add(OtherActor);
+}
+
+void ATimberWeaponBase::OnWeaponOverlapEnd(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ActorsToIgnore.Empty();
 }
 
 
@@ -89,19 +104,16 @@ void ATimberWeaponBase::PerformStandardAttack()
 	FVector EndTracePoint = TraceBoxEnd->GetComponentLocation();
 
 	//Will store the hit result of all Hit Actors
-	TArray<FHitResult> HitResults;
-
-	TArray<AActor*> IgnoredActors;
-	IgnoredActors.Add(this);
+	FHitResult HitResult;
 
 	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActors(IgnoredActors);
+	QueryParams.AddIgnoredActors(ActorsToIgnore);
 	QueryParams.bTraceComplex = true;
 	QueryParams.bReturnPhysicalMaterial = false;
 
 	//Sweeping Against the Pawn Channel
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		HitResults,
+	bool bHit = GetWorld()->SweepSingleByChannel(
+		HitResult,
 		StartTracePoint,
 		EndTracePoint,
 		FQuat::Identity,
@@ -109,21 +121,15 @@ void ATimberWeaponBase::PerformStandardAttack()
 		FCollisionShape::MakeBox(FVector(100, 100, 100)),
 		QueryParams);
 
-	//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, "Performed Standard Attack");
-
+	
 	if(bHit)
 	{
-		
-		for (const FHitResult& Hit : HitResults)
-		{
-			IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(Hit.GetActor());
+			IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(HitResult.GetActor());
 			if(HitEnemy)
 			{
-				HitEnemy->TakeDamage();
-				GEngine->AddOnScreenDebugMessage(4, 3.0, FColor::Green, "Enemy Hit", false);
+				ActorsToIgnore.Add(Cast<AActor>(HitEnemy));
+				HitEnemy->TakeDamage(BaseWeaponDamage);
 			}
-			
-		}
 	}
 	
 }

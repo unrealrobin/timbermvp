@@ -22,7 +22,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadWrite, Category="Weapon Details")
-	float BaseWeaponDamage = 11.0f;
+	float BaseWeaponDamage = 15.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
 	UAnimMontage* AttackMontage;
@@ -32,6 +32,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Components")
 	USceneComponent* TraceBoxEnd;
+
+	UPROPERTY(BlueprintReadOnly, Category="Weapon Details")
+	TArray<AActor*> ActorsToIgnore;
 
 public:
 
@@ -57,6 +60,9 @@ public:
 	UFUNCTION()
 	void OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintCallable, Category="Weapon")
+	UFUNCTION()
+	void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	UFUNCTION(Category="Weapon")
 	void PerformStandardAttack();
 };

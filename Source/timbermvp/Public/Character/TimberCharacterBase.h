@@ -24,18 +24,16 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float TotalHealth = 100.0f;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float CurrentHealth = 100.0f;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float InitialSpeed = 0.f;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float MaxForwardSpeed = 800.f;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float MaxBackwardSpeed = 500.f;
-
-	UFUNCTION()
-	void DecreaseHealth(float DecreaseAmount);
+	
 	
 };

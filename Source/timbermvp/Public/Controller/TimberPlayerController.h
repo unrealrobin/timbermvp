@@ -84,9 +84,9 @@ protected:
 	virtual void SetupInputComponent() override;
 	
 	UPROPERTY(BlueprintReadOnly)
-	FVector ForwardMoveDirection;
+	FVector CharacterForwardMoveDirection;
 	UPROPERTY(BlueprintReadOnly)
-	FVector RightMoveDirection;
+	FVector CharacterRightMoveDirection;
 
 	UPROPERTY(BlueprintReadOnly)
 	ATimberPlayableCharacter* TimberCharacter;

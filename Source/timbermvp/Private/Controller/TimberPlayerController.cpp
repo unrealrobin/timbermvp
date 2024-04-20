@@ -68,11 +68,22 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 
 	if (ControlledPawn)
 	{
-		ForwardMoveDirection = ControlledPawn->GetActorForwardVector();
-		RightMoveDirection = ControlledPawn->GetActorRightVector();
-		
-		ControlledPawn->AddMovementInput(ForwardMoveDirection, Value.Get<FVector2D>().X, false);
-		ControlledPawn->AddMovementInput(RightMoveDirection, Value.Get<FVector2D>().Y, false);
+		//Controller Rotation and Forward Vector
+		const FRotator ControllerRotation = GetControlRotation();
+		const FVector ControllerForwardVector = FRotationMatrix(ControllerRotation).GetUnitAxis(EAxis::X);
+
+		//Current Directions of the Character
+		CharacterForwardMoveDirection = ControlledPawn->GetActorForwardVector();
+		CharacterRightMoveDirection = ControlledPawn->GetActorRightVector();
+
+		// Rotates the Character to the direction of the Camera Smoothly
+		const FRotator TargetForwardDirection = FRotator(0.f, ControllerRotation.Yaw, 0.f);
+		FRotator NewRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), TargetForwardDirection, GetWorld()->GetDeltaSeconds(), 5.f);
+		ControlledPawn->SetActorRotation(NewRotation);
+
+		//Adding Movement Input to the Character
+		ControlledPawn->AddMovementInput(ControllerForwardVector, Value.Get<FVector2D>().X, false);
+		ControlledPawn->AddMovementInput(CharacterRightMoveDirection, Value.Get<FVector2D>().Y, false);
 	}
 }
 

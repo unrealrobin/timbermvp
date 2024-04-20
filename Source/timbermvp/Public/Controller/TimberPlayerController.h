@@ -81,12 +81,13 @@ public:
 
 protected:
 	virtual void SetupInputComponent() override;
-	
+	/*Move Data*/
 	UPROPERTY(BlueprintReadOnly)
 	FVector CharacterForwardMoveDirection;
 	UPROPERTY(BlueprintReadOnly)
 	FVector CharacterRightMoveDirection;
 
+	/*Timber References*/
 	UPROPERTY(BlueprintReadOnly)
 	ATimberPlayableCharacter* TimberCharacter;
 	UPROPERTY(BlueprintReadOnly)
@@ -112,7 +113,10 @@ protected:
 
 	/*Interactable Items*/
 	IInteractable* InteractableItem;
-	
+
+	/*Attack Data*/
+	UPROPERTY(BlueprintReadWrite)
+	bool CanAttackAgain = true;
 
 private:
 	UPROPERTY(EditAnywhere)

@@ -50,9 +50,6 @@ void ATimberPlayerController::SetupInputComponent()
 	
 }
 
-
-
-
 void ATimberPlayerController::SetInteractableItem(IInteractable* Item)
 {
 	InteractableItem = Item;
@@ -216,14 +213,14 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 {
-	if(TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
+	if(TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped && CanAttackAgain)
 	{
-		//TODO:: Play Animation for Axe Standard Melee Attack
 		switch (TimberCharacter->GetCurrentWeaponState())
 		{
 		case EWeaponState::AxeEquipped:
 			{
 				TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
+				CanAttackAgain = false;
 			}
 			break;
 		case EWeaponState::ChainsawEquipped:
@@ -243,6 +240,8 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		}
 	}
+
+	
 }
 
 

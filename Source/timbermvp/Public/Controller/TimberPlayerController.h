@@ -80,7 +80,6 @@ public:
 	void SetInteractableItem(IInteractable* Item);
 
 protected:
-
 	virtual void SetupInputComponent() override;
 	
 	UPROPERTY(BlueprintReadOnly)
@@ -104,8 +103,12 @@ protected:
 	/*Jump Controls*/
 	UPROPERTY(BlueprintReadWrite)
 	bool CanJump = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool SwitchToWalking = false;
+	UFUNCTION()
+	void CanCharacterJump();
 	UFUNCTION(BlueprintCallable)
-	void CantJump();
+	void JumpComplete();
 
 	/*Interactable Items*/
 	IInteractable* InteractableItem;

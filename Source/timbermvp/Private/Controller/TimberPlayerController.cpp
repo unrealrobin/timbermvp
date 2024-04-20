@@ -50,10 +50,8 @@ void ATimberPlayerController::SetupInputComponent()
 	
 }
 
-void ATimberPlayerController::CantJump()
-{
-	CanJump = false;
-}
+
+
 
 void ATimberPlayerController::SetInteractableItem(IInteractable* Item)
 {
@@ -112,17 +110,38 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 	SetControlRotation(UpdatedRotation);
 }
 
-void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
+void ATimberPlayerController::CanCharacterJump()
 {
-	if(TimberCharacterMovementComponent->IsFalling())
-	{
-		CanJump = false;
-	}else
+	bool bIsMovingOnGround = TimberCharacterMovementComponent->IsMovingOnGround();
+	bool bIsIdle = TimberCharacterMovementComponent->Velocity.Size() == 0.f;
+	bool IsFalling = TimberCharacterMovementComponent->IsFalling();
+
+	if(IsFalling) CanJump = false;
+	
+	if(bIsMovingOnGround || bIsIdle )
 	{
 		CanJump = true;
+	}
+	else
+	{
+		CanJump = false;
+	}
+}
+
+void ATimberPlayerController::JumpComplete()
+{
+	SwitchToWalking = true;
+	CanJump = false;
+}
+
+void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
+{
+	CanCharacterJump();
+	SwitchToWalking = false;
+	if(CanJump)
+	{
 		TimberCharacter->Jump();
 	}
-	
 	
 }
 

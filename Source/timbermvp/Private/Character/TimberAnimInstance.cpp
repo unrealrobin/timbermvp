@@ -3,13 +3,28 @@
 
 #include "Character/TimberAnimInstance.h"
 
-#include "Character/TimberCharacterBase.h"
+#include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
+
+void UTimberAnimInstance::NativeBeginPlay()
+{
+	Super::NativeBeginPlay();
+	if(!TimberPlayerController)
+	{
+		TimberPlayerController= Cast<ATimberPlayerController>(TimberPlayableCharacter->GetController());
+	}
+}
 
 void UTimberAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
+	AActor* OwningActor = GetOwningActor();
+	if(!OwningActor)
+	{
+		return;
+	}
+	TimberPlayableCharacter = Cast<ATimberPlayableCharacter>(OwningActor);
 	
 	
 	
@@ -19,17 +34,9 @@ void UTimberAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
 
-	// Setting InputActionValue Every Tick to track Controller Input for Character Movement
-	AActor* OwningActor = GetOwningActor();
-	if(!OwningActor) return;
-	TimberCharacterBase = Cast<ATimberCharacterBase>(OwningActor);
-	if(!TimberCharacterBase) return;
-	TimberPlayerController= Cast<ATimberPlayerController>(TimberCharacterBase->GetController());
-	
-	if(TimberPlayerController && TimberCharacterBase)
+	if(TimberPlayerController && TimberPlayableCharacter)
 	{
 		InputActionValue = TimberPlayerController->GetMoveInputActionValue();
 	}
-	
 	
 }

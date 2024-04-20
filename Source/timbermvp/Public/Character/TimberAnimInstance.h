@@ -8,8 +8,9 @@
 #include "TimberAnimInstance.generated.h"
 
 
+class ATimberPlayableCharacter;
 class ATimberPlayerController;
-class ATimberCharacterBase;
+
 /**
  * 
  */
@@ -19,15 +20,19 @@ class TIMBERMVP_API UTimberAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
+	virtual void NativeBeginPlay() override;
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	UPROPERTY(BlueprintReadOnly)
 	FInputActionValue InputActionValue;
 
-private:
-
-	ATimberCharacterBase* TimberCharacterBase;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	ATimberPlayableCharacter* TimberPlayableCharacter;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	ATimberPlayerController* TimberPlayerController;
+
+private:
+	
 	
 };

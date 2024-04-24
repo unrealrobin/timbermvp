@@ -128,6 +128,7 @@ void ATimberWeaponBase::PerformStandardAttack()
 			if(HitEnemy)
 			{
 				ActorsToIgnore.Add(Cast<AActor>(HitEnemy));
+				DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10, 12, FColor::Green, false, 2.0f);
 				HitEnemy->TakeDamage(BaseWeaponDamage);
 			}
 	}

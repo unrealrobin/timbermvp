@@ -26,5 +26,6 @@ protected:
 
 	virtual void TakeDamage(float DamageAmount) override;
 	
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UAnimMontage* StandardMeleeMontage;
 };

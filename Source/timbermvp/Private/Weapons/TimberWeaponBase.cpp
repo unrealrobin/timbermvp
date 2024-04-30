@@ -76,7 +76,6 @@ void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 	else
 	{
 		WeaponBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-		GEngine->AddOnScreenDebugMessage(2, 3.0, FColor::Green, "Weapon Collision Not Ready", false);
 	}
 }
 
@@ -87,8 +86,8 @@ void ATimberWeaponBase::OnWeaponOverlapBegin(
 	
 	if(OtherActor == GetOwner() || OtherActor == this) return;
 	if(ActorsToIgnore.Contains(OtherActor)) return;
-	PerformStandardAttack();
-	ActorsToIgnore.Add(OtherActor);
+	ApplyDamageOnOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex,
+	bFromSweep, SweepResult);
 }
 
 void ATimberWeaponBase::OnWeaponOverlapEnd(
@@ -97,6 +96,16 @@ void ATimberWeaponBase::OnWeaponOverlapEnd(
 	ActorsToIgnore.Empty();
 }
 
+void ATimberWeaponBase::ApplyDamageOnOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(IDamageableEnemy* EnemyCharacter = Cast<IDamageableEnemy>(OtherActor))
+	{
+		EnemyCharacter->TakeDamage(BaseWeaponDamage);
+	};
+	
+}
 
 void ATimberWeaponBase::PerformStandardAttack()
 {

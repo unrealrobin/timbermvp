@@ -36,6 +36,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="Weapon Details")
 	TArray<AActor*> ActorsToIgnore;
 
+	UFUNCTION(Category="Weapon")
+	void ApplyDamageOnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult);
+
 public:
 
 	/*Anim Montage Section Names*/

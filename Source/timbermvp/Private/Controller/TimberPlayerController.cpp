@@ -136,7 +136,7 @@ void ATimberPlayerController::JumpComplete()
 void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 {
 	CanCharacterJump(); // sets the CanJump Variable
-	//SwitchToWalking = false;
+	SwitchToWalking = false;
 	if(CanJump)
 	{
 		TimberCharacter->IsNowJumping = true; //Is the Bool we use to Switch between Animations Tracks for Blending Purposes.

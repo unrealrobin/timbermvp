@@ -109,6 +109,7 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 
 void ATimberPlayerController::CanCharacterJump()
 {
+	//Checks conditions to ensure character is not already in a jump or falling off something already.
 	bool bIsMovingOnGround = TimberCharacterMovementComponent->IsMovingOnGround();
 	bool bIsIdle = TimberCharacterMovementComponent->Velocity.Size() == 0.f;
 	bool IsFalling = TimberCharacterMovementComponent->IsFalling();
@@ -127,17 +128,22 @@ void ATimberPlayerController::CanCharacterJump()
 
 void ATimberPlayerController::JumpComplete()
 {
+	TimberCharacter->IsNowJumping = false; //Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
 	SwitchToWalking = true;
 	CanJump = false;
 }
 
 void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 {
-	CanCharacterJump();
-	SwitchToWalking = false;
+	CanCharacterJump(); // sets the CanJump Variable
+	//SwitchToWalking = false;
 	if(CanJump)
 	{
-		TimberCharacter->Jump();
+		TimberCharacter->IsNowJumping = true; //Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
+		if(TimberCharacter->IsNowJumping)
+		{
+			TimberCharacter->Jump();
+		}
 	}
 	
 }

@@ -44,6 +44,10 @@ public:
 	bool IsRunning = true;
 	float MaxRunSpeed = 1000.f;
 
+	/*Animation Properties*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
+	bool IsNowJumping = false;
+
 	/*Weapon Slots*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponOne;

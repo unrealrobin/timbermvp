@@ -60,6 +60,7 @@ void ATimberWeaponBase::HandlePlayAttackMontage() const
 	AnimInstance->Montage_Play(AttackMontage, 1.f);
 	AnimInstance->Montage_JumpToSection(StandardAttackSectionNames[RandomAnim], AttackMontage);
 	
+	
 }
 
 void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const

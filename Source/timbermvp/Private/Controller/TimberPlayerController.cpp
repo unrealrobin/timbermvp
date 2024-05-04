@@ -203,6 +203,37 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 {
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
+
+	check(TimberCharacter);
+
+	UnEquipWeapon();
+	
+	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
+
+	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
+	const FActorSpawnParameters SpawnParams;
+
+	//Socket Rotation and Location
+	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("ChainSawSocket");
+	const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("ChainSawSocket");
+
+	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("ChainSawSocket", ERelativeTransformSpace::RTS_World);
+	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
+	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
+
+	//Spawn the Actor
+	ATimberWeaponBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponBase>(TimberCharacter->WeaponTwo, 
+	SocketWorldLocation, SocketWorldRotation, SpawnParams);
+
+	//Attach Actor to the Socket Location
+	SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
+	FAttachmentTransformRules::SnapToTargetIncludingScale, "ChainSawSocket");
+
+	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
+	TimberCharacter->WeaponTwoInstance = SpawnedActor;
+	TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
+	//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
+	SpawnedActor->SetOwner(TimberCharacter);
 	
 }
 
@@ -234,7 +265,7 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	FAttachmentTransformRules::SnapToTargetIncludingScale, "RangedSocket");
 
 	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-	TimberCharacter->WeaponOneInstance = SpawnedActor;
+	TimberCharacter->WeaponThreeInstance = SpawnedActor;
 	TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
 	//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
 	SpawnedActor->SetOwner(TimberCharacter);

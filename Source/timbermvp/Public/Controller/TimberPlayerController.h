@@ -118,11 +118,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool CanAttackAgain = true;
 
+
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputMappingContext> TimberInputMappingContext;
-	
-	
+
+	UFUNCTION()
+	void UnEquipWeapon();
 	
 	
 };

@@ -16,7 +16,7 @@ enum class EWeaponState : uint8
 	Unequipped UMETA(DisplayName = "None"),
 	AxeEquipped UMETA(DisplayName = "AxeEquipped"),
 	ChainsawEquipped UMETA(DisplayName = "ChainsawEquipped"),
-	PistolEquipped UMETA(DisplayName = "PistolEquipped"),
+	RangedEquipped UMETA(DisplayName = "RangedEquipped"),
 	
 };
 
@@ -65,9 +65,16 @@ public:
 	/*Getters & Setters*/
 	EWeaponState GetCurrentWeaponState() const {return CurrentWeaponState;} 
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);
+	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
+	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const {return CurrentlyEquippedWeapon;}
 
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
+
+	
 	
 };

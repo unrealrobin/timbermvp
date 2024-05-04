@@ -165,6 +165,9 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
 	if(TimberCharacter)
 	{
+		
+		//TODO:: Play Equip Axe Animation
+		UnEquipWeapon();
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
 		
@@ -189,11 +192,9 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
 		FAttachmentTransformRules::SnapToTargetIncludingScale, "AxeSocket");
 
-	
-
-		//Set the Newly Spawned Weapon to the WeaponOneInstance on Leeroy
+		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
-
+		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
 		//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
 		SpawnedActor->SetOwner(TimberCharacter);
 	}
@@ -201,20 +202,43 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 
 void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 {
-	//TODO: Change Weapon State to EWeaponState::ChainsawEquipped
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Weapon 2 Equipped");
-	}
+	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
+	
 }
 
 void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 {
-	//TODO: Change Weapon State to EWeaponState::PistolEquipped
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Weapon 3 Equipped");
-	}
+	check(TimberCharacter);
+
+	UnEquipWeapon();
+	
+	TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
+
+	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
+	const FActorSpawnParameters SpawnParams;
+
+	//Socket Rotation and Location
+	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("RangedSocket");
+	const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("RangedSocket");
+
+	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("RangedSocket", ERelativeTransformSpace::RTS_World);
+	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
+	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
+
+	//Spawn the Actor
+	ATimberWeaponBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponBase>(TimberCharacter->WeaponThree, 
+	SocketWorldLocation, SocketWorldRotation, SpawnParams);
+
+	//Attach Actor to the Socket Location
+	SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
+	FAttachmentTransformRules::SnapToTargetIncludingScale, "RangedSocket");
+
+	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
+	TimberCharacter->WeaponOneInstance = SpawnedActor;
+	TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
+	//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
+	SpawnedActor->SetOwner(TimberCharacter);
+	
 }
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
@@ -234,7 +258,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Chainsaw");
 			}
 			break;
-		case EWeaponState::PistolEquipped:
+		case EWeaponState::RangedEquipped:
 			{
 				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Pistol");
 			}
@@ -250,6 +274,15 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 	
 }
 
+void ATimberPlayerController::UnEquipWeapon()
+{
+	//TODO:: Play Unequip Animation
+	if(TimberCharacter->GetCurrentlyEquippedWeapon())
+	{
+		//Removing the Currently EquippedWeapon
+		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
+	}
+}
 
 
 

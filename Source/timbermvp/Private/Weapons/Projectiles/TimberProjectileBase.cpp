@@ -3,14 +3,20 @@
 
 #include "Weapons/Projectiles/TimberProjectileBase.h"
 
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 // Sets default values
 ATimberProjectileBase::ATimberProjectileBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
+	RootComponent = CapsuleComponent;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
-	RootComponent = StaticMesh;
+	StaticMesh->SetupAttachment(RootComponent);
 
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Projectile Movement Component");
 	
 
 }

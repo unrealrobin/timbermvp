@@ -7,6 +7,7 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/TimberWeaponBase.h"
+#include "Weapons/Projectiles/TimberProjectileBase.h"
 
 
 void ATimberPlayerController::BeginPlay()
@@ -291,7 +292,22 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::RangedEquipped:
 			{
-				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Pistol");
+				if(TimberCharacter && TimberCharacter->GetCurrentlyEquippedWeapon())
+				{
+					ATimberWeaponBase* CurrentWeapon = TimberCharacter->GetCurrentlyEquippedWeapon();
+					TSubclassOf<ATimberProjectileBase> StandardProjectile = CurrentWeapon->ProjectileType;
+
+					if(StandardProjectile)
+					{
+						FVector ProjectileSpawnLocationVector = CurrentWeapon->ProjectileSpawnLocation->GetComponentLocation();
+						FRotator ControllerRotation = TimberPlayerController->GetControlRotation();
+
+						if(GetWorld())
+						{
+							ATimberProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ATimberProjectileBase>(StandardProjectile, ProjectileSpawnLocationVector, ControllerRotation);
+						}
+					}
+				}
 			}
 			break;
 		case EWeaponState::Unequipped:
@@ -305,7 +321,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 	
 }
 
-void ATimberPlayerController::UnEquipWeapon()
+void ATimberPlayerController::UnEquipWeapon() const
 {
 	//TODO:: Play Unequip Animation
 	if(TimberCharacter->GetCurrentlyEquippedWeapon())

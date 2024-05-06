@@ -124,7 +124,7 @@ private:
 	TObjectPtr<UInputMappingContext> TimberInputMappingContext;
 
 	UFUNCTION()
-	void UnEquipWeapon();
+	void UnEquipWeapon() const;
 	
 	
 };

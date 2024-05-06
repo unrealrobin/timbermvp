@@ -25,6 +25,9 @@ ATimberWeaponBase::ATimberWeaponBase()
 	TraceBoxStart->SetupAttachment(RootComponent);
 	TraceBoxEnd = CreateDefaultSubobject<UBoxComponent>("TraceBoxEnd");
 	TraceBoxEnd->SetupAttachment(RootComponent);
+
+	ProjectileSpawnLocation = CreateDefaultSubobject<USceneComponent>("Projectile Spawn Location");
+	ProjectileSpawnLocation->SetupAttachment(RootComponent);
 	
 }
 // Called when the game starts or when spawned

@@ -6,6 +6,7 @@
 #include "ActorReferencesUtils.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include"Weapons/Projectiles/TimberProjectileBase.h"
 #include "Components/BoxComponent.h"
 
 
@@ -146,5 +147,35 @@ void ATimberWeaponBase::PerformStandardAttack()
 			}
 	}
 	
+}
+
+void ATimberWeaponBase::FireRangedWeapon()
+{
+	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+	if(TimberCharacter && TimberCharacter->GetCurrentlyEquippedWeapon())
+	{
+		ATimberWeaponBase* CurrentWeapon = TimberCharacter->GetCurrentlyEquippedWeapon(); //Pistol
+
+		if(ProjectileType)
+		{
+			FVector ProjectileSpawnLocationVector = CurrentWeapon->ProjectileSpawnLocation->GetComponentLocation();
+			FRotator ControllerRotation = TimberCharacter->GetController()->GetControlRotation();
+
+			if(GetWorld())
+			{
+				ATimberProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, 
+				ProjectileSpawnLocationVector, ControllerRotation);
+				
+				if(SpawnedProjectile)
+				{
+					SpawnedProjectile->SetOwner(TimberCharacter);
+				}
+				else
+				{
+					GEngine->AddOnScreenDebugMessage(1, 4.0, FColor::Red, "Projectile Not Spawned");
+				}
+			}
+		}
+	}
 }
 

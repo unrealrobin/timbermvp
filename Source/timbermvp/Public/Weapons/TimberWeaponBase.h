@@ -78,4 +78,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Components")
 	TSubclassOf<ATimberProjectileBase> ProjectileType;
+
+	UFUNCTION()
+	float GetWeaponBaseDamage() const {return BaseWeaponDamage;}
+
+	UFUNCTION()
+	void FireRangedWeapon();
 };

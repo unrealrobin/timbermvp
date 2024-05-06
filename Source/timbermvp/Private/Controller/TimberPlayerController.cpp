@@ -292,22 +292,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::RangedEquipped:
 			{
-				if(TimberCharacter && TimberCharacter->GetCurrentlyEquippedWeapon())
-				{
-					ATimberWeaponBase* CurrentWeapon = TimberCharacter->GetCurrentlyEquippedWeapon();
-					TSubclassOf<ATimberProjectileBase> StandardProjectile = CurrentWeapon->ProjectileType;
-
-					if(StandardProjectile)
-					{
-						FVector ProjectileSpawnLocationVector = CurrentWeapon->ProjectileSpawnLocation->GetComponentLocation();
-						FRotator ControllerRotation = TimberPlayerController->GetControlRotation();
-
-						if(GetWorld())
-						{
-							ATimberProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ATimberProjectileBase>(StandardProjectile, ProjectileSpawnLocationVector, ControllerRotation);
-						}
-					}
-				}
+				TimberCharacter->WeaponThreeInstance->FireRangedWeapon();
 			}
 			break;
 		case EWeaponState::Unequipped:

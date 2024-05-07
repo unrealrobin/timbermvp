@@ -16,6 +16,8 @@ ATimberProjectileBase::ATimberProjectileBase()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(RootComponent);
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Projectile Movement Component");
+
+	
 }
 
 void ATimberProjectileBase::BeginPlay()
@@ -38,10 +40,21 @@ void ATimberProjectileBase::HandleOverlap(UPrimitiveComponent* OverlappedCompone
 {
 	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+
+	
+
+	FString DebugMessage = FString::Printf(TEXT("Hit Enemy: %s"), *OtherActor->GetName());
+	GEngine->AddOnScreenDebugMessage(1, 4.0 , FColor::Green, DebugMessage);
+
+	
+	
 	if(HitEnemy)
 	{
 		HitEnemy->TakeDamage(TimberCharacter->WeaponThreeInstance->GetWeaponBaseDamage());
+		Destroy();
 	}
-	Destroy();
+
+	//TODO:: Ensure that the projectile is destroyed after hitting anything else. Make sure that the collision with self is ignored.
+	
 }
 

@@ -79,6 +79,11 @@ public:
 
 	void SetInteractableItem(IInteractable* Item);
 
+	UPROPERTY(BlueprintReadOnly)
+	float PitchAngle = 0.0f;
+	UPROPERTY(BlueprintReadOnly)
+	float YawAngle = 0.0f;
+
 protected:
 	virtual void SetupInputComponent() override;
 	/*Move Data*/
@@ -98,8 +103,9 @@ protected:
 	/*Camera Controls*/
 	UPROPERTY(BlueprintReadOnly)
 	USpringArmComponent* TimberCharacterSpringArmComponent;
-	float ViewPitchMax = 20.0f;
-	float ViewPitchMin = -70.0f;
+	float ViewPitchMax = 90.0f;
+	float ViewPitchMin = -80.0f;
+	
 
 	/*Jump Controls*/
 	UPROPERTY(BlueprintReadWrite)

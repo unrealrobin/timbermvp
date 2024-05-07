@@ -99,6 +99,7 @@ void ATimberPlayerController::LookUp(const FInputActionValue& Value)
 	UpdatedRotation.Pitch = ClampedPitch;
 	
 	SetControlRotation(UpdatedRotation);
+	PitchAngle = UpdatedRotation.Pitch;
 }
 
 void ATimberPlayerController::LookRight(const FInputActionValue& Value)
@@ -106,6 +107,7 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
 	UpdatedRotation.Yaw = UpdatedRotation.Yaw + Value.Get<float>();
 	SetControlRotation(UpdatedRotation);
+	YawAngle = UpdatedRotation.Yaw;
 }
 
 void ATimberPlayerController::CanCharacterJump()

@@ -54,7 +54,9 @@ void ATimberProjectileBase::HandleOverlap(UPrimitiveComponent* OverlappedCompone
 		Destroy();
 	}
 
-	//TODO:: Ensure that the projectile is destroyed after hitting anything else. Make sure that the collision with self is ignored.
 	
+
+	//TODO:: Ensure that the projectile is destroyed after hitting anything else. Make sure that the collision with self is ignored.
+	Destroy();
 }
 

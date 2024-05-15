@@ -7,8 +7,6 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/TimberWeaponBase.h"
-#include "Weapons/Projectiles/TimberProjectileBase.h"
-
 
 void ATimberPlayerController::BeginPlay()
 {
@@ -26,8 +24,6 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	TimberPlayerController = this;
-
-	
 	
 }
 

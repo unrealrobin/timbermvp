@@ -13,6 +13,7 @@ class ATimberPlayableCharacter;
 class UCharacterMovementComponent;
 class USpringArmComponent;
 class UInputMappingContext;
+class AHUD;
 
 /**
  * 
@@ -79,10 +80,12 @@ public:
 
 	void SetInteractableItem(IInteractable* Item);
 
+	/*Controller Rotation*/
 	UPROPERTY(BlueprintReadOnly)
 	float PitchAngle = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	float YawAngle = 0.0f;
+
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -123,6 +126,9 @@ protected:
 	/*Attack Data*/
 	UPROPERTY(BlueprintReadWrite)
 	bool CanAttackAgain = true;
+
+	
+	
 
 
 private:

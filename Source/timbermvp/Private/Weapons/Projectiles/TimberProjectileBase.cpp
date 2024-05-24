@@ -53,10 +53,9 @@ void ATimberProjectileBase::HandleOverlap(UPrimitiveComponent* OverlappedCompone
 		HitEnemy->TakeDamage(TimberCharacter->WeaponThreeInstance->GetWeaponBaseDamage());
 		Destroy();
 	}
-
-	
-
-	//TODO:: Ensure that the projectile is destroyed after hitting anything else. Make sure that the collision with self is ignored.
-	Destroy();
+	else
+	{
+		Destroy();
+	}
 }
 

@@ -20,6 +20,8 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 public:
 	virtual void BeginPlay() override;
 
+	float StandardMelleAttackDamage = 10.f;
+
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
@@ -28,4 +30,15 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UAnimMontage* StandardMeleeMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
+	UCapsuleComponent* KickCollisionSphere;
+
+	UFUNCTION(BlueprintCallable)
+	void HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	UFUNCTION(BlueprintCallable)
+	void DisableKickCollision();
+	UFUNCTION(BlueprintCallable)
+	void EnableKickCollision();
+	
 };

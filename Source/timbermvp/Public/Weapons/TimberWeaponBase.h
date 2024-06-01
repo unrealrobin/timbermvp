@@ -47,11 +47,11 @@ public:
 
 	/*Anim Montage Section Names*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")
-	FName StandardAttack1 = "Standard_Horizontal";
+	FName StandardAttack1 = "Standard_1";
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")
-	FName StandardAttack2 = "Standard_Downward";
+	FName StandardAttack2 = "Standard_2";
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")
-	FName HeavyCombo = "Heavy_Combo";
+	FName SpecialAttack = "Special_Attack";
 
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
 	UBoxComponent* WeaponBoxComponent;

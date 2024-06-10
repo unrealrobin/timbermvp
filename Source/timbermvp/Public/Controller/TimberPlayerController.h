@@ -15,6 +15,9 @@ class USpringArmComponent;
 class UInputMappingContext;
 class AHUD;
 
+
+
+
 /**
  * 
  */
@@ -46,7 +49,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UInputAction* EquipWeaponThreeAction;
 	UPROPERTY(EditAnywhere)
-	UInputAction* StandardAction
+	UInputAction* StandardAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ToggleBuildModeAction;
 	;
 	
 	/*Player Controls*/
@@ -70,6 +75,8 @@ public:
 	void EquipWeaponThree(const FInputActionValue& Value);
 	UFUNCTION()
 	void StandardAttack(const FInputActionValue& Value);
+	UFUNCTION()
+	void ToggleBuildMode(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	// 

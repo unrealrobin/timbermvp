@@ -2,7 +2,10 @@
 
 
 #include "Character/TimberPlayableCharacter.h"
+
+#include "SNegativeActionButton.h"
 #include "Camera/CameraComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -14,6 +17,55 @@ void ATimberPlayableCharacter::BeginPlay()
 
 }
 
+void ATimberPlayableCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	PerformRaycast();
+}
+
+void ATimberPlayableCharacter::PerformRaycast()
+{
+	if(CharacterState == ECharacterState::Building)
+	{
+		ATimberPlayerController* RaycastController = Cast<ATimberPlayerController>(GetController());
+		if(RaycastController)
+		{
+			FVector RaycastStart;
+			FRotator PlayerRotation;
+			Controller->GetPlayerViewPoint(RaycastStart, PlayerRotation);
+
+			//1000 is the range to perform the Raycast.
+			FVector RaycastEnd = RaycastStart + (PlayerRotation.Vector() * 1000);
+
+			FCollisionQueryParams CollisionParams;
+			CollisionParams.AddIgnoredActor(this);
+			//CollisionParams.AddIgnoredActor(TSubclassOf<ATimberWeaponBase>);
+
+			FHitResult HitResult;
+
+			bool bHit = GetWorld()->LineTraceSingleByChannel(
+				HitResult,
+				RaycastStart,
+				RaycastEnd,
+				ECC_Visibility,
+				CollisionParams);
+
+			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
+
+			if (bHit)
+			{
+				AActor* HitActor = HitResult.GetActor();
+				if(HitActor)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
+				}
+			}
+		}
+	}
+	
+}
+
 void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
 {
 	CurrentWeaponState = NewWeaponState;
@@ -23,6 +75,8 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 {
 	CurrentlyEquippedWeapon = Weapon;
 }
+
+
 
 ATimberPlayableCharacter::ATimberPlayableCharacter()
 {

@@ -20,6 +20,13 @@ enum class EWeaponState : uint8
 	
 };
 
+UENUM(BlueprintType)
+enum class ECharacterState: uint8
+{
+	Standard UMETA(DisplayName = "Standard"),
+	Building UMETA(DisplayName = "Building")
+};
+
 /**
  * 
  */
@@ -32,6 +39,9 @@ public:
 	//Constructor
 	ATimberPlayableCharacter();
 	virtual void BeginPlay() override;
+
+	//CharacterState
+	ECharacterState CharacterState = ECharacterState::Standard;
 
 	/*Components*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
@@ -74,6 +84,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	void PerformRaycast();
 
 	
 	

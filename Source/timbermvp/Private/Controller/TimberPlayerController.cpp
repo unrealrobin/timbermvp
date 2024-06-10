@@ -44,6 +44,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(EquipWeaponTwoAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponTwo);
 	EnhancedInputComponent->BindAction(EquipWeaponThreeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponThree);
 	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
+	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
 	
 }
 
@@ -302,6 +303,21 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 	}
 
 	
+}
+
+void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
+{
+	
+	TimberCharacter->CharacterState == ECharacterState::Building ? TimberCharacter->CharacterState = ECharacterState::Standard : 
+	TimberCharacter->CharacterState = ECharacterState::Building;
+
+	if(TimberCharacter->CharacterState == ECharacterState::Standard)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Standard Mode");
+	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Building Mode");
+	}
 }
 
 void ATimberPlayerController::UnEquipWeapon() const

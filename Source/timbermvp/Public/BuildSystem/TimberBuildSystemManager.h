@@ -6,21 +6,35 @@
 #include "GameFramework/Actor.h"
 #include "TimberBuildSystemManager.generated.h"
 
+class ATimberBuildingComponentBase;
+
 UCLASS()
 class TIMBERMVP_API ATimberBuildSystemManager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
+	
 	ATimberBuildSystemManager();
 
 protected:
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
 
+	float GridSize = 100.f;
+
+	// This is the Building Component that Has not been placed in the world yet.
+	// It is set in the BuildSystemManager BP. (In the future, user selection from UI will set this.)
+	UPROPERTY(EditAnywhere, Category="Building Component")
+	TSubclassOf<ATimberBuildingComponentBase> ActiveBuildingComponentClass;
+	UPROPERTY(EditAnywhere, Category="Building Component")
+	ATimberBuildingComponentBase* ActiveBuildingComponent;
+
 public:	
-	// Called every frame
+	
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+	void SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator);
 
 };

@@ -2,6 +2,7 @@
 
 
 #include "BuildSystem/TimberBuildSystemManager.h"
+#include "BuildSystem/TimberBuildingComponentBase.h"
 
 // Sets default values
 ATimberBuildSystemManager::ATimberBuildSystemManager()
@@ -23,5 +24,17 @@ void ATimberBuildSystemManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator)
+{
+	FActorSpawnParameters SpawnParameters;
+	FRotator ZeroRotation = FRotator::ZeroRotator;
+	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+	ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(GetWorld()->SpawnActor
+		(ActiveBuildingComponentClass->StaticClass(),
+			&SpawnVector,
+			&ZeroRotation, 
+			SpawnParameters));
 }
 

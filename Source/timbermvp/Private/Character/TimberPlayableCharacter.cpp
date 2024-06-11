@@ -2,8 +2,7 @@
 
 
 #include "Character/TimberPlayableCharacter.h"
-
-#include "SNegativeActionButton.h"
+#include "BuildSystem/TimberBuildSystemManager.h"
 #include "Camera/CameraComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -36,7 +35,7 @@ void ATimberPlayableCharacter::PerformRaycast()
 			Controller->GetPlayerViewPoint(RaycastStart, PlayerRotation);
 
 			//1000 is the range to perform the Raycast.
-			FVector RaycastEnd = RaycastStart + (PlayerRotation.Vector() * 1000);
+			FVector RaycastEnd = RaycastStart + (PlayerRotation.Vector() * BuildRaycastDistance);
 
 			FCollisionQueryParams CollisionParams;
 			CollisionParams.AddIgnoredActor(this);
@@ -55,11 +54,7 @@ void ATimberPlayableCharacter::PerformRaycast()
 
 			if (bHit)
 			{
-				AActor* HitActor = HitResult.GetActor();
-				if(HitActor)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
-				}
+				
 			}
 		}
 	}
@@ -75,8 +70,6 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 {
 	CurrentlyEquippedWeapon = Weapon;
 }
-
-
 
 ATimberPlayableCharacter::ATimberPlayableCharacter()
 {

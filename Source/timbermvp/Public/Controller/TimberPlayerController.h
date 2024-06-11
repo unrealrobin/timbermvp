@@ -79,7 +79,6 @@ public:
 	void ToggleBuildMode(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
-	// 
 	FInputActionValue MoveInputActionValue;
 
 	UFUNCTION(BlueprintCallable)

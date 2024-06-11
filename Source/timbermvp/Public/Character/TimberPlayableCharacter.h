@@ -87,8 +87,11 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	/* Building Mode */
 	void PerformRaycast();
-
+	
+	UPROPERTY(EditAnywhere, Category="Building")
+	float BuildRaycastDistance = 1000.f;
 	
 	
 };

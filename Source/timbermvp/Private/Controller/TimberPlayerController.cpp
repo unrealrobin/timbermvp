@@ -316,6 +316,9 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Standard Mode");
 	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
+		UnEquipWeapon();
+		//Setting WeaponState on Character
+		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Building Mode");
 	}
 }

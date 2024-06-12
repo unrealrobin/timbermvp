@@ -27,8 +27,8 @@ protected:
 	// It is set in the BuildSystemManager BP. (In the future, user selection from UI will set this.)
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	TSubclassOf<ATimberBuildingComponentBase> ActiveBuildingComponentClass;
-	UPROPERTY(EditAnywhere, Category="Building Component")
-	ATimberBuildingComponentBase* ActiveBuildingComponent;
+	UPROPERTY(VisibleAnywhere, Category="Building Component")
+	ATimberBuildingComponentBase* ActiveBuildingComponent = nullptr;
 
 public:	
 	
@@ -36,5 +36,9 @@ public:
 
 	UFUNCTION()
 	void SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator);
+
+	void MoveBuildingComponent(FVector_NetQuantize Location);
+
+	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponent;};
 
 };

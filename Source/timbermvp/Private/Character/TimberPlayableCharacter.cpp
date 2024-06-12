@@ -2,11 +2,21 @@
 
 
 #include "Character/TimberPlayableCharacter.h"
+
+#include "BuildSystem/TimberBuildingComponentBase.h"
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "Camera/CameraComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+
+ATimberPlayableCharacter::ATimberPlayableCharacter()
+{
+	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
+	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
+	Camera->SetupAttachment(CameraSpringArm);
+	CameraSpringArm->SetupAttachment(RootComponent);
+}
 
 void ATimberPlayableCharacter::BeginPlay()
 {
@@ -54,7 +64,19 @@ void ATimberPlayableCharacter::PerformRaycast()
 
 			if (bHit)
 			{
-				
+				//Get reference to the BuildSystemManager
+				/*ATimberBuildingComponentBase* BuildingComponent = 
+				BuildSystemManagerInstance->GetActiveBuildingComponent();
+
+				//If there isn't an Active BuildingComponent, Create One and Set it as Active
+				if(!BuildingComponent)
+				{
+					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, FRotator::ZeroRotator); 
+				}
+				else //If there is an Active BuildingComponent, Move it to the HitResult.ImpactPoint
+				{
+					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);
+				}*/
 			}
 		}
 	}
@@ -71,12 +93,6 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 	CurrentlyEquippedWeapon = Weapon;
 }
 
-ATimberPlayableCharacter::ATimberPlayableCharacter()
-{
-	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
-	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
-	Camera->SetupAttachment(CameraSpringArm);
-	CameraSpringArm->SetupAttachment(RootComponent);
-}
+
 
 

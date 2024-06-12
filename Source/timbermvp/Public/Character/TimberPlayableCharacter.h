@@ -7,6 +7,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class ATimberBuildSystemManager;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -78,6 +79,16 @@ public:
 	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const {return CurrentlyEquippedWeapon;}
 
+	/*Build System*/
+	//TODO:: Fix the Issue here with Instantiating the BuildSystemManager
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
+	TSubclassOf<ATimberBuildSystemManager> BuildSystemManagerClass;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building")
+	ATimberBuildSystemManager* BuildSystemManagerInstance;*/
+	void PerformRaycast();
+	UPROPERTY(EditAnywhere, Category="Building")
+	float BuildRaycastDistance = 1000.f;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
@@ -87,11 +98,9 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	/* Building Mode */
-	void PerformRaycast();
+
 	
-	UPROPERTY(EditAnywhere, Category="Building")
-	float BuildRaycastDistance = 1000.f;
+	
 	
 	
 };

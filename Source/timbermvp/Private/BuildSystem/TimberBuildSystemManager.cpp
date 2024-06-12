@@ -38,3 +38,12 @@ void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRot
 			SpawnParameters));
 }
 
+void ATimberBuildSystemManager::MoveBuildingComponent(FVector_NetQuantize Location)
+{
+	if(ActiveBuildingComponent)
+	{
+		ActiveBuildingComponent->SetActorLocation(Location);
+	}
+		
+}
+

@@ -82,9 +82,9 @@ public:
 	/*Build System*/
 	//TODO:: Fix the Issue here with Instantiating the BuildSystemManager
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
-	TSubclassOf<ATimberBuildSystemManager> BuildSystemManagerClass;
+	TSubclassOf<ATimberBuildSystemManager> BuildSystemManagerClass;*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building")
-	ATimberBuildSystemManager* BuildSystemManagerInstance;*/
+	ATimberBuildSystemManager* BuildSystemManagerInstance;
 	void PerformRaycast();
 	UPROPERTY(EditAnywhere, Category="Building")
 	float BuildRaycastDistance = 1000.f;

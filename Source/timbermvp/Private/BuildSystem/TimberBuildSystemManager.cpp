@@ -31,11 +31,13 @@ void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRot
 	FActorSpawnParameters SpawnParameters;
 	FRotator ZeroRotation = FRotator::ZeroRotator;
 	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-	ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(GetWorld()->SpawnActor
-		(ActiveBuildingComponentClass->StaticClass(),
-			&SpawnVector,
-			&ZeroRotation, 
-			SpawnParameters));
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(ActiveBuildingComponentClass,
+			SpawnVector,
+			ZeroRotation, 
+			SpawnParameters);
+
+	ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor);
 }
 
 void ATimberBuildSystemManager::MoveBuildingComponent(FVector_NetQuantize Location)

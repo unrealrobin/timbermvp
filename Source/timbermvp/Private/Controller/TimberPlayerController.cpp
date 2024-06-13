@@ -4,6 +4,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
+#include "BuildSystem/TimberBuildSystemManager.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/TimberWeaponBase.h"
@@ -314,6 +315,13 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 	if(TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Standard Mode");
+
+		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent.
+		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
+		if(BuildSystemManager)
+		{
+			BuildSystemManager->EmptyActiveBuildingComponent();
+		}
 	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
 		UnEquipWeapon();

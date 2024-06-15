@@ -21,7 +21,7 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	float GridSize = 100.f;
+	int GridSize = 100.f;
 
 	// This is the Building Component that Has not been placed in the world yet.
 	// It is set in the BuildSystemManager BP. (In the future, user selection from UI will set this.)
@@ -30,6 +30,8 @@ protected:
 	TSubclassOf<AActor> ActiveBuildingComponentClass;
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	ATimberBuildingComponentBase* ActiveBuildingComponent = nullptr;
+
+	FVector SnapToGrid(FVector RaycastLocation);
 
 public:	
 	

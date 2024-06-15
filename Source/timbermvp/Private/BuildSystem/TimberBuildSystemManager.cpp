@@ -19,6 +19,35 @@ void ATimberBuildSystemManager::BeginPlay()
 	
 }
 
+FVector ATimberBuildSystemManager::SnapToGrid(FVector RaycastLocation)
+{
+	/*Ex Location :
+	 *	Initial
+	 * { x = 650, y = 20, z = -100 }
+	 *
+	 * Snapped
+	 * { x = 600, y = 0, z = -100 }
+	 */
+
+	
+	FVector SnappedVector;
+	const int SnappedX = (FMath::FloorToInt(RaycastLocation.X) / GridSize ) * GridSize; 
+	const int SnappedY = (FMath::FloorToInt(RaycastLocation.Y) / GridSize ) * GridSize;
+	const int SnappedZ = (FMath::FloorToInt(RaycastLocation.Z) / GridSize ) * GridSize;
+	
+	SnappedVector.X = SnappedX;
+	SnappedVector.Y = SnappedY;
+	SnappedVector.Z = SnappedZ;
+
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, FString::Printf(TEXT("Initial Vector: %s"), *RaycastLocation.ToString()));
+		GEngine->AddOnScreenDebugMessage(2, 5.f, FColor::Red, FString::Printf(TEXT("Snapped Vector: %s"), *SnappedVector.ToString()));
+	}
+
+	return SnappedVector;
+}
+
 // Called every frame
 void ATimberBuildSystemManager::Tick(float DeltaTime)
 {
@@ -28,12 +57,13 @@ void ATimberBuildSystemManager::Tick(float DeltaTime)
 
 void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator)
 {
+	
 	FActorSpawnParameters SpawnParameters;
 	FRotator ZeroRotation = FRotator::ZeroRotator;
 	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(ActiveBuildingComponentClass,
-			SpawnVector,
+			SnapToGrid(SpawnVector),
 			ZeroRotation, 
 			SpawnParameters);
 
@@ -44,7 +74,8 @@ void ATimberBuildSystemManager::MoveBuildingComponent(FVector_NetQuantize Locati
 {
 	if(ActiveBuildingComponent)
 	{
-		ActiveBuildingComponent->SetActorLocation(Location);
+		//TODO::Snap To grid logic here.
+		ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
 	}
 		
 }

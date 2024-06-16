@@ -94,15 +94,6 @@ FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
 	return SavedRotation;
 }
 
-void ATimberBuildSystemManager::RotateBuildingComponent()
-{
-	if(ActiveBuildingComponent)
-	{
-		SavedRotation.Yaw += 90;
-		ActiveBuildingComponent->SetActorRotation(SavedRotation);
-	}
-}
-
 // Called every frame
 void ATimberBuildSystemManager::Tick(float DeltaTime)
 {
@@ -134,5 +125,17 @@ void ATimberBuildSystemManager::MoveBuildingComponent(FVector_NetQuantize Locati
 		ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
 	}
 		
+}
+void ATimberBuildSystemManager::RotateBuildingComponent()
+{
+	if(ActiveBuildingComponent)
+	{
+		SavedRotation.Yaw += 90;
+		if (SavedRotation.Yaw >= 360) // Reset Yaw to 0 if it reaches 360
+		{
+			SavedRotation.Yaw = 0;
+		}
+		ActiveBuildingComponent->SetActorRotation(SavedRotation);
+	}
 }
 

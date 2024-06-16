@@ -8,6 +8,7 @@
 #include "TimberPlayerController.generated.h"
 
 
+class ATimberBuildSystemManager;
 class IInteractable;
 class ATimberPlayableCharacter;
 class UCharacterMovementComponent;
@@ -52,7 +53,8 @@ public:
 	UInputAction* StandardAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ToggleBuildModeAction;
-	;
+	UPROPERTY(EditAnywhere)
+	UInputAction* RotateBuildingComponentAction;
 	
 	/*Player Controls*/
 	UFUNCTION()
@@ -77,6 +79,8 @@ public:
 	void StandardAttack(const FInputActionValue& Value);
 	UFUNCTION()
 	void ToggleBuildMode(const FInputActionValue& Value);
+	UFUNCTION()
+	void RotateBuildingComponent(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;
@@ -133,7 +137,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool CanAttackAgain = true;
 
-	
+	/*Build Controls*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	ATimberBuildSystemManager* TimberBuildSystemManager;
 	
 
 

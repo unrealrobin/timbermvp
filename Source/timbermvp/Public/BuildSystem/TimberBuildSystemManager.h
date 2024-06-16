@@ -35,7 +35,7 @@ protected:
 	FRotator SnapToRotation(FRotator CharactersRotation);
 	FRotator SavedRotation = FRotator::ZeroRotator;
 
-	void RotateBuildingComponent();
+	
 
 public:	
 	
@@ -43,8 +43,8 @@ public:
 
 	UFUNCTION()
 	void SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator);
-
 	void MoveBuildingComponent(FVector_NetQuantize Location);
+	void RotateBuildingComponent();
 	
 
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponent;};

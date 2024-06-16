@@ -46,6 +46,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(EquipWeaponThreeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponThree);
 	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
+	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
 	
 }
 
@@ -316,7 +317,7 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Standard Mode");
 
-		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent.
+		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
 		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
 		if(BuildSystemManager)
 		{
@@ -329,6 +330,16 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Building Mode");
 	}
+}
+
+void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)
+{
+	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberBuildSystemManager)
+	{
+		TimberBuildSystemManager->RotateBuildingComponent();
+		GEngine->AddOnScreenDebugMessage(1,5, FColor::Green, "Rotating Building Component");
+	}
+	
 }
 
 void ATimberPlayerController::UnEquipWeapon() const

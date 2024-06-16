@@ -39,13 +39,68 @@ FVector ATimberBuildSystemManager::SnapToGrid(FVector RaycastLocation)
 	SnappedVector.Y = SnappedY;
 	SnappedVector.Z = SnappedZ;
 
-	if(GEngine)
+	return SnappedVector;
+}
+
+FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
+{
+	//Use Saved Rotation if it is not Zero.
+	if(SavedRotation != FRotator::ZeroRotator)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, FString::Printf(TEXT("Initial Vector: %s"), *RaycastLocation.ToString()));
-		GEngine->AddOnScreenDebugMessage(2, 5.f, FColor::Red, FString::Printf(TEXT("Snapped Vector: %s"), *SnappedVector.ToString()));
+		return SavedRotation;
 	}
 
-	return SnappedVector;
+	/*Examples
+	 *
+	 * Characters Rotation = { x = 0, y = 0, z = 45 }
+	 * Object Rotation = { x = 0, y = 0, z = -135 }
+	 * 
+	* Characters Rotation = { x = 0, y = 0, z = 90 }
+	 * Object Rotation = { x = 0, y = 0, z = -90 }
+	 * 
+	* Characters Rotation = { x = 0, y = 0, z = 45 }
+	 * Object Rotation = { x = 0, y = 0, z = -135 }
+	 *
+	* Characters Rotation = { x = 0, y = 0, z = -27 }
+	 * Object Rotation = { x = 0, y = 0, z =  153}
+	 * 
+	 */
+	
+	float CharacterRotationYaw = CharactersRotation.Yaw;
+
+	if(CharacterRotationYaw <= 45 && CharacterRotationYaw >= 0)
+	{
+		SavedRotation.Yaw = 180;
+	}else if(CharacterRotationYaw >= -45 && CharacterRotationYaw < 0)
+	{
+		SavedRotation.Yaw = 180;
+	}else if(CharacterRotationYaw > 45 && CharacterRotationYaw <= 135)
+	{
+		SavedRotation.Yaw = -90;
+	}else if(CharacterRotationYaw < -45 && CharacterRotationYaw > -135)
+	{
+		SavedRotation.Yaw = 90;
+	}else if(CharacterRotationYaw > 135)
+	{
+		SavedRotation.Yaw = 0;
+	}else if(CharacterRotationYaw <= -135)
+	{
+		SavedRotation.Yaw = 0;
+	}
+
+	FString RotationString = SavedRotation.ToString();
+	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *RotationString);
+	
+	return SavedRotation;
+}
+
+void ATimberBuildSystemManager::RotateBuildingComponent()
+{
+	if(ActiveBuildingComponent)
+	{
+		SavedRotation.Yaw += 90;
+		ActiveBuildingComponent->SetActorRotation(SavedRotation);
+	}
 }
 
 // Called every frame
@@ -57,14 +112,15 @@ void ATimberBuildSystemManager::Tick(float DeltaTime)
 
 void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator)
 {
-	
+	const FVector Location = SnapToGrid(SpawnVector);
+	const FRotator Rotation = SnapToRotation(SpawnRotator);
 	FActorSpawnParameters SpawnParameters;
 	FRotator ZeroRotation = FRotator::ZeroRotator;
 	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(ActiveBuildingComponentClass,
-			SnapToGrid(SpawnVector),
-			ZeroRotation, 
+			Location,
+			Rotation, 
 			SpawnParameters);
 
 	ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor);

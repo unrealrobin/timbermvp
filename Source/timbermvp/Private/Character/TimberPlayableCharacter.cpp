@@ -31,6 +31,10 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	PerformRaycast();
+
+	FRotator ActorRotation = GetActorRotation();
+	UE_LOG(LogTemp, Warning, TEXT("Actor Rotation: %s"), *ActorRotation.ToString());
+	
 }
 
 void ATimberPlayableCharacter::PerformRaycast()
@@ -59,7 +63,7 @@ void ATimberPlayableCharacter::PerformRaycast()
 				RaycastEnd,
 				ECC_Visibility,
 				CollisionParams);
-
+			
 			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
 
 			if (bHit)
@@ -70,7 +74,8 @@ void ATimberPlayableCharacter::PerformRaycast()
 				//If there isn't an Active BuildingComponent, Create One and Set it as Active
 				if(BuildingComponent == nullptr)
 				{
-					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, FRotator::ZeroRotator); 
+					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, GetActorRotation());
+					
 				}
 
 
@@ -84,13 +89,13 @@ void ATimberPlayableCharacter::PerformRaycast()
 				
 				if(BuildingComponent)
 				{
-					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);}
+					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);
+				}
 					
 			}
 		}
 	}
 }
-
 
 void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
 {

@@ -32,6 +32,10 @@ protected:
 	ATimberBuildingComponentBase* ActiveBuildingComponent = nullptr;
 
 	FVector SnapToGrid(FVector RaycastLocation);
+	FRotator SnapToRotation(FRotator CharactersRotation);
+	FRotator SavedRotation = FRotator::ZeroRotator;
+
+	void RotateBuildingComponent();
 
 public:	
 	
@@ -41,6 +45,7 @@ public:
 	void SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator);
 
 	void MoveBuildingComponent(FVector_NetQuantize Location);
+	
 
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponent;};
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};

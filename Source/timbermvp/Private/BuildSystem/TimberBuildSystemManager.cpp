@@ -19,16 +19,22 @@ void ATimberBuildSystemManager::BeginPlay()
 	
 }
 
+// Called every frame
+void ATimberBuildSystemManager::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 FVector ATimberBuildSystemManager::SnapToGrid(FVector RaycastLocation)
 {
 	/*Ex Location :
 	 *	Initial
-	 * { x = 650, y = 20, z = -100 }
+	 * { x = 650.56, y = 20.1, z = -100.3 }
 	 *
 	 * Snapped
 	 * { x = 600, y = 0, z = -100 }
 	 */
-
 	
 	FVector SnappedVector;
 	const int SnappedX = (FMath::FloorToInt(RaycastLocation.X) / GridSize ) * GridSize; 
@@ -49,22 +55,6 @@ FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
 	{
 		return SavedRotation;
 	}
-
-	/*Examples
-	 *
-	 * Characters Rotation = { x = 0, y = 0, z = 45 }
-	 * Object Rotation = { x = 0, y = 0, z = -135 }
-	 * 
-	* Characters Rotation = { x = 0, y = 0, z = 90 }
-	 * Object Rotation = { x = 0, y = 0, z = -90 }
-	 * 
-	* Characters Rotation = { x = 0, y = 0, z = 45 }
-	 * Object Rotation = { x = 0, y = 0, z = -135 }
-	 *
-	* Characters Rotation = { x = 0, y = 0, z = -27 }
-	 * Object Rotation = { x = 0, y = 0, z =  153}
-	 * 
-	 */
 	
 	float CharacterRotationYaw = CharactersRotation.Yaw;
 
@@ -94,12 +84,6 @@ FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
 	return SavedRotation;
 }
 
-// Called every frame
-void ATimberBuildSystemManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 
 void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator)
 {

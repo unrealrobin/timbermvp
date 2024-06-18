@@ -78,8 +78,8 @@ FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
 		SavedRotation.Yaw = 0;
 	}
 
-	FString RotationString = SavedRotation.ToString();
-	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *RotationString);
+	/*FString RotationString = SavedRotation.ToString();
+	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *RotationString);*/
 	
 	return SavedRotation;
 }

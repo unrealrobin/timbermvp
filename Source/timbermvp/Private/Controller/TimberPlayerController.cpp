@@ -113,7 +113,7 @@ void ATimberPlayerController::CanCharacterJump()
 {
 	//Checks conditions to ensure character is not already in a jump or falling off something already.
 	bool bIsMovingOnGround = TimberCharacterMovementComponent->IsMovingOnGround();
-	bool bIsIdle = TimberCharacterMovementComponent->Velocity.Size() == 0.f;
+	bool bIsIdle = TimberCharacterMovementComponent->Velocity.Size() == 0.1f;
 	bool IsFalling = TimberCharacterMovementComponent->IsFalling();
 
 	if(IsFalling) CanJump = false;
@@ -315,7 +315,7 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 
 	if(TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Standard Mode");
+		
 
 		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
 		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
@@ -328,7 +328,7 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		UnEquipWeapon();
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
-		GEngine->AddOnScreenDebugMessage(1, 5, FColor::Green, "Building Mode");
+		
 	}
 }
 
@@ -337,7 +337,7 @@ void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& V
 	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberBuildSystemManager)
 	{
 		TimberBuildSystemManager->RotateBuildingComponent();
-		GEngine->AddOnScreenDebugMessage(1,5, FColor::Green, "Rotating Building Component");
+		
 	}
 	
 }

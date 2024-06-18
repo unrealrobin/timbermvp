@@ -33,7 +33,7 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	PerformRaycast();
 
 	FRotator ActorRotation = GetActorRotation();
-	UE_LOG(LogTemp, Warning, TEXT("Actor Rotation: %s"), *ActorRotation.ToString());
+	
 	
 }
 

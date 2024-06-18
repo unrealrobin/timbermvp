@@ -27,12 +27,17 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FInputActionValue InputActionValue;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	ATimberPlayableCharacter* TimberPlayableCharacter;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	ATimberPlayerController* TimberPlayerController;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
+	ATimberPlayableCharacter* OwningPawn;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
+	ATimberPlayerController* PlayerController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
+	bool CharacterNControllerInitialized = false;
 
 private:
-	
+
+	void InitializeReferences();
 	
 };

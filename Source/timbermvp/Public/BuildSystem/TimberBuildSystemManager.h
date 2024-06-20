@@ -37,6 +37,8 @@ protected:
 
 	
 
+	
+
 public:	
 	
 	virtual void Tick(float DeltaTime) override;
@@ -45,10 +47,14 @@ public:
 	void SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator);
 	void MoveBuildingComponent(FVector_NetQuantize Location);
 	void RotateBuildingComponent();
-	
+	UFUNCTION()
+	void SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation);
+	FVector FinalSpawnLocation;
+	FRotator FinalSpawnRotation;
 
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponent;};
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};
+	//FORCEINLINE void SetFinalSpawnLocationAndRotation(FVector Location, FRotator Rotation) {FinalSpawnLocation = Location; FinalSpawnRotation = Rotation;};
 	
 
 };

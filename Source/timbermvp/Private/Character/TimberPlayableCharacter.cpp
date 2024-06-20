@@ -2,7 +2,6 @@
 
 
 #include "Character/TimberPlayableCharacter.h"
-
 #include "BuildSystem/TimberBuildingComponentBase.h"
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "Camera/CameraComponent.h"
@@ -68,25 +67,21 @@ void ATimberPlayableCharacter::PerformRaycast()
 
 			if (bHit)
 			{
+				
 				//Get reference to the BuildSystemManager
 				ATimberBuildingComponentBase* BuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
-
 				//If there isn't an Active BuildingComponent, Create One and Set it as Active
 				if(BuildingComponent == nullptr)
 				{
 					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, GetActorRotation());
-					
 				}
-
-
 				//When the Actor spawns, we now hit it with the raycast, so we need to ignore it, otherwise it will look
 				//like the actor is moving toward us as the hits get closer and closer with movement
 				AActor* HitActor = HitResult.GetComponent()->GetOwner();
-				if(Cast<ATimberBuildingComponentBase>(HitActor))
+				if(Cast<ATimberBuildingComponentBase>(HitActor)) //if HitActor is a BuildingComponent
 				{
 					return;
 				}
-				
 				if(BuildingComponent)
 				{
 					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);

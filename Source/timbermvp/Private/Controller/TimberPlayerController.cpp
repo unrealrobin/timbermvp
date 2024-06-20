@@ -4,6 +4,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
+#include "BuildSystem/TimberBuildingComponentBase.h"
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -47,6 +48,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
 	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
+	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
 	
 }
 
@@ -319,6 +321,8 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
 		if(BuildSystemManager)
 		{
+			//If player exits build mode with an active building component that isn't placed, destroy it.
+			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
 			BuildSystemManager->EmptyActiveBuildingComponent();
 		}
 
@@ -351,6 +355,22 @@ void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& V
 		
 	}
 	
+}
+
+void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Value)
+{
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(4, 5.0f, FColor::Green, "LMB Key Pressed in Build Mode");
+	}
+
+	//TODO:: Place Building Component with Correct Material.
+
+	TimberBuildSystemManager->SpawnFinalBuildingComponent(
+		TimberBuildSystemManager->FinalSpawnLocation, TimberBuildSystemManager->FinalSpawnRotation);
+
+	//Spawn a new actor with the Correct Material at that location.
+	//TODO:: Handle multiple building components overlapping each other. Do not allow placement.
 }
 
 void ATimberPlayerController::UnEquipWeapon() const

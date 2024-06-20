@@ -12,14 +12,12 @@ ATimberBuildSystemManager::ATimberBuildSystemManager()
 
 }
 
-// Called when the game starts or when spawned
 void ATimberBuildSystemManager::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
 void ATimberBuildSystemManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -44,6 +42,8 @@ FVector ATimberBuildSystemManager::SnapToGrid(FVector RaycastLocation)
 	SnappedVector.X = SnappedX;
 	SnappedVector.Y = SnappedY;
 	SnappedVector.Z = SnappedZ;
+
+	FinalSpawnLocation = SnappedVector;
 
 	return SnappedVector;
 }
@@ -78,19 +78,18 @@ FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
 		SavedRotation.Yaw = 0;
 	}
 
+	FinalSpawnRotation = SavedRotation;
 	/*FString RotationString = SavedRotation.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *RotationString);*/
 	
 	return SavedRotation;
 }
 
-
 void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator)
 {
 	const FVector Location = SnapToGrid(SpawnVector);
 	const FRotator Rotation = SnapToRotation(SpawnRotator);
 	FActorSpawnParameters SpawnParameters;
-	FRotator ZeroRotation = FRotator::ZeroRotator;
 	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(ActiveBuildingComponentClass,
@@ -105,11 +104,11 @@ void ATimberBuildSystemManager::MoveBuildingComponent(FVector_NetQuantize Locati
 {
 	if(ActiveBuildingComponent)
 	{
-		//TODO::Snap To grid logic here.
 		ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
 	}
 		
 }
+
 void ATimberBuildSystemManager::RotateBuildingComponent()
 {
 	if(ActiveBuildingComponent)
@@ -121,5 +120,17 @@ void ATimberBuildSystemManager::RotateBuildingComponent()
 		}
 		ActiveBuildingComponent->SetActorRotation(SavedRotation);
 	}
+}
+
+void ATimberBuildSystemManager::SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation)
+{
+	FActorSpawnParameters SpawnParameters;
+	
+	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(ActiveBuildingComponentClass,
+			Location,
+			Rotation, 
+			SpawnParameters);
 }
 

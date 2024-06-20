@@ -55,6 +55,8 @@ public:
 	UInputAction* ToggleBuildModeAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* RotateBuildingComponentAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* PlaceBuildingComponentAction;
 	
 	/*Player Controls*/
 	UFUNCTION()
@@ -81,6 +83,8 @@ public:
 	void ToggleBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
 	void RotateBuildingComponent(const FInputActionValue& Value);
+	UFUNCTION()
+	void PlaceBuildingComponent(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

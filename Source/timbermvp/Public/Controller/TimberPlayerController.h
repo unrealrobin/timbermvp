@@ -15,6 +15,7 @@ class UCharacterMovementComponent;
 class USpringArmComponent;
 class UInputMappingContext;
 class AHUD;
+class UEnhancedInputLocalPlayerSubsystem;
 
 
 
@@ -30,7 +31,6 @@ class TIMBERMVP_API ATimberPlayerController : public APlayerController
 public:
 
 	virtual void BeginPlay() override;
-
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -144,8 +144,14 @@ protected:
 
 
 private:
+	/*Enhanced Input Subsystem*/
+	UEnhancedInputLocalPlayerSubsystem* Subsystem;
+
+	/*Input Mapping Contexts for Different Character States*/
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UInputMappingContext> TimberInputMappingContext;
+	TObjectPtr<UInputMappingContext> StandardInputMappingContext;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputMappingContext> BuildModeInputMappingContext;
 
 	UFUNCTION()
 	void UnEquipWeapon() const;

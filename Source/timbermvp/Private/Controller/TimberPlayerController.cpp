@@ -13,12 +13,12 @@ void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
 	
 	if (Subsystem)
 	{
-		Subsystem->AddMappingContext(TimberInputMappingContext, 100);
+		Subsystem->AddMappingContext(StandardInputMappingContext, 1);
 	}
 	
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
@@ -315,16 +315,23 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 
 	if(TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
-		
-
 		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
 		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
 		if(BuildSystemManager)
 		{
 			BuildSystemManager->EmptyActiveBuildingComponent();
 		}
+
+		if(Subsystem)
+		{
+			Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
+		}
 	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
+		if(Subsystem)
+		{
+			Subsystem->AddMappingContext(BuildModeInputMappingContext, 2);
+		}
 		UnEquipWeapon();
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
@@ -334,6 +341,10 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 
 void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)
 {
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(3,5.0f, FColor::Green, "Q Key Pressed");
+	}
 	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberBuildSystemManager)
 	{
 		TimberBuildSystemManager->RotateBuildingComponent();

@@ -119,6 +119,8 @@ void ATimberBuildSystemManager::RotateBuildingComponent()
 			SavedRotation.Yaw = 0;
 		}
 		ActiveBuildingComponent->SetActorRotation(SavedRotation);
+		//Updating FinalSpawnRotation after Player Rotates Component
+		FinalSpawnRotation = SavedRotation;
 	}
 }
 

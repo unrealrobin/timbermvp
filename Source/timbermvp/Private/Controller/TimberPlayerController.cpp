@@ -137,6 +137,25 @@ void ATimberPlayerController::JumpComplete()
 	CanJump = false;
 }
 
+void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
+{
+	TimberCharacter->CharacterState = NewState;
+	if(Subsystem)
+	{
+		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
+		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
+		if(BuildSystemManager)
+		{
+			//If player exits build mode with an active building component that isn't placed, destroy it.
+			if(BuildSystemManager->GetActiveBuildingComponent()) //Checking
+			{
+				BuildSystemManager->GetActiveBuildingComponent()->Destroy();
+			}
+			BuildSystemManager->EmptyActiveBuildingComponent();
+		}
+	}
+}
+
 void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 {
 	CanCharacterJump(); // sets the CanJump Variable
@@ -172,6 +191,7 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		
 		//TODO:: Play Equip Axe Animation
 		UnEquipWeapon();
+		ExitBuildMode(ECharacterState::Standard);
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
 		WeaponState.Broadcast(EWeaponState::AxeEquipped);
@@ -211,7 +231,7 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	check(TimberCharacter);
 
 	UnEquipWeapon();
-	
+	ExitBuildMode(ECharacterState::Standard);
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
 	WeaponState.Broadcast(EWeaponState::ChainsawEquipped);
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
@@ -246,7 +266,7 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	check(TimberCharacter);
 
 	UnEquipWeapon();
-	
+	ExitBuildMode(ECharacterState::Standard);
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
 	WeaponState.Broadcast(EWeaponState::RangedEquipped);
 
@@ -319,18 +339,7 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 	if(TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
 		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
-		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
-		if(BuildSystemManager)
-		{
-			//If player exits build mode with an active building component that isn't placed, destroy it.
-			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
-			BuildSystemManager->EmptyActiveBuildingComponent();
-		}
-
-		if(Subsystem)
-		{
-			Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
-		}
+		ExitBuildMode(ECharacterState::Standard);
 	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
 		if(Subsystem)

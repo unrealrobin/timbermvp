@@ -35,10 +35,6 @@ protected:
 	FRotator SnapToRotation(FRotator CharactersRotation);
 	FRotator SavedRotation = FRotator::ZeroRotator;
 
-	
-
-	
-
 public:	
 	
 	virtual void Tick(float DeltaTime) override;

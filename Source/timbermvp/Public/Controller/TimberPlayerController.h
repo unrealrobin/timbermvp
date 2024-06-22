@@ -154,11 +154,13 @@ protected:
 	//Gets set in the BeginPlay of the TimberPlayerController.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	ATimberBuildSystemManager* TimberBuildSystemManager;
-	
+
+	void ExitBuildMode(ECharacterState NewState);
 
 
 private:
 	/*Enhanced Input Subsystem*/
+	UPROPERTY()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem;
 
 	/*Input Mapping Contexts for Different Character States*/

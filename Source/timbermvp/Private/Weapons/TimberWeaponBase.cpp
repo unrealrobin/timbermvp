@@ -75,12 +75,21 @@ void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
-		
+
+		if(GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(5, 2.0f, FColor::Green, "Weapon Collision Enabled.");
+		}
 		
 	}
 	else
 	{
 		WeaponBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+		if(GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(5, 2.0f, FColor::Green, "Weapon Collision disabled.");
+		}
 	}
 }
 

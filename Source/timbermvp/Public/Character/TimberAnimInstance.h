@@ -8,6 +8,7 @@
 #include "TimberAnimInstance.generated.h"
 
 
+enum class ECharacterState : uint8;
 class ATimberPlayableCharacter;
 class ATimberPlayerController;
 
@@ -32,12 +33,19 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
 	ATimberPlayerController* PlayerController;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
 	bool CharacterNControllerInitialized = false;
 
-private:
+	UFUNCTION(BlueprintCallable)
+	void OnWeaponStateChange(EWeaponState WeaponState);
+	
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	bool isRangedEquipped = false;
 
-	void InitializeReferences();
+	UFUNCTION(BlueprintCallable)
+	void InitializeDelegates();
+
+private:
 	
 };

@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Character/TimberPlayableCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "TimberPlayerController.generated.h"
 
 
+
 class ATimberBuildSystemManager;
 class IInteractable;
-class ATimberPlayableCharacter;
 class UCharacterMovementComponent;
 class USpringArmComponent;
 class UInputMappingContext;
@@ -31,6 +32,13 @@ class TIMBERMVP_API ATimberPlayerController : public APlayerController
 public:
 
 	virtual void BeginPlay() override;
+
+	/*Delegates*/
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState); 
+
+	/*DelegateHandles*/
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStateChange WeaponState;
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -103,6 +111,7 @@ public:
 
 protected:
 	virtual void SetupInputComponent() override;
+	
 	/*Move Data*/
 	UPROPERTY(BlueprintReadOnly)
 	FVector CharacterForwardMoveDirection;
@@ -142,6 +151,7 @@ protected:
 	bool CanAttackAgain = true;
 
 	/*Build Controls*/
+	//Gets set in the BeginPlay of the TimberPlayerController.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	ATimberBuildSystemManager* TimberBuildSystemManager;
 	

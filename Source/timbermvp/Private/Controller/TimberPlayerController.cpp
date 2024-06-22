@@ -174,7 +174,7 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		UnEquipWeapon();
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
-		
+		WeaponState.Broadcast(EWeaponState::AxeEquipped);
 		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 		const FActorSpawnParameters SpawnParams;
 
@@ -213,7 +213,7 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	UnEquipWeapon();
 	
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
-
+	WeaponState.Broadcast(EWeaponState::ChainsawEquipped);
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 	const FActorSpawnParameters SpawnParams;
 
@@ -248,6 +248,7 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	UnEquipWeapon();
 	
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
+	WeaponState.Broadcast(EWeaponState::RangedEquipped);
 
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 	const FActorSpawnParameters SpawnParams;
@@ -380,6 +381,7 @@ void ATimberPlayerController::UnEquipWeapon() const
 	{
 		//Removing the Currently EquippedWeapon
 		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
+		WeaponState.Broadcast(EWeaponState::Unequipped);
 	}
 }
 

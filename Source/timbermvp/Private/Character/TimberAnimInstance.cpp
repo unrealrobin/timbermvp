@@ -22,11 +22,14 @@ void UTimberAnimInstance::NativeBeginPlay()
 	
 }
 
+void UTimberAnimInstance::InitializeDelegates()
+{
+	
+}
+
 void UTimberAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
-	
-	InitializeReferences();
 }
 
 void UTimberAnimInstance::NativeUpdateAnimation(float DeltaTime)
@@ -35,26 +38,27 @@ void UTimberAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	
 }
 
-void UTimberAnimInstance::InitializeReferences()
+void UTimberAnimInstance::OnWeaponStateChange(EWeaponState WeaponState)
 {
-	//Owner of the Anim Instance
-	/*OwningPawn = TryGetPawnOwner();
-	if(OwningPawn)
+	switch(WeaponState)
 	{
-		//Casted to TPC
-		Character = Cast<ATimberPlayableCharacter>(OwningPawn);
-		PlayerController = Cast<ATimberPlayerController>(OwningPawn->GetController());
-		if(PlayerController)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player Controller found: %s"), *PlayerController->GetName());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player Controller not available."));
-		}
+	case EWeaponState::RangedEquipped:
+		isRangedEquipped = true;
+		break;
+	case EWeaponState::AxeEquipped :
+		isRangedEquipped = false;
+		break;
+	case EWeaponState::ChainsawEquipped :
+		isRangedEquipped = false;
+		break;
+	case EWeaponState::Unequipped :
+		isRangedEquipped = false;
+		break;
+	default :
+		isRangedEquipped = false;
+		break;
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Owning Pawn not available."));
-	}*/
 }
+
+
+

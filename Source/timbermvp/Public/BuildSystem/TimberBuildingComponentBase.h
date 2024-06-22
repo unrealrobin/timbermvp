@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Styling/SlateBrush.h"
 #include "TimberBuildingComponentBase.generated.h"
 
 UCLASS()
@@ -24,4 +25,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool IsUnlocked = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int MaterialCost = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FSlateBrush BuildingComponentIconImage;
 };

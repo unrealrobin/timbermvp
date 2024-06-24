@@ -13,5 +13,16 @@ UCLASS()
 class TIMBERMVP_API UBuildingComponent : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool IsUnlocked = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int MaterialCost = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FSlateBrush BuildingComponentIconImage;
 	
 };

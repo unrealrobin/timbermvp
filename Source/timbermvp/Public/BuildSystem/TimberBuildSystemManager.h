@@ -34,6 +34,9 @@ protected:
 	FVector SnapToGrid(FVector RaycastLocation);
 	FRotator SnapToRotation(FRotator CharactersRotation);
 	FRotator SavedRotation = FRotator::ZeroRotator;
+	
+	void MakeBuildingComponentGhost(ATimberBuildingComponentBase* BuildingComponent);
+	float GhostOpacity = 0.5f;
 
 public:	
 	

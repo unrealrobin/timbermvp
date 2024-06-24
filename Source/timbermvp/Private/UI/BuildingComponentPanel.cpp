@@ -3,3 +3,6 @@
 
 #include "UI/BuildingComponentPanel.h"
 
+void UBuildingComponentPanel::CreateBuildingComponentWidgets()
+{
+}

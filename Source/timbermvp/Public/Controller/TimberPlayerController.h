@@ -35,10 +35,12 @@ public:
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState); 
-
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildPanelToggle, bool, bIsBuildPanelOpen);
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
+	UPROPERTY(BlueprintAssignable)
+	FOnBuildPanelToggle IsBuildPanelOpen;
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -157,6 +159,10 @@ protected:
 
 	void ExitBuildMode(ECharacterState NewState);
 
+	UFUNCTION()
+	void OpenBuildModeSelectionMenu();
+	UFUNCTION()
+	void CloseBuildModeSelectionMenu();
 
 private:
 	/*Enhanced Input Subsystem*/

@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "Controller/TimberPlayerController.h"
+#include "Delegates/Delegate.h"
+#include "Delegates/DelegateCombinations.h"
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
@@ -25,5 +28,21 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* RootWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> BuildMenuWidgetClass;
+
+	//Set In Blueprints
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* BuildMenuWidget;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ATimberPlayerController> TimberPlayerController;
+
+protected:
+	UFUNCTION()
+	void HandleBuildPanelMenu(bool IsBuildPanelMenuOpen);
+	void OpenBuildPanelMenu();
+	void CloseBuildPanelMenu();
 	
 };

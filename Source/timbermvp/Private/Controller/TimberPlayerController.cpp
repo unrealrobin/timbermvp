@@ -26,6 +26,8 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	TimberPlayerController = this;
+
+	bShowMouseCursor= false;
 	
 }
 
@@ -135,25 +137,6 @@ void ATimberPlayerController::JumpComplete()
 	TimberCharacter->IsNowJumping = false; //Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
 	SwitchToWalking = true;
 	CanJump = false;
-}
-
-void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
-{
-	TimberCharacter->CharacterState = NewState;
-	if(Subsystem)
-	{
-		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
-		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
-		if(BuildSystemManager)
-		{
-			//If player exits build mode with an active building component that isn't placed, destroy it.
-			if(BuildSystemManager->GetActiveBuildingComponent()) //Checking
-			{
-				BuildSystemManager->GetActiveBuildingComponent()->Destroy();
-			}
-			BuildSystemManager->EmptyActiveBuildingComponent();
-		}
-	}
 }
 
 void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
@@ -342,6 +325,7 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		ExitBuildMode(ECharacterState::Standard);
 	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
+		OpenBuildModeSelectionMenu();
 		if(Subsystem)
 		{
 			Subsystem->AddMappingContext(BuildModeInputMappingContext, 2);
@@ -351,6 +335,45 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		
 	}
+}
+
+void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
+{
+	TimberCharacter->CharacterState = NewState;
+
+	CloseBuildModeSelectionMenu();
+	
+	if(Subsystem)
+	{
+		// Removing the Buttons used for Build Mode.
+		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
+
+		//TODO:: Remove this reference by using a delegate or event.
+		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
+		if(BuildSystemManager)
+		{
+			//If player exits build mode with an active building component that isn't placed, destroy it.
+			if(BuildSystemManager->GetActiveBuildingComponent()) //Checking
+			{
+				BuildSystemManager->GetActiveBuildingComponent()->Destroy();
+			}
+			BuildSystemManager->EmptyActiveBuildingComponent();
+		}
+	}
+}
+
+void ATimberPlayerController::OpenBuildModeSelectionMenu()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Opening Build Mode Selection Menu Broadcasted"));
+	IsBuildPanelOpen.Broadcast(true);
+	bShowMouseCursor = true;
+}
+
+void ATimberPlayerController::CloseBuildModeSelectionMenu()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Closing Build Mode Selection Menu Broadcasted"));
+	IsBuildPanelOpen.Broadcast(false);
+	bShowMouseCursor = false;
 }
 
 void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)

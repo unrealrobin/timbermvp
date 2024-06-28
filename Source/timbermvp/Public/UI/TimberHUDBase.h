@@ -40,8 +40,12 @@ public:
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
 
 protected:
+	/*Delegate Listeners*/
 	UFUNCTION()
 	void HandleBuildPanelMenu(bool IsBuildPanelMenuOpen);
+	UFUNCTION()
+	void ShouldHideBuildMenu();
+
 	void OpenBuildPanelMenu();
 	void CloseBuildPanelMenu();
 	

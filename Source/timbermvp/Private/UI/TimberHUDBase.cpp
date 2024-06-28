@@ -29,6 +29,7 @@ void ATimberHUDBase::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("HUD has Cached Timber Character Controller"));
 
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
+		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
 	};
 	
 	
@@ -37,6 +38,18 @@ void ATimberHUDBase::BeginPlay()
 void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
 {
 	IsBuildPanelMenuOpen ? OpenBuildPanelMenu() : CloseBuildPanelMenu();
+}
+
+void ATimberHUDBase::ShouldHideBuildMenu()
+{
+	if(BuildMenuWidget->IsInViewport())
+	{
+		CloseBuildPanelMenu();
+	}
+	else
+	{
+		OpenBuildPanelMenu();
+	}
 }
 
 void ATimberHUDBase::OpenBuildPanelMenu()

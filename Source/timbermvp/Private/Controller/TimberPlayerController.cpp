@@ -51,6 +51,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
 	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
 	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
+	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 	
 }
 
@@ -404,6 +405,12 @@ void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Va
 
 	//Spawn a new actor with the Correct Material at that location.
 	//TODO:: Handle multiple building components overlapping each other. Do not allow placement.
+}
+
+void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
+{
+	//Broadcast to HUD to Hide the Build Menu
+	ShouldHideBuildMenu.Broadcast();
 }
 
 void ATimberPlayerController::UnEquipWeapon() const

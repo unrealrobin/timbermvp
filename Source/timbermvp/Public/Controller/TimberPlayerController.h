@@ -35,12 +35,16 @@ public:
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState); 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildPanelToggle, bool, bIsBuildPanelOpen);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
+	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
 	UPROPERTY(BlueprintAssignable)
-	FOnBuildPanelToggle IsBuildPanelOpen;
+	FOnBuildMenuToggle IsBuildPanelOpen;
+	UPROPERTY(BlueprintAssignable)
+	FOnHideBuildMenu ShouldHideBuildMenu;
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -67,7 +71,8 @@ public:
 	UInputAction* RotateBuildingComponentAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* PlaceBuildingComponentAction;
-	
+	UPROPERTY(EditAnywhere)
+	UInputAction* HideBuildMenuAction;
 	/*Player Controls*/
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
@@ -95,6 +100,8 @@ public:
 	void RotateBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
 	void PlaceBuildingComponent(const FInputActionValue& Value);
+	UFUNCTION()
+	void HideBuildMenu(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

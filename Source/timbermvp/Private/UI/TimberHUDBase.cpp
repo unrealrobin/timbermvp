@@ -45,10 +45,14 @@ void ATimberHUDBase::ShouldHideBuildMenu()
 	if(BuildMenuWidget->IsInViewport())
 	{
 		CloseBuildPanelMenu();
+
+		//Building Panel closed & Player is Still in Build State.
 	}
 	else
 	{
 		OpenBuildPanelMenu();
+
+		//Building Panel OPen and Character is in Build State.
 	}
 }
 

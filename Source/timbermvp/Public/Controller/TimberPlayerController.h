@@ -116,7 +116,10 @@ public:
 	float PitchAngle = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	float YawAngle = 0.0f;
-
+	
+	/*Cursor*/
+	void EnableCursor();
+	void DisableCursor();
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -141,7 +144,6 @@ protected:
 	float ViewPitchMax = 90.0f;
 	float ViewPitchMin = -80.0f;
 	
-
 	/*Jump Controls*/
 	UPROPERTY(BlueprintReadWrite)
 	bool CanJump = false;
@@ -163,9 +165,7 @@ protected:
 	//Gets set in the BeginPlay of the TimberPlayerController.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	ATimberBuildSystemManager* TimberBuildSystemManager;
-
 	void ExitBuildMode(ECharacterState NewState);
-
 	UFUNCTION()
 	void OpenBuildModeSelectionMenu();
 	UFUNCTION()

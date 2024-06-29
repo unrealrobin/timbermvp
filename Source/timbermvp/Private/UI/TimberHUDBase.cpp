@@ -32,7 +32,6 @@ void ATimberHUDBase::BeginPlay()
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
 	};
 	
-	
 }
 
 void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
@@ -45,14 +44,13 @@ void ATimberHUDBase::ShouldHideBuildMenu()
 	if(BuildMenuWidget->IsInViewport())
 	{
 		CloseBuildPanelMenu();
-
-		//Building Panel closed & Player is Still in Build State.
+		
+		TimberPlayerController->DisableCursor();
 	}
 	else
 	{
 		OpenBuildPanelMenu();
-
-		//Building Panel OPen and Character is in Build State.
+		TimberPlayerController->EnableCursor();
 	}
 }
 
@@ -62,9 +60,7 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 	if(BuildMenuWidget)
 	{
 		BuildMenuWidget->AddToViewport(2);
-		UE_LOG(LogTemp, Warning, TEXT("Build Panel Widget Added to Viewport"));
 	}
-	
 }
 
 void ATimberHUDBase::CloseBuildPanelMenu()
@@ -72,6 +68,6 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 	if(BuildMenuWidget)
 	{
 		BuildMenuWidget->RemoveFromParent();
-		UE_LOG(LogTemp, Warning, TEXT("Build Panel Widget Removed to Viewport"));
+
 	}
 }

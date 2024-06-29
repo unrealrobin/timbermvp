@@ -20,6 +20,7 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 	
 public:
+	
 	virtual void BeginPlay() override;
 
 	//To Be Set on BP_TimberHUDBase

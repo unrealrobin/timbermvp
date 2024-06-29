@@ -61,9 +61,8 @@ void ATestObj::Interact()
 }
 
 void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-	//TODO: Set this item as the Interactable on the Character Controller
 
+{
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
 	PlayerController->SetInteractableItem(Cast<IInteractable>(this));

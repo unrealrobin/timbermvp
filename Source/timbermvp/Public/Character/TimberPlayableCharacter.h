@@ -80,9 +80,6 @@ public:
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const {return CurrentlyEquippedWeapon;}
 
 	/*Build System*/
-	//TODO:: Fix the Issue here with Instantiating the BuildSystemManager
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
-	TSubclassOf<ATimberBuildSystemManager> BuildSystemManagerClass;*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building")
 	ATimberBuildSystemManager* BuildSystemManagerInstance;
 	void PerformRaycast();

@@ -123,6 +123,7 @@ void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRot
 			SpawnParameters);
 
 	ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor);
+	ActiveBuildingComponent->SetActorEnableCollision(false);
 
 	//Make the Building Piece have see through material.
 	MakeBuildingComponentGhost(ActiveBuildingComponent);
@@ -163,5 +164,7 @@ void ATimberBuildSystemManager::SpawnFinalBuildingComponent(const FVector& Locat
 			Location,
 			Rotation, 
 			SpawnParameters);
+
+	SpawnedActor->SetActorEnableCollision(true);
 }
 

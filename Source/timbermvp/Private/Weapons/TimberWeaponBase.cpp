@@ -69,7 +69,6 @@ void ATimberWeaponBase::HandlePlayAttackMontage() const
 
 void ATimberWeaponBase::ReadyWeaponCollision(bool ShouldReadyCollision) const
 {
-	//TODO:: Implement this function to be called from Event Notifys in the Animations Montages.
 	if(ShouldReadyCollision)
 	{
 		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

@@ -8,6 +8,8 @@
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "UI/TimberHUDBase.h"
 #include "Weapons/TimberWeaponBase.h"
 
 void ATimberPlayerController::BeginPlay()
@@ -27,8 +29,7 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	TimberPlayerController = this;
 
-	bShowMouseCursor= false;
-	
+	DisableCursor();
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -53,6 +54,20 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
 	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 	
+}
+
+void ATimberPlayerController::EnableCursor()
+{
+	bShowMouseCursor = true;
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	CharacterSpringArm->bUsePawnControlRotation = false;
+}
+
+void ATimberPlayerController::DisableCursor()
+{
+	bShowMouseCursor = false;
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	CharacterSpringArm->bUsePawnControlRotation = true;
 }
 
 void ATimberPlayerController::SetInteractableItem(IInteractable* Item)
@@ -343,6 +358,7 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 	TimberCharacter->CharacterState = NewState;
 
 	CloseBuildModeSelectionMenu();
+	DisableCursor();
 	
 	if(Subsystem)
 	{
@@ -367,7 +383,7 @@ void ATimberPlayerController::OpenBuildModeSelectionMenu()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Opening Build Mode Selection Menu Broadcasted"));
 	IsBuildPanelOpen.Broadcast(true);
-	bShowMouseCursor = true;
+	EnableCursor();
 }
 
 void ATimberPlayerController::CloseBuildModeSelectionMenu()
@@ -398,13 +414,8 @@ void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Va
 		GEngine->AddOnScreenDebugMessage(4, 5.0f, FColor::Green, "LMB Key Pressed in Build Mode");
 	}
 
-	//TODO:: Place Building Component with Correct Material.
-
 	TimberBuildSystemManager->SpawnFinalBuildingComponent(
 		TimberBuildSystemManager->FinalSpawnLocation, TimberBuildSystemManager->FinalSpawnRotation);
-
-	//Spawn a new actor with the Correct Material at that location.
-	//TODO:: Handle multiple building components overlapping each other. Do not allow placement.
 }
 
 void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)

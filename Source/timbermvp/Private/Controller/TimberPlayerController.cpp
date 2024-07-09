@@ -384,6 +384,7 @@ void ATimberPlayerController::OpenBuildModeSelectionMenu()
 	UE_LOG(LogTemp, Warning, TEXT("Opening Build Mode Selection Menu Broadcasted"));
 	IsBuildPanelOpen.Broadcast(true);
 	EnableCursor();
+	
 }
 
 void ATimberPlayerController::CloseBuildModeSelectionMenu()

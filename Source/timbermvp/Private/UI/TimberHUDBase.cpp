@@ -7,6 +7,7 @@
 void ATimberHUDBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
 
 	if(RootWidgetClass)
 	{
@@ -60,6 +61,7 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 	if(BuildMenuWidget)
 	{
 		BuildMenuWidget->AddToViewport(2);
+		BuildMenuWidget->SetFocus();
 	}
 }
 
@@ -68,6 +70,5 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 	if(BuildMenuWidget)
 	{
 		BuildMenuWidget->RemoveFromParent();
-
 	}
 }

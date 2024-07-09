@@ -16,10 +16,9 @@ class TIMBERMVP_API UBuildingComponentPanel : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Building Components")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Components")
 	TArray<TSubclassOf<ATimberBuildingComponentBase>> ComponentArray;
 	
-	UFUNCTION()
-	void CreateBuildingComponentWidgets();
 };

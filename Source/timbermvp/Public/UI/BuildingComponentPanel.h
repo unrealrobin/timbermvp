@@ -18,7 +18,6 @@ class TIMBERMVP_API UBuildingComponentPanel : public UUserWidget
 public:
 	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Components")
-	TArray<TSubclassOf<ATimberBuildingComponentBase>> ComponentArray;
+	virtual void NativePreConstruct() override;
 	
 };

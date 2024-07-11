@@ -46,7 +46,6 @@ void ATimberHUDBase::ShouldHideBuildMenu()
 	{
 		CloseBuildPanelMenu();
 		
-		TimberPlayerController->DisableCursor();
 	}
 	else
 	{
@@ -61,7 +60,6 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 	if(BuildMenuWidget)
 	{
 		BuildMenuWidget->AddToViewport(2);
-		BuildMenuWidget->SetFocus();
 	}
 }
 
@@ -70,5 +68,10 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 	if(BuildMenuWidget)
 	{
 		BuildMenuWidget->RemoveFromParent();
+		FInputModeGameOnly InputMode;
+
+		//Setting the InputMode back to Game Only. Input mode is Changed in the Widget Blueprint in Event Preconstruct.
+		TimberPlayerController->SetInputMode(InputMode);
+		TimberPlayerController->DisableCursor();
 	}
 }

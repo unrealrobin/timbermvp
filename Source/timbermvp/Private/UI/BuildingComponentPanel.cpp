@@ -3,3 +3,9 @@
 
 #include "UI/BuildingComponentPanel.h"
 
+void UBuildingComponentPanel::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	SetIsFocusable(true);
+}

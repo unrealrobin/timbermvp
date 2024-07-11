@@ -62,11 +62,12 @@ FVector ATimberBuildSystemManager::SnapToGrid(FVector RaycastLocation)
 	FVector SnappedVector;
 	const int SnappedX = (FMath::FloorToInt(RaycastLocation.X) / GridSize ) * GridSize; 
 	const int SnappedY = (FMath::FloorToInt(RaycastLocation.Y) / GridSize ) * GridSize;
-	const int SnappedZ = (FMath::FloorToInt(RaycastLocation.Z) / GridSize ) * GridSize;
 	
 	SnappedVector.X = SnappedX;
 	SnappedVector.Y = SnappedY;
-	SnappedVector.Z = SnappedZ;
+
+	//Not Snapping the Z Axis. This should Spawn the Component Directly on the Ground where they raycast hits.
+	SnappedVector.Z = RaycastLocation.Z;
 
 	FinalSpawnLocation = SnappedVector;
 
@@ -112,21 +113,24 @@ FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
 
 void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator)
 {
-	const FVector Location = SnapToGrid(SpawnVector);
-	const FRotator Rotation = SnapToRotation(SpawnRotator);
-	FActorSpawnParameters SpawnParameters;
-	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(ActiveBuildingComponentClass,
-			Location,
-			Rotation, 
-			SpawnParameters);
+	if(ActiveBuildingComponentClass)
+	{
+		const FVector Location = SnapToGrid(SpawnVector);
+		const FRotator Rotation = SnapToRotation(SpawnRotator);
+		FActorSpawnParameters SpawnParameters;
+		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+			(ActiveBuildingComponentClass,
+				Location,
+				Rotation, 
+				SpawnParameters);
 
-	ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor);
-	ActiveBuildingComponent->SetActorEnableCollision(false);
+		ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor);
+		ActiveBuildingComponent->SetActorEnableCollision(false);
 
-	//Make the Building Piece have see through material.
-	MakeBuildingComponentGhost(ActiveBuildingComponent);
+		//Make the Building Piece have see through material.
+		MakeBuildingComponentGhost(ActiveBuildingComponent);
+	}
 	
 }
 

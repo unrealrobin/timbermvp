@@ -39,7 +39,6 @@ protected:
 	float GhostOpacity = 0.5f;
 
 public:	
-	
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
@@ -54,6 +53,8 @@ public:
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponent;};
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};
 	//FORCEINLINE void SetFinalSpawnLocationAndRotation(FVector Location, FRotator Rotation) {FinalSpawnLocation = Location; FinalSpawnRotation = Rotation;};
-	
 
+	/*Getters & Setters*/
+	UFUNCTION(BlueprintCallable, Category="Building Component")
+	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildingComponentClass = BuildingComponentClass;};
 };

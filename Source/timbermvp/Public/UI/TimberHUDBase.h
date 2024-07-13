@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "Controller/TimberPlayerController.h"
+#include "Delegates/Delegate.h"
+#include "Delegates/DelegateCombinations.h"
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
@@ -17,6 +20,15 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 	
 public:
+
+	// TODO:: Delegate Signature that broadcasts whether or not the Build Menu is Open.
+	/*Delegates*/
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
+
+	/*Delegate Handles*/
+	UPROPERTY(BlueprintAssignable)
+	FIsBuildMenuOpen bIsBuildMenuOpen;
+	
 	virtual void BeginPlay() override;
 
 	//To Be Set on BP_TimberHUDBase
@@ -25,5 +37,28 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* RootWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> BuildMenuWidgetClass;
+
+	//Set In Blueprints
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* BuildMenuWidget;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ATimberPlayerController> TimberPlayerController;
+	UFUNCTION(BlueprintCallable, Category="Build Menu")
+	void OpenBuildPanelMenu();
+	UFUNCTION(BlueprintCallable, Category="Build Menu")
+	void CloseBuildPanelMenu();
+
+protected:
+	/*Delegate Listeners*/
+	UFUNCTION()
+	void HandleBuildPanelMenu(bool IsBuildPanelMenuOpen);
+	UFUNCTION()
+	void ShouldHideBuildMenu();
+
+	
 	
 };

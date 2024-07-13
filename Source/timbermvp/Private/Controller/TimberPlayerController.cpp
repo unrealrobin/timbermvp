@@ -8,6 +8,8 @@
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "UI/TimberHUDBase.h"
 #include "Weapons/TimberWeaponBase.h"
 
 void ATimberPlayerController::BeginPlay()
@@ -26,7 +28,8 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	TimberPlayerController = this;
-	
+
+	DisableCursor();
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -49,7 +52,22 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
 	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
 	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
+	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 	
+}
+
+void ATimberPlayerController::EnableCursor()
+{
+	bShowMouseCursor = true;
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	CharacterSpringArm->bUsePawnControlRotation = false;
+}
+
+void ATimberPlayerController::DisableCursor()
+{
+	bShowMouseCursor = false;
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	CharacterSpringArm->bUsePawnControlRotation = true;
 }
 
 void ATimberPlayerController::SetInteractableItem(IInteractable* Item)
@@ -135,25 +153,6 @@ void ATimberPlayerController::JumpComplete()
 	TimberCharacter->IsNowJumping = false; //Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
 	SwitchToWalking = true;
 	CanJump = false;
-}
-
-void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
-{
-	TimberCharacter->CharacterState = NewState;
-	if(Subsystem)
-	{
-		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
-		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
-		if(BuildSystemManager)
-		{
-			//If player exits build mode with an active building component that isn't placed, destroy it.
-			if(BuildSystemManager->GetActiveBuildingComponent()) //Checking
-			{
-				BuildSystemManager->GetActiveBuildingComponent()->Destroy();
-			}
-			BuildSystemManager->EmptyActiveBuildingComponent();
-		}
-	}
 }
 
 void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
@@ -336,21 +335,76 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 	TimberCharacter->CharacterState == ECharacterState::Building ? TimberCharacter->CharacterState = ECharacterState::Standard : 
 	TimberCharacter->CharacterState = ECharacterState::Building;
 
+	// Exiting Build Mode
 	if(TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
 		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
 		ExitBuildMode(ECharacterState::Standard);
-	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
+	}
+
+	// Entering Build Mode
+	if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
+		OpenBuildModeSelectionMenu();
 		if(Subsystem)
 		{
 			Subsystem->AddMappingContext(BuildModeInputMappingContext, 2);
 		}
 		UnEquipWeapon();
-		//Setting WeaponState on Character
-		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		
 	}
+}
+
+//If a player exits build mode with an active building component that isn't placed, destroy it.
+void ATimberPlayerController::RemoveBuildingComponentProxy()
+{
+	
+	ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
+	if(BuildSystemManager)
+	{
+		ATimberBuildingComponentBase* ActiveComponent = BuildSystemManager->GetActiveBuildingComponent();
+  		//Destroy the Active Building Component if it exists.
+		if(ActiveComponent) 
+		{
+			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
+		}
+		BuildSystemManager->EmptyActiveBuildingComponent();
+	}
+
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "Building Component Proxy Removed");
+	}
+}
+
+void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
+{
+	TimberCharacter->CharacterState = NewState;
+
+	CloseBuildModeSelectionMenu();
+	DisableCursor();
+	
+	if(Subsystem)
+	{
+		// Removing the Buttons used for Build Mode.
+		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
+		RemoveBuildingComponentProxy();
+	}
+}
+
+void ATimberPlayerController::OpenBuildModeSelectionMenu()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Opening Build Mode Selection Menu Broadcasted"));
+	IsBuildPanelOpen.Broadcast(true);
+	EnableCursor();
+	
+}
+
+void ATimberPlayerController::CloseBuildModeSelectionMenu()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Closing Build Mode Selection Menu Broadcasted"));
+	IsBuildPanelOpen.Broadcast(false);
+	bShowMouseCursor = false;
 }
 
 void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)
@@ -374,13 +428,14 @@ void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Va
 		GEngine->AddOnScreenDebugMessage(4, 5.0f, FColor::Green, "LMB Key Pressed in Build Mode");
 	}
 
-	//TODO:: Place Building Component with Correct Material.
-
 	TimberBuildSystemManager->SpawnFinalBuildingComponent(
 		TimberBuildSystemManager->FinalSpawnLocation, TimberBuildSystemManager->FinalSpawnRotation);
+}
 
-	//Spawn a new actor with the Correct Material at that location.
-	//TODO:: Handle multiple building components overlapping each other. Do not allow placement.
+void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
+{
+	//Broadcast to HUD to Hide the Build Menu
+	ShouldHideBuildMenu.Broadcast();
 }
 
 void ATimberPlayerController::UnEquipWeapon() const
@@ -390,6 +445,8 @@ void ATimberPlayerController::UnEquipWeapon() const
 	{
 		//Removing the Currently EquippedWeapon
 		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
+		//Setting WeaponState on Character
+		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		WeaponState.Broadcast(EWeaponState::Unequipped);
 	}
 }

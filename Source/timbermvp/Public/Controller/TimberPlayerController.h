@@ -35,10 +35,16 @@ public:
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState); 
-
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
+	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
+	UPROPERTY(BlueprintAssignable)
+	FOnBuildMenuToggle IsBuildPanelOpen;
+	UPROPERTY(BlueprintAssignable)
+	FOnHideBuildMenu ShouldHideBuildMenu;
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -65,7 +71,8 @@ public:
 	UInputAction* RotateBuildingComponentAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* PlaceBuildingComponentAction;
-	
+	UPROPERTY(EditAnywhere)
+	UInputAction* HideBuildMenuAction;
 	/*Player Controls*/
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
@@ -90,9 +97,13 @@ public:
 	UFUNCTION()
 	void ToggleBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
+	void RemoveBuildingComponentProxy();
+	UFUNCTION()
 	void RotateBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
 	void PlaceBuildingComponent(const FInputActionValue& Value);
+	UFUNCTION()
+	void HideBuildMenu(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;
@@ -107,7 +118,10 @@ public:
 	float PitchAngle = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	float YawAngle = 0.0f;
-
+	
+	/*Cursor*/
+	void EnableCursor();
+	void DisableCursor();
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -132,7 +146,6 @@ protected:
 	float ViewPitchMax = 90.0f;
 	float ViewPitchMin = -80.0f;
 	
-
 	/*Jump Controls*/
 	UPROPERTY(BlueprintReadWrite)
 	bool CanJump = false;
@@ -154,9 +167,11 @@ protected:
 	//Gets set in the BeginPlay of the TimberPlayerController.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	ATimberBuildSystemManager* TimberBuildSystemManager;
-
 	void ExitBuildMode(ECharacterState NewState);
-
+	UFUNCTION()
+	void OpenBuildModeSelectionMenu();
+	UFUNCTION()
+	void CloseBuildModeSelectionMenu();
 
 private:
 	/*Enhanced Input Subsystem*/

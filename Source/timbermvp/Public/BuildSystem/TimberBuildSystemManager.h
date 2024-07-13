@@ -34,9 +34,11 @@ protected:
 	FVector SnapToGrid(FVector RaycastLocation);
 	FRotator SnapToRotation(FRotator CharactersRotation);
 	FRotator SavedRotation = FRotator::ZeroRotator;
+	
+	void MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent);
+	float GhostOpacity = 0.5f;
 
 public:	
-	
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
@@ -47,10 +49,13 @@ public:
 	void SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation);
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
-
-	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponent;};
+	UFUNCTION()
+	ATimberBuildingComponentBase* GetActiveBuildingComponent();
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};
 	//FORCEINLINE void SetFinalSpawnLocationAndRotation(FVector Location, FRotator Rotation) {FinalSpawnLocation = Location; FinalSpawnRotation = Rotation;};
-	
 
+	/*Getters & Setters*/
+	UFUNCTION(BlueprintCallable, Category="Building Component")
+	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildingComponentClass = BuildingComponentClass;};
+	FORCEINLINE TSubclassOf<AActor> GetActiveBuildingComponentClass() {return ActiveBuildingComponentClass;} ;
 };

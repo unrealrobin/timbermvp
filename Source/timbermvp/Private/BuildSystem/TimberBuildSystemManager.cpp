@@ -3,6 +3,7 @@
 
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
+#include "Materials/MaterialInstanceConstant.h"
 
 // Sets default values
 ATimberBuildSystemManager::ATimberBuildSystemManager()
@@ -18,6 +19,30 @@ void ATimberBuildSystemManager::BeginPlay()
 	
 }
 
+void ATimberBuildSystemManager::MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent)
+{
+	//Get the Static MeshComponent of the BP Item
+	UStaticMeshComponent* MeshComponent = BuildingComponent->FindComponentByClass<UStaticMeshComponent>();
+
+	if(MeshComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Mesh Component Found."));
+		UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(MeshComponent->GetMaterial(0), this);
+		//Make the Material a Dynamic Material
+		
+		//Make the Opacity of the Material 0.5f
+		if(MaterialInstance)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Material Instance Found."));
+
+			//Parameter Created in the Material Instance
+			MaterialInstance->SetScalarParameterValue("Opacity", GhostOpacity);
+			MaterialInstance->SetVectorParameterValue("EmmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
+			MeshComponent->SetMaterial(0, MaterialInstance);
+		}
+	}
+}
+
 void ATimberBuildSystemManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -30,18 +55,19 @@ FVector ATimberBuildSystemManager::SnapToGrid(FVector RaycastLocation)
 	 *	Initial
 	 * { x = 650.56, y = 20.1, z = -100.3 }
 	 *
-	 * Snapped
+	 * Snappedrbnxl	
 	 * { x = 600, y = 0, z = -100 }
 	 */
 	
 	FVector SnappedVector;
 	const int SnappedX = (FMath::FloorToInt(RaycastLocation.X) / GridSize ) * GridSize; 
 	const int SnappedY = (FMath::FloorToInt(RaycastLocation.Y) / GridSize ) * GridSize;
-	const int SnappedZ = (FMath::FloorToInt(RaycastLocation.Z) / GridSize ) * GridSize;
 	
 	SnappedVector.X = SnappedX;
 	SnappedVector.Y = SnappedY;
-	SnappedVector.Z = SnappedZ;
+
+	//Not Snapping the Z Axis. This should Spawn the Component Directly on the Ground where they raycast hits.
+	SnappedVector.Z = RaycastLocation.Z;
 
 	FinalSpawnLocation = SnappedVector;
 
@@ -87,17 +113,25 @@ FRotator ATimberBuildSystemManager::SnapToRotation(FRotator CharactersRotation)
 
 void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRotator SpawnRotator)
 {
-	const FVector Location = SnapToGrid(SpawnVector);
-	const FRotator Rotation = SnapToRotation(SpawnRotator);
-	FActorSpawnParameters SpawnParameters;
-	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(ActiveBuildingComponentClass,
-			Location,
-			Rotation, 
-			SpawnParameters);
+	if(ActiveBuildingComponentClass)
+	{
+		const FVector Location = SnapToGrid(SpawnVector);
+		const FRotator Rotation = SnapToRotation(SpawnRotator);
+		FActorSpawnParameters SpawnParameters;
+		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+			(ActiveBuildingComponentClass,
+				Location,
+				Rotation, 
+				SpawnParameters);
 
-	ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor);
+		ActiveBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor);
+		ActiveBuildingComponent->SetActorEnableCollision(false);
+
+		//Make the Building Piece have see through material.
+		MakeBuildingComponentProxy(ActiveBuildingComponent);
+	}
+	
 }
 
 void ATimberBuildSystemManager::MoveBuildingComponent(FVector_NetQuantize Location)
@@ -127,12 +161,23 @@ void ATimberBuildSystemManager::RotateBuildingComponent()
 void ATimberBuildSystemManager::SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation)
 {
 	FActorSpawnParameters SpawnParameters;
+
+	if(ActiveBuildingComponentClass)
+	{
+		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+			(ActiveBuildingComponentClass,
+				Location,
+				Rotation, 
+				SpawnParameters);
+
+		SpawnedActor->SetActorEnableCollision(true);
+	}
 	
-	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(ActiveBuildingComponentClass,
-			Location,
-			Rotation, 
-			SpawnParameters);
+}
+
+ATimberBuildingComponentBase* ATimberBuildSystemManager::GetActiveBuildingComponent()
+{
+	return ActiveBuildingComponent;
 }
 

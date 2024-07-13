@@ -3,6 +3,8 @@
 
 #include "BuildSystem/TimberBuildingComponentBase.h"
 
+#include "Navigation/PathFollowingComponent.h"
+
 // Sets default values
 ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 {
@@ -11,6 +13,8 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMesh;
+	StaticMesh->SetCollisionObjectType(ECC_WorldDynamic);
+	StaticMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	
 
 }

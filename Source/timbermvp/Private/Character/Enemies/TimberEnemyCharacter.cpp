@@ -10,8 +10,9 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	KickCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("KickCollisionSphere");
 	KickCollisionSphere->SetupAttachment(GetMesh(), "KickCollisionSocket");
-
 	KickCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyCharacter::HandleKickOverlap);
+
+	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -42,7 +43,6 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 
 void ATimberEnemyCharacter::HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	//TODO::Handle the kick colliding with the Player and applying damage.
 
 	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
 

@@ -80,14 +80,12 @@ public:
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const {return CurrentlyEquippedWeapon;}
 
 	/*Build System*/
-	//TODO:: Fix the Issue here with Instantiating the BuildSystemManager
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building")
-	TSubclassOf<ATimberBuildSystemManager> BuildSystemManagerClass;*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building")
 	ATimberBuildSystemManager* BuildSystemManagerInstance;
-	void PerformRaycast();
+	void PerformBuildSystemRaycast();
 	UPROPERTY(EditAnywhere, Category="Building")
 	float BuildRaycastDistance = 1000.f;
+	bool ShouldRaycast = true;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
@@ -98,7 +96,8 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-
+	UFUNCTION()
+	void HandleBuildMenuOpen(bool IsBuildMenuOpen);
 	
 	
 	

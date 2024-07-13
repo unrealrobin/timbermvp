@@ -10,9 +10,7 @@
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//For Demo Spawn
-	//TODO: Create custom Spawn Parameters
+	
 	DemoSpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	UWorld* World = GetWorld();

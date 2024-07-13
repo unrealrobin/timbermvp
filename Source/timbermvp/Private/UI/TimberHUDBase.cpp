@@ -35,22 +35,26 @@ void ATimberHUDBase::BeginPlay()
 	
 }
 
+// Called by Player using the "B" Key, Listening for the Delegate on the Controller
 void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
 {
 	IsBuildPanelMenuOpen ? OpenBuildPanelMenu() : CloseBuildPanelMenu();
 }
 
+//Called by Player using the "Tab" Key
 void ATimberHUDBase::ShouldHideBuildMenu()
 {
+	//If the build menu is open, close it and disable the cursor (Build Mode, Raycasting)
 	if(BuildMenuWidget->IsInViewport())
 	{
+		TimberPlayerController->DisableCursor();
 		CloseBuildPanelMenu();
-		
 	}
-	else
+	else //if the build menu is closed, open it and enable the cursor (Building Menu Mode, No Raycasting)
 	{
-		OpenBuildPanelMenu();
 		TimberPlayerController->EnableCursor();
+		OpenBuildPanelMenu();
+		
 	}
 }
 
@@ -59,14 +63,18 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 	
 	if(BuildMenuWidget)
 	{
+		bIsBuildMenuOpen.Broadcast(true);
+		TimberPlayerController->RemoveBuildingComponentProxy();
 		BuildMenuWidget->AddToViewport(2);
 	}
 }
 
+//Called from Building Component Icon in W_BuildingComponentIcon
 void ATimberHUDBase::CloseBuildPanelMenu()
 {
 	if(BuildMenuWidget)
 	{
+		bIsBuildMenuOpen.Broadcast(false);
 		BuildMenuWidget->RemoveFromParent();
 		FInputModeGameOnly InputMode;
 

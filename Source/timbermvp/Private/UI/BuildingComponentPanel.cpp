@@ -7,5 +7,5 @@ void UBuildingComponentPanel::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	SetIsFocusable(true);
+	
 }

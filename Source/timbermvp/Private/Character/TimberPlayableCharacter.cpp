@@ -8,6 +8,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "UI/TimberHUDBase.h"
 
 ATimberPlayableCharacter::ATimberPlayableCharacter()
 {
@@ -23,20 +24,29 @@ void ATimberPlayableCharacter::BeginPlay()
 
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
 
+	/*Delegate Binding*/
+	Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD())->bIsBuildMenuOpen.AddDynamic(this, 
+	&ATimberPlayableCharacter::HandleBuildMenuOpen);
+	
 }
 
 void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	PerformRaycast();
-
-	FRotator ActorRotation = GetActorRotation();
-	
+	if(CharacterState == ECharacterState::Building && ShouldRaycast)
+	{
+		PerformBuildSystemRaycast();
+	}
 	
 }
 
-void ATimberPlayableCharacter::PerformRaycast()
+void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
+{
+	ShouldRaycast = !bIsBuildMenuOpen;
+}
+
+void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 {
 	if(CharacterState == ECharacterState::Building)
 	{
@@ -69,9 +79,9 @@ void ATimberPlayableCharacter::PerformRaycast()
 			{
 				
 				//Get reference to the BuildSystemManager
-				ATimberBuildingComponentBase* BuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
-				//If there isn't an Active BuildingComponent, Create One and Set it as Active
-				if(BuildingComponent == nullptr)
+				ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
+				//If there isn't an Active BuildingComponent, Create One and Set it as Active, or if it is not the same as the one we have, spawn a new one.
+				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManagerInstance->GetActiveBuildingComponentClass())
 				{
 					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, GetActorRotation());
 				}
@@ -82,7 +92,7 @@ void ATimberPlayableCharacter::PerformRaycast()
 				{
 					return;
 				}
-				if(BuildingComponent)
+				if(ActiveBuildingComponent)
 				{
 					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);
 				}

@@ -20,6 +20,14 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 	
 public:
+
+	// TODO:: Delegate Signature that broadcasts whether or not the Build Menu is Open.
+	/*Delegates*/
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
+
+	/*Delegate Handles*/
+	UPROPERTY(BlueprintAssignable)
+	FIsBuildMenuOpen bIsBuildMenuOpen;
 	
 	virtual void BeginPlay() override;
 
@@ -39,6 +47,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
+	UFUNCTION(BlueprintCallable, Category="Build Menu")
+	void OpenBuildPanelMenu();
+	UFUNCTION(BlueprintCallable, Category="Build Menu")
+	void CloseBuildPanelMenu();
 
 protected:
 	/*Delegate Listeners*/
@@ -47,7 +59,6 @@ protected:
 	UFUNCTION()
 	void ShouldHideBuildMenu();
 
-	void OpenBuildPanelMenu();
-	void CloseBuildPanelMenu();
+	
 	
 };

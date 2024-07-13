@@ -19,7 +19,7 @@ void ATimberBuildSystemManager::BeginPlay()
 	
 }
 
-void ATimberBuildSystemManager::MakeBuildingComponentGhost(ATimberBuildingComponentBase* BuildingComponent)
+void ATimberBuildSystemManager::MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent)
 {
 	//Get the Static MeshComponent of the BP Item
 	UStaticMeshComponent* MeshComponent = BuildingComponent->FindComponentByClass<UStaticMeshComponent>();
@@ -129,7 +129,7 @@ void ATimberBuildSystemManager::SpawnBuildingComponent(FVector SpawnVector, FRot
 		ActiveBuildingComponent->SetActorEnableCollision(false);
 
 		//Make the Building Piece have see through material.
-		MakeBuildingComponentGhost(ActiveBuildingComponent);
+		MakeBuildingComponentProxy(ActiveBuildingComponent);
 	}
 	
 }
@@ -161,14 +161,23 @@ void ATimberBuildSystemManager::RotateBuildingComponent()
 void ATimberBuildSystemManager::SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation)
 {
 	FActorSpawnParameters SpawnParameters;
-	
-	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(ActiveBuildingComponentClass,
-			Location,
-			Rotation, 
-			SpawnParameters);
 
-	SpawnedActor->SetActorEnableCollision(true);
+	if(ActiveBuildingComponentClass)
+	{
+		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+			(ActiveBuildingComponentClass,
+				Location,
+				Rotation, 
+				SpawnParameters);
+
+		SpawnedActor->SetActorEnableCollision(true);
+	}
+	
+}
+
+ATimberBuildingComponentBase* ATimberBuildSystemManager::GetActiveBuildingComponent()
+{
+	return ActiveBuildingComponent;
 }
 

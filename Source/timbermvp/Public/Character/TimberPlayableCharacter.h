@@ -82,9 +82,10 @@ public:
 	/*Build System*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building")
 	ATimberBuildSystemManager* BuildSystemManagerInstance;
-	void PerformRaycast();
+	void PerformBuildSystemRaycast();
 	UPROPERTY(EditAnywhere, Category="Building")
 	float BuildRaycastDistance = 1000.f;
+	bool ShouldRaycast = true;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
@@ -95,7 +96,8 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-
+	UFUNCTION()
+	void HandleBuildMenuOpen(bool IsBuildMenuOpen);
 	
 	
 	

@@ -335,11 +335,15 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 	TimberCharacter->CharacterState == ECharacterState::Building ? TimberCharacter->CharacterState = ECharacterState::Standard : 
 	TimberCharacter->CharacterState = ECharacterState::Building;
 
+	// Exiting Build Mode
 	if(TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
 		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
 		ExitBuildMode(ECharacterState::Standard);
-	}else if (TimberCharacter->CharacterState == ECharacterState::Building)
+	}
+
+	// Entering Build Mode
+	if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
 		OpenBuildModeSelectionMenu();
 		if(Subsystem)
@@ -347,9 +351,29 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 			Subsystem->AddMappingContext(BuildModeInputMappingContext, 2);
 		}
 		UnEquipWeapon();
-		//Setting WeaponState on Character
-		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		
+	}
+}
+
+//If a player exits build mode with an active building component that isn't placed, destroy it.
+void ATimberPlayerController::RemoveBuildingComponentProxy()
+{
+	
+	ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
+	if(BuildSystemManager)
+	{
+		ATimberBuildingComponentBase* ActiveComponent = BuildSystemManager->GetActiveBuildingComponent();
+  		//Destroy the Active Building Component if it exists.
+		if(ActiveComponent) 
+		{
+			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
+		}
+		BuildSystemManager->EmptyActiveBuildingComponent();
+	}
+
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "Building Component Proxy Removed");
 	}
 }
 
@@ -364,18 +388,7 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 	{
 		// Removing the Buttons used for Build Mode.
 		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
-
-		//TODO:: Remove this reference by using a delegate or event.
-		ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
-		if(BuildSystemManager)
-		{
-			//If player exits build mode with an active building component that isn't placed, destroy it.
-			if(BuildSystemManager->GetActiveBuildingComponent()) //Checking
-			{
-				BuildSystemManager->GetActiveBuildingComponent()->Destroy();
-			}
-			BuildSystemManager->EmptyActiveBuildingComponent();
-		}
+		RemoveBuildingComponentProxy();
 	}
 }
 
@@ -432,6 +445,8 @@ void ATimberPlayerController::UnEquipWeapon() const
 	{
 		//Removing the Currently EquippedWeapon
 		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
+		//Setting WeaponState on Character
+		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		WeaponState.Broadcast(EWeaponState::Unequipped);
 	}
 }

@@ -25,7 +25,7 @@ protected:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float TotalHealth = 100.0f;
+	float MaxHealth = 100.0f;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float CurrentHealth = 100.0f;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

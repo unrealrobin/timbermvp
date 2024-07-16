@@ -21,8 +21,7 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	
 public:
 
-	// TODO:: Delegate Signature that broadcasts whether or not the Build Menu is Open.
-	/*Delegates*/
+	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
 
 	/*Delegate Handles*/

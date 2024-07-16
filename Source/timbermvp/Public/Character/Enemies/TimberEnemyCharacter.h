@@ -21,7 +21,7 @@ public:
 	virtual void BeginPlay() override;
 
 	float StandardMelleAttackDamage = 10.f;
-
+	float CurrentWave = 0;
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
@@ -40,5 +40,8 @@ protected:
 	void DisableKickCollision();
 	UFUNCTION(BlueprintCallable)
 	void EnableKickCollision();
-	
+
+	/*Delegate Functions*/
+	UFUNCTION()
+	void UpdateCurrentWaveNumber(float CurrentWaveNumber);
 };

@@ -19,6 +19,9 @@ void ATimberGameModeBase::BeginPlay()
 		UGameplayStatics::GetAllActorsOfClass(World, ATimberEnemySpawnLocations::StaticClass(), TimberEnemySpawnPoints);
 	}
 	GatherAllSpawnLocation(TimberEnemySpawnPoints);
+
+	// Initial Wave Broadcast
+	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 }
 
 //Called from Spawning Object.

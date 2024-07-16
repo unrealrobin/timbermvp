@@ -5,19 +5,22 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "GameModes/TimberGameModeBase.h"
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	KickCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("KickCollisionSphere");
 	KickCollisionSphere->SetupAttachment(GetMesh(), "KickCollisionSocket");
 	KickCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyCharacter::HandleKickOverlap);
-
-	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/* Listening to Delegate Broadcast from TimberGameMode */
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
 	
 }
 
@@ -74,4 +77,9 @@ void ATimberEnemyCharacter::EnableKickCollision()
 	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	KickCollisionSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+}
+
+void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
+{
+	CurrentWave = CurrentWaveNumber;
 }

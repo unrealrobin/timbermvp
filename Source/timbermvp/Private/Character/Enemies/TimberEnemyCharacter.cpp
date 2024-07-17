@@ -35,7 +35,9 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 
 	if(CurrentHealth <= 0.f)
 	{
-		
+		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
+		ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+		GameMode->CheckArrayForEnemy(this);
 		Destroy();
 	}
 	else

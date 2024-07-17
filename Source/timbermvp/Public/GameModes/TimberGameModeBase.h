@@ -53,6 +53,11 @@ public:
 	UFUNCTION(Category="Wave Composition")
 	void SpawnDynamicWave();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
+
+	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
+
 protected:
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -83,14 +88,15 @@ protected:
 
 	UFUNCTION(Category="Wave Composition")
 	void ComposeWave();
-
 	
-
 	UFUNCTION(Category="Wave Composition")
 	void WaveComplete();
 
 	/* Wave Timers*/
 	FTimerHandle TimeToNextWaveHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Wave Timers")
+	float DurationBetweenWaves = 10.f;
 	
 	
 };

@@ -24,6 +24,28 @@ void ATimberGameModeBase::BeginPlay()
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 }
 
+//Checks if destroyed enemies are the ones spawned by the wave system.
+// If so, removes them from the array they are stored in.
+// Once they are all removed, the wave is over.
+void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
+{
+	if(ArrayOfSpawnedWaveEnemies.Contains(Enemy))
+	{
+		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is in the Array");
+		ArrayOfSpawnedWaveEnemies.Remove(Enemy);
+		if(ArrayOfSpawnedWaveEnemies.Num() == 0)
+		{
+			WaveComplete();
+			GEngine->AddOnScreenDebugMessage(6, 5.0, FColor::Orange, "Wave Complete. Timer till next wave started.");
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is NOT in the Array");
+	}
+	
+}
+
 void ATimberGameModeBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -34,22 +56,6 @@ void ATimberGameModeBase::Tick(float DeltaSeconds)
 		TimeToNextWave = FMath::CeilToInt(GetWorld()->GetTimerManager().GetTimerRemaining(TimeToNextWaveHandle));
 	}
 }
-
-//Called from Spawning Object.
-/*void ATimberGameModeBase::SpawnWave(TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn)
-{
-	for (int i = 0;  i <= NumberOfEnemiesToSpawn; i++)
-	{
-		//Random Spawn Location Index
-		float RandomLocation = FMath::RandRange(0, EnemySpawnPointLocations.Num() - 1);
-		//Random Enemy To Spawn
-		float RandomEnemy = FMath::RandRange(0, EnemiesToSpawn.Num() - 1);
-		GetWorld()->SpawnActor<ATimberEnemyCharacter>(EnemiesToSpawn[RandomEnemy], 
-		EnemySpawnPointLocations[RandomLocation],
-		FRotator::ZeroRotator, DemoSpawnParameter);
-	}
-}*/
-
 // Populated Enemy Spawn Point Locations, An Array of Vectors (locations), with all the Spawn points on the map.
 // The Spawn points have been put in by the Game Designer
 void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
@@ -71,9 +77,12 @@ void ATimberGameModeBase::ComposeWave()
 void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName)
 {
 	float RandomLocation = FMath::RandRange(0, EnemySpawnPointLocations.Num() - 1);
-	GetWorld()->SpawnActor<ATimberEnemyCharacter>(EnemyClassName, 
+	ATimberEnemyCharacter* SpawnedActor = GetWorld()->SpawnActor<ATimberEnemyCharacter>(EnemyClassName, 
 	                                              EnemySpawnPointLocations[RandomLocation],
 	                                              FRotator::ZeroRotator, DemoSpawnParameter);
+
+	ArrayOfSpawnedWaveEnemies.Add(SpawnedActor);
+	
 }
 
 void ATimberGameModeBase::SpawnDynamicWave()
@@ -102,9 +111,11 @@ void ATimberGameModeBase::WaveComplete()
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 
 	//Starts a Timer for the next wave to Spawn.
-	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle,this, &ATimberGameModeBase::SpawnDynamicWave, 60.0f, 
+	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle,this, &ATimberGameModeBase::SpawnDynamicWave, DurationBetweenWaves, 
 	false);
 	
 }
+
+
 
 

@@ -4,10 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "TimerManager.h"
+//#include "Engine/World.h"
 #include "TimberGameModeBase.generated.h"
 
 class ATimberEnemyCharacter;
 class ATimberEnemySpawnLocations;
+
+USTRUCT()
+struct FWaveComposition
+{
+	GENERATED_BODY()
+
+	int GoblinCount;
+	int GhoulCount;
+	
+	
+};
 
 /**
  * 
@@ -28,11 +41,26 @@ public:
 	virtual void BeginPlay() override;
 
 	//TODO: Remove after spawning system built.
-	void SpawnWave(TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn);
+	//void SpawnWave(TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn);
 	
-	float CurrentWaveNumber = 1;
+	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
+	int CurrentWaveNumber = 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int TimeToNextWave = 0;
+
+	//Here for testing purposes
+	UFUNCTION(Category="Wave Composition")
+	void SpawnDynamicWave();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
+
+	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
 
 protected:
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> TimberEnemySpawnPoints;
@@ -54,4 +82,21 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ATimberEnemyCharacter> GhoulEnemyClassName;
+
+	/* Wave Composition and Spawning */
+	FWaveComposition Wave;
+
+	UFUNCTION(Category="Wave Composition")
+	void ComposeWave();
+	
+	UFUNCTION(Category="Wave Composition")
+	void WaveComplete();
+
+	/* Wave Timers*/
+	FTimerHandle TimeToNextWaveHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Wave Timers")
+	float DurationBetweenWaves = 10.f;
+	
+	
 };

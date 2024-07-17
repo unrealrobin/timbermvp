@@ -54,10 +54,8 @@ void ATestObj::Interact()
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if(GameMode)
 	{
-		GameMode->SpawnWave(EnemyToSpawn);
+		GameMode->SpawnDynamicWave();
 	}
-	
-	
 }
 
 void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)

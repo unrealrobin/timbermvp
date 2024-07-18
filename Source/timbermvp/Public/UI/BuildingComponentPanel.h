@@ -17,7 +17,6 @@ class TIMBERMVP_API UBuildingComponentPanel : public UUserWidget
 
 public:
 	
-
-	virtual void NativePreConstruct() override;
+	
 	
 };

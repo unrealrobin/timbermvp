@@ -39,9 +39,6 @@ public:
 	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
 	
 	virtual void BeginPlay() override;
-
-	//TODO: Remove after spawning system built.
-	//void SpawnWave(TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn);
 	
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
 	int CurrentWaveNumber = 1;
@@ -58,9 +55,9 @@ public:
 
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
 
-protected:
+	FTimerHandle TimeToNextWaveHandle;
 
-	virtual void Tick(float DeltaSeconds) override;
+protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> TimberEnemySpawnPoints;
@@ -68,10 +65,6 @@ protected:
 	TArray<FVector> EnemySpawnPointLocations;
 	
 	void GatherAllSpawnLocation(TArray<AActor*> SpawnPoints);
-
-	//TODO: Remove after spawning system built.
-	UPROPERTY(EditAnywhere, Category="Wave Spawn")
-	int NumberOfEnemiesToSpawn = 2;
 
 	//Default Spawn Parameters
 	FActorSpawnParameters DemoSpawnParameter;
@@ -93,7 +86,7 @@ protected:
 	void WaveComplete();
 
 	/* Wave Timers*/
-	FTimerHandle TimeToNextWaveHandle;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Wave Timers")
 	float DurationBetweenWaves = 10.f;

@@ -9,19 +9,35 @@ void UTimberWaveSystemWidgetBase::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	CurrentWave = GameMode->CurrentWaveNumber;
+	TimeToNextWaveWidget = GameMode->TimeToNextWave;
+
+	/*Delegate Call from Game Mode*/
+	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
 	
 }
 
-void UTimberWaveSystemWidgetBase::NativePreConstruct()
+void UTimberWaveSystemWidgetBase::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	Super::NativePreConstruct();
+	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	CurrentWave = GameMode->CurrentWaveNumber;
-	TimeToNextWave = GameMode->TimeToNextWave;
-
-	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
-	
+	// Widget is always checking if a timer is going to the wave timer. if there is less than 15 seconds it updates the time on the widget.
+	if(GetWorld()->GetTimerManager().IsTimerActive(GameMode->TimeToNextWaveHandle))
+	{
+		int TempTime = FMath::CeilToInt(GetWorld()->GetTimerManager().GetTimerRemaining(GameMode->TimeToNextWaveHandle));
+		if(TempTime < 15)
+		{
+			if(TempTime != TimeToNextWaveWidget)
+			{
+				TimeToNextWaveWidget = TempTime;
+			}
+		}
+	}
+	else
+	{
+		TimeToNextWaveWidget = 0;
+	}
 }
 
 void UTimberWaveSystemWidgetBase::UpdateCurrentWave(float CurrentWaveNumber)
@@ -29,6 +45,4 @@ void UTimberWaveSystemWidgetBase::UpdateCurrentWave(float CurrentWaveNumber)
 	CurrentWave = CurrentWaveNumber;
 }
 
-void UTimberWaveSystemWidgetBase::UpdateTimeToNextWave()
-{
-}
+

@@ -19,10 +19,12 @@ class TIMBERMVP_API UTimberWaveSystemWidgetBase : public UUserWidget
 public:
 	
 	virtual void NativeConstruct() override;
-	virtual void NativePreConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Wave Data")
 	float CurrentWave = 1;
-	int TimeToNextWave = 0;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Wave Data")
+	int TimeToNextWaveWidget = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	ATimberGameModeBase* GameMode;
@@ -31,8 +33,5 @@ protected:
 
 	UFUNCTION()
 	void UpdateCurrentWave(float CurrentWaveNumber);
-
-	UFUNCTION()
-	void UpdateTimeToNextWave();
 	
 };

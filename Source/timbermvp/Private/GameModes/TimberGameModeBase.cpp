@@ -10,6 +10,8 @@
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 	
 	DemoSpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -44,17 +46,6 @@ void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is NOT in the Array");
 	}
 	
-}
-
-void ATimberGameModeBase::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	// Gets the Timer and Converts the time to an Int. To be used for UI purposes to inform player of time to next wave.
-	if(GetWorld()->GetTimerManager().IsTimerActive(TimeToNextWaveHandle))
-	{
-		TimeToNextWave = FMath::CeilToInt(GetWorld()->GetTimerManager().GetTimerRemaining(TimeToNextWaveHandle));
-	}
 }
 // Populated Enemy Spawn Point Locations, An Array of Vectors (locations), with all the Spawn points on the map.
 // The Spawn points have been put in by the Game Designer

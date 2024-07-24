@@ -23,6 +23,9 @@ public:
 	float StandardMelleAttackDamage = 10.f;
 	float CurrentWave = 0;
 
+	// TODO:: To be set on a successful attack by any weapon (Axe, Ranged Weapon (Projectile Collision), Chainsaw)
+	bool bHasBeenAttackedByPlayer = false;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 

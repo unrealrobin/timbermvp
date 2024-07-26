@@ -24,7 +24,8 @@ public:
 	float CurrentWave = 0;
 
 	// TODO:: To be set on a successful attack by any weapon (Axe, Ranged Weapon (Projectile Collision), Chainsaw)
-	bool bHasBeenAttackedByPlayer = false;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category="Combat")
+	bool bHasBeenAggroByPlayer = false;
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;

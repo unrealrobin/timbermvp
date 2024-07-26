@@ -33,6 +33,11 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 {
 	CurrentHealth -= DamageAmount;
 
+	if(MaxHealth - CurrentHealth > 20.f)
+	{
+		bHasBeenAggroByPlayer = true;
+	}
+
 	if(CurrentHealth <= 0.f)
 	{
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.

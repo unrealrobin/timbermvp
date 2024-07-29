@@ -33,6 +33,8 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 {
 	CurrentHealth -= DamageAmount;
 
+	//Used for AI Damage/Aggro System
+	//If the player has dealt more than 20 damage to the enemy, the enemy will aggro the player. Causing the BB Value to Change
 	if(MaxHealth - CurrentHealth > 20.f)
 	{
 		bHasBeenAggroByPlayer = true;

@@ -50,6 +50,10 @@ public:
 	UFUNCTION(Category="Wave Composition")
 	void SpawnDynamicWave();
 
+	/*Spawns a Single AI mob for Testing/Debugging*/
+	UFUNCTION(Category="Wave Composition")
+	void SpawnTestWave();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
 

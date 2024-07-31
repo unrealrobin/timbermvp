@@ -93,6 +93,13 @@ void ATimberGameModeBase::SpawnDynamicWave()
 	}
 }
 
+void ATimberGameModeBase::SpawnTestWave()
+{
+	
+		SpawnEnemyAtLocation(GhoulEnemyClassName);
+	
+}
+
 void ATimberGameModeBase::WaveComplete()
 {
 

@@ -24,7 +24,7 @@ public:
 	float CurrentWave = 0;
 
 	// TODO:: To be set on a successful attack by any weapon (Axe, Ranged Weapon (Projectile Collision), Chainsaw)
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category="Combat")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Combat")
 	bool bHasBeenAggroByPlayer = false;
 
 protected:

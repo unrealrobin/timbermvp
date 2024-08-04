@@ -7,6 +7,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class ATimberBuildingComponentBase;
 /**
  * 
  */
@@ -27,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Combat")
 	bool bHasBeenAggroByPlayer = false;
 
+	UFUNCTION(BlueprintCallable)
+	ATimberBuildingComponentBase* LineTraceToSeeda();
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -37,6 +41,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	UCapsuleComponent* KickCollisionSphere;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
+	USceneComponent* RaycastStartPoint;
 
 	UFUNCTION(BlueprintCallable)
 	void HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);

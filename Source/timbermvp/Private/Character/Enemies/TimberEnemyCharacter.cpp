@@ -2,7 +2,7 @@
 
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
-
+#include "BuildSystem/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameModes/TimberGameModeBase.h"
@@ -12,6 +12,8 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	KickCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("KickCollisionSphere");
 	KickCollisionSphere->SetupAttachment(GetMesh(), "KickCollisionSocket");
 	KickCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyCharacter::HandleKickOverlap);
+	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
+	RaycastStartPoint->SetupAttachment(RootComponent);
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -91,4 +93,32 @@ void ATimberEnemyCharacter::EnableKickCollision()
 void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
 {
 	CurrentWave = CurrentWaveNumber;
+}
+
+ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
+{
+
+	FVector RaycastStart = RaycastStartPoint->GetComponentLocation();
+
+	//Get Seeda Location
+	FVector RaycastEnd = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode())->SeedaLocation;
+	
+	TArray<FHitResult> HitResults;
+	
+	bool bHit = GetWorld()->LineTraceMultiByChannel(
+				HitResults,
+				RaycastStart,
+				RaycastEnd,
+				ECC_Visibility);
+
+	for(FHitResult HitActors:  HitResults)
+	{
+		if(HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
+		{
+			return Cast<ATimberBuildingComponentBase>(HitActors.GetActor());
+		}
+	}
+
+	return nullptr;
+	
 }

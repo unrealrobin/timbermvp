@@ -61,6 +61,12 @@ public:
 
 	FTimerHandle TimeToNextWaveHandle;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Seeda Info")
+	FVector SeedaLocation;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<AActor*> ArrayOfSpawnedSeedas;
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)

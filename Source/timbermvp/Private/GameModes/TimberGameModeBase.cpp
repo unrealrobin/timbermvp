@@ -3,6 +3,7 @@
 
 #include "GameModes/TimberGameModeBase.h"
 
+#include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
@@ -24,6 +25,14 @@ void ATimberGameModeBase::BeginPlay()
 
 	// Initial Wave Broadcast
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
+
+	/*Getting Seedas Location*/
+	UGameplayStatics::GetAllActorsOfClass(World, ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
+	SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
+	if(GEngine)
+	{
+	GEngine->AddOnScreenDebugMessage(1, 10.0f, FColor::Blue, "Seeda Location Stored.");
+	}
 }
 
 //Checks if destroyed enemies are the ones spawned by the wave system.

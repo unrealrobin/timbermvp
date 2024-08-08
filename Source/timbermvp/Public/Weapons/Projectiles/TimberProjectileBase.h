@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/Actor.h"
 #include "TimberProjectileBase.generated.h"
 
@@ -27,6 +28,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	ATimberPlayableCharacter* ProjectileOwner;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Projectile Combat Info")
+	float ProjectileBaseDamage;
 
 public:	
 	// Called every frame

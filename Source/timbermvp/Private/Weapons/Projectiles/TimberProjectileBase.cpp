@@ -23,6 +23,9 @@ ATimberProjectileBase::ATimberProjectileBase()
 void ATimberProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ProjectileOwner = Cast<ATimberPlayableCharacter>(GetOwner());
+	
 	//Overlap Delegate
 	if(CapsuleComponent)
 	{
@@ -38,22 +41,17 @@ void ATimberProjectileBase::Tick(float DeltaTime)
 
 void ATimberProjectileBase::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
+	
 	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-
-	
-
-	FString DebugMessage = FString::Printf(TEXT("Hit Enemy: %s"), *OtherActor->GetName());
-	GEngine->AddOnScreenDebugMessage(1, 4.0 , FColor::Green, DebugMessage);
-
-	
 	
 	if(HitEnemy)
 	{
-		HitEnemy->TakeDamage(TimberCharacter->WeaponThreeInstance->GetWeaponBaseDamage());
+		HitEnemy->TakeDamage(20);
 		Destroy();
 	}
-	else
+	else // If overlapped with something else, destroy the projectile
 	{
 		Destroy();
 	}

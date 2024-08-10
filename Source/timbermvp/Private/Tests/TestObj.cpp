@@ -54,8 +54,8 @@ void ATestObj::Interact()
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if(GameMode)
 	{
-		GameMode->SpawnDynamicWave();
-		//GameMode->SpawnTestWave();
+		//GameMode->SpawnDynamicWave();
+		GameMode->SpawnTestWave();
 	}
 }
 
@@ -63,8 +63,12 @@ void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor*
 
 {
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
-	PlayerController->SetInteractableItem(Cast<IInteractable>(this));
+	if(TimberCharacter)
+	{
+		ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
+		PlayerController->SetInteractableItem(Cast<IInteractable>(this));
+	}
+	
 }
 
 void ATestObj::UnSetInteractItem(
@@ -78,8 +82,13 @@ void ATestObj::UnSetInteractItem(
 	
 	StaticMeshAttachment->AddLocalRotation(FRotator3d(0.0f, 0.0f, 0.0f));
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
-	PlayerController->SetInteractableItem(nullptr);
+
+	if(TimberCharacter)
+	{
+		ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
+		PlayerController->SetInteractableItem(nullptr);
+	}
+	
 
 }
 

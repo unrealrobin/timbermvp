@@ -296,6 +296,19 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	
 }
 
+void ATimberPlayerController::UnEquipWeapon() const
+{
+	//TODO:: Play Unequip Animation
+	if(TimberCharacter->GetCurrentlyEquippedWeapon())
+	{
+		//Removing the Currently EquippedWeapon
+		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
+		//Setting WeaponState on Character
+		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
+		WeaponState.Broadcast(EWeaponState::Unequipped);
+	}
+}
+
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 {
 	if(TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped && CanAttackAgain)
@@ -438,18 +451,7 @@ void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
 	ShouldHideBuildMenu.Broadcast();
 }
 
-void ATimberPlayerController::UnEquipWeapon() const
-{
-	//TODO:: Play Unequip Animation
-	if(TimberCharacter->GetCurrentlyEquippedWeapon())
-	{
-		//Removing the Currently EquippedWeapon
-		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
-		//Setting WeaponState on Character
-		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
-		WeaponState.Broadcast(EWeaponState::Unequipped);
-	}
-}
+
 
 
 

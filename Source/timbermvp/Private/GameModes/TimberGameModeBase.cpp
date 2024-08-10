@@ -106,6 +106,7 @@ void ATimberGameModeBase::SpawnTestWave()
 {
 	
 		SpawnEnemyAtLocation(GhoulEnemyClassName);
+		SpawnEnemyAtLocation(GoblinEnemyClassName);
 	
 }
 

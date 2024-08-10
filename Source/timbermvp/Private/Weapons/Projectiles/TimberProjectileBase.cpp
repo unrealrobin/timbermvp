@@ -48,7 +48,9 @@ void ATimberProjectileBase::HandleOverlap(UPrimitiveComponent* OverlappedCompone
 	
 	if(HitEnemy)
 	{
+		// TODO:: This damage amount needs to be dynamic and based on weapon stats & abilities.
 		HitEnemy->TakeDamage(20);
+		
 		Destroy();
 	}
 	else // If overlapped with something else, destroy the projectile

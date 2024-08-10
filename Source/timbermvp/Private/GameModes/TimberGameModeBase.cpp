@@ -68,7 +68,7 @@ void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
 
 void ATimberGameModeBase::ComposeWave()
 {
-	//TODO:: Identify how many of each type of enemy spawn based on wave #
+	
 	Wave.GhoulCount = FMath::RandRange(1, (CurrentWaveNumber + 4));
 	
 	Wave.GoblinCount = FMath::RandRange(0, CurrentWaveNumber + 2);
@@ -111,8 +111,6 @@ void ATimberGameModeBase::SpawnTestWave()
 
 void ATimberGameModeBase::WaveComplete()
 {
-
-	//TODO:: What Calls this? We need to track all enemies spawned and when they are all dead, call this function.
 	
 	CurrentWaveNumber++;
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);

@@ -88,6 +88,9 @@ void ATimberEnemyCharacter::EnableKickCollision()
 	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	KickCollisionSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	//This is the channel for the Building Component
+	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 }
 
 void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)

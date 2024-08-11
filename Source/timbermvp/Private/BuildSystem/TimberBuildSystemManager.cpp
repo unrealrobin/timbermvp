@@ -26,21 +26,21 @@ void ATimberBuildSystemManager::MakeBuildingComponentProxy(ATimberBuildingCompon
 
 	if(MeshComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Mesh Component Found."));
-		UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(MeshComponent->GetMaterial(0), this);
-		//Make the Material a Dynamic Material
-		
-		//Make the Opacity of the Material 0.5f
-		if(MaterialInstance)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Material Instance Found."));
+			UE_LOG(LogTemp, Warning, TEXT("Mesh Component Found."));
+			UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(MeshComponent->GetMaterial(0), 
+			this);
+			//Make the Opacity of the Material 0.5f
+			if(MaterialInstance)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Material Instance Found."));
 
-			//Parameter Created in the Material Instance
-			MaterialInstance->SetScalarParameterValue("Opacity", GhostOpacity);
-			MaterialInstance->SetVectorParameterValue("EmmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-			MeshComponent->SetMaterial(0, MaterialInstance);
+				//Parameter Created in the Material Instance
+				// These are Paramter Nodes that are Created and Defaulted by us in the Material Editor.
+				MaterialInstance->SetScalarParameterValue("Opacity", GhostOpacity);
+				MaterialInstance->SetVectorParameterValue("EmmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
+				MeshComponent->SetMaterial(0, MaterialInstance);
+			}
 		}
-	}
 }
 
 void ATimberBuildSystemManager::Tick(float DeltaTime)

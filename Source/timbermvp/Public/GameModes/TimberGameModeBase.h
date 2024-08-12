@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "TimerManager.h"
+#include "SaveSystem/TimberSaveSystem.h"
 #include "TimberGameModeBase.generated.h"
 
 class ATimberEnemyCharacter;
@@ -57,6 +58,8 @@ public:
 	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
 
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
+	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
+	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
 
 	FTimerHandle TimeToNextWaveHandle;
 
@@ -66,6 +69,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> ArrayOfSpawnedSeedas;
 
+	/* Save System*/
+	UFUNCTION(BlueprintCallable, Category="Save System")
+	void SaveCurrentGame();
+
+	UFUNCTION(BlueprintCallable, Category="Save System")
+	void LoadGame();
+
+	void LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance);
+	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
 protected:
 
 	UPROPERTY(BlueprintReadOnly)

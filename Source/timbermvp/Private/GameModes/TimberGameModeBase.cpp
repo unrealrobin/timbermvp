@@ -7,6 +7,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
+#include "SaveSystem/TimberSaveSystem.h"
 
 void ATimberGameModeBase::BeginPlay()
 {
@@ -120,6 +121,78 @@ void ATimberGameModeBase::WaveComplete()
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle,this, &ATimberGameModeBase::SpawnDynamicWave, DurationBetweenWaves, 
 	false);
 	
+}
+
+
+/* Save System*/
+
+void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance)
+{
+	if(SaveGameInstance)
+	{
+		TArray<AActor*> CurrentBuildingComponents;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberBuildingComponentBase::StaticClass(), CurrentBuildingComponents);
+		
+		for(AActor* BuildingComponentActors : CurrentBuildingComponents)
+		{
+			//Creating the Building Component Struct to pass to the Save System's Building Component Array
+			FBuildingComponentData BuildingComponentData;
+			BuildingComponentData.BuildingComponentClass = BuildingComponentActors->GetClass();
+			BuildingComponentData.BuildingComponentTransform = BuildingComponentActors->GetActorTransform();
+
+			SaveGameInstance->BuildingComponentsArray.Add(BuildingComponentData);
+		}
+	}
+}
+
+void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
+{
+	SaveGameInstance->WaveNumber = CurrentWaveNumber;
+}
+
+void ATimberGameModeBase::SaveCurrentGame()
+{
+	//Creating an instance of the Save Game Object
+	UTimberSaveSystem* SaveGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::CreateSaveGameObject
+		(UTimberSaveSystem::StaticClass()));
+	
+	SaveBuildingComponentData(SaveGameInstance);
+	SaveWaveData(SaveGameInstance);
+
+
+	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Demo Timber Save 1"), 0);
+}
+
+void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
+{
+	if(LoadGameInstance)
+	{
+		for(FBuildingComponentData BuildingComponentData : LoadGameInstance->BuildingComponentsArray)
+		{
+			if(BuildingComponentData.BuildingComponentClass)
+			{
+				GetWorld()->SpawnActor<ATimberBuildingComponentBase>(BuildingComponentData.BuildingComponentClass, 
+				                                                     BuildingComponentData.BuildingComponentTransform.GetLocation(),
+				                                                     BuildingComponentData.BuildingComponentTransform.GetRotation().Rotator());
+			}
+		}
+	}
+}
+
+void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
+{
+	CurrentWaveNumber = LoadGameInstance->WaveNumber;
+	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
+}
+
+void ATimberGameModeBase::LoadGame()
+{
+	//Needs the Slot Name and the User Index
+	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
+
+	LoadBuildingComponents(LoadGameInstance);
+	LoadWaveData(LoadGameInstance);
 }
 
 

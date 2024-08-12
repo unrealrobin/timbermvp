@@ -55,7 +55,7 @@ FVector ATimberBuildSystemManager::SnapToGrid(FVector RaycastLocation)
 	 *	Initial
 	 * { x = 650.56, y = 20.1, z = -100.3 }
 	 *
-	 * Snappedrbnxl	
+	 * Snapped
 	 * { x = 600, y = 0, z = -100 }
 	 */
 	

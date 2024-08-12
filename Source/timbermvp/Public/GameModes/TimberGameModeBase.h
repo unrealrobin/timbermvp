@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "TimerManager.h"
-//#include "Engine/World.h"
 #include "TimberGameModeBase.generated.h"
 
 class ATimberEnemyCharacter;

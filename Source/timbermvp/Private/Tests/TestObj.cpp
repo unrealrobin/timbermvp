@@ -54,8 +54,8 @@ void ATestObj::Interact()
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if(GameMode)
 	{
-		//GameMode->SpawnDynamicWave();
-		GameMode->SpawnTestWave();
+		GameMode->SpawnDynamicWave();
+		//GameMode->SpawnTestWave();
 	}
 }
 

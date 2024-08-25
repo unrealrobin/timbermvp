@@ -87,6 +87,15 @@ public:
 	float BuildRaycastDistance = 1000.f;
 	bool ShouldRaycast = true;
 
+	/*Damage*/
+	void PlayerTakeDamage(float DamageAmount);
+
+	/*Death*/
+	UFUNCTION()
+	void HandlePlayerDeath();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health")
+	bool bIsPlayerDead = false;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;

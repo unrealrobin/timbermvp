@@ -57,25 +57,14 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 
 void ATimberEnemyCharacter::HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-
 	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
-
 	if(Player)
 	{
 		if(Player->CurrentHealth > 0.f)
 		{
-			Player->CurrentHealth -= StandardMelleAttackDamage;
+			Player->PlayerTakeDamage(StandardMelleAttackDamage);
 		}
-		else
-		{
-			if(GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Player is Dead"));
-			}
-		}
-		
 	}
-	
 }
 
 void ATimberEnemyCharacter::DisableKickCollision()

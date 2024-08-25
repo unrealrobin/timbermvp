@@ -37,6 +37,12 @@ class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
 	GENERATED_BODY()
 
 public:
+
+	//Delegates
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
+	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
+
+	
 	//Constructor
 	ATimberPlayableCharacter();
 	virtual void BeginPlay() override;

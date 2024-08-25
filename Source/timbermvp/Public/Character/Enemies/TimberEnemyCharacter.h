@@ -21,7 +21,7 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 public:
 	virtual void BeginPlay() override;
 
-	float StandardMelleAttackDamage = 10.f;
+	float StandardMelleAttackDamage = 50.f;
 	float CurrentWave = 0;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Combat")

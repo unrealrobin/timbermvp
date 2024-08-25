@@ -27,9 +27,12 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
-	TimberPlayerController = this;
+	//TimberPlayerController = this;
 
 	DisableCursor();
+
+	//Delegate Subscription
+	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberPlayerController::HandlePlayerDeath);
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -451,7 +454,23 @@ void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
 	ShouldHideBuildMenu.Broadcast();
 }
 
+void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
+{
+	//TODO:: Implement Player Death
+	if(bIsPlayerDead)
+	{
+		if(GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(5, 5.0f, FColor::Red, "Controller knows player is dead.");
+		}
+		EnableCursor();
+		//TODO:: Play Death Animation
 
+		//TODO:: Broadcast to HUD to Show Death Screen
+		HandleDeathUI_DelegateHandle.Execute();
+	}
+	
+}
 
 
 

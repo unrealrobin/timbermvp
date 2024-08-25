@@ -37,6 +37,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState); 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
+	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
 	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
@@ -45,6 +46,7 @@ public:
 	FOnBuildMenuToggle IsBuildPanelOpen;
 	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
+	FHandleDeathUI HandleDeathUI_DelegateHandle;
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -172,6 +174,10 @@ protected:
 	void OpenBuildModeSelectionMenu();
 	UFUNCTION()
 	void CloseBuildModeSelectionMenu();
+
+	/*Death*/
+	UFUNCTION()
+	void HandlePlayerDeath(bool bIsPlayerDead);
 
 private:
 	/*Enhanced Input Subsystem*/

@@ -31,6 +31,7 @@ void ATimberHUDBase::BeginPlay()
 
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
+		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
 	};
 	
 }
@@ -82,4 +83,16 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 		TimberPlayerController->SetInputMode(InputMode);
 		TimberPlayerController->DisableCursor();
 	}
+}
+
+void ATimberHUDBase::SwitchToDeathUI()
+{
+	RootWidget->RemoveFromParent();
+	DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
+	if(DeathWidget)
+	{
+		DeathWidget->AddToViewport(1);
+	}
+
+	//Make sure we disable the keyboard input when the player dies.
 }

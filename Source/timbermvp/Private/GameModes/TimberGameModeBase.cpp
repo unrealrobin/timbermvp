@@ -12,8 +12,6 @@
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 	
 	DemoSpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -122,7 +120,6 @@ void ATimberGameModeBase::WaveComplete()
 	false);
 	
 }
-
 
 /* Save System*/
 

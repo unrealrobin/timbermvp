@@ -118,7 +118,11 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 
 void ATimberPlayableCharacter::HandlePlayerDeath()
 {
-	//TODO:: Implement Player Death
+	if(bIsPlayerDead)
+	{
+		//Broadcasting the Player Death Delegate
+		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
+	}
 }
 
 void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)

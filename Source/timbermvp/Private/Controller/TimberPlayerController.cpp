@@ -299,6 +299,12 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	
 }
 
+void ATimberPlayerController::DisableAllKeyboardInput()
+{
+	Subsystem->RemoveMappingContext(StandardInputMappingContext);
+	Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
+}
+
 void ATimberPlayerController::UnEquipWeapon() const
 {
 	//TODO:: Play Unequip Animation
@@ -463,11 +469,14 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 		{
 			GEngine->AddOnScreenDebugMessage(5, 5.0f, FColor::Red, "Controller knows player is dead.");
 		}
-		EnableCursor();
 		//TODO:: Play Death Animation
-
-		//TODO:: Broadcast to HUD to Show Death Screen
+		EnableCursor();
+		DisableAllKeyboardInput();
+		UnEquipWeapon();
+		//TODO:: Stop enemy AI's from attacking
 		HandleDeathUI_DelegateHandle.Execute();
+
+		
 	}
 	
 }

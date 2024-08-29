@@ -60,6 +60,8 @@ public:
 	void CloseBuildPanelMenu();
 	UFUNCTION(BlueprintCallable, Category="Death UI")
 	void SwitchToDeathUI();
+	UFUNCTION(BlueprintCallable)
+	void SwitchToGameUI();
 protected:
 	/*Delegate Listeners*/
 	UFUNCTION()

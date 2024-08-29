@@ -121,6 +121,7 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 	if(bIsPlayerDead)
 	{
 		//Broadcasting the Player Death Delegate
+		//Player Controller is Subscribed to this Delegate
 		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
 	}
 }

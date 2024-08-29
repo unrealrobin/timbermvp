@@ -139,8 +139,10 @@ protected:
 	ATimberPlayableCharacter* TimberCharacter;
 	UPROPERTY(BlueprintReadOnly)
 	UCharacterMovementComponent* TimberCharacterMovementComponent;
-	UPROPERTY(BlueprintReadOnly)
-	ATimberPlayerController* TimberPlayerController;
+
+	//TODO::Do I need this?
+	/*UPROPERTY(BlueprintReadOnly)
+	ATimberPlayerController* TimberPlayerController;*/
 
 	/*Camera Controls*/
 	UPROPERTY(BlueprintReadOnly)
@@ -189,6 +191,8 @@ private:
 	TObjectPtr<UInputMappingContext> StandardInputMappingContext;
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputMappingContext> BuildModeInputMappingContext;
+	
+	void DisableAllKeyboardInput();
 
 	UFUNCTION()
 	void UnEquipWeapon() const;

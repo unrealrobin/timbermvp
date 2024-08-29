@@ -115,6 +115,10 @@ void ATimberGameModeBase::WaveComplete()
 	CurrentWaveNumber++;
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 
+	//Save the Game after the Wave is Complete so the Player can continue from the next wave.
+	//TODO::Ensure the timing of this works with Delegate Updates.
+	SaveCurrentGame();
+
 	//Starts a Timer for the next wave to Spawn.
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle,this, &ATimberGameModeBase::SpawnDynamicWave, DurationBetweenWaves, 
 	false);
@@ -122,6 +126,20 @@ void ATimberGameModeBase::WaveComplete()
 }
 
 /* Save System*/
+
+void ATimberGameModeBase::SaveCurrentGame()
+{
+	//Creating an instance of the Save Game Object
+	UTimberSaveSystem* SaveGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::CreateSaveGameObject
+		(UTimberSaveSystem::StaticClass()));
+	
+	SaveBuildingComponentData(SaveGameInstance);
+	SaveWaveData(SaveGameInstance);
+
+
+	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Demo Timber Save 1"), 0);
+}
 
 void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance)
 {
@@ -147,18 +165,20 @@ void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
 	SaveGameInstance->WaveNumber = CurrentWaveNumber;
 }
 
-void ATimberGameModeBase::SaveCurrentGame()
+/* Load System*/
+void ATimberGameModeBase::LoadGame()
 {
-	//Creating an instance of the Save Game Object
-	UTimberSaveSystem* SaveGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::CreateSaveGameObject
-		(UTimberSaveSystem::StaticClass()));
-	
-	SaveBuildingComponentData(SaveGameInstance);
-	SaveWaveData(SaveGameInstance);
+	ClearAllWaveEnemies();
+	//Needs the Slot Name and the User Index
+	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
 
+	LoadBuildingComponents(LoadGameInstance);
+	LoadWaveData(LoadGameInstance);
 
-	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Demo Timber Save 1"), 0);
+	//TODO:: Load Player Data
+	//Remove the dead player from the game
+	//Find the Player in the game, destroy them and their controller.
+	//Spawn the player at the character spawn point with a new controller.
 }
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
@@ -183,15 +203,14 @@ void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 }
 
-void ATimberGameModeBase::LoadGame()
+void ATimberGameModeBase::ClearAllWaveEnemies()
 {
-	//Needs the Slot Name and the User Index
-	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
-
-	LoadBuildingComponents(LoadGameInstance);
-	LoadWaveData(LoadGameInstance);
+	//TODO:: Remove all enemies from the map. Typically used when loading a game after death when enemies are still on the map.
+	for (ATimberEnemyCharacter* ArrayOfSpawnedWaveEnemy : ArrayOfSpawnedWaveEnemies)
+	{
+		ArrayOfSpawnedWaveEnemy->Destroy();
+	}
 }
-
 
 
 

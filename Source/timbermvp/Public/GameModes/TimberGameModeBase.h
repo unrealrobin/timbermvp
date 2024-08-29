@@ -39,14 +39,15 @@ public:
 	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
 	
 	virtual void BeginPlay() override;
+
+	/* Wave System*/
 	
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
 	int CurrentWaveNumber = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int TimeToNextWave = 0;
-
-	//Here for testing purposes
+	
 	UFUNCTION(Category="Wave Composition")
 	void SpawnDynamicWave();
 
@@ -58,8 +59,7 @@ public:
 	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
 
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
-	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
-	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
+	
 
 	FTimerHandle TimeToNextWaveHandle;
 
@@ -72,12 +72,17 @@ public:
 	/* Save System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
+	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
+	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
 
+	/*Load System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame();
-
 	void LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance);
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
+	UFUNCTION(BlueprintCallable, Category="Wave Composition")
+	void ClearAllWaveEnemies();
+	
 protected:
 
 	UPROPERTY(BlueprintReadOnly)

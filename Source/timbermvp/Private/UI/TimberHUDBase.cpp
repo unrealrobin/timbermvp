@@ -96,3 +96,15 @@ void ATimberHUDBase::SwitchToDeathUI()
 
 	//Make sure we disable the keyboard input when the player dies.
 }
+
+void ATimberHUDBase::SwitchToGameUI()
+{
+	if(DeathWidget)
+	{
+		DeathWidget->RemoveFromParent();
+	}
+	if(RootWidget)
+	{
+		RootWidget->AddToViewport(1);
+	}
+}

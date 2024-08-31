@@ -44,13 +44,24 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* BuildMenuWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> DeathWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* DeathWidget;
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
+
+	
 	UFUNCTION(BlueprintCallable, Category="Build Menu")
 	void OpenBuildPanelMenu();
 	UFUNCTION(BlueprintCallable, Category="Build Menu")
 	void CloseBuildPanelMenu();
-
+	UFUNCTION(BlueprintCallable, Category="Death UI")
+	void SwitchToDeathUI();
+	UFUNCTION(BlueprintCallable)
+	void SwitchToGameUI();
 protected:
 	/*Delegate Listeners*/
 	UFUNCTION()

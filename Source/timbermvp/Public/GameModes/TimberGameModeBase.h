@@ -34,32 +34,39 @@ public:
 
 	/* Delegate Signature*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCurrentWaveNumberHandle, float, CurrentWaveNumber);
-
+	DECLARE_DYNAMIC_DELEGATE(FSwitchToStandardUI);
+	DECLARE_DYNAMIC_DELEGATE(FEnableStandardInputMappingContext);
+	
 	/* Delegate Handle */
 	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
+	FSwitchToStandardUI SwitchToStandardUI;
+	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	
 	virtual void BeginPlay() override;
+
+	/* Wave System*/
 	
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
+
+	UPROPERTY(VisibleAnywhere, Category="Wave Composition")
 	int CurrentWaveNumber = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int TimeToNextWave = 0;
-
-	//Here for testing purposes
+	
 	UFUNCTION(Category="Wave Composition")
 	void SpawnDynamicWave();
 
 	/*Spawns a Single AI mob for Testing/Debugging*/
 	UFUNCTION(Category="Wave Composition")
 	void SpawnTestWave();
+	void IncrementWaveNumber();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
 
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
-	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
-	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
+	
 
 	FTimerHandle TimeToNextWaveHandle;
 
@@ -72,12 +79,18 @@ public:
 	/* Save System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
+	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
+	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
+	void LoadPlayerState();
 
+	/*Load System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame();
-
 	void LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance);
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
+	UFUNCTION(BlueprintCallable, Category="Wave Composition")
+	void ClearAllWaveEnemies();
+	
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
@@ -107,8 +120,6 @@ protected:
 	void WaveComplete();
 
 	/* Wave Timers*/
-	
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Wave Timers")
 	float DurationBetweenWaves = 10.f;
 	

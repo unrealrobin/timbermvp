@@ -102,6 +102,30 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 	}
 }
 
+void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
+{
+	CurrentHealth -= DamageAmount;
+	if(CurrentHealth <= 0.f)
+	{
+		bIsPlayerDead = true;
+		HandlePlayerDeath();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player Hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+	}
+}
+
+void ATimberPlayableCharacter::HandlePlayerDeath()
+{
+	if(bIsPlayerDead)
+	{
+		//Broadcasting the Player Death Delegate
+		//Player Controller is Subscribed to this Delegate
+		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
+	}
+}
+
 void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
 {
 	CurrentWeaponState = NewWeaponState;

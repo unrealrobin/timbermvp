@@ -37,6 +37,8 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState); 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
+	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
+	
 	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
@@ -45,6 +47,8 @@ public:
 	FOnBuildMenuToggle IsBuildPanelOpen;
 	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
+	FHandleDeathUI HandleDeathUI_DelegateHandle;
+	
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -123,7 +127,15 @@ public:
 	void EnableCursor();
 	void DisableCursor();
 
+	void MovePlayerToStartLocation();
+
+	//Input Mapping Contexts
+	//This needs to be public because it gets called on the BP version of this class.
+	UFUNCTION(BlueprintCallable) 
+	void EnableStandardKeyboardInput();
+
 protected:
+	
 	virtual void SetupInputComponent() override;
 	
 	/*Move Data*/
@@ -132,13 +144,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	FVector CharacterRightMoveDirection;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FVector PlayerStartLocation;
+
 	/*Timber References*/
 	UPROPERTY(BlueprintReadOnly)
 	ATimberPlayableCharacter* TimberCharacter;
 	UPROPERTY(BlueprintReadOnly)
 	UCharacterMovementComponent* TimberCharacterMovementComponent;
-	UPROPERTY(BlueprintReadOnly)
-	ATimberPlayerController* TimberPlayerController;
 
 	/*Camera Controls*/
 	UPROPERTY(BlueprintReadOnly)
@@ -173,6 +186,10 @@ protected:
 	UFUNCTION()
 	void CloseBuildModeSelectionMenu();
 
+	/*Death*/
+	UFUNCTION()
+	void HandlePlayerDeath(bool bIsPlayerDead);
+
 private:
 	/*Enhanced Input Subsystem*/
 	UPROPERTY()
@@ -183,6 +200,9 @@ private:
 	TObjectPtr<UInputMappingContext> StandardInputMappingContext;
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputMappingContext> BuildModeInputMappingContext;
+	
+	void DisableAllKeyboardInput();
+	
 
 	UFUNCTION()
 	void UnEquipWeapon() const;

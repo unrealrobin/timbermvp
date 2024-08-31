@@ -43,6 +43,7 @@ void ATestObj::Tick(float DeltaTime)
 
 void ATestObj::Interact()
 {
+	//Purely Visual
 	//Rotates the Lever to Show it is being interacted with
 	if(InitialLeverRotation == StaticMeshAttachment->GetRelativeRotation())
 	{
@@ -52,6 +53,7 @@ void ATestObj::Interact()
 
 	// Calls the GameMode to Spawn the Enemy
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	GameMode->SaveCurrentGame();
 	if(GameMode)
 	{
 		GameMode->SpawnDynamicWave();

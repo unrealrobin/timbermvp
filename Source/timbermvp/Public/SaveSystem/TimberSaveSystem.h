@@ -36,5 +36,4 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Building Component Save Data")
 	TArray<FBuildingComponentData> BuildingComponentsArray;
-	
 };

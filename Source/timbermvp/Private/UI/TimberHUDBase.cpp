@@ -3,6 +3,7 @@
 
 #include "UI/TimberHUDBase.h"
 #include "Blueprint/UserWidget.h"
+#include "GameModes/TimberGameModeBase.h"
 
 void ATimberHUDBase::BeginPlay()
 {
@@ -31,7 +32,14 @@ void ATimberHUDBase::BeginPlay()
 
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
+		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
 	};
+
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if(GameMode)
+	{
+		GameMode->SwitchToStandardUI.BindUFunction(this, FName("SwitchToGameUI"));
+	}
 	
 }
 
@@ -81,5 +89,29 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 		//Setting the InputMode back to Game Only. Input mode is Changed in the Widget Blueprint in Event Preconstruct.
 		TimberPlayerController->SetInputMode(InputMode);
 		TimberPlayerController->DisableCursor();
+	}
+}
+
+void ATimberHUDBase::SwitchToDeathUI()
+{
+	RootWidget->RemoveFromParent();
+	DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
+	if(DeathWidget)
+	{
+		DeathWidget->AddToViewport(1);
+	}
+
+	//Make sure we disable the keyboard input when the player dies.
+}
+
+void ATimberHUDBase::SwitchToGameUI()
+{
+	if(DeathWidget)
+	{
+		DeathWidget->RemoveFromParent();
+	}
+	if(RootWidget)
+	{
+		RootWidget->AddToViewport(1);
 	}
 }

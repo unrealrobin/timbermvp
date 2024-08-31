@@ -5,6 +5,7 @@
 
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Controller/TimberPlayerController.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
@@ -12,8 +13,6 @@
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 	
 	DemoSpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -30,10 +29,7 @@ void ATimberGameModeBase::BeginPlay()
 	/*Getting Seedas Location*/
 	UGameplayStatics::GetAllActorsOfClass(World, ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
 	SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
-	if(GEngine)
-	{
-	GEngine->AddOnScreenDebugMessage(1, 10.0f, FColor::Blue, "Seeda Location Stored.");
-	}
+	
 }
 
 //Checks if destroyed enemies are the ones spawned by the wave system.
@@ -46,7 +42,7 @@ void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is in the Array");
 		ArrayOfSpawnedWaveEnemies.Remove(Enemy);
 		if(ArrayOfSpawnedWaveEnemies.Num() == 0)
-		{
+		{ 
 			WaveComplete();
 			GEngine->AddOnScreenDebugMessage(6, 5.0, FColor::Orange, "Wave Complete. Timer till next wave started.");
 		}
@@ -111,11 +107,24 @@ void ATimberGameModeBase::SpawnTestWave()
 	
 }
 
+void ATimberGameModeBase::IncrementWaveNumber()
+{
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Wave Number Incremented");
+	}
+	CurrentWaveNumber++;
+}
+
 void ATimberGameModeBase::WaveComplete()
 {
 	
-	CurrentWaveNumber++;
+	IncrementWaveNumber();
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
+
+	//Save the Game after the Wave is Complete so the Player can continue from the next wave.
+	//TODO::Ensure the timing of this works with Delegate Updates.
+	SaveCurrentGame();
 
 	//Starts a Timer for the next wave to Spawn.
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle,this, &ATimberGameModeBase::SpawnDynamicWave, DurationBetweenWaves, 
@@ -123,8 +132,21 @@ void ATimberGameModeBase::WaveComplete()
 	
 }
 
-
 /* Save System*/
+
+void ATimberGameModeBase::SaveCurrentGame()
+{
+	//Creating an instance of the Save Game Object
+	UTimberSaveSystem* SaveGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::CreateSaveGameObject
+		(UTimberSaveSystem::StaticClass()));
+	
+	SaveBuildingComponentData(SaveGameInstance);
+	SaveWaveData(SaveGameInstance);
+
+
+	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Demo Timber Save 1"), 0);
+}
 
 void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance)
 {
@@ -148,21 +170,24 @@ void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameI
 void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
 {
 	SaveGameInstance->WaveNumber = CurrentWaveNumber;
+	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), CurrentWaveNumber);
 }
 
-void ATimberGameModeBase::SaveCurrentGame()
+
+
+/* Load System*/
+void ATimberGameModeBase::LoadGame()
 {
-	//Creating an instance of the Save Game Object
-	UTimberSaveSystem* SaveGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::CreateSaveGameObject
-		(UTimberSaveSystem::StaticClass()));
-	
-	SaveBuildingComponentData(SaveGameInstance);
-	SaveWaveData(SaveGameInstance);
-
-
-	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Demo Timber Save 1"), 0);
+	ClearAllWaveEnemies();
+	//Needs the Slot Name and the User Index
+	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
+	LoadBuildingComponents(LoadGameInstance);
+	LoadWaveData(LoadGameInstance);
+	LoadPlayerState();
+	SwitchToStandardUI.Execute();
+	EnableStandardInputMappingContext.Execute();
 }
+
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
 {
@@ -183,18 +208,42 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 {
 	CurrentWaveNumber = LoadGameInstance->WaveNumber;
+	UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), CurrentWaveNumber);
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 }
 
-void ATimberGameModeBase::LoadGame()
+void ATimberGameModeBase::LoadPlayerState()
 {
-	//Needs the Slot Name and the User Index
-	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
+	//Move to Start Location
+	ATimberPlayerController* TimberPlayerController = Cast<ATimberPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if(TimberPlayerController)
+	{
+		TimberPlayerController->MovePlayerToStartLocation();
+	}
 
-	LoadBuildingComponents(LoadGameInstance);
-	LoadWaveData(LoadGameInstance);
+	//Reset Player Health
+	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if(TimberCharacter)
+	{
+		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
+	}
 }
 
+void ATimberGameModeBase::ClearAllWaveEnemies()
+{
+	//TODO:: Remove all enemies from the map.
+	//Typically used when loading a game after death when enemies are still on the map.
+	
+	for (ATimberEnemyCharacter* ArrayOfSpawnedWaveEnemy : ArrayOfSpawnedWaveEnemies)
+	{
+		if(ArrayOfSpawnedWaveEnemy)
+		{
+			ArrayOfSpawnedWaveEnemy->Destroy();
+		}
+	}
+
+	ArrayOfSpawnedWaveEnemies.Empty();
+}
 
 
 

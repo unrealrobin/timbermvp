@@ -14,7 +14,22 @@ void UTimberWaveSystemWidgetBase::NativeConstruct()
 	TimeToNextWaveWidget = GameMode->TimeToNextWave;
 
 	/*Delegate Call from Game Mode*/
-	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
+	/*
+	* We need to check if this is bound because, when the widget is removed and readded to the screen,
+	It tries to rebind the delegate again which causes an error. so We first check to ensure it isn't bound
+	before we wind the delegate to the handle.
+	 *
+	 * One of the ways this error happens is when the character dies and the UI changes and so the UI is recreated on load.
+	 *
+	 *
+	 *
+	*/
+	
+	if(!GameMode->CurrentWaveNumberHandle.IsBound())
+	{
+		GameMode->CurrentWaveNumberHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
+	}
+	
 	
 }
 

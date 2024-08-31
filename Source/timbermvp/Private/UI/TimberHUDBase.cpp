@@ -3,6 +3,7 @@
 
 #include "UI/TimberHUDBase.h"
 #include "Blueprint/UserWidget.h"
+#include "GameModes/TimberGameModeBase.h"
 
 void ATimberHUDBase::BeginPlay()
 {
@@ -33,6 +34,12 @@ void ATimberHUDBase::BeginPlay()
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
 	};
+
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if(GameMode)
+	{
+		GameMode->SwitchToStandardUI.BindUFunction(this, FName("SwitchToGameUI"));
+	}
 	
 }
 

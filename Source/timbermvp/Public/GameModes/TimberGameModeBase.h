@@ -34,9 +34,13 @@ public:
 
 	/* Delegate Signature*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCurrentWaveNumberHandle, float, CurrentWaveNumber);
-
+	DECLARE_DYNAMIC_DELEGATE(FSwitchToStandardUI);
+	DECLARE_DYNAMIC_DELEGATE(FEnableStandardInputMappingContext);
+	
 	/* Delegate Handle */
 	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
+	FSwitchToStandardUI SwitchToStandardUI;
+	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	
 	virtual void BeginPlay() override;
 
@@ -74,6 +78,7 @@ public:
 	void SaveCurrentGame();
 	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
 	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
+	void LoadPlayerState();
 
 	/*Load System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
@@ -112,8 +117,6 @@ protected:
 	void WaveComplete();
 
 	/* Wave Timers*/
-	
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Wave Timers")
 	float DurationBetweenWaves = 10.f;
 	

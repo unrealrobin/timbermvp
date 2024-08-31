@@ -39,6 +39,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
 	
+	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
@@ -47,6 +48,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
+	
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -125,7 +127,15 @@ public:
 	void EnableCursor();
 	void DisableCursor();
 
+	void MovePlayerToStartLocation();
+
+	//Input Mapping Contexts
+	//This needs to be public because it gets called on the BP version of this class.
+	UFUNCTION(BlueprintCallable) 
+	void EnableStandardKeyboardInput();
+
 protected:
+	
 	virtual void SetupInputComponent() override;
 	
 	/*Move Data*/
@@ -133,6 +143,9 @@ protected:
 	FVector CharacterForwardMoveDirection;
 	UPROPERTY(BlueprintReadOnly)
 	FVector CharacterRightMoveDirection;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FVector PlayerStartLocation;
 
 	/*Timber References*/
 	UPROPERTY(BlueprintReadOnly)
@@ -193,6 +206,7 @@ private:
 	TObjectPtr<UInputMappingContext> BuildModeInputMappingContext;
 	
 	void DisableAllKeyboardInput();
+	
 
 	UFUNCTION()
 	void UnEquipWeapon() const;

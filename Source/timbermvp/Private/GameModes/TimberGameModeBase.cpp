@@ -5,6 +5,7 @@
 
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Controller/TimberPlayerController.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
@@ -165,21 +166,21 @@ void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
 	SaveGameInstance->WaveNumber = CurrentWaveNumber;
 }
 
+
+
 /* Load System*/
 void ATimberGameModeBase::LoadGame()
 {
 	ClearAllWaveEnemies();
 	//Needs the Slot Name and the User Index
 	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
-
 	LoadBuildingComponents(LoadGameInstance);
 	LoadWaveData(LoadGameInstance);
-
-	//TODO:: Load Player Data
-	//Remove the dead player from the game
-	//Find the Player in the game, destroy them and their controller.
-	//Spawn the player at the character spawn point with a new controller.
+	LoadPlayerState();
+	SwitchToStandardUI.Execute();
+	EnableStandardInputMappingContext.Execute();
 }
+
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
 {
@@ -203,9 +204,28 @@ void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 }
 
+void ATimberGameModeBase::LoadPlayerState()
+{
+	//Move to Start Location
+	ATimberPlayerController* TimberPlayerController = Cast<ATimberPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if(TimberPlayerController)
+	{
+		TimberPlayerController->MovePlayerToStartLocation();
+	}
+
+	//Reset Player Health
+	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if(TimberCharacter)
+	{
+		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
+	}
+}
+
 void ATimberGameModeBase::ClearAllWaveEnemies()
 {
-	//TODO:: Remove all enemies from the map. Typically used when loading a game after death when enemies are still on the map.
+	//TODO:: Remove all enemies from the map.
+	//Typically used when loading a game after death when enemies are still on the map.
+	
 	for (ATimberEnemyCharacter* ArrayOfSpawnedWaveEnemy : ArrayOfSpawnedWaveEnemies)
 	{
 		ArrayOfSpawnedWaveEnemy->Destroy();

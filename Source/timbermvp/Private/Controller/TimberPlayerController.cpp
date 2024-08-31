@@ -8,7 +8,10 @@
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerStart.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameModes/TimberGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/TimberHUDBase.h"
 #include "Weapons/TimberWeaponBase.h"
 
@@ -16,23 +19,31 @@ void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
+	APlayerStart* PlayerStartObject = Cast<APlayerStart>(UGameplayStatics::GetActorOfClass(GetWorld(),
+	APlayerStart::StaticClass()));
+	PlayerStartLocation = PlayerStartObject->GetActorLocation();
+	
 	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
 	
-	if (Subsystem)
-	{
-		Subsystem->AddMappingContext(StandardInputMappingContext, 1);
-	}
+	
 	
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	//TimberPlayerController = this;
 
-	DisableCursor();
+	EnableStandardKeyboardInput();
 
 	//Delegate Subscription
 	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberPlayerController::HandlePlayerDeath);
+
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if(GameMode)
+	{
+		GameMode->EnableStandardInputMappingContext.BindUFunction(this, FName("EnableStandardKeyboardInput"));
+	}
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -57,6 +68,14 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
 	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 	
+}
+
+void ATimberPlayerController::MovePlayerToStartLocation()
+{
+	if(PlayerStartLocation != FVector(0.f,0.f,0.f))
+	{
+		TimberCharacter->SetActorLocation(PlayerStartLocation);
+	}
 }
 
 void ATimberPlayerController::EnableCursor()
@@ -305,6 +324,17 @@ void ATimberPlayerController::DisableAllKeyboardInput()
 	Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
 }
 
+void ATimberPlayerController::EnableStandardKeyboardInput()
+{
+	if (Subsystem)
+	{
+		Subsystem->AddMappingContext(StandardInputMappingContext, 1);
+
+		//TODO:: This should be abstracted out or something. Because this function also gets called in beginplay so not sure if we want to Disbale
+		DisableCursor();
+	}
+}
+
 void ATimberPlayerController::UnEquipWeapon() const
 {
 	//TODO:: Play Unequip Animation
@@ -465,15 +495,13 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 	//TODO:: Implement Player Death
 	if(bIsPlayerDead)
 	{
-		if(GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(5, 5.0f, FColor::Red, "Controller knows player is dead.");
-		}
+		
 		//TODO:: Play Death Animation
 		EnableCursor();
 		DisableAllKeyboardInput();
 		UnEquipWeapon();
-		//TODO:: Stop enemy AI's from attacking
+
+		//Subscribed on the HUD to Show the Death UI
 		HandleDeathUI_DelegateHandle.Execute();
 
 		

@@ -47,6 +47,8 @@ public:
 	/* Wave System*/
 	
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
+
+	UPROPERTY(VisibleAnywhere, Category="Wave Composition")
 	int CurrentWaveNumber = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -58,6 +60,7 @@ public:
 	/*Spawns a Single AI mob for Testing/Debugging*/
 	UFUNCTION(Category="Wave Composition")
 	void SpawnTestWave();
+	void IncrementWaveNumber();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;

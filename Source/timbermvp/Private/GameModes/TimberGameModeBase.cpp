@@ -29,10 +29,7 @@ void ATimberGameModeBase::BeginPlay()
 	/*Getting Seedas Location*/
 	UGameplayStatics::GetAllActorsOfClass(World, ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
 	SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
-	if(GEngine)
-	{
-	GEngine->AddOnScreenDebugMessage(1, 10.0f, FColor::Blue, "Seeda Location Stored.");
-	}
+	
 }
 
 //Checks if destroyed enemies are the ones spawned by the wave system.
@@ -45,7 +42,7 @@ void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is in the Array");
 		ArrayOfSpawnedWaveEnemies.Remove(Enemy);
 		if(ArrayOfSpawnedWaveEnemies.Num() == 0)
-		{
+		{ 
 			WaveComplete();
 			GEngine->AddOnScreenDebugMessage(6, 5.0, FColor::Orange, "Wave Complete. Timer till next wave started.");
 		}
@@ -110,10 +107,19 @@ void ATimberGameModeBase::SpawnTestWave()
 	
 }
 
+void ATimberGameModeBase::IncrementWaveNumber()
+{
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Wave Number Incremented");
+	}
+	CurrentWaveNumber++;
+}
+
 void ATimberGameModeBase::WaveComplete()
 {
 	
-	CurrentWaveNumber++;
+	IncrementWaveNumber();
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 
 	//Save the Game after the Wave is Complete so the Player can continue from the next wave.
@@ -164,6 +170,7 @@ void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameI
 void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
 {
 	SaveGameInstance->WaveNumber = CurrentWaveNumber;
+	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), CurrentWaveNumber);
 }
 
 
@@ -201,6 +208,7 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 {
 	CurrentWaveNumber = LoadGameInstance->WaveNumber;
+	UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), CurrentWaveNumber);
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 }
 
@@ -228,8 +236,13 @@ void ATimberGameModeBase::ClearAllWaveEnemies()
 	
 	for (ATimberEnemyCharacter* ArrayOfSpawnedWaveEnemy : ArrayOfSpawnedWaveEnemies)
 	{
-		ArrayOfSpawnedWaveEnemy->Destroy();
+		if(ArrayOfSpawnedWaveEnemy)
+		{
+			ArrayOfSpawnedWaveEnemy->Destroy();
+		}
 	}
+
+	ArrayOfSpawnedWaveEnemies.Empty();
 }
 
 

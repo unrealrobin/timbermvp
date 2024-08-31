@@ -153,10 +153,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	UCharacterMovementComponent* TimberCharacterMovementComponent;
 
-	//TODO::Do I need this?
-	/*UPROPERTY(BlueprintReadOnly)
-	ATimberPlayerController* TimberPlayerController;*/
-
 	/*Camera Controls*/
 	UPROPERTY(BlueprintReadOnly)
 	USpringArmComponent* TimberCharacterSpringArmComponent;

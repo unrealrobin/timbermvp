@@ -329,8 +329,6 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 	if (Subsystem)
 	{
 		Subsystem->AddMappingContext(StandardInputMappingContext, 1);
-
-		//TODO:: This should be abstracted out or something. Because this function also gets called in beginplay so not sure if we want to Disbale
 		DisableCursor();
 	}
 }

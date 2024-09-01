@@ -241,7 +241,6 @@ void ATimberGameModeBase::ClearAllWaveEnemies()
 			ArrayOfSpawnedWaveEnemy->Destroy();
 		}
 	}
-
 	ArrayOfSpawnedWaveEnemies.Empty();
 }
 

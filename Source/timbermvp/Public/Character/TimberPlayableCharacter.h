@@ -61,6 +61,10 @@ public:
 	bool IsRunning = true;
 	float MaxRunSpeed = 1000.f;
 
+	/*Animation Montages*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation")
+	UAnimMontage* DeathMontage;
+
 	/*Animation Properties*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
 	bool IsNowJumping = false;
@@ -113,8 +117,9 @@ protected:
 
 	UFUNCTION()
 	void HandleBuildMenuOpen(bool IsBuildMenuOpen);
-	
-	
+
+	UFUNCTION()
+	void PlayDeathAnimation();
 	
 	
 };

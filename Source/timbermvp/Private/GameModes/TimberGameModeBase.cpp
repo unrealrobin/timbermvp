@@ -226,6 +226,7 @@ void ATimberGameModeBase::LoadPlayerState()
 	if(TimberCharacter)
 	{
 		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
+		TimberCharacter->bIsPlayerDead = false;
 	}
 }
 

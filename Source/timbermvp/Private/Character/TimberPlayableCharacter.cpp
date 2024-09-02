@@ -46,6 +46,11 @@ void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
 	ShouldRaycast = !bIsBuildMenuOpen;
 }
 
+void ATimberPlayableCharacter::PlayDeathAnimation()
+{
+	PlayAnimMontage(DeathMontage, 1.f, FName("Death1"));
+}
+
 void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 {
 	if(CharacterState == ECharacterState::Building)
@@ -109,6 +114,7 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 	{
 		bIsPlayerDead = true;
 		HandlePlayerDeath();
+		
 	}
 	else
 	{
@@ -120,6 +126,7 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 {
 	if(bIsPlayerDead)
 	{
+		PlayDeathAnimation();
 		//Broadcasting the Player Death Delegate
 		//Player Controller is Subscribed to this Delegate
 		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);

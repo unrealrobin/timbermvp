@@ -122,6 +122,12 @@ protected:
 	/* Wave Timers*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Wave Timers")
 	float DurationBetweenWaves = 10.f;
-	
+
+	/*Character Freeze*/
+
+	// When the player dies, all AI / NPC characters should freeze in place.
+	// No movement, No attacking, No AI logic.
+	UFUNCTION()
+	void FreezeAllAICharacters(bool bIsPlayerDead);
 	
 };

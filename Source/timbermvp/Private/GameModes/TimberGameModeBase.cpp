@@ -3,10 +3,13 @@
 
 #include "GameModes/TimberGameModeBase.h"
 
+#include "BrainComponent.h"
+#include "AI/TimberAiControllerBase.h"
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Controller/TimberPlayerController.h"
 #include "Environment/TimberEnemySpawnLocations.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
 
@@ -29,6 +32,10 @@ void ATimberGameModeBase::BeginPlay()
 	/*Getting Seedas Location*/
 	UGameplayStatics::GetAllActorsOfClass(World, ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
 	SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
+
+	/*Subscribing to Player Death Delegate Signature*/
+	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
 	
 }
 
@@ -132,6 +139,35 @@ void ATimberGameModeBase::WaveComplete()
 	
 }
 
+//Used to Freeze all AI Characters when the Player Dies.
+void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
+{
+	TArray<AActor*> ArrayOfAICharacters;
+	UGameplayStatics::GetAllActorsOfClass(this, ATimberEnemyCharacter::StaticClass(), ArrayOfAICharacters);
+
+	for(AActor* Character: ArrayOfAICharacters)
+	{
+		ATimberEnemyCharacter* CharacterEnemy = Cast<ATimberEnemyCharacter>(Character);
+
+		if(CharacterEnemy)
+		{
+			//Stopping Enemy Movement
+			CharacterEnemy->GetCharacterMovement()->StopMovementImmediately();
+
+			//Stopping Enemy AI Tree Logic
+			if(CharacterEnemy->GetController())
+			{
+				ATimberAiControllerBase* AIController = Cast<ATimberAiControllerBase>(CharacterEnemy->GetController());\
+				UBrainComponent* Brain = AIController->BrainComponent;
+				Brain->StopLogic("Freezing because Player Death");
+			}
+		}
+		
+
+		
+	}
+}
+
 /* Save System*/
 
 void ATimberGameModeBase::SaveCurrentGame()
@@ -173,8 +209,6 @@ void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
 	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), CurrentWaveNumber);
 }
 
-
-
 /* Load System*/
 void ATimberGameModeBase::LoadGame()
 {
@@ -187,7 +221,6 @@ void ATimberGameModeBase::LoadGame()
 	SwitchToStandardUI.Execute();
 	EnableStandardInputMappingContext.Execute();
 }
-
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
 {
@@ -232,8 +265,6 @@ void ATimberGameModeBase::LoadPlayerState()
 
 void ATimberGameModeBase::ClearAllWaveEnemies()
 {
-	//TODO:: Remove all enemies from the map.
-	//Typically used when loading a game after death when enemies are still on the map.
 	
 	for (ATimberEnemyCharacter* ArrayOfSpawnedWaveEnemy : ArrayOfSpawnedWaveEnemies)
 	{

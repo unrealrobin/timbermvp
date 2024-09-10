@@ -32,8 +32,6 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
-	//TimberPlayerController = this;
-
 	EnableStandardKeyboardInput();
 
 	//Delegate Subscription
@@ -67,6 +65,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
 	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
 	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
+	EnhancedInputComponent->BindAction(DeleteBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::DeleteBuildingComponent);
 	
 }
 
@@ -486,6 +485,13 @@ void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
 {
 	//Broadcast to HUD to Hide the Build Menu
 	ShouldHideBuildMenu.Broadcast();
+}
+
+void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& Value)
+{
+	//During Raycast, if we raycast over an existing BC, a UI Widget Will Appear around that Component.
+
+	//Pressing the E button will Delete if if Held for 1 Full second.
 }
 
 void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)

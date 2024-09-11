@@ -33,6 +33,15 @@ void ATimberHUDBase::BeginPlay()
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
+
+
+		ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(TimberPlayerController->GetCharacter());
+		
+		if(TimberCharacter)
+		{
+			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.AddDynamic(this, &ATimberHUDBase::ShowDeleteBuildingComponentWidget);
+			TimberCharacter->HandleRemoveDeleteIcon_DelegateHandle.AddDynamic(this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
+		}
 	};
 
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -113,5 +122,41 @@ void ATimberHUDBase::SwitchToGameUI()
 	if(RootWidget)
 	{
 		RootWidget->AddToViewport(1);
+	}
+}
+
+void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY)
+{
+	//If widget is up, only update the position of the widget.
+	if(DeleteBuildingComponentWidget)
+	{
+		FVector2D ViewportLocation = FVector2d(ViewportLocationX+ DeleteBuildingComponentWidgetShiftX, 
+		ViewportLocationY+DeleteBuildingComponentWidgetShiftY);
+		DeleteBuildingComponentWidget->SetPositionInViewport(ViewportLocation, false);
+		return;
+	}
+
+	//If the widget is not up, create it and add it to the viewport.
+	if(DeleteBuildingComponentWidgetClass)
+	{
+		DeleteBuildingComponentWidget = CreateWidget<UUserWidget>(GetWorld(), DeleteBuildingComponentWidgetClass);
+		if(DeleteBuildingComponentWidget)
+		{
+			DeleteBuildingComponentWidget->AddToViewport(1);
+
+			//Constructing a 2D Vector to set the position of the Widget on the Viewport. For Some reason can not use the Delegate System with FVector2d Type.
+			FVector2D ViewportLocation = FVector2d(0, 0);
+			DeleteBuildingComponentWidget->SetPositionInViewport(ViewportLocation, false);
+		}
+	}
+}
+
+void ATimberHUDBase::HideDeleteBuildingComponentWidget()
+{
+	//A Way to remove the DeleteBuildingComponentWidget from the Viewport.
+	if(DeleteBuildingComponentWidget)
+	{
+		DeleteBuildingComponentWidget->RemoveFromParent();
+		DeleteBuildingComponentWidget = nullptr;
 	}
 }

@@ -77,6 +77,9 @@ public:
 	UInputAction* PlaceBuildingComponentAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* HideBuildMenuAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* DeleteBuildingComponentAction;
+	
 	/*Player Controls*/
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
@@ -108,6 +111,8 @@ public:
 	void PlaceBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
 	void HideBuildMenu(const FInputActionValue& Value);
+	UFUNCTION()
+	void DeleteBuildingComponent(const FInputActionValue& Value);
 
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

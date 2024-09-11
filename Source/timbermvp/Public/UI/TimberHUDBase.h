@@ -50,6 +50,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* DeathWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> DeleteBuildingComponentWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* DeleteBuildingComponentWidget;
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
 
@@ -62,6 +68,14 @@ public:
 	void SwitchToDeathUI();
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameUI();
+	UFUNCTION(Category="Action UI")
+	void ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY);
+	UFUNCTION()
+	void HideDeleteBuildingComponentWidget();
+
+	//Vars to shift in the X & Y direction when the DeleteBuildingComponentWidget is spawned. Shifted from Center.
+	float DeleteBuildingComponentWidgetShiftX = 100.f;
+	float DeleteBuildingComponentWidgetShiftY = 100.f;
 protected:
 	/*Delegate Listeners*/
 	UFUNCTION()

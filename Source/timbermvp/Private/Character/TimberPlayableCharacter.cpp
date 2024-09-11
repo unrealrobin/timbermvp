@@ -83,20 +83,43 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			if (bHit)
 			{
 				
-				//Get reference to the BuildSystemManager
+				
 				ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
-				//If there isn't an Active BuildingComponent, Create One and Set it as Active, or if it is not the same as the one we have, spawn a new one.
 				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManagerInstance->GetActiveBuildingComponentClass())
 				{
 					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, GetActorRotation());
 				}
+
+				
 				//When the Actor spawns, we now hit it with the raycast, so we need to ignore it, otherwise it will look
 				//like the actor is moving toward us as the hits get closer and closer with movement
 				AActor* HitActor = HitResult.GetComponent()->GetOwner();
 				if(Cast<ATimberBuildingComponentBase>(HitActor)) //if HitActor is a BuildingComponent
 				{
+					HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
+					if(HoveredBuildingComponent)
+					{
+						//Translating a Location in World Space to Its Location in Screen Space
+						FVector2d ScreenLocationOfImpactPoint;
+						GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(HitResult.ImpactPoint, 
+						ScreenLocationOfImpactPoint);
+						
+						// Broadcast a Delegate with the Impact Position to the HUD.
+						HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(ScreenLocationOfImpactPoint.X,ScreenLocationOfImpactPoint.Y);
+					}
+					
 					return;
 				}
+				else
+				{
+					//Used once the player moves away from the BuildingComponent
+					HoveredBuildingComponent = nullptr;
+					//Broadcast a Delegate to the HUD to remove the Delete Icon
+					HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+				}
+
+				//TODO:: May be a better way to Handle this.
+				//We return before this because otherwise, we would be "Hitting" the "Faux" BuildingComponent causing it to move back toward the character repetitively
 				if(ActiveBuildingComponent)
 				{
 					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);

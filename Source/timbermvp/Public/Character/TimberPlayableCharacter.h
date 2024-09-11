@@ -7,6 +7,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class ATimberBuildingComponentBase;
 class ATimberBuildSystemManager;
 class USpringArmComponent;
 class UCameraComponent;
@@ -41,6 +42,10 @@ public:
 	//Delegates
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
 	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
+	FHandleSpawnDeleteIconLocation HandleSpawnDeleteIconLocation_DelegateHandle;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHandleRemoveDeleteIcon);
+	FHandleRemoveDeleteIcon HandleRemoveDeleteIcon_DelegateHandle;
 	
 	//Constructor
 	ATimberPlayableCharacter();
@@ -95,6 +100,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Building")
 	float BuildRaycastDistance = 1000.f;
 	bool ShouldRaycast = true;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Building Component Data")
+	ATimberBuildingComponentBase* HoveredBuildingComponent;
 
 	/*Damage*/
 	void PlayerTakeDamage(float DamageAmount);
@@ -106,6 +113,8 @@ public:
 	bool bIsPlayerDead = false;
 
 protected:
+	
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
 

@@ -50,6 +50,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* DeathWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> DeleteBuildingComponentWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* DeleteBuildingComponentWidget;
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
 
@@ -62,6 +68,7 @@ public:
 	void SwitchToDeathUI();
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameUI();
+	void ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY);
 protected:
 	/*Delegate Listeners*/
 	UFUNCTION()

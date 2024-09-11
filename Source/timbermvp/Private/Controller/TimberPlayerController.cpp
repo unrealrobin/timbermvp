@@ -492,6 +492,12 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 	//During Raycast, if we raycast over an existing BC, a UI Widget Will Appear around that Component.
 
 	//Pressing the E button will Delete if Held for 1 Full second.
+
+	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
+	{
+		TimberCharacter->HoveredBuildingComponent->Destroy();
+		TimberCharacter->HoveredBuildingComponent = nullptr;
+	}
 }
 
 void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)

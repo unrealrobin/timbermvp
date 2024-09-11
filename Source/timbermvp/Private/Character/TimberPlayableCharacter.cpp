@@ -96,12 +96,26 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				AActor* HitActor = HitResult.GetComponent()->GetOwner();
 				if(Cast<ATimberBuildingComponentBase>(HitActor)) //if HitActor is a BuildingComponent
 				{
-					//TODO:: Implement Snap Functionality or
-
-					//TODO:: Popup UI for Component Deletion.
+					//TODO:: Implement Snap Functionality
+				
+					//TODO:: Implementing Delete Component Functionality.
+					HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
+					if(HoveredBuildingComponent)
+					{
+						// Broadcast a Delegate with the Impact Position to the HUD.
+						HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(HitResult.ImpactPoint.X, HitResult.ImpactPoint.Y);
+					}
 					
 					return;
 				}
+				else
+				{
+					//Used once the player moves away from the BuildingComponent
+					HoveredBuildingComponent = nullptr;
+				}
+
+				//TODO:: May be a better way to Handle this.
+				//We return before this because otherwise, we would be "Hitting" the "Faux" BuildingComponent causing it to move back toward the character repetitively
 				if(ActiveBuildingComponent)
 				{
 					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);

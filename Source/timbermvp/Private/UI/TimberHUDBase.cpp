@@ -33,6 +33,14 @@ void ATimberHUDBase::BeginPlay()
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
+
+
+		ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(TimberPlayerController->GetLocalPlayer());
+		
+		if(TimberCharacter)
+		{
+			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.BindUFunction(this, FName("ShowDeleteBuildingComponentWidget"));
+		}
 	};
 
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -113,5 +121,21 @@ void ATimberHUDBase::SwitchToGameUI()
 	if(RootWidget)
 	{
 		RootWidget->AddToViewport(1);
+	}
+}
+
+void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY)
+{
+	if(DeleteBuildingComponentWidgetClass)
+	{
+		DeleteBuildingComponentWidget = CreateWidget<UUserWidget>(GetWorld(), DeleteBuildingComponentWidgetClass);
+		if(DeleteBuildingComponentWidget)
+		{
+			DeleteBuildingComponentWidget->AddToViewport(1);
+
+			//Constructing a 2D Vector to set the position of the Widget on the Viewport. For Some reason can not use the Delegate System with FVector2d Type.
+			FVector2D ViewportLocation = FVector2d(ViewportLocationX, ViewportLocationY);
+			DeleteBuildingComponentWidget->SetPositionInViewport(ViewportLocation, false);
+		}
 	}
 }

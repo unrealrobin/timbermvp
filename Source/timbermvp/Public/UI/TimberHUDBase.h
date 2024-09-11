@@ -68,7 +68,10 @@ public:
 	void SwitchToDeathUI();
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameUI();
+	UFUNCTION(Category="Action UI")
 	void ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY);
+	UFUNCTION()
+	void HideDeleteBuildingComponentWidget();
 protected:
 	/*Delegate Listeners*/
 	UFUNCTION()

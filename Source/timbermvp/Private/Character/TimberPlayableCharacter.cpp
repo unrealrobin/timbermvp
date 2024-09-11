@@ -112,6 +112,10 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				{
 					//Used once the player moves away from the BuildingComponent
 					HoveredBuildingComponent = nullptr;
+
+
+					//Broadcast a Delegate to the HUD to remove the Delete Icon
+					HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
 				}
 
 				//TODO:: May be a better way to Handle this.

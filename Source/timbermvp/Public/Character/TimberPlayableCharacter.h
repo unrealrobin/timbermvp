@@ -44,6 +44,8 @@ public:
 	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
 	FHandleSpawnDeleteIconLocation HandleSpawnDeleteIconLocation_DelegateHandle;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHandleRemoveDeleteIcon);
+	FHandleRemoveDeleteIcon HandleRemoveDeleteIcon_DelegateHandle;
 	
 	//Constructor
 	ATimberPlayableCharacter();

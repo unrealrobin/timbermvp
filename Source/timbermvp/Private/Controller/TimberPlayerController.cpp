@@ -491,7 +491,7 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 {
 	//During Raycast, if we raycast over an existing BC, a UI Widget Will Appear around that Component.
 
-	//Pressing the E button will Delete if if Held for 1 Full second.
+	//Pressing the E button will Delete if Held for 1 Full second.
 }
 
 void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)

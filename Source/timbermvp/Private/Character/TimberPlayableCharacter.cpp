@@ -83,18 +83,23 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			if (bHit)
 			{
 				
-				//Get reference to the BuildSystemManager
+				
 				ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
-				//If there isn't an Active BuildingComponent, Create One and Set it as Active, or if it is not the same as the one we have, spawn a new one.
 				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManagerInstance->GetActiveBuildingComponentClass())
 				{
 					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, GetActorRotation());
 				}
+
+				
 				//When the Actor spawns, we now hit it with the raycast, so we need to ignore it, otherwise it will look
 				//like the actor is moving toward us as the hits get closer and closer with movement
 				AActor* HitActor = HitResult.GetComponent()->GetOwner();
 				if(Cast<ATimberBuildingComponentBase>(HitActor)) //if HitActor is a BuildingComponent
 				{
+					//TODO:: Implement Snap Functionality or
+
+					//TODO:: Popup UI for Component Deletion.
+					
 					return;
 				}
 				if(ActiveBuildingComponent)

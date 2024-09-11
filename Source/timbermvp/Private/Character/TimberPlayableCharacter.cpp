@@ -96,14 +96,16 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				AActor* HitActor = HitResult.GetComponent()->GetOwner();
 				if(Cast<ATimberBuildingComponentBase>(HitActor)) //if HitActor is a BuildingComponent
 				{
-					//TODO:: Implement Snap Functionality
-				
-					//TODO:: Implementing Delete Component Functionality.
 					HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
 					if(HoveredBuildingComponent)
 					{
+						//Translating a Location in World Space to Its Location in Screen Space
+						FVector2d ScreenLocationOfImpactPoint;
+						GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(HitResult.ImpactPoint, 
+						ScreenLocationOfImpactPoint);
+						
 						// Broadcast a Delegate with the Impact Position to the HUD.
-						HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(HitResult.ImpactPoint.X, HitResult.ImpactPoint.Y);
+						HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(ScreenLocationOfImpactPoint.X,ScreenLocationOfImpactPoint.Y);
 					}
 					
 					return;
@@ -112,8 +114,6 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				{
 					//Used once the player moves away from the BuildingComponent
 					HoveredBuildingComponent = nullptr;
-
-
 					//Broadcast a Delegate to the HUD to remove the Delete Icon
 					HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
 				}

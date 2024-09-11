@@ -125,12 +125,13 @@ void ATimberHUDBase::SwitchToGameUI()
 	}
 }
 
-void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationY, float ViewportLocationX)
+void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY)
 {
 	//If widget is up, only update the position of the widget.
 	if(DeleteBuildingComponentWidget)
 	{
-		FVector2D ViewportLocation = FVector2d(ViewportLocationX, ViewportLocationY);
+		FVector2D ViewportLocation = FVector2d(ViewportLocationX+ DeleteBuildingComponentWidgetShiftX, 
+		ViewportLocationY+DeleteBuildingComponentWidgetShiftY);
 		DeleteBuildingComponentWidget->SetPositionInViewport(ViewportLocation, false);
 		return;
 	}

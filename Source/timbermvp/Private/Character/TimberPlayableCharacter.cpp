@@ -4,11 +4,13 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
 #include "BuildSystem/TimberBuildSystemManager.h"
+#include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "UI/TimberHUDBase.h"
+
 
 ATimberPlayableCharacter::ATimberPlayableCharacter()
 {
@@ -16,6 +18,7 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	Camera->SetupAttachment(CameraSpringArm);
 	CameraSpringArm->SetupAttachment(RootComponent);
+	BuildSystemManager = CreateDefaultSubobject<UBuildSystemManagerComponent>("BuildSystemManager");
 }
 
 void ATimberPlayableCharacter::BeginPlay()

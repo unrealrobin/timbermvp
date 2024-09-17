@@ -20,14 +20,13 @@ void ATimberPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
+	// This is used for the Saving and Loading Process. We need a Location in space to respawn during load.
 	APlayerStart* PlayerStartObject = Cast<APlayerStart>(UGameplayStatics::GetActorOfClass(GetWorld(),
 	APlayerStart::StaticClass()));
 	PlayerStartLocation = PlayerStartObject->GetActorLocation();
 	
 	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
-	
-	
 	
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();

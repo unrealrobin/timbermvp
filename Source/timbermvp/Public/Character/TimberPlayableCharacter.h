@@ -7,6 +7,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class UBuildSystemManagerComponent;
 class ATimberBuildingComponentBase;
 class ATimberBuildSystemManager;
 class USpringArmComponent;
@@ -60,6 +61,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	USpringArmComponent* CameraSpringArm;
 	USpringArmComponent* GetSpringArmComponent() {return CameraSpringArm;}
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System")
+	UBuildSystemManagerComponent* BuildSystemManager;
 
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
@@ -113,8 +116,6 @@ public:
 	bool bIsPlayerDead = false;
 
 protected:
-	
-	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
 

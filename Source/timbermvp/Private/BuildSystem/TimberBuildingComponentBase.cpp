@@ -16,10 +16,7 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	RootComponent = StaticMesh;
 	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1);
 	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
-
 	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ATimberBuildingComponentBase::HandleOverlapNotifies);
-	
-
 }
 
 void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage)

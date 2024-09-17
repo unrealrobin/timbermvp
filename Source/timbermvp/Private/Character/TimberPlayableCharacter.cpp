@@ -44,15 +44,52 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	
 }
 
-void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
-{
-	ShouldRaycast = !bIsBuildMenuOpen;
-}
+/*Death & Damage*/
 
 void ATimberPlayableCharacter::PlayDeathAnimation()
 {
 	PlayAnimMontage(DeathMontage, 1.f, FName("Death1"));
 }
+
+void ATimberPlayableCharacter::HandlePlayerDeath()
+{
+	if(bIsPlayerDead)
+	{
+		PlayDeathAnimation();
+		//Broadcasting the Player Death Delegate
+		//Player Controller is Subscribed to this Delegate
+		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
+	}
+}
+
+void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
+{
+	CurrentHealth -= DamageAmount;
+	if(CurrentHealth <= 0.f)
+	{
+		bIsPlayerDead = true;
+		HandlePlayerDeath();
+		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player Hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+	}
+}
+
+/*Weapon Stuff*/
+
+void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
+{
+	CurrentWeaponState = NewWeaponState;
+}
+
+void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon)
+{
+	CurrentlyEquippedWeapon = Weapon;
+}
+
+/*Build System Stuff*/
 
 void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 {
@@ -86,18 +123,16 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			if (bHit)
 			{
 				
-				
+				/*Spawn an Active Building Component (ABC) if One Doesn't Exist*/
 				ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
 				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManagerInstance->GetActiveBuildingComponentClass())
 				{
 					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, GetActorRotation());
 				}
 
-				
-				//When the Actor spawns, we now hit it with the raycast, so we need to ignore it, otherwise it will look
-				//like the actor is moving toward us as the hits get closer and closer with movement
+				/*If hit actor is ABC, Spawn Delete UI*/
 				AActor* HitActor = HitResult.GetComponent()->GetOwner();
-				if(Cast<ATimberBuildingComponentBase>(HitActor)) //if HitActor is a BuildingComponent
+				if(Cast<ATimberBuildingComponentBase>(HitActor)) 
 				{
 					HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
 					if(HoveredBuildingComponent)
@@ -121,8 +156,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 					HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
 				}
 
-				//TODO:: May be a better way to Handle this.
-				//We return before this because otherwise, we would be "Hitting" the "Faux" BuildingComponent causing it to move back toward the character repetitively
+				/*If there is An Active Building Component Move the Proxy to the new location.*/
 				if(ActiveBuildingComponent)
 				{
 					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);
@@ -133,42 +167,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 	}
 }
 
-void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
+void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
 {
-	CurrentHealth -= DamageAmount;
-	if(CurrentHealth <= 0.f)
-	{
-		bIsPlayerDead = true;
-		HandlePlayerDeath();
-		
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
-	}
+	ShouldRaycast = !bIsBuildMenuOpen;
 }
-
-void ATimberPlayableCharacter::HandlePlayerDeath()
-{
-	if(bIsPlayerDead)
-	{
-		PlayDeathAnimation();
-		//Broadcasting the Player Death Delegate
-		//Player Controller is Subscribed to this Delegate
-		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
-	}
-}
-
-void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
-{
-	CurrentWeaponState = NewWeaponState;
-}
-
-void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon)
-{
-	CurrentlyEquippedWeapon = Weapon;
-}
-
-
-
-

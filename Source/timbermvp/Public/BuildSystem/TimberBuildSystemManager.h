@@ -52,7 +52,6 @@ public:
 	UFUNCTION()
 	ATimberBuildingComponentBase* GetActiveBuildingComponent();
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};
-	//FORCEINLINE void SetFinalSpawnLocationAndRotation(FVector Location, FRotator Rotation) {FinalSpawnLocation = Location; FinalSpawnRotation = Rotation;};
 
 	/*Getters & Setters*/
 	UFUNCTION(BlueprintCallable, Category="Building Component")

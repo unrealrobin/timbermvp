@@ -124,6 +124,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			{
 				
 				/*Spawn an Active Building Component (ABC) if One Doesn't Exist*/
+				//TODO:: Change to BuildSystemManagerComponent
 				ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
 				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManagerInstance->GetActiveBuildingComponentClass())
 				{
@@ -159,6 +160,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				/*If there is An Active Building Component Move the Proxy to the new location.*/
 				if(ActiveBuildingComponent)
 				{
+					//TODO:: Change to BuildSystemManagerComponent
 					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);
 				}
 					

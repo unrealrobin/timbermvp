@@ -41,11 +41,10 @@ FVector UBuildSystemManagerComponent::SnapToGrid(FVector RaycastLocation)
 	//Not Snapping the Z Axis. This should Spawn the Component Directly on the Ground where they raycast hits.
 	SnappedVector.Z = RaycastLocation.Z;
 
-
-	//TODO:: Do i utilize the FinalSpawnLocation variable anywhere? Can I delete this temporary storage?
+	//Used in the Final Spawn Function on the Controller
 	FinalSpawnLocation = SnappedVector;
 
-	return SnappedVector;
+	return FinalSpawnLocation;
 }
 
 FRotator UBuildSystemManagerComponent::SnapToRotation(FRotator CharactersRotation)
@@ -119,7 +118,8 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 	{
 		const FVector Location = SnapToGrid(SpawnVector);
 		const FRotator Rotation = SnapToRotation(SpawnRotator);
-		FActorSpawnParameters SpawnParameters;
+		const FActorSpawnParameters SpawnParameters;
+		
 		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 			(ActiveBuildingComponentClass,
@@ -143,7 +143,7 @@ void UBuildSystemManagerComponent::MoveBuildingComponent(FVector_NetQuantize Loc
 	}
 }
 
-//TODO:: To be re-linked to delegate on the Character Controller Class. This is bound to the "Q" Key at the moment.
+/*Input Callbacks*/
 void UBuildSystemManagerComponent::RotateBuildingComponent()
 {
 	if(ActiveBuildingComponent)
@@ -176,6 +176,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(const FVector& Lo
 	}
 }
 
+/*Getters */
 ATimberBuildingComponentBase* UBuildSystemManagerComponent::GetActiveBuildingComponent()
 {
 	return ActiveBuildingComponent;

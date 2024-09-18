@@ -182,9 +182,6 @@ protected:
 	bool CanAttackAgain = true;
 
 	/*Build Controls*/
-	//Gets set in the BeginPlay of the TimberPlayerController.
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	ATimberBuildSystemManager* TimberBuildSystemManager;
 	void ExitBuildMode(ECharacterState NewState);
 	UFUNCTION()
 	void OpenBuildModeSelectionMenu();

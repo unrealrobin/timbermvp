@@ -7,6 +7,7 @@
 #include "BuildSystem/TimberBuildingComponentBase.h"
 #include "BuildSystem/TimberBuildSystemManager.h"
 #include "Character/TimberPlayableCharacter.h"
+#include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -407,7 +408,7 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 void ATimberPlayerController::RemoveBuildingComponentProxy()
 {
 	
-	ATimberBuildSystemManager* BuildSystemManager = TimberCharacter->BuildSystemManagerInstance;
+	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
 	if(BuildSystemManager)
 	{
 		ATimberBuildingComponentBase* ActiveComponent = BuildSystemManager->GetActiveBuildingComponent();
@@ -416,6 +417,9 @@ void ATimberPlayerController::RemoveBuildingComponentProxy()
 		{
 			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
 		}
+
+		//After utilizing the proxy for visualization, we destroy the proxy and then empty the active build component.
+		// This will be set again when ray-casting on a new frame.
 		BuildSystemManager->EmptyActiveBuildingComponent();
 	}
 
@@ -450,8 +454,8 @@ void ATimberPlayerController::OpenBuildModeSelectionMenu()
 
 void ATimberPlayerController::CloseBuildModeSelectionMenu()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Closing Build Mode Selection Menu Broadcasted"));
 	IsBuildPanelOpen.Broadcast(false);
+	TimberCharacter->BuildSystemManager->SetSavedRotation(FRotator::ZeroRotator);
 	bShowMouseCursor = false;
 }
 
@@ -461,9 +465,9 @@ void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& V
 	{
 		GEngine->AddOnScreenDebugMessage(3,5.0f, FColor::Green, "Q Key Pressed");
 	}
-	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberBuildSystemManager)
+	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->BuildSystemManager)
 	{
-		TimberBuildSystemManager->RotateBuildingComponent();
+		TimberCharacter->BuildSystemManager->RotateBuildingComponent();
 		
 	}
 	
@@ -476,8 +480,13 @@ void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Va
 		GEngine->AddOnScreenDebugMessage(4, 5.0f, FColor::Green, "LMB Key Pressed in Build Mode");
 	}
 
-	TimberBuildSystemManager->SpawnFinalBuildingComponent(
-		TimberBuildSystemManager->FinalSpawnLocation, TimberBuildSystemManager->FinalSpawnRotation);
+	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
+	if(BuildSystemManager)
+	{
+		BuildSystemManager->SpawnFinalBuildingComponent(
+		BuildSystemManager->FinalSpawnLocation, BuildSystemManager->FinalSpawnRotation);
+	}
+	
 }
 
 void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
@@ -494,6 +503,7 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 
 	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 	{
+		//TODO:: Make some kind of Deleted Animation for Building Component so player visually understand the deletion.
 		TimberCharacter->HoveredBuildingComponent->Destroy();
 		TimberCharacter->HoveredBuildingComponent = nullptr;
 	}

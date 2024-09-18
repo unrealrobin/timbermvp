@@ -51,10 +51,12 @@ public:
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
 	void MoveBuildingComponent(FVector_NetQuantize Location);
 	void RotateBuildingComponent();
+	
 	UFUNCTION()
 	void SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation);
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
+	
 	UFUNCTION()
 	ATimberBuildingComponentBase* GetActiveBuildingComponent();
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};
@@ -63,5 +65,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildingComponentClass = BuildingComponentClass;};
 	FORCEINLINE TSubclassOf<AActor> GetActiveBuildingComponentClass() {return ActiveBuildingComponentClass;} ;
+	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
 		
 };

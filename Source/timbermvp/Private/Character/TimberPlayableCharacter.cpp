@@ -91,6 +91,36 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 
 /*Build System Stuff*/
 
+bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
+{
+	/*If hit actor is ABC, Spawn Delete UI*/
+	AActor* HitActor = HitResult.GetComponent()->GetOwner();
+	if(Cast<ATimberBuildingComponentBase>(HitActor)) 
+	{
+		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
+		if(HoveredBuildingComponent)
+		{
+			//Translating a Location in World Space to Its Location in Screen Space
+			FVector2d ScreenLocationOfImpactPoint;
+			GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(HitResult.ImpactPoint, 
+				ScreenLocationOfImpactPoint);
+						
+			// Broadcast a Delegate with the Impact Position to the HUD.
+			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(ScreenLocationOfImpactPoint.X,ScreenLocationOfImpactPoint.Y);
+		}
+					
+		return true;
+	}
+	else //TODO:: What is going on here?
+	{
+		//Used once the player moves away from the BuildingComponent
+		HoveredBuildingComponent = nullptr;
+		//Broadcast a Delegate to the HUD to remove the Delete Icon
+		HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+	}
+	return false;
+}
+
 void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 {
 	if(CharacterState == ECharacterState::Building)
@@ -123,45 +153,25 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			if (bHit)
 			{
 				
-				/*Spawn an Active Building Component (ABC) if One Doesn't Exist*/
-				//TODO:: Change to BuildSystemManagerComponent
-				ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManagerInstance->GetActiveBuildingComponent();
-				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManagerInstance->GetActiveBuildingComponentClass())
+				/*
+				 *Spawn an Active Building Component (ABC) if One Doesn't Exist
+				 *
+				 * Lets move this portion of code into its own function at some point.
+				 */
+				const ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManager->GetActiveBuildingComponent();
+				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManager->GetActiveBuildingComponentClass())
 				{
-					BuildSystemManagerInstance->SpawnBuildingComponent(HitResult.ImpactPoint, GetActorRotation());
+					BuildSystemManager->SpawnBuildingComponentProxy(HitResult.ImpactPoint, GetActorRotation());
 				}
 
-				/*If hit actor is ABC, Spawn Delete UI*/
-				AActor* HitActor = HitResult.GetComponent()->GetOwner();
-				if(Cast<ATimberBuildingComponentBase>(HitActor)) 
-				{
-					HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
-					if(HoveredBuildingComponent)
-					{
-						//Translating a Location in World Space to Its Location in Screen Space
-						FVector2d ScreenLocationOfImpactPoint;
-						GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(HitResult.ImpactPoint, 
-						ScreenLocationOfImpactPoint);
-						
-						// Broadcast a Delegate with the Impact Position to the HUD.
-						HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(ScreenLocationOfImpactPoint.X,ScreenLocationOfImpactPoint.Y);
-					}
-					
-					return;
-				}
-				else
-				{
-					//Used once the player moves away from the BuildingComponent
-					HoveredBuildingComponent = nullptr;
-					//Broadcast a Delegate to the HUD to remove the Delete Icon
-					HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+				{ //HUD Stuff - Delete Widget
+					if (HandleShowDeleteWidget(HitResult)) return;
 				}
 
 				/*If there is An Active Building Component Move the Proxy to the new location.*/
 				if(ActiveBuildingComponent)
 				{
-					//TODO:: Change to BuildSystemManagerComponent
-					BuildSystemManagerInstance->MoveBuildingComponent(HitResult.ImpactPoint);
+					BuildSystemManager->MoveBuildingComponent(HitResult.ImpactPoint);
 				}
 					
 			}

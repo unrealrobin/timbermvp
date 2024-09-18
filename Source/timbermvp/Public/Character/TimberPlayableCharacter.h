@@ -94,16 +94,17 @@ public:
 	EWeaponState GetCurrentWeaponState() const {return CurrentWeaponState;} 
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);
 	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
+	bool HandleShowDeleteWidget(FHitResult HitResult);
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const {return CurrentlyEquippedWeapon;}
 
 	/*Build System*/
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building")
-	ATimberBuildSystemManager* BuildSystemManagerInstance;
 	void PerformBuildSystemRaycast();
-	UPROPERTY(EditAnywhere, Category="Building")
+	
+	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 1000.f;
 	bool ShouldRaycast = true;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Building Component Data")
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	ATimberBuildingComponentBase* HoveredBuildingComponent;
 
 	/*Damage*/

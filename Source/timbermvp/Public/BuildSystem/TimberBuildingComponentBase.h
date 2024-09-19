@@ -8,6 +8,8 @@
 #include "Styling/SlateBrush.h"
 #include "TimberBuildingComponentBase.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class TIMBERMVP_API ATimberBuildingComponentBase : public AActor
 {
@@ -34,9 +36,31 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
+	USceneComponent* TopSnap;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
+	USceneComponent* BottomSnap;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
+	USceneComponent* RightSnap;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
+	USceneComponent* LeftSnap;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
+	USceneComponent* CenterSnap;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* TopQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* BottomQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* RightQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* LeftQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* CenterQuadrant;
+
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool IsUnlocked = true;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int MaterialCost = 0;
 

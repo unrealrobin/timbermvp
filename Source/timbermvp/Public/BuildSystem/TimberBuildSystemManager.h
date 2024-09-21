@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "TimberBuildSystemManager.generated.h"
 
+/* PREPARE TO BE DELETED. NOT NEEDED AND NOT REFERENCED.*/
+
+
 class ATimberBuildingComponentBase;
 
 UCLASS()

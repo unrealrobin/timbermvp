@@ -1,7 +1,8 @@
 // Property of Paracosm Industries. Dont use my shit.
 
-#include "BuildSystem/TimberBuildingComponentBase.h"
+
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
+#include "BuildSystem/TimberBuildingComponentBase.h"
 
 // Sets default values for this component's properties
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
@@ -26,7 +27,21 @@ void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	// ...
 }
 
-
+void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult HitResult)
+{
+	// Get HitResult Building Component Enum Orientation
+		//This will let us know whether is a vertical or horizontal piece.
+	
+	//HitResult.GetComponent() will give us which Quadrant the player is hovering over
+	
+	//Switch can be used to operate differently between different cases.
+		// Case for Each Quadrant
+	
+	//Need a Get Distance and Get Vector function that will calculate the move distance using 2 of the snap points.
+	 // 1 snap point on the Proxy and 1 Snap point on the HitResult Object.
+		// Move function to Handle the Actual Movement.
+		// Var to store the final placement location to be passed later.
+}
 
 /*Spawn Setup*/
 FVector UBuildSystemManagerComponent::SnapToGrid(FVector RaycastLocation)

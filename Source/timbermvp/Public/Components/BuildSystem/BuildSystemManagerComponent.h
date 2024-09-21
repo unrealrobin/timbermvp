@@ -48,6 +48,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
+	void HandleBuildingComponentSnapping(FHitResult HitResult);
+
+	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
 	void MoveBuildingComponent(FVector_NetQuantize Location);
 	void RotateBuildingComponent();

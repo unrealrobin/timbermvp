@@ -139,10 +139,19 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			CollisionParams.AddIgnoredActor(this);
 			//CollisionParams.AddIgnoredActor(TSubclassOf<ATimberWeaponBase>);
 
+			/* Single Hit*/
 			FHitResult HitResult;
-
 			bool bHit = GetWorld()->LineTraceSingleByChannel(
 				HitResult,
+				RaycastStart,
+				RaycastEnd,
+				ECC_Visibility,
+				CollisionParams);
+
+			/*Multiple Hits*/
+			TArray<FHitResult> HitResults;
+			bool bHits = GetWorld()->LineTraceMultiByChannel(
+				HitResults,
 				RaycastStart,
 				RaycastEnd,
 				ECC_Visibility,
@@ -150,16 +159,39 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			
 			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
 
-			if (bHit)
+			/*
+			 * 1st Hit: Quadrant Box Component
+			 * 2nd Hit: Class of Building Component Actor
+			 */
+
+			if (bHits)
 			{
-				
+				if(HitResults.Num() >= 2)
+				{
+					
+					if(Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
+					{
+						if(GEngine)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("The FIRST Hit in the Trace is: %s"), *HitResults[0].GetComponent()->GetName());
+							UE_LOG(LogTemp, Warning, TEXT("The SECOND Hit in the Trace is: %s"), *HitResults[1].GetActor()->GetName());
+
+							if(HitResults[2].GetActor() != nullptr)
+							{
+								UE_LOG(LogTemp, Warning, TEXT("The THIRD Hit in the Trace is: %s"), *HitResults[2].GetActor()->GetName());
+							}
+						}
+					}
+						
+				}
 				/*
-				 *Spawn an Active Building Component (ABC) if One Doesn't Exist
+				 *Spawn an Active Building Component Proxy(ABCP) if One Doesn't Exist
 				 *
 				 * Lets move this portion of code into its own function at some point.
 				 */
-				const ATimberBuildingComponentBase* ActiveBuildingComponent = BuildSystemManager->GetActiveBuildingComponent();
-				if(ActiveBuildingComponent == nullptr || ActiveBuildingComponent->GetClass() != BuildSystemManager->GetActiveBuildingComponentClass())
+				const ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
+				if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() != 
+				BuildSystemManager->GetActiveBuildingComponentClass())
 				{
 					BuildSystemManager->SpawnBuildingComponentProxy(HitResult.ImpactPoint, GetActorRotation());
 				}
@@ -169,8 +201,19 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				}
 
 				/*If there is An Active Building Component Move the Proxy to the new location.*/
-				if(ActiveBuildingComponent)
+				if(ActiveBuildingComponentProxy)
 				{
+					/*Advanced Handle Snapping*/
+
+					//If the HitActor is a Child of ATimberBuildingComponentBase
+					if(Cast<ATimberBuildingComponentBase>(HitResult.GetActor()))
+					{
+						BuildSystemManager->HandleBuildingComponentSnapping(HitResult);
+					}
+					
+
+					/*Simple Move to Location*/
+					//TODO:: Does this need to be deleted after completion of snapping? 
 					BuildSystemManager->MoveBuildingComponent(HitResult.ImpactPoint);
 				}
 					

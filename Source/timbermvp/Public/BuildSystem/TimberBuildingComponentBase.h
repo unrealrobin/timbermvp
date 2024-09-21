@@ -3,19 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
 #include "Styling/SlateBrush.h"
 #include "TimberBuildingComponentBase.generated.h"
 
+/*Forward Declarations*/
 class UBoxComponent;
+
+UENUM(BlueprintType)
+enum class EBuildingComponentOrientation : uint8
+{
+	Vertical UMETA(DisplayName = "Vertical"),
+	Horizontal UMETA(DisplayName = "Horizontal"),
+};
+
+UENUM(BlueprintType)
+enum class EBuildingComponentType : uint8
+{
+	BasicWall UMETA(DisplayName = "BasicWall"),
+	BasicFloorWall UMETA(DisplayName = "BasicFloorWall"),
+};
 
 UCLASS()
 class TIMBERMVP_API ATimberBuildingComponentBase : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	void CreateSnapPoints();
+	void CreateQuadrantComponents();
 	// Sets default values for this actor's properties
 	ATimberBuildingComponentBase();
 

@@ -41,6 +41,8 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	{
 		PerformBuildSystemRaycast();
 	}
+
+	
 	
 }
 
@@ -166,7 +168,25 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 
 			if (bHits)
 			{
-				DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
+				{ //TODO:: Remove this debug stuff once snapping works as expected. 
+					DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
+					if(GEngine)
+					{
+						if(HitResults[0].GetActor())
+						{
+							UE_LOG(LogTemp,Warning,TEXT("HitActor: %s"), *HitResults[0].GetActor()->GetName() );
+						}
+						else if (HitResults[0].GetComponent())
+						{
+							UE_LOG(LogTemp,Warning,TEXT("Hit Component: %s"), *HitResults[0].GetComponent()->GetName());
+						}
+						else
+						{
+							UE_LOG(LogTemp,Warning,TEXT("Something Else Was Hit."));
+						}
+					}
+				}
+				
 
 				if(HitResults.Num() >= 2)
 				{
@@ -184,7 +204,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				 *
 				 * Lets move this portion of code into its own function at some point.
 				 */
-					const ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
+					ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
 					if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() != 
 					BuildSystemManager->GetActiveBuildingComponentClass())
 					{

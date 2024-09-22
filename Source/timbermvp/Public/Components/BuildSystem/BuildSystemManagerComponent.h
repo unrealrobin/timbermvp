@@ -54,6 +54,7 @@ protected:
 	UFUNCTION()
 	void MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
 
+
 	/* @params - GhostOpacity */
 	void MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent);
 	//How transparent to make the Proxy Material Color
@@ -85,5 +86,9 @@ public:
 	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildingComponentClass = BuildingComponentClass;};
 	FORCEINLINE TSubclassOf<AActor> GetActiveBuildingComponentClass() {return ActiveBuildingComponentClass;} ;
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
+
+	/*Component Snapping */
+	UFUNCTION(BlueprintCallable, Category="Building")
+	EBuildingComponentOrientation CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked);
 		
 };

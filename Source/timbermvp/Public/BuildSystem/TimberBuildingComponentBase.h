@@ -22,7 +22,7 @@ UENUM(BlueprintType)
 enum class EBuildingComponentType : uint8
 {
 	BasicWall UMETA(DisplayName = "BasicWall"),
-	BasicFloorWall UMETA(DisplayName = "BasicFloorWall"),
+	BasicFloorWall UMETA(DisplayName = "BasicFloor"),
 	Default UMETA(DisplayName = "Default"),
 };
 
@@ -46,7 +46,9 @@ public:
 	void PlayDestroyedAnimation();
 
 	/*States*/
-	EBuildingComponentOrientation BuildingComponentOrientation = EBuildingComponentOrientation::Default;
+	UPROPERTY(VisibleAnywhere, Category="Building Component Info" )
+	EBuildingComponentOrientation BuildingOrientation = EBuildingComponentOrientation::Default;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
 protected:
 	// Called when the game starts or when spawned

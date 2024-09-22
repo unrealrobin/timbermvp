@@ -66,7 +66,7 @@ public:
 
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
-	float MaxRunSpeed = 1000.f;
+	float MaxRunSpeed = 2000.f;
 
 	/*Animation Montages*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation")

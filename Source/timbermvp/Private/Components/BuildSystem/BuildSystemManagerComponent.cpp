@@ -3,6 +3,9 @@
 
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
+#include "BuildSystem/TimberHorizontalBuildingComponent.h"
+#include "BuildSystem/TimberVerticalBuildingComponent.h"
+#include "UObject/GarbageCollectionSchema.h"
 
 // Sets default values for this component's properties
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
@@ -30,11 +33,11 @@ void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick Tic
 /*Component to Component Snapping*/
 void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor)
 {
-	EBuildingComponentOrientation ProxyBuildingComponentOrientation = ActiveBuildingComponent->BuildingComponentOrientation;
+	//TODO:: We may also use CheckCLassBuildingComponentOrientation() here if needed.
+	EBuildingComponentOrientation ProxyBuildingComponentOrientation = ActiveBuildingComponent->BuildingOrientation;
 	
 	// Get HitResult Building Component Enum Orientation
-	const ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor.GetActor());
-	EBuildingComponentOrientation PlacedBuildingComponentOrientation = BuildingComponent->BuildingComponentOrientation;
+	EBuildingComponentOrientation PlacedBuildingComponentOrientation = CheckClassBuildingComponentOrientation(HitActor.GetActor());
 	
 	const FString HitQuadrantName = *HitQuadrant.GetComponent()->GetName();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *HitQuadrantName);
@@ -53,8 +56,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult Hi
 		break;
 	case 4: HorizontalToVerticalSnapCondition(HitActor, HitQuadrant);
 		break;
-	case 5: return;
-	default: return;
+	default: UE_LOG(LogTemp, Error, TEXT("Error handling Orientation Condition Check.")) ;
 	}
 }
 
@@ -177,11 +179,30 @@ void UBuildSystemManagerComponent::HorizontalToVerticalSnapCondition(FHitResult 
 
 void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation)
 {
+	UE_LOG(LogTemp, Warning, TEXT("MoveToProxyLocation Function Fired."))
+	//Returns a vector
 	FVector MoveLocation = SnapLocation - ProxySnapLocation;
-	ActiveBuildingComponent->SetActorLocation(MoveLocation);
+	FVector CurrentLocation = ActiveBuildingComponent->GetActorLocation();
+	ActiveBuildingComponent->SetActorLocation(CurrentLocation + MoveLocation);
 	
 }
 
+EBuildingComponentOrientation UBuildSystemManagerComponent::CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked)
+{
+	
+	if(Cast<ATimberVerticalBuildingComponent>(ClassToBeChecked))
+	{
+		return Cast<ATimberVerticalBuildingComponent>(ClassToBeChecked)->BuildingOrientation;
+	}
+	else if(Cast<ATimberHorizontalBuildingComponent>(ClassToBeChecked))
+	{
+		return Cast<ATimberHorizontalBuildingComponent>(ClassToBeChecked)->BuildingOrientation;
+	}
+	else
+	{
+		return EBuildingComponentOrientation::Default;
+	}
+}
 
 /*Spawn Setup*/
 FVector UBuildSystemManagerComponent::SnapToGrid(FVector RaycastLocation)
@@ -248,21 +269,24 @@ void UBuildSystemManagerComponent::MakeBuildingComponentProxy(ATimberBuildingCom
 
 	if(MeshComponent)
 	{
-		UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(MeshComponent->GetMaterial(0), 
+		{//Creating a Material Instance if one doesn't exist already.
+			UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(MeshComponent->GetMaterial(0), 
 		this);
 		
-		//Make the Opacity of the Material 0.5f
-		if(MaterialInstance)
-		{
-			//Parameter Created in the Material Instance
-			// These are Parameter Nodes that are Created and Defaulted by us in the Material Editor.
-			MaterialInstance->SetScalarParameterValue("Opacity", GhostOpacity);
+			//Make the Opacity of the Material 0.5f
+			if(MaterialInstance)
+			{
+				//Parameter Created in the Material Instance
+				// These are Parameter Nodes that are Created and Defaulted by us in the Material Editor.
+				MaterialInstance->SetScalarParameterValue("Opacity", GhostOpacity);
 			
-			//Can be made Red in the future for unavailable build location.
-			MaterialInstance->SetVectorParameterValue("EmmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
+				//Can be made Red in the future for unavailable build location.
+				MaterialInstance->SetVectorParameterValue("EmmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 			
-			MeshComponent->SetMaterial(0, MaterialInstance);
+				MeshComponent->SetMaterial(0, MaterialInstance);
+			}
 		}
+		//TODO::Handle Material changing if a Material Instance does exist.
 	}
 }
 
@@ -271,14 +295,16 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 {
 	if(ActiveBuildingComponentClass)
 	{
+		//TODO:: Remember to change this back in the future.
 		const FVector Location = SnapToGrid(SpawnVector);
+		const FVector Location1 = SpawnVector;
 		const FRotator Rotation = SnapToRotation(SpawnRotator);
 		const FActorSpawnParameters SpawnParameters;
 		
 		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 			(ActiveBuildingComponentClass,
-				Location,
+				Location1,
 				Rotation, 
 				SpawnParameters);
 
@@ -294,7 +320,9 @@ void UBuildSystemManagerComponent::MoveBuildingComponent(FVector_NetQuantize Loc
 {
 	if(ActiveBuildingComponent)
 	{
-		ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
+		//TODO:: REMEMBER to change this back in the future if you want some snapping.
+		//ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
+		ActiveBuildingComponent->SetActorLocation(Location);
 	}
 }
 
@@ -323,8 +351,8 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(const FVector& Lo
 		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 			(ActiveBuildingComponentClass,
-				Location,
-				Rotation, 
+				ActiveBuildingComponent->GetActorLocation(),
+				ActiveBuildingComponent->GetActorRotation(), 
 				SpawnParameters);
 
 		SpawnedActor->SetActorEnableCollision(true);

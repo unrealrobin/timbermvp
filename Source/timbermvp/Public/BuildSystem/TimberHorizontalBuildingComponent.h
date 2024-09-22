@@ -15,6 +15,11 @@ public:
 	// Sets default values for this actor's properties
 	ATimberHorizontalBuildingComponent();
 
+	EBuildingComponentOrientation BuildingOrientation = EBuildingComponentOrientation::Horizontal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
+	EBuildingComponentType BuildingComponentType;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

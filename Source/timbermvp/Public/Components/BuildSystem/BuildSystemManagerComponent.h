@@ -7,6 +7,7 @@
 #include "BuildSystemManagerComponent.generated.h"
 
 
+enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -33,10 +34,25 @@ protected:
 	// Actor Reference to be stored after player selects a building component to use
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	ATimberBuildingComponentBase* ActiveBuildingComponent = nullptr;
-	
+
+	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
 	FRotator SnapToRotation(FRotator CharactersRotation);
 	FRotator SavedRotation = FRotator::ZeroRotator;
+
+	/*Component Snapping*/
+	int SnappingCondition(EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2);
+	int QuadrantCondition(FString QuadrantName);
+	UFUNCTION()
+	void VerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	UFUNCTION()
+	void HorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	UFUNCTION()
+	void VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	UFUNCTION()
+	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	UFUNCTION()
+	void MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
 
 	/* @params - GhostOpacity */
 	void MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent);
@@ -48,7 +64,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void HandleBuildingComponentSnapping(FHitResult HitResult);
+	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
 
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);

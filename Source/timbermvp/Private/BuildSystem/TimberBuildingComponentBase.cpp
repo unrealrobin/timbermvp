@@ -78,11 +78,11 @@ void ATimberBuildingComponentBase::CreateSnapPoints()
 
 void ATimberBuildingComponentBase::CreateQuadrantComponents()
 {
-	TopQuadrant = CreateDefaultSubobject<UBoxComponent>("TopQuadrantLeft");
+	TopQuadrant = CreateDefaultSubobject<UBoxComponent>("TopQuadrant");
 	TopQuadrant->SetupAttachment(RootComponent);
-	BottomQuadrant = CreateDefaultSubobject<UBoxComponent>("BottomQuadrantBottom");
+	BottomQuadrant = CreateDefaultSubobject<UBoxComponent>("BottomQuadrant");
 	BottomQuadrant->SetupAttachment(RootComponent);
-	LeftQuadrant = CreateDefaultSubobject<UBoxComponent>("LeftQuadrantCenter");
+	LeftQuadrant = CreateDefaultSubobject<UBoxComponent>("LeftQuadrant");
 	LeftQuadrant->SetupAttachment(RootComponent);
 	RightQuadrant = CreateDefaultSubobject<UBoxComponent>("RightQuadrant");
 	RightQuadrant->SetupAttachment(RootComponent);

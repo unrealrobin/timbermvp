@@ -168,55 +168,41 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			{
 				if(HitResults.Num() >= 2)
 				{
-					
+					//If the second hit is a building component
 					if(Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
 					{
-						if(GEngine)
-						{
-							UE_LOG(LogTemp, Warning, TEXT("The FIRST Hit in the Trace is: %s"), *HitResults[0].GetComponent()->GetName());
-							UE_LOG(LogTemp, Warning, TEXT("The SECOND Hit in the Trace is: %s"), *HitResults[1].GetActor()->GetName());
-
-							if(HitResults[2].GetActor() != nullptr)
-							{
-								UE_LOG(LogTemp, Warning, TEXT("The THIRD Hit in the Trace is: %s"), *HitResults[2].GetActor()->GetName());
-							}
-						}
+						BuildSystemManager->HandleBuildingComponentSnapping(HitResults[0], HitResults[1]);
 					}
 						
 				}
-				/*
+				else //Handles the Case where there is no overlap with a Building Component
+				{
+					/*
 				 *Spawn an Active Building Component Proxy(ABCP) if One Doesn't Exist
 				 *
 				 * Lets move this portion of code into its own function at some point.
 				 */
-				const ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
-				if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() != 
-				BuildSystemManager->GetActiveBuildingComponentClass())
-				{
-					BuildSystemManager->SpawnBuildingComponentProxy(HitResult.ImpactPoint, GetActorRotation());
-				}
-
-				{ //HUD Stuff - Delete Widget
-					if (HandleShowDeleteWidget(HitResult)) return;
-				}
-
-				/*If there is An Active Building Component Move the Proxy to the new location.*/
-				if(ActiveBuildingComponentProxy)
-				{
-					/*Advanced Handle Snapping*/
-
-					//If the HitActor is a Child of ATimberBuildingComponentBase
-					if(Cast<ATimberBuildingComponentBase>(HitResult.GetActor()))
+					const ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
+					if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() != 
+					BuildSystemManager->GetActiveBuildingComponentClass())
 					{
-						BuildSystemManager->HandleBuildingComponentSnapping(HitResult);
+						BuildSystemManager->SpawnBuildingComponentProxy(HitResult.ImpactPoint, GetActorRotation());
 					}
-					
 
-					/*Simple Move to Location*/
-					//TODO:: Does this need to be deleted after completion of snapping? 
-					BuildSystemManager->MoveBuildingComponent(HitResult.ImpactPoint);
+					{ //HUD Stuff - Delete Widget
+						if (HandleShowDeleteWidget(HitResult)) return;
+					}
+
+					{
+						/*If there is An Active Building Component Move the Proxy to the new location.*/
+						if(ActiveBuildingComponentProxy)
+						{
+							/*Simple Move to Location*/
+							//TODO:: Does this need to be deleted after completion of snapping? 
+							BuildSystemManager->MoveBuildingComponent(HitResult.ImpactPoint);
+						}
+					}
 				}
-					
 			}
 		}
 	}

@@ -27,21 +27,161 @@ void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	// ...
 }
 
-void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult HitResult)
+/*Component to Component Snapping*/
+void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor)
 {
+	EBuildingComponentOrientation ProxyBuildingComponentOrientation = ActiveBuildingComponent->BuildingComponentOrientation;
+	
 	// Get HitResult Building Component Enum Orientation
-		//This will let us know whether is a vertical or horizontal piece.
+	const ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor.GetActor());
+	EBuildingComponentOrientation PlacedBuildingComponentOrientation = BuildingComponent->BuildingComponentOrientation;
 	
-	//HitResult.GetComponent() will give us which Quadrant the player is hovering over
-	
-	//Switch can be used to operate differently between different cases.
-		// Case for Each Quadrant
-	
-	//Need a Get Distance and Get Vector function that will calculate the move distance using 2 of the snap points.
-	 // 1 snap point on the Proxy and 1 Snap point on the HitResult Object.
-		// Move function to Handle the Actual Movement.
-		// Var to store the final placement location to be passed later.
+	const FString HitQuadrantName = *HitQuadrant.GetComponent()->GetName();
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *HitQuadrantName);
+
+	// Returns the condition to snap based on Orientation
+	int SnappingConditionNum = SnappingCondition(ProxyBuildingComponentOrientation, PlacedBuildingComponentOrientation);
+
+	//Handles the Movement
+	switch (SnappingConditionNum)
+	{
+	case 1: VerticalSnapCondition(HitActor, HitQuadrant);
+		break;
+	case 2: HorizontalSnapCondition(HitActor, HitQuadrant);
+		break;
+	case 3: VerticalToHorizontalSnapCondition(HitActor, HitQuadrant);
+		break;
+	case 4: HorizontalToVerticalSnapCondition(HitActor, HitQuadrant);
+		break;
+	case 5: return;
+	default: return;
+	}
 }
+
+int UBuildSystemManagerComponent::SnappingCondition(
+	EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2)
+{
+	if(Orientation1 == Orientation2 && Orientation1 == EBuildingComponentOrientation::Vertical)
+	{
+		//Both Vertical
+		return 1;
+	}
+
+	if(Orientation1 == Orientation2 && Orientation1 == EBuildingComponentOrientation::Horizontal)
+	{
+		//Both Horizontal
+		return 2;
+	}
+	
+	if(Orientation1 != Orientation2 && Orientation1 == EBuildingComponentOrientation::Vertical)
+	{
+		//Orientation 1 = Vertical, Orientation 2 = Horizontal
+		return 3;
+	}
+
+	if(Orientation1 != Orientation2 && Orientation1 == EBuildingComponentOrientation::Horizontal)
+	{
+		//Orientation 1 = Horizontal, Orientation 2 = Vertical
+		return 3;
+	}
+
+	return 4;	
+}
+
+int UBuildSystemManagerComponent::QuadrantCondition(FString QuadrantName)
+{
+	if(QuadrantName == FString("TopQuadrant"))
+	{
+		return 1;
+	}
+	if(QuadrantName == FString("RightQuadrant"))
+	{
+		return 2;
+	}
+	if(QuadrantName == FString("BottomQuadrant"))
+	{
+		return 3;
+	}
+	if(QuadrantName == FString("LeftQuadrant"))
+	{
+		return 4;
+	}
+	if(QuadrantName == FString("CenterQuadrant"))
+	{
+		return 5;
+	}
+
+	return 6;
+}
+
+void UBuildSystemManagerComponent::VerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant)
+{
+	FVector ProxySnapLocation;
+	FVector HitActorSnapLocation;
+
+	int QuadrantConditionNum = QuadrantCondition(HitQuadrant.GetComponent()->GetName());
+	switch (QuadrantConditionNum)
+	{
+		case 1: //Top
+			{
+				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->TopSnap->GetComponentTransform().GetLocation();
+				ProxySnapLocation = ActiveBuildingComponent->BottomSnap->GetComponentTransform().GetLocation();
+				MoveProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
+			}
+			break;
+		case 2: //Right
+			{
+				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->RightSnap->GetComponentTransform().GetLocation();
+				ProxySnapLocation = ActiveBuildingComponent->LeftSnap->GetComponentTransform().GetLocation();
+				MoveProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
+			}
+		break;
+	case 3: //Bottom
+			{
+				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->BottomSnap->GetComponentTransform().GetLocation();
+				ProxySnapLocation = ActiveBuildingComponent->TopSnap->GetComponentTransform().GetLocation();
+				MoveProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
+			}
+			break;
+		case 4: //Left
+			{
+				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->LeftSnap->GetComponentTransform().GetLocation();
+				ProxySnapLocation = ActiveBuildingComponent->RightSnap->GetComponentTransform().GetLocation();
+				MoveProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
+			}
+			break;
+		case 5: //Center
+			{
+				//TODO:: What should we do here? Center Quad.
+			}
+			break;
+		default:
+			{
+				UE_LOG(LogTemp, Error, TEXT("Quadrant Not Specified. "))
+			}
+		break;
+	}
+}
+
+void UBuildSystemManagerComponent::HorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant)
+{
+}
+
+void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant)
+{
+}
+
+void UBuildSystemManagerComponent::HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant)
+{
+}
+
+void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation)
+{
+	FVector MoveLocation = SnapLocation - ProxySnapLocation;
+	ActiveBuildingComponent->AddActorWorldOffset(MoveLocation);
+	
+}
+
 
 /*Spawn Setup*/
 FVector UBuildSystemManagerComponent::SnapToGrid(FVector RaycastLocation)

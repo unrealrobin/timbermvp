@@ -15,6 +15,7 @@ enum class EBuildingComponentOrientation : uint8
 {
 	Vertical UMETA(DisplayName = "Vertical"),
 	Horizontal UMETA(DisplayName = "Horizontal"),
+	Default UMETA(DisplayName = "Default"),
 };
 
 UENUM(BlueprintType)
@@ -22,6 +23,7 @@ enum class EBuildingComponentType : uint8
 {
 	BasicWall UMETA(DisplayName = "BasicWall"),
 	BasicFloorWall UMETA(DisplayName = "BasicFloorWall"),
+	Default UMETA(DisplayName = "Default"),
 };
 
 UCLASS()
@@ -43,6 +45,9 @@ public:
 	UFUNCTION()
 	void PlayDestroyedAnimation();
 
+	/*States*/
+	EBuildingComponentOrientation BuildingComponentOrientation = EBuildingComponentOrientation::Default;
+	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

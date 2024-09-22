@@ -178,7 +178,7 @@ void UBuildSystemManagerComponent::HorizontalToVerticalSnapCondition(FHitResult 
 void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation)
 {
 	FVector MoveLocation = SnapLocation - ProxySnapLocation;
-	ActiveBuildingComponent->AddActorWorldOffset(MoveLocation);
+	ActiveBuildingComponent->SetActorLocation(MoveLocation);
 	
 }
 

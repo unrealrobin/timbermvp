@@ -140,13 +140,13 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			//CollisionParams.AddIgnoredActor(TSubclassOf<ATimberWeaponBase>);
 
 			/* Single Hit*/
-			FHitResult HitResult;
+			/*FHitResult HitResult;
 			bool bHit = GetWorld()->LineTraceSingleByChannel(
 				HitResult,
 				RaycastStart,
 				RaycastEnd,
 				ECC_Visibility,
-				CollisionParams);
+				CollisionParams);*/
 
 			/*Multiple Hits*/
 			TArray<FHitResult> HitResults;
@@ -156,8 +156,8 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				RaycastEnd,
 				ECC_Visibility,
 				CollisionParams);
+
 			
-			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
 
 			/*
 			 * 1st Hit: Quadrant Box Component
@@ -166,6 +166,8 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 
 			if (bHits)
 			{
+				DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
+
 				if(HitResults.Num() >= 2)
 				{
 					//If the second hit is a building component
@@ -186,11 +188,11 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 					if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() != 
 					BuildSystemManager->GetActiveBuildingComponentClass())
 					{
-						BuildSystemManager->SpawnBuildingComponentProxy(HitResult.ImpactPoint, GetActorRotation());
+						BuildSystemManager->SpawnBuildingComponentProxy(HitResults[0].ImpactPoint, GetActorRotation());
 					}
 
 					{ //HUD Stuff - Delete Widget
-						if (HandleShowDeleteWidget(HitResult)) return;
+						if (HandleShowDeleteWidget(HitResults[0])) return;
 					}
 
 					{
@@ -199,7 +201,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 						{
 							/*Simple Move to Location*/
 							//TODO:: Does this need to be deleted after completion of snapping? 
-							BuildSystemManager->MoveBuildingComponent(HitResult.ImpactPoint);
+							BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint);
 						}
 					}
 				}

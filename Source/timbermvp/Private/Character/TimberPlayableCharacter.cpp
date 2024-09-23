@@ -95,7 +95,7 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 
 bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 {
-	/*If hit actor is ABC, Spawn Delete UI*/
+	
 	AActor* HitActor = HitResult.GetComponent()->GetOwner();
 	if(Cast<ATimberBuildingComponentBase>(HitActor)) 
 	{
@@ -113,13 +113,31 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 					
 		return true;
 	}
-	else //TODO:: What is going on here?
+	else if(Cast<ATimberBuildingComponentBase>(HitResult.GetActor()))
+	{
+		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitResult.GetActor());
+		if(HoveredBuildingComponent)
+		{
+			//Translating a Location in World Space to Its Location in Screen Space
+			FVector2d ScreenLocationOfImpactPoint;
+			GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(HitResult.ImpactPoint, 
+				ScreenLocationOfImpactPoint);
+						
+			// Broadcast a Delegate with the Impact Position to the HUD.
+			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(ScreenLocationOfImpactPoint.X,ScreenLocationOfImpactPoint.Y);
+		}
+	}
+	else
 	{
 		//Used once the player moves away from the BuildingComponent
 		HoveredBuildingComponent = nullptr;
 		//Broadcast a Delegate to the HUD to remove the Delete Icon
 		HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+
+		return false;
 	}
+
+
 	return false;
 }
 
@@ -168,25 +186,6 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 
 			if (bHits)
 			{
-				{ //TODO:: Remove this debug stuff once snapping works as expected. 
-					DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
-					if(GEngine)
-					{
-						if(HitResults[0].GetActor())
-						{
-							UE_LOG(LogTemp,Warning,TEXT("HitActor: %s"), *HitResults[0].GetActor()->GetName() );
-						}
-						else if (HitResults[0].GetComponent())
-						{
-							UE_LOG(LogTemp,Warning,TEXT("Hit Component: %s"), *HitResults[0].GetComponent()->GetName());
-						}
-						else
-						{
-							UE_LOG(LogTemp,Warning,TEXT("Something Else Was Hit."));
-						}
-					}
-				}
-				
 
 				if(HitResults.Num() >= 2)
 				{
@@ -194,6 +193,12 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 					if(Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
 					{
 						BuildSystemManager->HandleBuildingComponentSnapping(HitResults[0], HitResults[1]);
+					}
+
+					{
+						//HUD Stuff - Delete Widget
+						//Needs to be able to get to the actor component during the multicast.
+						if (HandleShowDeleteWidget(HitResults[1])) return;
 					}
 						
 				}

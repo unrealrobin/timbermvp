@@ -32,32 +32,37 @@ void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 /*Component to Component Snapping*/
 void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor)
-{
-	//TODO:: We may also use CheckCLassBuildingComponentOrientation() here if needed.
-	EBuildingComponentOrientation ProxyBuildingComponentOrientation = ActiveBuildingComponent->BuildingOrientation;
-	
-	// Get HitResult Building Component Enum Orientation
-	EBuildingComponentOrientation PlacedBuildingComponentOrientation = CheckClassBuildingComponentOrientation(HitActor.GetActor());
-	
-	const FString HitQuadrantName = *HitQuadrant.GetComponent()->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *HitQuadrantName);
+{	
 
-	// Returns the condition to snap based on Orientation
-	int SnappingConditionNum = SnappingCondition(ProxyBuildingComponentOrientation, PlacedBuildingComponentOrientation);
-
-	//Handles the Movement
-	switch (SnappingConditionNum)
+	if(ActiveBuildingComponent)
 	{
-	case 1: SameOrientationSnapCondition(HitActor, HitQuadrant); //vertical - vertical
-		break;
-	case 2: SameOrientationSnapCondition(HitActor, HitQuadrant); // horizontal - horizontal
-		break;
-	case 3: VerticalToHorizontalSnapCondition(HitActor, HitQuadrant);
-		break;
-	case 4: HorizontalToVerticalSnapCondition(HitActor, HitQuadrant);
-		break;
-	default: UE_LOG(LogTemp, Error, TEXT("Error handling Orientation Condition Check.")) ;
+		const EBuildingComponentOrientation ProxyBuildingComponentOrientation = ActiveBuildingComponent->BuildingOrientation;
+		// Get HitResult Building Component Enum Orientation
+		EBuildingComponentOrientation PlacedBuildingComponentOrientation = CheckClassBuildingComponentOrientation(HitActor.GetActor());
+	
+		const FString HitQuadrantName = *HitQuadrant.GetComponent()->GetName();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *HitQuadrantName);
+
+		// Returns the condition to snap based on Orientation
+		int SnappingConditionNum = SnappingCondition(ProxyBuildingComponentOrientation, PlacedBuildingComponentOrientation);
+
+		//Handles the Movement
+		switch (SnappingConditionNum)
+		{
+		case 1: SameOrientationSnapCondition(HitActor, HitQuadrant); //vertical - vertical
+			break;
+		case 2: SameOrientationSnapCondition(HitActor, HitQuadrant); // horizontal - horizontal
+			break;
+		case 3: VerticalToHorizontalSnapCondition(HitActor, HitQuadrant);
+			break;
+		case 4: HorizontalToVerticalSnapCondition(HitActor, HitQuadrant);
+			break;
+		default: UE_LOG(LogTemp, Error, TEXT("Error handling Orientation Condition Check.")) ;
+		}
 	}
+	
+	
+	
 }
 
 int UBuildSystemManagerComponent::SnappingCondition(

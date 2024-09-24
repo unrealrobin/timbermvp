@@ -44,9 +44,9 @@ protected:
 	int SnappingCondition(EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2);
 	int QuadrantCondition(FString QuadrantName);
 	UFUNCTION()
-	void VerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void SameOrientationSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
-	void HorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void RotateProxyToSnapRotation(FRotator HitActorRotation);
 	UFUNCTION()
 	void VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()

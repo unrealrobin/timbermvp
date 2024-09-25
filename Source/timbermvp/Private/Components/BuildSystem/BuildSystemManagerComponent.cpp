@@ -372,23 +372,22 @@ void UBuildSystemManagerComponent::MakeBuildingComponentProxy(ATimberBuildingCom
 	if(MeshComponent)
 	{
 		{//Creating a Material Instance if one doesn't exist already.
-			UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(MeshComponent->GetMaterial(0), 
+			UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(MeshComponent->GetMaterial(1), 
 		this);
 		
 			//Make the Opacity of the Material 0.5f
 			if(MaterialInstance)
 			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "There is a valid Material Instance.");
 				//Parameter Created in the Material Instance
 				// These are Parameter Nodes that are Created and Defaulted by us in the Material Editor.
+				//MaterialInstance->BlendMode = BLEND_Translucent;
 				MaterialInstance->SetScalarParameterValue("Opacity", GhostOpacity);
-			
 				//Can be made Red in the future for unavailable build location.
-				MaterialInstance->SetVectorParameterValue("EmmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-			
-				MeshComponent->SetMaterial(0, MaterialInstance);
+				MaterialInstance->SetVectorParameterValue("EmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
+				MeshComponent->SetMaterial(1, MaterialInstance);
 			}
 		}
-		//TODO::Handle Material changing if a Material Instance does exist.
 	}
 }
 

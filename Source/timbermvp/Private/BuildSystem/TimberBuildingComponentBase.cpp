@@ -4,22 +4,31 @@
 #include "BuildSystem/TimberBuildingComponentBase.h"
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
-#include "Navigation/PathFollowingComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 {
  	
 	PrimaryActorTick.bCanEverTick = false;
-
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMesh;
 	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1);
 	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
-
 	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ATimberBuildingComponentBase::HandleOverlapNotifies);
-	
 
+	/* Snap Points for Building Component to Building Component Snapping.*/
+	CreateSnapPoints();
+
+	/*Quadrants for Raycast Collision to know where to snap too.*/
+	CreateQuadrantComponents();
+}
+
+// Called when the game starts or when spawned
+void ATimberBuildingComponentBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
 }
 
 void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage)
@@ -38,14 +47,8 @@ void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDam
 
 void ATimberBuildingComponentBase::PlayDestroyedAnimation()
 {
+	//TODO:: Add Chaos Destruction or some destroy animation.
 	UE_LOG(LogTemp, Warning, TEXT("Building Component Destroyed."));
-}
-
-// Called when the game starts or when spawned
-void ATimberBuildingComponentBase::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 void ATimberBuildingComponentBase::HandleOverlapNotifies(
@@ -57,6 +60,34 @@ void ATimberBuildingComponentBase::HandleOverlapNotifies(
 	{
 		BuildingComponentTakeDamage(25.f);
 	}
+}
+
+void ATimberBuildingComponentBase::CreateSnapPoints()
+{
+	TopSnap = CreateDefaultSubobject<USceneComponent>("TopSnap");
+	TopSnap->SetupAttachment(RootComponent);
+	BottomSnap = CreateDefaultSubobject<USceneComponent>("BottomSnap");
+	BottomSnap->SetupAttachment(RootComponent);
+	LeftSnap = CreateDefaultSubobject<USceneComponent>("LeftSnap");
+	LeftSnap->SetupAttachment(RootComponent);
+	RightSnap = CreateDefaultSubobject<USceneComponent>("RightSnap");
+	RightSnap->SetupAttachment(RootComponent);
+	CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
+	CenterSnap->SetupAttachment(RootComponent);
+}
+
+void ATimberBuildingComponentBase::CreateQuadrantComponents()
+{
+	TopQuadrant = CreateDefaultSubobject<UBoxComponent>("TopQuadrant");
+	TopQuadrant->SetupAttachment(RootComponent);
+	BottomQuadrant = CreateDefaultSubobject<UBoxComponent>("BottomQuadrant");
+	BottomQuadrant->SetupAttachment(RootComponent);
+	LeftQuadrant = CreateDefaultSubobject<UBoxComponent>("LeftQuadrant");
+	LeftQuadrant->SetupAttachment(RootComponent);
+	RightQuadrant = CreateDefaultSubobject<UBoxComponent>("RightQuadrant");
+	RightQuadrant->SetupAttachment(RootComponent);
+	CenterQuadrant = CreateDefaultSubobject<UBoxComponent>("CenterQuadrant");
+	CenterQuadrant->SetupAttachment(RootComponent);
 }
 
 

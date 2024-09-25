@@ -186,7 +186,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 
 			if (bHits)
 			{
-
+				DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
 				if(HitResults.Num() >= 2)
 				{
 					//If the second hit is a building component

@@ -55,6 +55,12 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 	}
 }
 
+float ATimberEnemyCharacter::CalculateOutputDamage(float Damage)
+{
+	return Damage;
+}
+
+//TODO:: Can be deleted after reparenting. 
 void ATimberEnemyCharacter::HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
@@ -67,11 +73,13 @@ void ATimberEnemyCharacter::HandleKickOverlap(UPrimitiveComponent* OverlappedCom
 	}
 }
 
+//TODO:: Can be deleted after reparenting. 
 void ATimberEnemyCharacter::DisableKickCollision()
 {
 	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+//TODO:: Can be deleted after reparenting. 
 void ATimberEnemyCharacter::EnableKickCollision()
 {
 	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -82,6 +90,7 @@ void ATimberEnemyCharacter::EnableKickCollision()
 	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 }
 
+//TODO::Why is the Current Wave Number important on the BaseEnemyClass?
 void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
 {
 	CurrentWave = CurrentWaveNumber;
@@ -89,7 +98,6 @@ void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
 
 ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 {
-
 	FVector RaycastStart = RaycastStartPoint->GetComponentLocation();
 
 	//Get Seeda Location

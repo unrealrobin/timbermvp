@@ -15,10 +15,10 @@ UCLASS()
 class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public IDamageableEnemy
 {
 	GENERATED_BODY()
-
-	ATimberEnemyCharacter();
-
+	
 public:
+	ATimberEnemyCharacter();
+	
 	virtual void BeginPlay() override;
 
 	float StandardMelleAttackDamage = 50.f;
@@ -32,24 +32,23 @@ public:
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
-
 	virtual void TakeDamage(float DamageAmount) override;
+	virtual float CalculateOutputDamage(float Damage);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UAnimMontage* StandardMeleeMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
-	UCapsuleComponent* KickCollisionSphere;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
+	UCapsuleComponent* KickCollisionSphere;
 	UFUNCTION(BlueprintCallable)
 	void HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	UFUNCTION(BlueprintCallable)
 	void DisableKickCollision();
 	UFUNCTION(BlueprintCallable)
 	void EnableKickCollision();
-
+	
 	/*Delegate Functions*/
 	UFUNCTION()
 	void UpdateCurrentWaveNumber(float CurrentWaveNumber);

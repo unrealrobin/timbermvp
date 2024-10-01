@@ -17,12 +17,24 @@ public:
 	// Sets default values for this character's properties
 	ATimberEnemyMeleeWeaponBase();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Info")
+	float MeleeCharacterMovementSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
+	TSubclassOf<ATimberWeaponBase> MeleeWeaponClassName;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Info")
 	ATimberWeaponBase* EquippedWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	UAnimMontage* WeaponAttacksMontage;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void SpawnMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName);
 
 public:
 	// Called every frame

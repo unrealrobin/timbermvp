@@ -15,6 +15,14 @@ ATimberEnemyMeleeWeaponBase::ATimberEnemyMeleeWeaponBase()
 void ATimberEnemyMeleeWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SpawnMeleeWeapon(MeleeWeaponClassName);
+	
+}
+
+void ATimberEnemyMeleeWeaponBase::SpawnMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName)
+{
+	//TODO:: Spawn Weapon in Hand Slot
 	
 }
 

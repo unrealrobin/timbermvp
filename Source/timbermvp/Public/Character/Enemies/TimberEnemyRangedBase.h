@@ -6,6 +6,8 @@
 #include "TimberEnemyCharacter.h"
 #include "TimberEnemyRangedBase.generated.h"
 
+class ATimberWeaponBase;
+
 UCLASS()
 class TIMBERMVP_API ATimberEnemyRangedBase : public ATimberEnemyCharacter
 {
@@ -14,6 +16,9 @@ class TIMBERMVP_API ATimberEnemyRangedBase : public ATimberEnemyCharacter
 public:
 	// Sets default values for this character's properties
 	ATimberEnemyRangedBase();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
+	ATimberWeaponBase* RangedWeapon;
 
 protected:
 	// Called when the game starts or when spawned

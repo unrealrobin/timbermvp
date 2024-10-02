@@ -20,6 +20,7 @@ public:
 	virtual void BeginPlay() override;
 
 	/*Overlap Delegate*/
+	UFUNCTION()
 	void HandleCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	
 	/* Melee Capsule Components */
@@ -44,10 +45,6 @@ public:
 	UFUNCTION()
 	virtual float CalculateOutputDamage(float Damage) override;
 protected:
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UAnimMontage* BasicMeleeAttackMontage;
-
 	
 	
 	

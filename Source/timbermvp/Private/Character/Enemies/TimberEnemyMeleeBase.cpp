@@ -8,12 +8,29 @@
 
 ATimberEnemyMeleeBase::ATimberEnemyMeleeBase()
 {
+	RightHandCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightHandCapsule"));
+	LeftHandCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftHandCapsule"));
+	RightFootCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightFootCapsule"));
+	LeftFootCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftFootCapsule"));
+
+	RightHandCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("RHandCollisionSocket")));
+	LeftHandCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("LHandCollisionSocket")));
+	LeftFootCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("LFootCollisionSocket")));
+	RightFootCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("RFootCollisionSocket")));
+	
+
+	RightHandCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
+	LeftHandCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
+	RightFootCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
+	LeftFootCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
 	
 }
 
 void ATimberEnemyMeleeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 }
 
 void ATimberEnemyMeleeBase::EnableCapsuleComponent(UCapsuleComponent* MeleeCapsuleComponent)
@@ -40,9 +57,15 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter && PlayerCharacter->CurrentHealth > 0)
 	{
-		PlayerCharacter->PlayerTakeDamage(CalculateOutputDamage(BaseMeleeAttackDamage));
+		if(GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Red, "Capsule Overlap");
+		}
+		//PlayerCharacter->PlayerTakeDamage(CalculateOutputDamage(BaseMeleeAttackDamage));
+		PlayerCharacter->PlayerTakeDamage(BaseMeleeAttackDamage);
 	}
 }

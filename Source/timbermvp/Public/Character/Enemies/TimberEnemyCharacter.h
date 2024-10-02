@@ -30,13 +30,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ATimberBuildingComponentBase* LineTraceToSeeda();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* DeathMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* StandardMeleeMontage;
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void TakeDamage(float DamageAmount) override;
 	virtual float CalculateOutputDamage(float Damage);
+
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UAnimMontage* StandardMeleeMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
 	

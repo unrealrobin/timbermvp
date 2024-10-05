@@ -3,6 +3,8 @@
 
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 
+#include "Weapons/TimberWeaponBase.h"
+
 
 // Sets default values
 ATimberEnemyMeleeWeaponBase::ATimberEnemyMeleeWeaponBase()
@@ -23,6 +25,17 @@ void ATimberEnemyMeleeWeaponBase::BeginPlay()
 void ATimberEnemyMeleeWeaponBase::SpawnMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName)
 {
 	//TODO:: Spawn Weapon in Hand Slot
+	const FActorSpawnParameters SpawnParameters;
+	const FTransform RHandSockettTransform = GetMesh()->GetSocketTransform(FName("RHandWeaponSocket"));
+	
+	AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(WeaponClassName,
+		RHandSockettTransform.GetLocation(), 
+		RHandSockettTransform
+		.GetRotation().Rotator(),
+		SpawnParameters);
+	
+	EquippedWeapon = Cast<ATimberWeaponBase>(WeaponActor);
+	EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("RHandWeaponSocket") );
 	
 }
 

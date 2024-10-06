@@ -52,7 +52,8 @@ void ATimberWeaponBase::HandlePlayAttackMontage() const
 	// Getting Character and Character Anim Instance
 	ATimberPlayableCharacter* TimberPlayableCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
 	if(!TimberPlayableCharacter) return;
-	
+
+	//Gets the Animation Blueprint
 	UAnimInstance* AnimInstance = TimberPlayableCharacter->GetMesh()->GetAnimInstance();
 	if(!AnimInstance) return;
 	

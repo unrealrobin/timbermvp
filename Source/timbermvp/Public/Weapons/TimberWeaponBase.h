@@ -45,7 +45,7 @@ protected:
 
 public:
 
-	/*Anim Montage Section Names*/
+	/*Anim Montage Section Names / Melee*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")
 	FName StandardAttack1 = "Standard_1";
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")

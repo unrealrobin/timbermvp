@@ -3,7 +3,6 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
-#include "BuildSystem/TimberBuildSystemManager.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Controller/TimberPlayerController.h"
@@ -65,7 +64,9 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 }
 
 void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
-{
+{	
+	//TODO:: Should character have any defensive abilities that reduce damage amount, calculate here before applying damage.
+	
 	CurrentHealth -= DamageAmount;
 	if(CurrentHealth <= 0.f)
 	{

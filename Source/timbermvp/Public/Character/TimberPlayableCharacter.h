@@ -7,6 +7,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class ATimberWeaponMeleeBase;
 class UBuildSystemManagerComponent;
 class ATimberBuildingComponentBase;
 class ATimberBuildSystemManager;
@@ -80,11 +81,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponOne;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
-	ATimberWeaponBase* WeaponOneInstance;
+	ATimberWeaponMeleeBase* WeaponOneInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponTwo;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
-	ATimberWeaponBase* WeaponTwoInstance;
+	ATimberWeaponMeleeBase* WeaponTwoInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")

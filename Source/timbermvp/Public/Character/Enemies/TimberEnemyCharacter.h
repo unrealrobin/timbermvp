@@ -20,6 +20,7 @@ public:
 	ATimberEnemyCharacter();
 	
 	virtual void BeginPlay() override;
+	virtual void TakeDamage(float DamageAmount) override;
 
 	float StandardMelleAttackDamage = 50.f;
 	float CurrentWave = 0;
@@ -36,7 +37,7 @@ public:
 	UAnimMontage* StandardMeleeMontage;
 protected:
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void TakeDamage(float DamageAmount) override;
+	
 	virtual float CalculateOutputDamage(float Damage);
 
 	

@@ -6,6 +6,8 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberWeaponRangedBase.generated.h"
 
+class ATimberCharacterBase;
+
 UCLASS()
 class TIMBERMVP_API ATimberWeaponRangedBase : public ATimberWeaponBase
 {
@@ -15,26 +17,29 @@ public:
 	// Sets default values for this actor's properties
 	ATimberWeaponRangedBase();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapon Components")
-	USceneComponent* ProjectileSpawnLocation;
+	UPROPERTY(VisibleAnywhere, Category = Owner)
+	AActor* WeaponOwner;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapon Components")
+	USceneComponent* ProjectileSpawnComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Components")
 	TSubclassOf<ATimberProjectileBase> ProjectileType;
-
-	UFUNCTION()
-	float GetWeaponBaseDamage() const {return BaseWeaponDamage;}
+	
+	virtual float GetWeaponBaseDamage() const override {return BaseWeaponDamage;} 
 
 	UFUNCTION()
 	void FireRangedWeapon();
 
 	UFUNCTION(Category="Weapon")
-	void PerformStandardAttack();*/
+	void PerformStandardAttack();
 };

@@ -32,18 +32,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
 	UStaticMeshComponent* StaticMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapon Components")
-	USceneComponent* ProjectileSpawnLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Components")
-	TSubclassOf<ATimberProjectileBase> ProjectileType;
-
+	
 	UFUNCTION()
-	float GetWeaponBaseDamage() const {return BaseWeaponDamage;}
-
-	UFUNCTION()
-	void FireRangedWeapon();
+	virtual float GetWeaponBaseDamage() const {return BaseWeaponDamage;}
 
 	UPROPERTY(VisibleAnywhere, Category="Attack Info")
 	TArray<AActor*> ActorsToIgnore;

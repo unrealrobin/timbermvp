@@ -18,54 +18,17 @@ ATimberWeaponBase::ATimberWeaponBase()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
 	RootComponent = StaticMesh;
 	
-	ProjectileSpawnLocation = CreateDefaultSubobject<USceneComponent>("Projectile Spawn Location");
-	ProjectileSpawnLocation->SetupAttachment(GetRootComponent());
+	
 	
 }
 // Called when the game starts or when spawned
 void ATimberWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//Collision Handeling
-	/*
-	WeaponBoxComponent->SetGenerateOverlapEvents(true);
-	WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponBase::OnWeaponOverlapBegin);
-	WeaponBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATimberWeaponBase::OnWeaponOverlapEnd);
-	*/
-
+	
 	
 	
 }
 
-void ATimberWeaponBase::FireRangedWeapon()
-{
-	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-	if(TimberCharacter && TimberCharacter->GetCurrentlyEquippedWeapon())
-	{
-		ATimberWeaponBase* CurrentWeapon = TimberCharacter->GetCurrentlyEquippedWeapon(); //Pistol
 
-		if(ProjectileType)
-		{
-			FVector ProjectileSpawnLocationVector = CurrentWeapon->ProjectileSpawnLocation->GetComponentLocation();
-			FRotator ControllerRotation = TimberCharacter->GetController()->GetControlRotation();
-
-			if(GetWorld())
-			{
-				ATimberProjectileBase* SpawnedProjectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, 
-				ProjectileSpawnLocationVector, ControllerRotation);
-				
-				if(SpawnedProjectile)
-				{
-					SpawnedProjectile->SetOwner(TimberCharacter);
-				}
-				else
-				{
-					GEngine->AddOnScreenDebugMessage(1, 4.0, FColor::Red, "Projectile Not Spawned");
-				}
-			}
-		}
-	}
-}
 

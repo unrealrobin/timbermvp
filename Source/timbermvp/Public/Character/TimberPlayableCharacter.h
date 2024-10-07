@@ -7,6 +7,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class ATimberWeaponRangedBase;
 class ATimberWeaponMeleeBase;
 class UBuildSystemManagerComponent;
 class ATimberBuildingComponentBase;
@@ -89,7 +90,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
-	ATimberWeaponBase* WeaponThreeInstance;
+	ATimberWeaponRangedBase* WeaponThreeInstance;
 
 	/*Getters & Setters*/
 	EWeaponState GetCurrentWeaponState() const {return CurrentWeaponState;} 

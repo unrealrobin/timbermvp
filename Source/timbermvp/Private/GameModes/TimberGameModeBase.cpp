@@ -157,9 +157,15 @@ void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 			//Stopping Enemy AI Tree Logic
 			if(CharacterEnemy->GetController())
 			{
-				ATimberAiControllerBase* AIController = Cast<ATimberAiControllerBase>(CharacterEnemy->GetController());\
-				UBrainComponent* Brain = AIController->BrainComponent;
-				Brain->StopLogic("Freezing because Player Death");
+				ATimberAiControllerBase* AIController = Cast<ATimberAiControllerBase>(CharacterEnemy->GetController());
+				if(AIController)
+				{
+					UBrainComponent* Brain = AIController->BrainComponent;
+					if(Brain)
+					{
+						Brain->StopLogic("Freezing because Player Death");
+					}
+				}
 			}
 		}
 		

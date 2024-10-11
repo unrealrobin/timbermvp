@@ -18,14 +18,18 @@ void ATimberEnemyMeleeWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SpawnMeleeWeapon(MeleeWeaponClassName);
+	EquipMeleeWeapon(MeleeWeaponClassName);
 	
 }
 
-void ATimberEnemyMeleeWeaponBase::SpawnMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName)
+void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName)
 {
 	//TODO:: Spawn Weapon in Hand Slot
-	const FActorSpawnParameters SpawnParameters;
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = this;
+	SpawnParameters.Instigator = GetInstigator();
+
+	
 	const FTransform RHandSockettTransform = GetMesh()->GetSocketTransform(FName("RHandWeaponSocket"));
 	
 	AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(WeaponClassName,

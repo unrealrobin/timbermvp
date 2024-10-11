@@ -34,7 +34,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void SpawnMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName);
+	void EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName);
 
 public:
 	// Called every frame

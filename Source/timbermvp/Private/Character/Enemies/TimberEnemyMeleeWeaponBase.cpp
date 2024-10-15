@@ -29,17 +29,24 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 	SpawnParameters.Owner = this;
 	SpawnParameters.Instigator = GetInstigator();
 
+	if(GetMesh())
+	{
+		const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandWeaponSocket");
+		if(RHandSocketTransform.IsValid())
+		{
+			AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(WeaponClassName,
+			RHandSocketTransform.GetLocation(), 
+			RHandSocketTransform
+			.GetRotation().Rotator(),
+			SpawnParameters);
 	
-	const FTransform RHandSockettTransform = GetMesh()->GetSocketTransform(FName("RHandWeaponSocket"));
-	
-	AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(WeaponClassName,
-		RHandSockettTransform.GetLocation(), 
-		RHandSockettTransform
-		.GetRotation().Rotator(),
-		SpawnParameters);
-	
-	EquippedWeapon = Cast<ATimberWeaponBase>(WeaponActor);
-	EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("RHandWeaponSocket") );
+			EquippedWeapon = Cast<ATimberWeaponBase>(WeaponActor);
+			if(EquippedWeapon)
+			{
+				EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("RHandWeaponSocket") );
+			}
+		}
+	}
 	
 }
 

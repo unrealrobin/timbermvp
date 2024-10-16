@@ -31,9 +31,12 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 
 	if(GetMesh())
 	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Black, "Mesh Found for Melee Weapon Spawn.");
+		
 		const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandWeaponSocket");
 		if(RHandSocketTransform.IsValid())
 		{
+			GEngine->AddOnScreenDebugMessage(2, 5.0, FColor::Black, "Right Hand Socket Transform Found");
 			AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(WeaponClassName,
 			RHandSocketTransform.GetLocation(), 
 			RHandSocketTransform
@@ -43,7 +46,8 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 			EquippedWeapon = Cast<ATimberWeaponBase>(WeaponActor);
 			if(EquippedWeapon)
 			{
-				EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("RHandWeaponSocket") );
+				GEngine->AddOnScreenDebugMessage(3, 5.0, FColor::Black, "Equipped Weapon Casted Correctly");
+				EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandWeaponSocket" );
 			}
 		}
 	}

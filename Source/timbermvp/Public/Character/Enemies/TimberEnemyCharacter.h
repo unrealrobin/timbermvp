@@ -44,14 +44,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
-	UCapsuleComponent* KickCollisionSphere;
-	UFUNCTION(BlueprintCallable)
-	void HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	UFUNCTION(BlueprintCallable)
-	void DisableKickCollision();
-	UFUNCTION(BlueprintCallable)
-	void EnableKickCollision();
 	
 	/*Delegate Functions*/
 	UFUNCTION()

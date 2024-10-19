@@ -9,9 +9,6 @@
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
-	KickCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("KickCollisionSphere");
-	KickCollisionSphere->SetupAttachment(GetMesh(), "KickCollisionSocket");
-	KickCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyCharacter::HandleKickOverlap);
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
 }
@@ -60,35 +57,6 @@ float ATimberEnemyCharacter::CalculateOutputDamage(float Damage)
 	return Damage;
 }
 
-//TODO:: Can be deleted after reparenting. 
-void ATimberEnemyCharacter::HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
-{
-	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(Player)
-	{
-		if(Player->CurrentHealth > 0.f)
-		{
-			Player->PlayerTakeDamage(StandardMelleAttackDamage);
-		}
-	}
-}
-
-//TODO:: Can be deleted after reparenting. 
-void ATimberEnemyCharacter::DisableKickCollision()
-{
-	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
-//TODO:: Can be deleted after reparenting. 
-void ATimberEnemyCharacter::EnableKickCollision()
-{
-	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	KickCollisionSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
-	//This is the channel for the Building Component
-	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
-}
 
 //TODO::Why is the Current Wave Number important on the BaseEnemyClass?
 void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)

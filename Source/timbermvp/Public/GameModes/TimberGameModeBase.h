@@ -19,6 +19,9 @@ struct FWaveComposition
 	int GoblinCount;
 	int GhoulCount;
 	
+	int BasicRobotCount;
+	int MeleeWeaponRobotCount;
+	int RangedWeaponRobotCount;
 	
 };
 
@@ -106,9 +109,15 @@ protected:
 	/* SpawnableEnemies */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ATimberEnemyCharacter> GoblinEnemyClassName;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ATimberEnemyCharacter> GhoulEnemyClassName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ATimberEnemyCharacter> BasicRobotEnemyClassName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ATimberEnemyCharacter> MeleeRobotEnemyClassName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ATimberEnemyCharacter> RangedRobotEnemyClassName;
 
 	/* Wave Composition and Spawning */
 	FWaveComposition Wave;

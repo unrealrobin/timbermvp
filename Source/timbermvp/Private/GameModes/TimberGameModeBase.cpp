@@ -74,8 +74,11 @@ void ATimberGameModeBase::ComposeWave()
 {
 	
 	Wave.GhoulCount = FMath::RandRange(1, (CurrentWaveNumber + 4));
-	
 	Wave.GoblinCount = FMath::RandRange(0, CurrentWaveNumber + 2);
+
+	Wave.BasicRobotCount = FMath::RandRange(1, (CurrentWaveNumber + 4));
+	Wave.MeleeWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 2);
+	Wave.RangedWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 2);
 }
 
 void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName)
@@ -101,6 +104,22 @@ void ATimberGameModeBase::SpawnDynamicWave()
 	
 	//Spawn Goblins
 	for(int i = 0; i < Wave.GoblinCount; i++)
+	{
+		SpawnEnemyAtLocation(GoblinEnemyClassName);
+	}
+
+	//Spawn Basic Robots
+	for(int i = 0; i < Wave.BasicRobotCount; i++)
+	{
+		SpawnEnemyAtLocation(GoblinEnemyClassName);
+	}
+	//Spawn Melee Robots
+	for(int i = 0; i < Wave.MeleeWeaponRobotCount; i++)
+	{
+		SpawnEnemyAtLocation(GoblinEnemyClassName);
+	}
+	//Spawn Ranged Robots
+	for(int i = 0; i < Wave.RangedWeaponRobotCount; i++)
 	{
 		SpawnEnemyAtLocation(GoblinEnemyClassName);
 	}

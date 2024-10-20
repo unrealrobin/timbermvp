@@ -39,6 +39,63 @@ void ATimberGameModeBase::BeginPlay()
 	
 }
 
+
+/*Wave Spawn System*/
+void ATimberGameModeBase::SpawnDynamicWave()
+{
+	ComposeWave();
+	
+	/*//Spawn Ghouls
+	for(int i = 0; i < Wave.GhoulCount; i++)
+	{
+		SpawnEnemyAtLocation(GhoulEnemyClassName);
+	}
+	
+	//Spawn Goblins
+	for(int i = 0; i < Wave.GoblinCount; i++)
+	{
+		SpawnEnemyAtLocation(GoblinEnemyClassName);
+	}*/
+
+	//Spawn Basic Robots
+	for(int i = 0; i < Wave.BasicRobotCount; i++)
+	{
+		SpawnEnemyAtLocation(BasicRobotEnemyClassName);
+	}
+	//Spawn Melee Robots
+	for(int i = 0; i < Wave.MeleeWeaponRobotCount; i++)
+	{
+		SpawnEnemyAtLocation(MeleeRobotEnemyClassName);
+	}
+	//Spawn Ranged Robots
+	for(int i = 0; i < Wave.RangedWeaponRobotCount; i++)
+	{
+		SpawnEnemyAtLocation(RangedRobotEnemyClassName);
+	}
+}
+
+void ATimberGameModeBase::ComposeWave()
+{
+	
+	/*Wave.GhoulCount = FMath::RandRange(1, (CurrentWaveNumber + 4));
+	Wave.GoblinCount = FMath::RandRange(0, CurrentWaveNumber + 2);*/
+
+	Wave.BasicRobotCount = FMath::RandRange(1, (CurrentWaveNumber + 2));
+	Wave.MeleeWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 1);
+	Wave.RangedWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 1);
+}
+
+void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName)
+{
+	float RandomLocation = FMath::RandRange(0, EnemySpawnPointLocations.Num() - 1);
+	ATimberEnemyCharacter* SpawnedActor = GetWorld()->SpawnActor<ATimberEnemyCharacter>(EnemyClassName, 
+												  EnemySpawnPointLocations[RandomLocation],
+												  FRotator::ZeroRotator, DemoSpawnParameter);
+
+	ArrayOfSpawnedWaveEnemies.Add(SpawnedActor);
+	
+}
+
 //Checks if destroyed enemies are the ones spawned by the wave system.
 // If so, removes them from the array they are stored in.
 // Once they are all removed, the wave is over.
@@ -70,66 +127,13 @@ void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
 	}
 }
 
-void ATimberGameModeBase::ComposeWave()
-{
-	
-	Wave.GhoulCount = FMath::RandRange(1, (CurrentWaveNumber + 4));
-	Wave.GoblinCount = FMath::RandRange(0, CurrentWaveNumber + 2);
-
-	Wave.BasicRobotCount = FMath::RandRange(1, (CurrentWaveNumber + 4));
-	Wave.MeleeWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 2);
-	Wave.RangedWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 2);
-}
-
-void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName)
-{
-	float RandomLocation = FMath::RandRange(0, EnemySpawnPointLocations.Num() - 1);
-	ATimberEnemyCharacter* SpawnedActor = GetWorld()->SpawnActor<ATimberEnemyCharacter>(EnemyClassName, 
-	                                              EnemySpawnPointLocations[RandomLocation],
-	                                              FRotator::ZeroRotator, DemoSpawnParameter);
-
-	ArrayOfSpawnedWaveEnemies.Add(SpawnedActor);
-	
-}
-
-void ATimberGameModeBase::SpawnDynamicWave()
-{
-	ComposeWave();
-	
-	//Spawn Ghouls
-	for(int i = 0; i < Wave.GhoulCount; i++)
-	{
-		SpawnEnemyAtLocation(GhoulEnemyClassName);
-	}
-	
-	//Spawn Goblins
-	for(int i = 0; i < Wave.GoblinCount; i++)
-	{
-		SpawnEnemyAtLocation(GoblinEnemyClassName);
-	}
-
-	//Spawn Basic Robots
-	for(int i = 0; i < Wave.BasicRobotCount; i++)
-	{
-		SpawnEnemyAtLocation(GoblinEnemyClassName);
-	}
-	//Spawn Melee Robots
-	for(int i = 0; i < Wave.MeleeWeaponRobotCount; i++)
-	{
-		SpawnEnemyAtLocation(GoblinEnemyClassName);
-	}
-	//Spawn Ranged Robots
-	for(int i = 0; i < Wave.RangedWeaponRobotCount; i++)
-	{
-		SpawnEnemyAtLocation(GoblinEnemyClassName);
-	}
-}
-
 void ATimberGameModeBase::SpawnTestWave()
 {
 	
-		SpawnEnemyAtLocation(GhoulEnemyClassName);
-		SpawnEnemyAtLocation(GoblinEnemyClassName);
+		SpawnEnemyAtLocation(BasicRobotEnemyClassName);
+		SpawnEnemyAtLocation(RangedRobotEnemyClassName);
+		SpawnEnemyAtLocation(MeleeRobotEnemyClassName);
+	
 	
 }
 
@@ -194,7 +198,6 @@ void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 }
 
 /* Save System*/
-
 void ATimberGameModeBase::SaveCurrentGame()
 {
 	//Creating an instance of the Save Game Object

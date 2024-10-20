@@ -48,7 +48,6 @@ public:
 	virtual void BeginPlay() override;
 
 	/* Wave System*/
-	
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
 
 	UPROPERTY(VisibleAnywhere, Category="Wave Composition")
@@ -107,11 +106,10 @@ protected:
 	FActorSpawnParameters DemoSpawnParameter;
 
 	/* SpawnableEnemies */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ATimberEnemyCharacter> GoblinEnemyClassName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ATimberEnemyCharacter> GhoulEnemyClassName;
-
+	TSubclassOf<ATimberEnemyCharacter> GhoulEnemyClassName;*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ATimberEnemyCharacter> BasicRobotEnemyClassName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

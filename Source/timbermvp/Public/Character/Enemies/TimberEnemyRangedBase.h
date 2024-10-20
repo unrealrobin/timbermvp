@@ -6,6 +6,7 @@
 #include "TimberEnemyCharacter.h"
 #include "TimberEnemyRangedBase.generated.h"
 
+class ATimberWeaponRangedBase;
 class ATimberWeaponBase;
 
 UCLASS()
@@ -14,20 +15,22 @@ class TIMBERMVP_API ATimberEnemyRangedBase : public ATimberEnemyCharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ATimberEnemyRangedBase();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
-	ATimberWeaponBase* RangedWeapon;
-
+	virtual void Tick(float DeltaTime) override;
+	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void EquipRangedWeapon();
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ".Weapon Info")
+	TSubclassOf<ATimberWeaponBase> RangedWeaponClassName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ".Weapon Info")
+	ATimberWeaponRangedBase* EquippedWeapon;
+
+	
+	
 };

@@ -37,16 +37,16 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 		if(RHandSocketTransform.IsValid())
 		{
 			GEngine->AddOnScreenDebugMessage(2, 5.0, FColor::Black, "Right Hand Socket Transform Found");
+			
 			AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(WeaponClassName,
-			RHandSocketTransform.GetLocation(), 
-			RHandSocketTransform
-			.GetRotation().Rotator(),
-			SpawnParameters);
+				RHandSocketTransform.GetLocation(), 
+				RHandSocketTransform
+				.GetRotation().Rotator(),
+				SpawnParameters);
 	
 			EquippedWeapon = Cast<ATimberWeaponBase>(WeaponActor);
 			if(EquippedWeapon)
 			{
-				GEngine->AddOnScreenDebugMessage(3, 5.0, FColor::Black, "Equipped Weapon Casted Correctly");
 				EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandWeaponSocket" );
 			}
 		}

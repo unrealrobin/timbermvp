@@ -29,7 +29,7 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 	SpawnParameters.Instigator = GetInstigator();
 
 	//Getting the Socket Info from the Mesh
-	const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandWeaponSocket");
+	const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandRifleSocket");
 
 	//Spawning the Class at the Socket Info
 	ATimberWeaponBase* RangedWeaponInstance = GetWorld()->SpawnActor<ATimberWeaponBase>(RangedWeaponClassName,
@@ -45,7 +45,7 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 		if(EquippedWeapon)
 		{
 			//Attaching the Weapon to the Socket, this locks the weapon to the socket during movement.
-			EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandWeaponSocket" );
+			EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandRifleSocket" );
 		}
 	}
 }

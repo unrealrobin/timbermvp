@@ -48,6 +48,7 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 			if(EquippedWeapon)
 			{
 				EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandWeaponSocket" );
+				EnemyWeaponType = EEnemyWeaponState::MeleeWeaponEquipped;
 			}
 		}
 	}

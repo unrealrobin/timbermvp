@@ -18,7 +18,6 @@ ATimberEnemyRangedBase::ATimberEnemyRangedBase()
 void ATimberEnemyRangedBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 	EquipRangedWeapon();
 }
 
@@ -46,6 +45,7 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 		{
 			//Attaching the Weapon to the Socket, this locks the weapon to the socket during movement.
 			EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandRifleSocket" );
+			EnemyWeaponType = EEnemyWeaponState::RangedWeaponEquipped;
 		}
 	}
 }

@@ -56,6 +56,29 @@ void ATimberWeaponRangedBase::FireRangedWeapon()
 	
 }
 
+void ATimberWeaponRangedBase::AI_FireRangedWeapon()
+{
+	if(WeaponOwner && GetWorld())
+	{
+		if(ProjectileType)
+		{
+			GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile All Variables Loaded");
+			FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
+
+			//Get Player Character
+			FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
+
+			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, ProjectileSpawnLocation, ControllerDirection);
+
+			if(Projectile)
+			{
+				Projectile->SetOwner(this);
+				GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
+			}
+		}
+	}
+}
+
 void ATimberWeaponRangedBase::PerformStandardAttack()
 {
 }

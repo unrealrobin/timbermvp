@@ -40,6 +40,9 @@ public:
 	UFUNCTION()
 	void FireRangedWeapon();
 
+	UFUNCTION()
+	void AI_FireRangedWeapon();
+
 	UFUNCTION(Category="Weapon")
 	void PerformStandardAttack();
 };

@@ -16,50 +16,25 @@ ATimberProjectileBase::ATimberProjectileBase()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(RootComponent);
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("Projectile Movement Component");
-
-	
 }
 
 void ATimberProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FTimerHandle DestroyProjectileTimerHandle;
+	
+	GetWorld()->GetTimerManager().SetTimer(DestroyProjectileTimerHandle, this, 
+	&ATimberProjectileBase::HandleDestroyAfterNoCollision, 5.0f, false);
+	
 	ProjectileOwner = Cast<ATimberPlayableCharacter>(GetOwner());
-	
-	//Overlap Delegate
-	if(CapsuleComponent)
-	{
-		CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberProjectileBase::HandleOverlap);
-	}
 }
 
-void ATimberProjectileBase::Tick(float DeltaTime)
+void ATimberProjectileBase::HandleDestroyAfterNoCollision()
 {
-	Super::Tick(DeltaTime);
-
+	//Used to destroy the projectile after a certain amount of time if it has not collided with anything.
+	Destroy();
 }
 
-void ATimberProjectileBase::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
 
-	
-	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
-	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-	
-	if(HitEnemy)
-	{
-		const float OwningWeaponBaseDamage = Cast<ATimberWeaponBase>(GetOwner())->GetWeaponBaseDamage();
-
-		if(OwningWeaponBaseDamage)
-		{
-			HitEnemy->TakeDamage(OwningWeaponBaseDamage);
-			Destroy();
-		}
-		
-	}
-	else // If overlapped with something else, destroy the projectile
-	{
-		Destroy();
-	}
-}
 

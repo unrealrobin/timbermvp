@@ -40,7 +40,7 @@ public:
 	UFUNCTION()
 	void FireRangedWeapon();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void AI_FireRangedWeapon();
 
 	UFUNCTION(Category="Weapon")

@@ -47,11 +47,18 @@ public:
 	UAnimMontage* DeathMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* StandardAttackMontage;
+
+	UFUNCTION(BlueprintCallable)
+	void HandleEnemyDeath();
+	void HandleWeaponDestruction();
+	
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual float CalculateOutputDamage(float Damage);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
+
+	void PlayMontageAtRandomSection(UAnimMontage* Montage);
 	
 	/*Delegate Functions*/
 	UFUNCTION()

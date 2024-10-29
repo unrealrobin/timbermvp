@@ -48,13 +48,14 @@ void ATimberProjectileBase::HandleOverlap(UPrimitiveComponent* OverlappedCompone
 	
 	if(HitEnemy)
 	{
-		// TODO:: This damage amount needs to be dynamic and based on weapon stats & abilities.
-
 		const float OwningWeaponBaseDamage = Cast<ATimberWeaponBase>(GetOwner())->GetWeaponBaseDamage();
+
+		if(OwningWeaponBaseDamage)
+		{
+			HitEnemy->TakeDamage(OwningWeaponBaseDamage);
+			Destroy();
+		}
 		
-		HitEnemy->TakeDamage(OwningWeaponBaseDamage);
-		
-		Destroy();
 	}
 	else // If overlapped with something else, destroy the projectile
 	{

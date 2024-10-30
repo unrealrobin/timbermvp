@@ -109,6 +109,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	ATimberBuildingComponentBase* HoveredBuildingComponent;
 
+	UFUNCTION()
+	void ExitBuildMode();
+
 	/*Damage*/
 	void PlayerTakeDamage(float DamageAmount);
 

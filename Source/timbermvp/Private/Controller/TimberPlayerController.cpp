@@ -450,6 +450,8 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
 		RemoveBuildingComponentProxy();
 	}
+	
+	TimberCharacter->ExitBuildMode();
 }
 
 void ATimberPlayerController::OpenBuildModeSelectionMenu()

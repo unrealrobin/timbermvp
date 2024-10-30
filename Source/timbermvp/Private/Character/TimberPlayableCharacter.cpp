@@ -63,6 +63,13 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 	}
 }
 
+void ATimberPlayableCharacter::ExitBuildMode()
+{
+	
+	HoveredBuildingComponent = nullptr;
+	HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+}
+
 void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 {	
 	//TODO:: Should character have any defensive abilities that reduce damage amount, calculate here before applying damage.
@@ -98,7 +105,7 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 {
 	//TODO:: Can we somehow get an array of hitresult from the RaycastMulti and check if the array contrains a Building Component?
 	
-	AActor* HitActor = HitResult.GetComponent()->GetOwner();
+	AActor* HitActor = HitResult.GetComponent()->GetOwner(); //Hit can be one of the quadrants so we want to make sure that the hit is a Building Component
 	if(Cast<ATimberBuildingComponentBase>(HitActor)) 
 	{
 		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
@@ -131,10 +138,7 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 	}
 	else
 	{
-		//Used once the player moves away from the BuildingComponent
-		HoveredBuildingComponent = nullptr;
-		//Broadcast a Delegate to the HUD to remove the Delete Icon
-		HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+		ExitBuildMode();
 
 		return false;
 	}

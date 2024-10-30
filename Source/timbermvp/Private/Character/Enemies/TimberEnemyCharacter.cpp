@@ -32,7 +32,6 @@ void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 
 void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 {
-	if(CurrentHealth <= 0 ) return;
 	CurrentHealth -= DamageAmount;
 
 	//Used for AI Damage/Aggro System

@@ -96,6 +96,7 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 
 bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 {
+	//TODO:: Can we somehow get an array of hitresult from the RaycastMulti and check if the array contrains a Building Component?
 	
 	AActor* HitActor = HitResult.GetComponent()->GetOwner();
 	if(Cast<ATimberBuildingComponentBase>(HitActor)) 

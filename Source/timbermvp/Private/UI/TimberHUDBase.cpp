@@ -81,6 +81,8 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 		//Setting the InputMode back to Game Only. Input mode is Changed in the Widget Blueprint in Event Preconstruct.
 		TimberPlayerController->SetInputMode(InputMode);
 		TimberPlayerController->DisableCursor();
+
+		HideDeleteBuildingComponentWidget();
 	}
 }
 

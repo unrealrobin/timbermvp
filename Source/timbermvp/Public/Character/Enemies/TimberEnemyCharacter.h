@@ -8,6 +8,15 @@
 #include "TimberEnemyCharacter.generated.h"
 
 class ATimberBuildingComponentBase;
+
+UENUM(BlueprintType)
+enum class EEnemyWeaponState : uint8
+{
+	NoWeaponEquipped UMETA(DisplayName = "NoWeaponEquipped"),
+	MeleeWeaponEquipped UMETA(DisplayName = "MeleeWeaponEquipped"),
+	RangedWeaponEquipped UMETA(DisplayName = "RangedWeaponEquipped"),
+};
+
 /**
  * 
  */
@@ -15,11 +24,15 @@ UCLASS()
 class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public IDamageableEnemy
 {
 	GENERATED_BODY()
-
-	ATimberEnemyCharacter();
-
+	
 public:
+	ATimberEnemyCharacter();
+	
 	virtual void BeginPlay() override;
+	virtual void TakeDamage(float DamageAmount) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
+	EEnemyWeaponState EnemyWeaponType = EEnemyWeaponState::NoWeaponEquipped;
 
 	float StandardMelleAttackDamage = 50.f;
 	float CurrentWave = 0;
@@ -30,26 +43,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ATimberBuildingComponentBase* LineTraceToSeeda();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* DeathMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* StandardAttackMontage;
+
+	UFUNCTION(BlueprintCallable)
+	void HandleEnemyDeath();
+	void HandleWeaponDestruction();
+	
 protected:
 	virtual void Tick(float DeltaSeconds) override;
-
-	virtual void TakeDamage(float DamageAmount) override;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	UAnimMontage* StandardMeleeMontage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
-	UCapsuleComponent* KickCollisionSphere;
+	void StopAiControllerBehaviorTree();
+	virtual float CalculateOutputDamage(float Damage);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
 
-	UFUNCTION(BlueprintCallable)
-	void HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	UFUNCTION(BlueprintCallable)
-	void DisableKickCollision();
-	UFUNCTION(BlueprintCallable)
-	void EnableKickCollision();
-
+	void PlayMontageAtRandomSection(UAnimMontage* Montage);
+	
 	/*Delegate Functions*/
 	UFUNCTION()
 	void UpdateCurrentWaveNumber(float CurrentWaveNumber);

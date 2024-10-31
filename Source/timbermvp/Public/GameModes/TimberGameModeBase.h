@@ -19,6 +19,9 @@ struct FWaveComposition
 	int GoblinCount;
 	int GhoulCount;
 	
+	int BasicRobotCount;
+	int MeleeWeaponRobotCount;
+	int RangedWeaponRobotCount;
 	
 };
 
@@ -45,7 +48,6 @@ public:
 	virtual void BeginPlay() override;
 
 	/* Wave System*/
-	
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
 
 	UPROPERTY(VisibleAnywhere, Category="Wave Composition")
@@ -104,11 +106,16 @@ protected:
 	FActorSpawnParameters DemoSpawnParameter;
 
 	/* SpawnableEnemies */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ATimberEnemyCharacter> GoblinEnemyClassName;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ATimberEnemyCharacter> GhoulEnemyClassName;
+	TSubclassOf<ATimberEnemyCharacter> GhoulEnemyClassName;*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ATimberEnemyCharacter> BasicRobotEnemyClassName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ATimberEnemyCharacter> MeleeRobotEnemyClassName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ATimberEnemyCharacter> RangedRobotEnemyClassName;
 
 	/* Wave Composition and Spawning */
 	FWaveComposition Wave;

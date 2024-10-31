@@ -5,6 +5,7 @@
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Weapons/Projectiles/TimberEnemyProjectile.h"
 
 // Sets default values
 ATimberBuildingComponentBase::ATimberBuildingComponentBase()
@@ -59,6 +60,13 @@ void ATimberBuildingComponentBase::HandleOverlapNotifies(
 	if(OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
 	{
 		BuildingComponentTakeDamage(25.f);
+	}
+
+	if(OtherActor->IsA(ATimberEnemyProjectile::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Building Component Hit by Enemy Projectile."));
+		//TODO:: Use the actual projectiles damage amount.
+		BuildingComponentTakeDamage(2.f);
 	}
 }
 

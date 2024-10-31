@@ -2,16 +2,18 @@
 
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
+
+#include "AI/TimberAiControllerBase.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
-#include "Components/CapsuleComponent.h"
+#include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
+#include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "GameModes/TimberGameModeBase.h"
+#include "Weapons/TimberWeaponRangedBase.h"
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
-	KickCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("KickCollisionSphere");
-	KickCollisionSphere->SetupAttachment(GetMesh(), "KickCollisionSocket");
-	KickCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyCharacter::HandleKickOverlap);
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
 }
@@ -47,7 +49,13 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
 		ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 		GameMode->CheckArrayForEnemy(this);
-		Destroy();
+
+		//Plays the Death Animation that Calls the Destroy Function From an Event Notify
+
+		StopAiControllerBehaviorTree();
+		
+		PlayMontageAtRandomSection(DeathMontage);
+		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 	else
 	{
@@ -55,33 +63,47 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 	}
 }
 
-void ATimberEnemyCharacter::HandleKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void ATimberEnemyCharacter::HandleEnemyDeath()
 {
-	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(Player)
+	HandleWeaponDestruction();
+	Destroy();
+}
+
+void ATimberEnemyCharacter::HandleWeaponDestruction()
+{
+	ATimberEnemyMeleeWeaponBase* MeleeWeaponEnemy = Cast<ATimberEnemyMeleeWeaponBase>(this);
+	ATimberEnemyRangedBase* RangedWeaponEnemy = Cast<ATimberEnemyRangedBase>(this);
+
+	if(MeleeWeaponEnemy)
 	{
-		if(Player->CurrentHealth > 0.f)
-		{
-			Player->PlayerTakeDamage(StandardMelleAttackDamage);
-		}
+		MeleeWeaponEnemy->EquippedWeapon->Destroy();
+	}
+
+	if(RangedWeaponEnemy)
+	{
+		RangedWeaponEnemy->EquippedWeapon->Destroy();
 	}
 }
 
-void ATimberEnemyCharacter::DisableKickCollision()
+float ATimberEnemyCharacter::CalculateOutputDamage(float Damage)
 {
-	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	return Damage;
 }
 
-void ATimberEnemyCharacter::EnableKickCollision()
+void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
 {
-	KickCollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	KickCollisionSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
-	//This is the channel for the Building Component
-	KickCollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
+	AiController->AiBehaviorTree->StopLogic("Enemy has been killed");
 }
 
+void ATimberEnemyCharacter::PlayMontageAtRandomSection(UAnimMontage* Montage)
+{
+	int NumberOfMontageSections = Montage->GetNumSections();
+	int RandomSection = FMath::RandRange(0, NumberOfMontageSections - 1);
+	PlayAnimMontage(Montage, 1, Montage->GetSectionName(RandomSection));
+}
+
+//TODO::Why is the Current Wave Number important on the BaseEnemyClass?
 void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
 {
 	CurrentWave = CurrentWaveNumber;
@@ -89,7 +111,6 @@ void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
 
 ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 {
-
 	FVector RaycastStart = RaycastStartPoint->GetComponentLocation();
 
 	//Get Seeda Location

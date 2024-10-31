@@ -3,7 +3,6 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
-#include "BuildSystem/TimberBuildSystemManager.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Controller/TimberPlayerController.h"
@@ -64,8 +63,17 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 	}
 }
 
-void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
+void ATimberPlayableCharacter::ExitBuildMode()
 {
+	
+	HoveredBuildingComponent = nullptr;
+	HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+}
+
+void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
+{	
+	//TODO:: Should character have any defensive abilities that reduce damage amount, calculate here before applying damage.
+	
 	CurrentHealth -= DamageAmount;
 	if(CurrentHealth <= 0.f)
 	{
@@ -95,8 +103,9 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 
 bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 {
+	//TODO:: Can we somehow get an array of hitresult from the RaycastMulti and check if the array contrains a Building Component?
 	
-	AActor* HitActor = HitResult.GetComponent()->GetOwner();
+	AActor* HitActor = HitResult.GetComponent()->GetOwner(); //Hit can be one of the quadrants so we want to make sure that the hit is a Building Component
 	if(Cast<ATimberBuildingComponentBase>(HitActor)) 
 	{
 		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
@@ -129,10 +138,7 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 	}
 	else
 	{
-		//Used once the player moves away from the BuildingComponent
-		HoveredBuildingComponent = nullptr;
-		//Broadcast a Delegate to the HUD to remove the Delete Icon
-		HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
+		ExitBuildMode();
 
 		return false;
 	}

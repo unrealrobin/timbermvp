@@ -84,5 +84,4 @@ protected:
 	void ShouldHideBuildMenu();
 
 	
-	
 };

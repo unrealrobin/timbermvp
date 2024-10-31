@@ -5,7 +5,7 @@
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
-#include "BuildSystem/TimberBuildSystemManager.h"
+#include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -13,8 +13,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "UI/TimberHUDBase.h"
+
 #include "Weapons/TimberWeaponBase.h"
+#include "Weapons/TimberWeaponRangedBase.h"
 
 void ATimberPlayerController::BeginPlay()
 {
@@ -228,13 +229,13 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		
 		
 
-		//Spawn the Actor
-		ATimberWeaponBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponBase>(TimberCharacter->WeaponOne, 
+		//Spawn the Weapon
+		ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>
+		(TimberCharacter->WeaponOne, 
 		SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
 		//Attach Actor to the Socket Location
-		SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
-		FAttachmentTransformRules::SnapToTargetIncludingScale, "AxeSocket");
+		SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "AxeSocket");
 
 		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
@@ -266,7 +267,7 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
 
 	//Spawn the Actor
-	ATimberWeaponBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponBase>(TimberCharacter->WeaponTwo, 
+	ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>(TimberCharacter->WeaponTwo, 
 	SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
 	//Attach Actor to the Socket Location
@@ -291,7 +292,11 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	WeaponState.Broadcast(EWeaponState::RangedEquipped);
 
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-	const FActorSpawnParameters SpawnParams;
+	 FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = TimberCharacter;
+	SpawnParams.Instigator = GetInstigator();
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 
 	//Socket Rotation and Location
 	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("RangedSocket");
@@ -302,7 +307,8 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
 
 	//Spawn the Actor
-	ATimberWeaponBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponBase>(TimberCharacter->WeaponThree, 
+	ATimberWeaponRangedBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponRangedBase>
+	(TimberCharacter->WeaponThree, 
 	SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
 	//Attach Actor to the Socket Location
@@ -312,9 +318,6 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 	TimberCharacter->WeaponThreeInstance = SpawnedActor;
 	TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
-	//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
-	SpawnedActor->SetOwner(TimberCharacter);
-	
 }
 
 void ATimberPlayerController::DisableAllKeyboardInput()
@@ -369,6 +372,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::Unequipped:
 			{
+				//TODO:: Add a punch attack or something here maybe
 				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "No Weapon Equipped");
 			}
 			break;
@@ -377,6 +381,11 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 
 	
 }
+
+
+/*
+ * Build System Controls
+ */
 
 void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 {
@@ -403,7 +412,6 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		
 	}
 }
-
 //If a player exits build mode with an active building component that isn't placed, destroy it.
 void ATimberPlayerController::RemoveBuildingComponentProxy()
 {
@@ -442,6 +450,8 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
 		RemoveBuildingComponentProxy();
 	}
+	
+	TimberCharacter->ExitBuildMode();
 }
 
 void ATimberPlayerController::OpenBuildModeSelectionMenu()

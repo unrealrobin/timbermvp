@@ -18,9 +18,7 @@ ATestObj::ATestObj()
 	RootComponent = CollisionCapsule;
 	StaticMeshBase = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMeshBase->SetupAttachment(CollisionCapsule);
-	StaticMeshAttachment = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshAttachment");
-	StaticMeshAttachment->SetupAttachment(StaticMeshBase);
-
+	
 }
 
 // Called when the game starts or when spawned

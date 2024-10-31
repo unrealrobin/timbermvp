@@ -54,6 +54,7 @@ public:
 	
 protected:
 	virtual void Tick(float DeltaSeconds) override;
+	void StopAiControllerBehaviorTree();
 	virtual float CalculateOutputDamage(float Damage);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;

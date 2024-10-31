@@ -4,7 +4,14 @@
 #include "AI/TimberAiControllerBase.h"
 
 
+ATimberAiControllerBase::ATimberAiControllerBase()
+{
+	AiBehaviorTree = CreateDefaultSubobject<UBehaviorTreeComponent>("BehaviorTreeComponent");
+	
+}
 
-
-
-
+void ATimberAiControllerBase::BeginPlay()
+{
+	Super::BeginPlay();
+	AiBehaviorTree->StartLogic();
+}

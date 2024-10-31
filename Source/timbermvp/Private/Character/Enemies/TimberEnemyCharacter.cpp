@@ -2,6 +2,9 @@
 
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
+
+#include "AI/TimberAiControllerBase.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "BuildSystem/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
@@ -48,7 +51,11 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 		GameMode->CheckArrayForEnemy(this);
 
 		//Plays the Death Animation that Calls the Destroy Function From an Event Notify
+
+		StopAiControllerBehaviorTree();
+		
 		PlayMontageAtRandomSection(DeathMontage);
+		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 	else
 	{
@@ -59,7 +66,6 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 void ATimberEnemyCharacter::HandleEnemyDeath()
 {
 	HandleWeaponDestruction();
-
 	Destroy();
 }
 
@@ -84,6 +90,11 @@ float ATimberEnemyCharacter::CalculateOutputDamage(float Damage)
 	return Damage;
 }
 
+void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
+{
+	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
+	AiController->AiBehaviorTree->StopLogic("Enemy has been killed");
+}
 
 void ATimberEnemyCharacter::PlayMontageAtRandomSection(UAnimMontage* Montage)
 {

@@ -161,9 +161,10 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			//1000 is the range to perform the Raycast.
 			FVector RaycastEnd = RaycastStart + (PlayerRotation.Vector() * BuildRaycastDistance);
 
+			/* Ignore the Player Raycasting*/
 			FCollisionQueryParams CollisionParams;
 			CollisionParams.AddIgnoredActor(this);
-			//CollisionParams.AddIgnoredActor(TSubclassOf<ATimberWeaponBase>);
+			CollisionParams.AddIgnoredActor(this->CurrentlyEquippedWeapon);
 
 			/* Single Hit*/
 			/*FHitResult HitResult;
@@ -175,19 +176,16 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				CollisionParams);*/
 
 			/*Multiple Hits*/
-			TArray<FHitResult> HitResults;
 			bool bHits = GetWorld()->LineTraceMultiByChannel(
 				HitResults,
 				RaycastStart,
 				RaycastEnd,
 				ECC_Visibility,
 				CollisionParams);
-
 			
-
 			/*
-			 * 1st Hit: Quadrant Box Component
-			 * 2nd Hit: Class of Building Component Actor
+			 * 1st Hit: Quadrant Box Component - HitResult['0']
+			 * 2nd Hit: Static Mesh of Building Component Actor - HitResult['1']
 			 */
 
 			if (bHits)
@@ -210,11 +208,13 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				}
 				else //Handles the Case where there is no overlap with a Building Component
 				{
-					/*
+
+				/*
 				 *Spawn an Active Building Component Proxy(ABCP) if One Doesn't Exist
 				 *
 				 * Lets move this portion of code into its own function at some point.
 				 */
+					
 					ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
 					if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() != 
 					BuildSystemManager->GetActiveBuildingComponentClass())

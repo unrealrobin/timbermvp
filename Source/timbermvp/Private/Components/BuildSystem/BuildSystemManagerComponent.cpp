@@ -41,7 +41,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult Hi
 		EBuildingComponentOrientation PlacedBuildingComponentOrientation = CheckClassBuildingComponentOrientation(HitActor.GetActor());
 	
 		const FString HitQuadrantName = *HitQuadrant.GetComponent()->GetName();
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *HitQuadrantName);
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *HitQuadrantName);
 
 		// Returns the condition to snap based on Orientation
 		int SnappingConditionNum = SnappingCondition(ProxyBuildingComponentOrientation, PlacedBuildingComponentOrientation);

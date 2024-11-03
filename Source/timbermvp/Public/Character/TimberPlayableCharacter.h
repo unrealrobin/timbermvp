@@ -109,6 +109,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	ATimberBuildingComponentBase* HoveredBuildingComponent;
 
+	UPROPERTY(VisibleAnywhere, Category="Build System Info")
+	TArray<FHitResult> HitResults;
+
 	UFUNCTION()
 	void ExitBuildMode();
 

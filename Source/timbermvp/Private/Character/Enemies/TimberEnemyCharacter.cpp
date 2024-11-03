@@ -76,12 +76,18 @@ void ATimberEnemyCharacter::HandleWeaponDestruction()
 
 	if(MeleeWeaponEnemy)
 	{
-		MeleeWeaponEnemy->EquippedWeapon->Destroy();
+		if(MeleeWeaponEnemy->EquippedWeapon)
+		{
+			MeleeWeaponEnemy->EquippedWeapon->Destroy();
+		}
 	}
 
 	if(RangedWeaponEnemy)
 	{
+		if(RangedWeaponEnemy->EquippedWeapon)
+		{
 		RangedWeaponEnemy->EquippedWeapon->Destroy();
+		}
 	}
 }
 

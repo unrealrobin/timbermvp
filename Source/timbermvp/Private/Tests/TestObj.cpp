@@ -20,7 +20,6 @@ ATestObj::ATestObj()
 	StaticMeshBase->SetupAttachment(CollisionCapsule);
 	
 }
-
 // Called when the game starts or when spawned
 void ATestObj::BeginPlay()
 {

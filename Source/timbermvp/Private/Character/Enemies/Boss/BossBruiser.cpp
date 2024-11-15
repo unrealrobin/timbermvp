@@ -3,6 +3,9 @@
 
 #include "Character/Enemies/Boss/BossBruiser.h"
 
+#include "Components/CapsuleComponent.h"
+
+
 
 // Sets default values
 ABossBruiser::ABossBruiser()
@@ -11,6 +14,8 @@ ABossBruiser::ABossBruiser()
 	PrimaryActorTick.bCanEverTick = true;
 	MaxHealth = 500.0f;
 	CurrentHealth = MaxHealth;
+	SetupCapsuleComponents();
+
 }
 
 // Called when the game starts or when spawned
@@ -26,9 +31,18 @@ void ABossBruiser::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
-void ABossBruiser::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ABossBruiser::SetupCapsuleComponents()
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	if(GetMesh())
+	{
+		//Used for HeadShotCollisions
+		HeadCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("HeadCapsuleComponent");
+		HeadCapsuleComponent->SetupAttachment(GetMesh(), FName("headSocket"));
+		
+		//Used only for attack animation collision
+		RightArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("RightArmCapsuleComponent");
+		LeftArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("LeftArmCapsuleComponent");
+		RightArmCapsuleComponent->SetupAttachment(GetMesh(), FName("rightArmSocket"));
+		LeftArmCapsuleComponent->SetupAttachment(GetMesh(), FName("leftArmSocket"));
+	}
 }
-

@@ -12,6 +12,7 @@ class TIMBERMVP_API ABossBruiser : public ATimberEnemyCharacter
 	GENERATED_BODY()
 
 public:
+	void SetupCapsuleComponents();
 	// Sets default values for this character's properties
 	ABossBruiser();
 
@@ -23,6 +24,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
+	UCapsuleComponent* HeadCapsuleComponent;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
+	UCapsuleComponent* RightArmCapsuleComponent;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
+	UCapsuleComponent* LeftArmCapsuleComponent;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bruiser Info")
+	float HeadShotDamageModifier = 2;
 };

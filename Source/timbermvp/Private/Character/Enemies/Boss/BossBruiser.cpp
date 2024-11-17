@@ -3,6 +3,7 @@
 
 #include "Character/Enemies/Boss/BossBruiser.h"
 
+#include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -15,6 +16,9 @@ ABossBruiser::ABossBruiser()
 	MaxHealth = 500.0f;
 	CurrentHealth = MaxHealth;
 	SetupCapsuleComponents();
+
+	WhirlwindRightCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
+	WhirlwindLeftCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 
 }
 
@@ -31,6 +35,38 @@ void ABossBruiser::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABossBruiser::EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
+{
+	if(WWCapsuleComponent)
+	{
+		WWCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+		WWCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	}
+	
+	
+}
+
+void ABossBruiser::DisableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
+{
+	if(WWCapsuleComponent)
+	{
+		WWCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+	
+}
+
+void ABossBruiser::HandleWhirlwindOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+
+	if(PlayerCharacter)
+	{
+		PlayerCharacter->PlayerTakeDamage(WhirlwindTickDamage);
+	}
+}
+
 void ABossBruiser::SetupCapsuleComponents()
 {
 	if(GetMesh())
@@ -44,5 +80,14 @@ void ABossBruiser::SetupCapsuleComponents()
 		LeftArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("LeftArmCapsuleComponent");
 		RightArmCapsuleComponent->SetupAttachment(GetMesh(), FName("rightArmSocket"));
 		LeftArmCapsuleComponent->SetupAttachment(GetMesh(), FName("leftArmSocket"));
+
+		//Capsules for Whirldwind Animation
+		WhirlwindRightCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("WhirlwindRightCollisionSphere");
+		WhirlwindLeftCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("WhirlwindLeftCollisionSphere");
+		WhirlwindRightCollisionSphere->SetupAttachment(RightArmCapsuleComponent);
+		WhirlwindLeftCollisionSphere->SetupAttachment(LeftArmCapsuleComponent);
+		//Collision Enabling will happen in the Event Notify Custom Event Function
+		DisableCollisionToDamagePlayerOnly(WhirlwindRightCollisionSphere);
+		DisableCollisionToDamagePlayerOnly(WhirlwindLeftCollisionSphere);
 	}
 }

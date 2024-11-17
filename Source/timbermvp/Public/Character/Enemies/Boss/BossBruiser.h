@@ -30,7 +30,21 @@ public:
 	UCapsuleComponent* RightArmCapsuleComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
 	UCapsuleComponent* LeftArmCapsuleComponent;
-	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
+	UCapsuleComponent* WhirlwindRightCollisionSphere;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
+	UCapsuleComponent* WhirlwindLeftCollisionSphere;
+
+	UFUNCTION(BlueprintCallable)
+	void EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent);
+	UFUNCTION(BlueprintCallable)
+	void DisableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent);
+	UFUNCTION()
+	void HandleWhirlwindOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bruiser Info")
-	float HeadShotDamageModifier = 2;
+	float HeadShotDamageModifier = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bruiser Info")
+	float WhirlwindTickDamage = 4.0f;
 };

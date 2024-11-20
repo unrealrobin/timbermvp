@@ -46,6 +46,7 @@ void ATimberPlayerProjectile::HandleOverlap(
 
 		if(OwningWeaponBaseDamage)
 		{
+			//Play the IDamageableEnemy's TakeDamage function. Interface.
 			HitEnemy->TakeDamage(OwningWeaponBaseDamage);
 
 			//Destroys the projectile on hitting an enemy that may take damage from this projectile.

@@ -18,6 +18,7 @@ ABossBruiser::ABossBruiser()
 
 	WhirlwindRightCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 	WhirlwindLeftCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
+	
 
 }
 
@@ -33,6 +34,8 @@ void ABossBruiser::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+
 
 void ABossBruiser::EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
 {

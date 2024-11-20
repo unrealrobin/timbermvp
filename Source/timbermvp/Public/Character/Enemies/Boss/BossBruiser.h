@@ -24,6 +24,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
 	UCapsuleComponent* HeadCapsuleComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")

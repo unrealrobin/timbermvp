@@ -13,7 +13,6 @@ ABossBruiser::ABossBruiser()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	MaxHealth = 500.0f;
 	CurrentHealth = MaxHealth;
 	SetupCapsuleComponents();
 
@@ -61,6 +60,7 @@ void ABossBruiser::HandleWhirlwindOverlap(
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 
+	//Only damages the Player, will not Damage other enemies or Building Components.
 	if(PlayerCharacter)
 	{
 		PlayerCharacter->PlayerTakeDamage(WhirlwindTickDamage);

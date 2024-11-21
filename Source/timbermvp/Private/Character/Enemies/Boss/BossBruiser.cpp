@@ -18,6 +18,7 @@ ABossBruiser::ABossBruiser()
 
 	WhirlwindRightCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 	WhirlwindLeftCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
+	RightArmCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleBHandSlapOverlap);
 	
 
 }
@@ -67,6 +68,17 @@ void ABossBruiser::HandleWhirlwindOverlap(
 	if(PlayerCharacter)
 	{
 		PlayerCharacter->PlayerTakeDamage(WhirlwindTickDamage);
+	}
+}
+
+void ABossBruiser::HandleBHandSlapOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if(PlayerCharacter)
+	{
+		PlayerCharacter->PlayerTakeDamage(BHandSlapDamage);
 	}
 }
 

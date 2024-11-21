@@ -42,10 +42,13 @@ public:
 	void DisableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent);
 	UFUNCTION()
 	void HandleWhirlwindOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	UFUNCTION()
+	void HandleBHandSlapOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Bruiser Info")
 	float HeadShotDamageModifier = 2.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bruiser Info")
 	float WhirlwindTickDamage = 4.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bruiser Info")
+	float BHandSlapDamage = 8.0f;
 };

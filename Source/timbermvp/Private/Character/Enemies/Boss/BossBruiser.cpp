@@ -3,6 +3,7 @@
 
 #include "Character/Enemies/Boss/BossBruiser.h"
 
+#include "AudioDevice.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
 
@@ -19,8 +20,6 @@ ABossBruiser::ABossBruiser()
 	WhirlwindRightCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 	WhirlwindLeftCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 	RightArmCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleBHandSlapOverlap);
-	
-
 }
 
 // Called when the game starts or when spawned
@@ -82,6 +81,48 @@ void ABossBruiser::HandleBHandSlapOverlap(
 	}
 }
 
+void ABossBruiser::HandleOverHeadSmashOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("OverHeadSmashOverlap"));
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if(PlayerCharacter)
+	{
+		PlayerCharacter->PlayerTakeDamage(OverHeadSmashDamage);
+	}
+}
+
+void ABossBruiser::SpawnOverHeadCapsule()
+{
+	OverHeadSmashCapsuleComponent = NewObject<UCapsuleComponent>(this);
+	if(OverHeadSmashCapsuleComponent)
+	{
+		OverHeadSmashCapsuleComponent->AttachToComponent(OverHeadSmashCapsuleSpawnLocation, 
+		FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OverHeadSmashCapsuleComponent->RegisterComponent();
+		OverHeadSmashCapsuleComponent->SetCapsuleHalfHeight(OverHeadSmashCapsuleHeight, true);
+		OverHeadSmashCapsuleComponent->SetCapsuleRadius(OverHeadSmashCapsuleRadius, true);
+		//Collision Delegate
+		OverHeadSmashCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleOverHeadSmashOverlap);
+
+		//TODO:: May need to be more stringent with the collision setting. This should only damage players within the AOE of the attack.
+		OverHeadSmashCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+		OverHeadSmashCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		OverHeadSmashCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+		
+	}
+}
+
+void ABossBruiser::DestroyOverHeadCapsule()
+{
+	if (OverHeadSmashCapsuleComponent)
+	{
+		OverHeadSmashCapsuleComponent->DestroyComponent();
+	}
+}
+
 void ABossBruiser::SetupCapsuleComponents()
 {
 	if(GetMesh())
@@ -104,5 +145,11 @@ void ABossBruiser::SetupCapsuleComponents()
 		//Collision Enabling will happen in the Event Notify Custom Event Function
 		DisableCollisionToDamagePlayerOnly(WhirlwindRightCollisionSphere);
 		DisableCollisionToDamagePlayerOnly(WhirlwindLeftCollisionSphere);
+
+		//Creating Scene Component To Spawn Overhead Smash Location
+		OverHeadSmashCapsuleSpawnLocation = CreateDefaultSubobject<USceneComponent>("OverHeadSmashCapsuleSpawnLocation");
+		OverHeadSmashCapsuleSpawnLocation->SetupAttachment(GetRootComponent());
+		
+		
 	}
 }

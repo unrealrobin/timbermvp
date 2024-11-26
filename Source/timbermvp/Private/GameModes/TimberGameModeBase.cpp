@@ -31,7 +31,11 @@ void ATimberGameModeBase::BeginPlay()
 
 	/*Getting Seedas Location*/
 	UGameplayStatics::GetAllActorsOfClass(World, ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
-	SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
+	if(ArrayOfSpawnedSeedas.Num() > 0)
+	{
+		SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
+	}
+	
 
 	/*Subscribing to Player Death Delegate Signature*/
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));

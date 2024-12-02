@@ -17,8 +17,12 @@ ALabDoorBase::ALabDoorBase()
 	LabDoorLeft->SetupAttachment(LabDoorFrame);
 	LabDoorRight->SetupAttachment(LabDoorFrame);
 
-	LabDoorLeftClosePos = LabDoorLeft->GetComponentLocation();
-	LabDoorRightClosePos = LabDoorRight->GetComponentLocation();
+	// Setting the lab door open and close positions. These are not dynamic.
+	// These vectors are offset amounts from their current location. So from there current positions we want the doors to shift by the vector amount.
+	LabDoorLeftOpenPos = FVector(-310.f, 0.f, 0.f);
+	LabDoorRightOpenPos = FVector(310.f, 0.f, 0.f);
+	LabDoorLeftClosePos = FVector(310.f, 0.f, 0.f);
+	LabDoorRightClosePos = FVector(-310.f, 0.f, 0.f);
 
 }
 
@@ -26,7 +30,6 @@ ALabDoorBase::ALabDoorBase()
 void ALabDoorBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -34,31 +37,55 @@ void ALabDoorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-void ALabDoorBase::OpenLabDoor()
-{
-	float DeltaTime = GetWorld()->GetDeltaSeconds();
-	FVector LabDoorLeftOpenPosition = FVector::ZeroVector;
-	LabDoorLeftOpenPosition.X = -310.f;
-	FVector LabDoorRightOpenPosition = FVector::ZeroVector;
-	LabDoorRightOpenPosition.X = 310.f;
-	
-	LabDoorLeftOpenPos = FMath::VInterpTo(LabDoorLeftClosePos, LabDoorLeftOpenPosition , DeltaTime, 2.f);
-	LabDoorRightOpenPos = FMath::VInterpTo(LabDoorRightClosePos, LabDoorRightOpenPosition , DeltaTime, 2.f);
-
-	LabDoorLeft->SetRelativeLocation(LabDoorLeftOpenPos);
-	LabDoorRight->SetRelativeLocation(LabDoorRightOpenPos);
-}
-
-void ALabDoorBase::CloseLabDoor()
-{
-	float DeltaTime = GetWorld()->GetDeltaSeconds();
-
-	//TODO::  How Can we verify that these locations exists and were set in OpenLabDoor() before calling these two functions?
-	LabDoorLeft->SetRelativeLocation(FMath::VInterpTo(LabDoorLeftOpenPos, LabDoorLeftClosePos , DeltaTime, 1.f));
-	LabDoorLeft->SetRelativeLocation(FMath::VInterpTo(LabDoorRightOpenPos, LabDoorRightClosePos , DeltaTime, 1.f));
+	if(ShouldLabDoorBeOpen && !IsLabDoorOpen)
+	{
+		OpenLabDoor(DeltaTime);
+	}else if(!ShouldLabDoorBeOpen && IsLabDoorOpen)
+	{
+		CloseLabDoor(DeltaTime);
+	}
 
 	
+}
+
+void ALabDoorBase::OpenLabDoor(float DeltaTime)
+{
+
+	//Using Relative Locations here because the Lab door Locations changes during tick.
+	LabDoorLeft->SetRelativeLocation(FMath::VInterpTo(LabDoorLeft->GetRelativeLocation(), LabDoorLeftOpenPos , DeltaTime, 2.f));
+	LabDoorRight->SetRelativeLocation(FMath::VInterpTo(LabDoorRight->GetRelativeLocation(), LabDoorRightOpenPos , DeltaTime, 2.f));
+
+	if(LabDoorLeft->GetRelativeLocation() == LabDoorLeftOpenPos && LabDoorRight->GetRelativeLocation() == LabDoorRightOpenPos )
+	{
+		IsLabDoorOpen = true;
+	}
+	
+}
+
+void ALabDoorBase::CloseLabDoor(float DeltaTime)
+{
+	
+	//Using Relative Locations here because the Lab door Locations changes during tick.
+	LabDoorLeft->SetRelativeLocation(FMath::VInterpTo(LabDoorLeft->GetRelativeLocation(), LabDoorLeftClosePos , DeltaTime, 2.f));
+	LabDoorRight->SetRelativeLocation(FMath::VInterpTo(LabDoorRight->GetRelativeLocation(), LabDoorRightClosePos , DeltaTime, 2.f));
+
+	if(LabDoorLeft->GetRelativeLocation() == FVector::ZeroVector && LabDoorRight->GetRelativeLocation() == FVector::ZeroVector )
+	{
+		IsLabDoorOpen = false;
+	}
+
+}
+
+
+
+//Used for Debugging Conditions
+void ALabDoorBase::SetLabDoorToBeOpen()
+{
+	ShouldLabDoorBeOpen = true;
+}
+
+void ALabDoorBase::SetLabDoorToBeClosed()
+{
+	ShouldLabDoorBeOpen = false;
 }
 

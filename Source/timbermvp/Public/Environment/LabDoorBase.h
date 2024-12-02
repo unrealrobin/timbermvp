@@ -25,6 +25,10 @@ protected:
 	FVector LabDoorLeftOpenPos;
 	FVector LabDoorRightOpenPos;
 
+	//Timers for Testing Open and Closing of Lab Doors
+	FTimerHandle LabDoorOpenTimerHandle;
+	FTimerHandle LabDoorCloseTimerHandle;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -39,8 +43,21 @@ public:
 	UStaticMeshComponent* LabDoorRight;
 
 	UFUNCTION(BlueprintCallable)
-	void OpenLabDoor();	
+	void OpenLabDoor(float DeltaTime);	
 
 	UFUNCTION(BlueprintCallable)
-	void CloseLabDoor();
+	void CloseLabDoor(float DeltaTime);
+
+	// Debug Functions for Opening and closing of lab doors in the console in editor.
+	UFUNCTION(Exec)
+	void SetLabDoorToBeOpen();
+	UFUNCTION(Exec)
+	void SetLabDoorToBeClosed();
+
+	UPROPERTY(VisibleAnywhere)
+	bool ShouldLabDoorBeOpen = false;
+
+	UPROPERTY(VisibleAnywhere)
+	bool IsLabDoorOpen = false;
+	
 };

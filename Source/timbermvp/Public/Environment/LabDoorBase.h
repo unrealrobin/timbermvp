@@ -49,10 +49,13 @@ public:
 	void CloseLabDoor(float DeltaTime);
 
 	// Debug Functions for Opening and closing of lab doors in the console in editor.
-	UFUNCTION(Exec)
+	UFUNCTION()
 	void SetLabDoorToBeOpen();
-	UFUNCTION(Exec)
+	UFUNCTION()
 	void SetLabDoorToBeClosed();
+
+	UFUNCTION()
+	void HandleTestLabDoorOpen();
 
 	UPROPERTY(VisibleAnywhere)
 	bool ShouldLabDoorBeOpen = false;

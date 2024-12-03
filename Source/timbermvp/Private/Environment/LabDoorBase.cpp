@@ -24,12 +24,17 @@ ALabDoorBase::ALabDoorBase()
 	LabDoorLeftClosePos = FVector(310.f, 0.f, 0.f);
 	LabDoorRightClosePos = FVector(-310.f, 0.f, 0.f);
 
+	
+
 }
 
 // Called when the game starts or when spawned
 void ALabDoorBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetWorld()->GetTimerManager().SetTimer(LabDoorOpenTimerHandle, this, &ALabDoorBase::HandleTestLabDoorOpen, 5.f, 
+	true);
 }
 
 // Called every frame
@@ -55,8 +60,9 @@ void ALabDoorBase::OpenLabDoor(float DeltaTime)
 	LabDoorLeft->SetRelativeLocation(FMath::VInterpTo(LabDoorLeft->GetRelativeLocation(), LabDoorLeftOpenPos , DeltaTime, 2.f));
 	LabDoorRight->SetRelativeLocation(FMath::VInterpTo(LabDoorRight->GetRelativeLocation(), LabDoorRightOpenPos , DeltaTime, 2.f));
 
-	if(LabDoorLeft->GetRelativeLocation() == LabDoorLeftOpenPos && LabDoorRight->GetRelativeLocation() == LabDoorRightOpenPos )
+	if(LabDoorLeft->GetRelativeLocation().Equals(LabDoorLeftOpenPos, 0.001f) && LabDoorRight->GetRelativeLocation().Equals(LabDoorRightOpenPos, 0.001f))
 	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, TEXT("Lab Door Opened"));
 		IsLabDoorOpen = true;
 	}
 	
@@ -66,11 +72,12 @@ void ALabDoorBase::CloseLabDoor(float DeltaTime)
 {
 	
 	//Using Relative Locations here because the Lab door Locations changes during tick.
-	LabDoorLeft->SetRelativeLocation(FMath::VInterpTo(LabDoorLeft->GetRelativeLocation(), LabDoorLeftClosePos , DeltaTime, 2.f));
-	LabDoorRight->SetRelativeLocation(FMath::VInterpTo(LabDoorRight->GetRelativeLocation(), LabDoorRightClosePos , DeltaTime, 2.f));
+	LabDoorLeft->SetRelativeLocation(FMath::VInterpTo(LabDoorLeft->GetRelativeLocation(), FVector::ZeroVector , DeltaTime, 2.f));
+	LabDoorRight->SetRelativeLocation(FMath::VInterpTo(LabDoorRight->GetRelativeLocation(), FVector::ZeroVector , DeltaTime, 2.f));
 
-	if(LabDoorLeft->GetRelativeLocation() == FVector::ZeroVector && LabDoorRight->GetRelativeLocation() == FVector::ZeroVector )
+	if(LabDoorLeft->GetRelativeLocation().Equals(FVector::ZeroVector, 0.001f)  && LabDoorRight->GetRelativeLocation().Equals(FVector::ZeroVector,0.001f)) 
 	{
+		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, TEXT("Lab Door Closed"));
 		IsLabDoorOpen = false;
 	}
 
@@ -87,5 +94,17 @@ void ALabDoorBase::SetLabDoorToBeOpen()
 void ALabDoorBase::SetLabDoorToBeClosed()
 {
 	ShouldLabDoorBeOpen = false;
+}
+
+void ALabDoorBase::HandleTestLabDoorOpen()
+{
+	GEngine->AddOnScreenDebugMessage(2, 3.0, FColor::Green, TEXT("Handling Lab Door Open"));
+	if(IsLabDoorOpen)
+	{
+		SetLabDoorToBeClosed();
+	}else
+	{
+		SetLabDoorToBeOpen();
+	}
 }
 

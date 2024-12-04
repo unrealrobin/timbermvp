@@ -24,4 +24,6 @@ class TIMBERMVP_API IDamageableEnemy
 public:
 
 	virtual void TakeDamage(float DamageAmount) = 0;
+	virtual void PlayProjectileHitSound(FHitResult HitResult) = 0;
+	virtual void PlayMeleeWeaponHitSound(FHitResult HitResult) = 0;
 };

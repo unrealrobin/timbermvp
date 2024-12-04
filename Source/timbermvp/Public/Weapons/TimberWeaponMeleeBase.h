@@ -29,10 +29,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category="Collision")
 	void HandleWeaponCollision(bool ShouldReadyCollision) const;
-	
+
+	UFUNCTION()
 	virtual void OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* 
 	OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) ;
-	
+
+	UFUNCTION()
 	virtual void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* 
 	OtherComp, int32 OtherBodyIndex);
 
@@ -42,4 +44,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Weapons")
 	virtual void PerformStandardAttack();
+
+	/* Sounds */
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
+	USoundCue* AttackSwooshSound;
 };

@@ -45,4 +45,8 @@ public:
 
 	UFUNCTION(Category="Weapon")
 	void PerformStandardAttack();
+
+	/*Sound*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
+	USoundCue* FiringSound;
 };

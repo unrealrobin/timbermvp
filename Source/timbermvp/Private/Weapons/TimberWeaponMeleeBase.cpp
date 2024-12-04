@@ -19,6 +19,12 @@ ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 
 	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>("Collision Box");
 	WeaponBoxComponent->SetupAttachment(GetRootComponent());
+
+	if(WeaponBoxComponent)
+	{
+	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapBegin);
+	WeaponBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapEnd);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +44,7 @@ void ATimberWeaponMeleeBase::HandleWeaponCollision(bool ShouldReadyCollision) co
 {
 	if(ShouldReadyCollision)
 	{
+		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Sword Collision Enabled")));
 		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		WeaponBoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
@@ -56,10 +63,14 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	//Ignoring the Owning Character and the Actual Weapon itself.
 	if(OtherActor == GetOwner() || OtherActor == this) return;
 
+	GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, "Weapon Hit Something");
+
+
 	/* If Melee Hit is Against the Player Character*/
 	ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if(HitCharacter && !ActorsToIgnore.Contains(HitCharacter))
 	{
+		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
 		ActorsToIgnore.Add(HitCharacter);
 		//TODO:: When damage can be buffed, first calculate damage in some function then pass here.
 		HitCharacter->PlayerTakeDamage(BaseWeaponDamage);
@@ -70,15 +81,26 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
 	if(HitEnemy && !ActorsToIgnore.Contains(HitEnemy))
 	{
-		ActorsToIgnore.Add(HitEnemy);
+		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
+		HitEnemy->PlayMeleeWeaponHitSound(SweepResult);
 		HitEnemy->TakeDamage(BaseWeaponDamage);
+		ActorsToIgnore.Add(HitEnemy);
+		
+		/*IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(HitEnemy);
+		if(DamageableEnemy)
+		{
+			DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
+		}*/
 	}
+	
 	
 }
 
 void ATimberWeaponMeleeBase::OnWeaponOverlapEnd(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, "Overlap Ended");
+
 	//Resetting the Actors to Ignore Array for the next attack.
 	ActorsToIgnore.Empty();
 }

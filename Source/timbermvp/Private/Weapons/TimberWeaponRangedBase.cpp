@@ -4,6 +4,8 @@
 #include "Weapons/TimberWeaponRangedBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "Controller/TimberPlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "Weapons/Projectiles/TimberProjectileBase.h"
 
 // Sets default values
@@ -47,6 +49,7 @@ void ATimberWeaponRangedBase::FireRangedWeapon()
 
 			if(Projectile)
 			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, ProjectileSpawnLocation);
 				Projectile->SetOwner(this);
 				GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
 			}
@@ -72,6 +75,7 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 
 			if(Projectile)
 			{
+				UGameplayStatics::PlaySoundAtLocation(this, FiringSound, ProjectileSpawnLocation);
 				Projectile->SetOwner(this);
 				GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
 			}

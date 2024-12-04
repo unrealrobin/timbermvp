@@ -35,8 +35,6 @@ void ABossBruiser::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-
-
 void ABossBruiser::EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
 {
 	if(WWCapsuleComponent)

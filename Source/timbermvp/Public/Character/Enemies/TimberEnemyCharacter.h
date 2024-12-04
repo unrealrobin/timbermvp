@@ -30,6 +30,8 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void TakeDamage(float DamageAmount) override;
+	virtual void PlayProjectileHitSound(FHitResult HitResult) override;
+	virtual void PlayMeleeWeaponHitSound(FHitResult HitResult) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
 	EEnemyWeaponState EnemyWeaponType = EEnemyWeaponState::NoWeaponEquipped;
@@ -52,10 +54,18 @@ public:
 	void HandleEnemyDeath();
 	void HandleWeaponDestruction();
 	
+	/*Hit Sounds*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sounds")
+	USoundCue* ProjectileHitSound;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
+	USoundCue* MeleeHitSound;
+	
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	void StopAiControllerBehaviorTree();
 	virtual float CalculateOutputDamage(float Damage);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
 

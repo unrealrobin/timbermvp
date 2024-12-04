@@ -10,6 +10,8 @@
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "GameModes/TimberGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
@@ -60,6 +62,24 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+	}
+}
+
+void ATimberEnemyCharacter::PlayProjectileHitSound(FHitResult HitResult)
+{
+	FVector HitLocation = HitResult.ImpactPoint;
+	if(ProjectileHitSound && HitLocation != FVector::ZeroVector)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ProjectileHitSound, HitLocation);
+	}
+}
+
+void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
+{
+	FVector HitLocation = HitResult.ImpactPoint;
+	if(MeleeHitSound && HitLocation != FVector::ZeroVector)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ProjectileHitSound, HitLocation);
 	}
 }
 

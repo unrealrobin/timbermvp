@@ -11,7 +11,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// Sets default values
+// Sets default value
 ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -31,6 +31,10 @@ ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 void ATimberWeaponMeleeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	WeaponOwner = GetOwner();
+	WeaponInstigator = Cast<ATimberPlayableCharacter>(GetInstigator());
+	
 	
 }
 
@@ -60,13 +64,13 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Ignoring the Owning Character and the Actual Weapon itself.
-	if(OtherActor == GetOwner() || OtherActor == this) return;
+	//Ignoring the Owning Character (Instigator) and the Actual Weapon itself.
+	if(OtherActor == WeaponInstigator || OtherActor == this) return;
 
-	GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, "Weapon Hit Something");
-
-
-	/* If Melee Hit is Against the Player Character*/
+	/* If Melee Hit is Against the Player Character
+	Used for when the AI Enemy have a Melee Weapon
+	Ensures swings only hit Player Characters and not other AI Enemy
+	*/
 	ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if(HitCharacter && !ActorsToIgnore.Contains(HitCharacter))
 	{
@@ -81,16 +85,13 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
 	if(HitEnemy && !ActorsToIgnore.Contains(HitEnemy))
 	{
-		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
-		HitEnemy->PlayMeleeWeaponHitSound(SweepResult);
-		HitEnemy->TakeDamage(BaseWeaponDamage);
-		ActorsToIgnore.Add(HitEnemy);
-		
-		/*IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(HitEnemy);
+		IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(OtherActor);
 		if(DamageableEnemy)
 		{
 			DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
-		}*/
+			DamageableEnemy->TakeDamage(BaseWeaponDamage);
+		}
+		ActorsToIgnore.Add(HitEnemy);
 	}
 	
 	
@@ -108,7 +109,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapEnd(
 void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const 
 {
 
-	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(GetOwner());
+	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(WeaponInstigator);
 	const int32 NumberOfMontageSections = AttackMontage->GetNumSections();
 	
 	const int32 RandomSection = UKismetMathLibrary::RandomIntegerInRange(1, NumberOfMontageSections);

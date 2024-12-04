@@ -201,8 +201,6 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 			InteractableItem->Interact();
 		}
 	}
-	
-	
 }
 
 void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
@@ -216,8 +214,11 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
 		WeaponState.Broadcast(EWeaponState::AxeEquipped);
+		
 		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-		const FActorSpawnParameters SpawnParams;
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this; //Controller Owns the Object
+		SpawnParams.Instigator = Cast<ATimberPlayableCharacter>(GetPawn()); // Instigator uses the object and instigates the actions with the Actor.
 
 		//Socket Rotation and Location
 		const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("AxeSocket");
@@ -240,8 +241,9 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
 		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
-		//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
-		SpawnedActor->SetOwner(TimberCharacter);
+		
+		
+		
 	}
 }
 

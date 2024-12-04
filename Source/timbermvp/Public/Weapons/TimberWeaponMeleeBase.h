@@ -6,6 +6,8 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberWeaponMeleeBase.generated.h"
 
+class ATimberPlayableCharacter;
+
 UCLASS()
 class TIMBERMVP_API ATimberWeaponMeleeBase : public ATimberWeaponBase
 {
@@ -19,8 +21,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	AActor* WeaponOwner;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	ATimberPlayableCharacter* WeaponInstigator;
+
 public:
-	// Called every frame
+	// Called every frames
 	virtual void Tick(float DeltaTime) override;
 
 	/*Collision Component*/

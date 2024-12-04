@@ -204,10 +204,8 @@ private:
 	TObjectPtr<UInputMappingContext> BuildModeInputMappingContext;
 	
 	void DisableAllKeyboardInput();
-	
 
 	UFUNCTION()
 	void UnEquipWeapon() const;
-	
 	
 };

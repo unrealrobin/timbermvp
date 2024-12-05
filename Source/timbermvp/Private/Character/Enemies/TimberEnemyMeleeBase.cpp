@@ -38,14 +38,13 @@ void ATimberEnemyMeleeBase::EnableCapsuleComponent(UCapsuleComponent* MeleeCapsu
 	MeleeCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	MeleeCapsuleComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
-	//This is the channel for the Building Component
 	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 }
 
 void ATimberEnemyMeleeBase::DisableCapsuleComponent(UCapsuleComponent* MeleeCapsuleComponent)
 {
-	MeleeCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECR_Ignore);
 }
 
 float ATimberEnemyMeleeBase::CalculateOutputDamage(float Damage)

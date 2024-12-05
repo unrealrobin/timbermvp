@@ -33,8 +33,9 @@ void ALabDoorBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(LabDoorOpenTimerHandle, this, &ALabDoorBase::HandleTestLabDoorOpen, 5.f, 
-	true);
+	//Just For Testing, Remove when set by wave spawnings.
+	/*GetWorld()->GetTimerManager().SetTimer(LabDoorOpenTimerHandle, this, &ALabDoorBase::HandleTestLabDoorOpen, 5.f, 
+	true);*/
 }
 
 // Called every frame

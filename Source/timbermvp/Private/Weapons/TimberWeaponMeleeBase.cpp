@@ -19,6 +19,8 @@ ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 
 	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>("Collision Box");
 	WeaponBoxComponent->SetupAttachment(GetRootComponent());
+	WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WeaponBoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
 	if(WeaponBoxComponent)
 	{
@@ -49,14 +51,13 @@ void ATimberWeaponMeleeBase::HandleWeaponCollision(bool ShouldReadyCollision) co
 	if(ShouldReadyCollision)
 	{
 		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Sword Collision Enabled")));
-		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		WeaponBoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 	}
 	else
 	{
-		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Ignore);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 	}
 }
 
@@ -66,13 +67,13 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 {
 	//Ignoring the Owning Character (Instigator) and the Actual Weapon itself.
 	if(OtherActor == WeaponInstigator || OtherActor == this) return;
-
 	/* If Melee Hit is Against the Player Character
 	Used for when the AI Enemy have a Melee Weapon
 	Ensures swings only hit Player Characters and not other AI Enemy
 	*/
 	ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(HitCharacter && !ActorsToIgnore.Contains(HitCharacter))
+	if(ActorsToIgnore.Contains(HitCharacter)) return;
+	if(HitCharacter)
 	{
 		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
 		ActorsToIgnore.Add(HitCharacter);
@@ -83,6 +84,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 
 	/*If Melee Hit is Against the AI Enemy Characters*/
 	ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
+	if(ActorsToIgnore.Contains(HitEnemy)) return;
 	if(HitEnemy && !ActorsToIgnore.Contains(HitEnemy))
 	{
 		IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(OtherActor);
@@ -101,7 +103,13 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapEnd(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, "Overlap Ended");
+}
 
+//Called in the Animations Montage using Notifies.
+// Each Swing should result in only 1 dmg event per hit enemy. Resetting on Collision End Overlap can cause Double Hits,
+// if the enemy has more than 1 collision box.
+void ATimberWeaponMeleeBase::EmptyActorToIgnoreArray()
+{
 	//Resetting the Actors to Ignore Array for the next attack.
 	ActorsToIgnore.Empty();
 }

@@ -46,15 +46,16 @@ public:
 	virtual void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* 
 	OtherComp, int32 OtherBodyIndex);
 
+	UFUNCTION(BlueprintCallable)
+	void EmptyActorToIgnoreArray();
+
 	/* Attack */
 	UFUNCTION()
 	void HandlePlayAttackMontage() const;
-
 	UFUNCTION(BlueprintCallable, Category="Weapons")
 	virtual void PerformStandardAttack();
 
 	/* Sounds */
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
 	USoundCue* AttackSwooshSound;
 };

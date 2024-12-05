@@ -26,7 +26,6 @@ ABossBruiser::ABossBruiser()
 void ABossBruiser::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

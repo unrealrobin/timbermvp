@@ -68,6 +68,5 @@ public:
 	float OverHeadSmashCapsuleHeight = 250.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bruiser Info")
 	float OverHeadSmashCapsuleRadius = 250.f;
-
 	
 };

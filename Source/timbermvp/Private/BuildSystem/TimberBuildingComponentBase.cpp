@@ -14,9 +14,14 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMesh;
-	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1);
+	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1); // Building Component
 	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ATimberBuildingComponentBase::HandleOverlapNotifies);
+	NavCollisionBox = CreateDefaultSubobject<UBoxComponent>("NavCollisionBox");
+	NavCollisionBox->SetupAttachment(StaticMesh);
+	NavCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	NavCollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+	NavCollisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 
 	/* Snap Points for Building Component to Building Component Snapping.*/
 	CreateSnapPoints();

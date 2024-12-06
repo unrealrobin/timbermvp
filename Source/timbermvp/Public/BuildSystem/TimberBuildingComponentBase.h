@@ -58,6 +58,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UBoxComponent* NavCollisionBox;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* TopSnap;

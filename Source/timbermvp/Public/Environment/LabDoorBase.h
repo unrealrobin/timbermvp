@@ -6,12 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "LabDoorBase.generated.h"
 
+class ATimberEnemyCharacter;
+class UBoxComponent;
+
 UCLASS()
 class TIMBERMVP_API ALabDoorBase : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
 	// Sets default values for this actor's properties
 	ALabDoorBase();
 
@@ -29,10 +32,16 @@ protected:
 	FTimerHandle LabDoorOpenTimerHandle;
 	FTimerHandle LabDoorCloseTimerHandle;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Door")
+	TArray<ATimberEnemyCharacter*> EnemiesInLabDoorActivator;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Door Meshes")
+	UBoxComponent* LabDoorActivatorComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Lab Door Meshes")
 	UStaticMeshComponent* LabDoorFrame;
 
@@ -48,14 +57,22 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CloseLabDoor(float DeltaTime);
 
+	UFUNCTION()
+	void HandleOpenLabDoor(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void HandleCloseLabDoor(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void SetupLabDoorComponents();
 	// Debug Functions for Opening and closing of lab doors in the console in editor.
 	UFUNCTION()
 	void SetLabDoorToBeOpen();
 	UFUNCTION()
 	void SetLabDoorToBeClosed();
-
 	UFUNCTION()
 	void HandleTestLabDoorOpen();
+	UFUNCTION()
+	void InitializeLabDoorProperties();
 
 	UPROPERTY(VisibleAnywhere)
 	bool ShouldLabDoorBeOpen = false;

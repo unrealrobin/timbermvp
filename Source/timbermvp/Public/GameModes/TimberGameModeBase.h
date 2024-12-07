@@ -51,7 +51,7 @@ public:
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
 
 	UPROPERTY(VisibleAnywhere, Category="Wave Composition")
-	int CurrentWaveNumber = 1;
+	int CurrentWaveNumber = 4;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int TimeToNextWave = 0;

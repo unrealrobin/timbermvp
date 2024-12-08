@@ -45,7 +45,14 @@ void ATimberWeaponRangedBase::FireRangedWeapon()
 			FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 			FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 
-			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, ProjectileSpawnLocation, ControllerDirection);
+			// Add Spawn Params for Projectile Owner and Instigator
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = WeaponOwner;
+			SpawnParams.Instigator = Cast<APawn>(this);
+
+			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, 
+			ProjectileSpawnLocation, ControllerDirection, SpawnParams);
 
 			if(Projectile)
 			{

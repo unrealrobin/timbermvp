@@ -42,23 +42,13 @@ void ATimberPlayerProjectile::HandleOverlap(
 	
 	if(HitEnemy)
 	{
-		//TODO:: Something keeps crashing at this line.
-		const float OwningWeaponBaseDamage = Cast<ATimberWeaponBase>(GetOwner())->GetWeaponBaseDamage();
+		//Play the IDamageableEnemy's TakeDamage function. Interface.
+		HitEnemy->PlayProjectileHitSound(SweepResult);
+		HitEnemy->TakeDamage(25);
 
-		if(OwningWeaponBaseDamage)
-		{
-			//Play the IDamageableEnemy's TakeDamage function. Interface.
-			HitEnemy->PlayProjectileHitSound(SweepResult);
-			HitEnemy->TakeDamage(OwningWeaponBaseDamage);
-
-			//Destroys the projectile on hitting an enemy that may take damage from this projectile.
-			Destroy();
-		}
-		
-	}
-	else // If overlapped with something else, destroy the projectile (Ex. projectile hits a wall.)
-	{
+		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
 		Destroy();
 	}
+	
 }
 

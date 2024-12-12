@@ -36,6 +36,8 @@ void ASpikeTrap::HandleDamage(UPrimitiveComponent* OverlappedComponent, AActor* 
 	if(GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(2, 4, FColor::Cyan, "Spike TrapTriggerd");
+		//TODO:: Play SpikeOut Animation w/ Sound in Anim Notify
+		//TODO:: AFter Timer play SpikeIn Animation w/ Sound in Anim Notify
 	}
 }
 

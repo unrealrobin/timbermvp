@@ -8,8 +8,6 @@
 #include "EnhancedInputComponent.h"
 #include "TimberPlayerController.generated.h"
 
-
-
 class ATimberBuildSystemManager;
 class IInteractable;
 class UCharacterMovementComponent;
@@ -17,9 +15,6 @@ class USpringArmComponent;
 class UInputMappingContext;
 class AHUD;
 class UEnhancedInputLocalPlayerSubsystem;
-
-
-
 
 /**
  * 
@@ -131,7 +126,8 @@ public:
 	/*Cursor*/
 	void EnableCursor();
 	void DisableCursor();
-
+	
+	/*Restart / After Death*/
 	void MovePlayerToStartLocation();
 
 	//Input Mapping Contexts

@@ -18,16 +18,13 @@ UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 void UBuildSystemManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
 	
 }
-// Called every frame
+
 void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	
 }
 
 /*Component to Component Snapping*/

@@ -473,16 +473,10 @@ void ATimberPlayerController::CloseBuildModeSelectionMenu()
 
 void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)
 {
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(3,5.0f, FColor::Green, "Q Key Pressed");
-	}
 	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->BuildSystemManager)
 	{
 		TimberCharacter->BuildSystemManager->RotateBuildingComponent();
-		
 	}
-	
 }
 
 void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Value)

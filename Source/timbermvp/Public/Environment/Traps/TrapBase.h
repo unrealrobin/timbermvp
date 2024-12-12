@@ -42,4 +42,7 @@ public:
 	ETrapType TrapType;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	UBoxComponent* DamageAreaBoxComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FSlateBrush BuildingComponentIconImage;
 };

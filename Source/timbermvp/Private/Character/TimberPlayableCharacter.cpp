@@ -2,7 +2,7 @@
 
 
 #include "Character/TimberPlayableCharacter.h"
-#include "BuildSystem/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Controller/TimberPlayerController.h"

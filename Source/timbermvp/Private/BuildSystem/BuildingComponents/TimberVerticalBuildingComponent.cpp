@@ -1,27 +1,28 @@
 ﻿// Property of Paracosm Industries. Dont use my shit.
 
 
-#include "BuildSystem/TimberHorizontalBuildingComponent.h"
+#include "BuildSystem/buildingComponents/TimberVerticalBuildingComponent.h"
 
 
 // Sets default values
-ATimberHorizontalBuildingComponent::ATimberHorizontalBuildingComponent()
+ATimberVerticalBuildingComponent::ATimberVerticalBuildingComponent()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	BuildingOrientation = EBuildingComponentOrientation::Horizontal;
+	BuildingOrientation = EBuildingComponentOrientation::Vertical;
+	
 }
 
 // Called when the game starts or when spawned
-void ATimberHorizontalBuildingComponent::BeginPlay()
+void ATimberVerticalBuildingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void ATimberHorizontalBuildingComponent::Tick(float DeltaTime)
+void ATimberVerticalBuildingComponent::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }

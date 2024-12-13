@@ -7,6 +7,7 @@
 #include "BuildSystemManagerComponent.generated.h"
 
 
+class IBuildable;
 enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
 
@@ -30,10 +31,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	TSubclassOf<AActor> ActiveBuildingComponentClass;
 
+
+	// Can be either a Trap or a Building Component
+	//UPROPERTY(VisibleAnywhere, Category = "Building Component")
+	
+	
+
 	// Name Change Recommended :  Proxy Building Component
 	// Actor Reference to be stored after player selects a building component to use
 	UPROPERTY(EditAnywhere, Category="Building Component")
-	ATimberBuildingComponentBase* ActiveBuildingComponent = nullptr;
+	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
 
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
@@ -79,7 +86,7 @@ public:
 	
 	UFUNCTION()
 	ATimberBuildingComponentBase* GetActiveBuildingComponent();
-	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};
+	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
 
 	/*Getters & Setters*/
 	UFUNCTION(BlueprintCallable, Category="Building Component")

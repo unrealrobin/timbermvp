@@ -1,7 +1,7 @@
 ﻿// Property of Paracosm Industries. Dont use my shit.
 
 
-#include "Environment/Traps/SpikeTrap.h"
+#include "BuildSystem/Traps/SpikeTrap.h"
 
 #include "Components/BoxComponent.h"
 

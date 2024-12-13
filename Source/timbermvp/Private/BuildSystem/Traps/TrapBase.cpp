@@ -1,7 +1,7 @@
 ﻿// Property of Paracosm Industries. Dont use my shit.
 
 
-#include "Environment/Traps/TrapBase.h"
+#include "BuildSystem/Traps/TrapBase.h"
 
 #include "Components/BoxComponent.h"
 

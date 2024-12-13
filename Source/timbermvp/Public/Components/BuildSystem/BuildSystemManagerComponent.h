@@ -56,7 +56,7 @@ protected:
 
 
 	/* @params - GhostOpacity */
-	void MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent);
+	void MakeBuildingComponentProxy(AActor* BuildingComponentProxy);
 	//How transparent to make the Proxy Material Color
 	float GhostOpacity = 0.5f;
 

@@ -361,10 +361,10 @@ FRotator UBuildSystemManagerComponent::SnapToRotation(FRotator CharactersRotatio
 	return SavedRotation;
 }
 
-void UBuildSystemManagerComponent::MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent)
+void UBuildSystemManagerComponent::MakeBuildingComponentProxy(AActor* BuildingComponentProxy)
 {
 	//Get the Static MeshComponent of the passed in Building Component
-	UStaticMeshComponent* MeshComponent = BuildingComponent->FindComponentByClass<UStaticMeshComponent>();
+	UStaticMeshComponent* MeshComponent = BuildingComponentProxy->FindComponentByClass<UStaticMeshComponent>();
 
 	if(MeshComponent)
 	{
@@ -410,7 +410,7 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 		ActiveBuildingComponent->SetActorEnableCollision(false);
 
 		//Make the Building Component have the "see-through" material look
-		MakeBuildingComponentProxy(ActiveBuildingComponent);
+		MakeBuildingComponentProxy(SpawnedActor);
 	}
 }
 
@@ -418,7 +418,7 @@ void UBuildSystemManagerComponent::MoveBuildingComponent(FVector_NetQuantize Loc
 {
 	if(ActiveBuildingComponent)
 	{
-		//TODO:: REMEMBER to change this back in the future if you want some snapping.
+		//REMEMBER to change this back in the future if you want some snapping.
 		//ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
 		ActiveBuildingComponent->SetActorLocation(Location);
 	}

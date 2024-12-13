@@ -23,6 +23,7 @@ enum class EBuildingComponentType : uint8
 {
 	BasicWall UMETA(DisplayName = "BasicWall"),
 	BasicFloorWall UMETA(DisplayName = "BasicFloor"),
+	Trap UMETA(DisplayName = Trap),
 	Default UMETA(DisplayName = "Default"),
 };
 

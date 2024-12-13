@@ -391,7 +391,7 @@ void UBuildSystemManagerComponent::MakeBuildingComponentProxy(AActor* BuildingCo
 /* Spawn */
 void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
 {
-	if(ActiveBuildingComponentClass)
+	if(ActiveBuildableComponentClass)
 	{
 		//TODO:: Remember to change this back in the future.
 		const FVector Location = SnapToGrid(SpawnVector);
@@ -401,7 +401,7 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 		
 		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-			(ActiveBuildingComponentClass,
+			(ActiveBuildableComponentClass,
 				Location1,
 				Rotation, 
 				SpawnParameters);
@@ -444,23 +444,17 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(const FVector& Lo
 {
 	FActorSpawnParameters SpawnParameters;
 
-	if(ActiveBuildingComponentClass)
+	if(ActiveBuildableComponentClass)
 	{
 		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-			(ActiveBuildingComponentClass,
+			(ActiveBuildableComponentClass,
 				ActiveBuildingComponentProxy->GetActorLocation(),
 				ActiveBuildingComponentProxy->GetActorRotation(), 
 				SpawnParameters);
 
 		SpawnedActor->SetActorEnableCollision(true);
 	}
-}
-
-/*Getters */
-ATimberBuildingComponentBase* UBuildSystemManagerComponent::GetActiveBuildingComponent()
-{
-	return ActiveBuildingComponentProxy;
 }
 
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildSystem/BuildableBase.h"
 #include "GameFramework/Actor.h"
 #include "TrapBase.generated.h"
 
@@ -16,7 +17,7 @@ enum class ETrapType : uint8
 };
 
 UCLASS()
-class TIMBERMVP_API ATrapBase : public AActor
+class TIMBERMVP_API ATrapBase : public ABuildableBase
 {
 	GENERATED_BODY()
 

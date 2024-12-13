@@ -10,6 +10,7 @@ ATrapBase::ATrapBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	BuildableType = EBuildableType::Trap;
 	TrapType = ETrapType::Default;
 	
 	TrapBaseStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("TrapBaseStaticMesh");

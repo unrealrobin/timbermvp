@@ -10,7 +10,9 @@
 // Sets default values
 ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 {
- 	
+
+	BuildableType = EBuildableType::BuildingComponent;
+	
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMesh;

@@ -22,7 +22,6 @@ enum class EWeaponState : uint8
 	AxeEquipped UMETA(DisplayName = "AxeEquipped"),
 	ChainsawEquipped UMETA(DisplayName = "ChainsawEquipped"),
 	RangedEquipped UMETA(DisplayName = "RangedEquipped"),
-	
 };
 
 UENUM(BlueprintType)
@@ -102,7 +101,8 @@ public:
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
-	
+	bool HandleBuildingComponentPlacement();
+
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 1000.f;
 	bool ShouldRaycast = true;

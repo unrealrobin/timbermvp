@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildSystem/BuildableBase.h"
 #include "GameFramework/Actor.h"
 #include "Styling/SlateBrush.h"
 #include "TimberBuildingComponentBase.generated.h"
@@ -23,19 +24,16 @@ enum class EBuildingComponentType : uint8
 {
 	BasicWall UMETA(DisplayName = "BasicWall"),
 	BasicFloorWall UMETA(DisplayName = "BasicFloor"),
-	Trap UMETA(DisplayName = Trap),
 	Default UMETA(DisplayName = "Default"),
 };
 
 UCLASS()
-class TIMBERMVP_API ATimberBuildingComponentBase : public AActor
+class TIMBERMVP_API ATimberBuildingComponentBase : public ABuildableBase
 {
 	GENERATED_BODY()
 	
 public:
-	void CreateSnapPoints();
-	void CreateQuadrantComponents();
-	// Sets default values for this actor's properties
+	
 	ATimberBuildingComponentBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Attributes")
@@ -45,6 +43,9 @@ public:
 	void BuildingComponentTakeDamage(float AmountOfDamage);
 	UFUNCTION()
 	void PlayDestroyedAnimation();
+
+	void CreateSnapPoints();
+	void CreateQuadrantComponents();
 
 	/*States*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component Info" )

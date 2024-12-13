@@ -3,6 +3,7 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/Traps/TrapBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Controller/TimberPlayerController.h"
@@ -36,6 +37,7 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	//Initiated From Player Controller Input
 	if(CharacterState == ECharacterState::Building && ShouldRaycast)
 	{
 		PerformBuildSystemRaycast();
@@ -79,79 +81,86 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				RaycastEnd,
 				ECC_Visibility,
 				CollisionParams);
+
 			
-			/*
-			 * 1st Hit: Quadrant Box Component - HitResult['0']
-			 * 2nd Hit: Static Mesh of Building Component Actor - HitResult['1']
-			 */
 
 			HandleRaycastHitConditions(bHits);
 		}
 	}
 }
 
+
+
 void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 {
+	TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
 	if (bHits)
 	{
+		/*
+		 * 1st Hit: Quadrant Box Component - HitResult['0']
+		 * 2nd Hit: Static Mesh of Building Component Actor - HitResult['1']
+		 */
+		
+		/* Hit Something/Anything */
 		DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
-		if(HitResults.Num() >= 2)
+
+		
+		
+		if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 		{
-			{
 
-				//TODO:: Add some condition check here to check whether the building Component is a Trap if it is, use a modified
-				//version of the HandleBuildingComponentSnapping
-						
-			}
-			//If the second hit is a building component, snap to that building component utilizing the quadrant system.
-			// Using the 2nd Hit because the first visible hit is the Quadrant Box Component.
-			/* Hit a Building Component Condition */
-			if(Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
-			{
-				BuildSystemManager->HandleBuildingComponentSnapping(HitResults[0], HitResults[1]);
-			}
-
-			{
-				//HUD Stuff - Delete Widget
-				//Needs to be able to get to the actor component during the multicast.
-				if (HandleShowDeleteWidget(HitResults[1])) return;
-			}
-						
+			//Handle Trap Placement - Has Access to HitResults
+			
 		}
-		else //Handles the Case where there is no overlap with a Building Component and Moves the Building Component Around
+		else if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 		{
-
-			/*
-				 *Spawn an Active Building Component Proxy(ABCP) if One Doesn't Exist
-				 *
-				 * Lets move this portion of code into its own function at some point.
-				 */
-
-
-			//TODO:: Maybe we can store this in an Actor Type object so it works with traps as well.
+			// Spawning ActiveBuildingComponent if it doesn't exist or if its different then the ActiveBuildingComponentClass
 			ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
-			if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() != 
-				BuildSystemManager->GetActiveBuildingComponentClass())
+			if(ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass()!= BuildSystemManager->GetActiveBuildableClass())
 			{
-				//TODO:: We need a modified version of this Spawn function that will work with our Traps
 				BuildSystemManager->SpawnBuildingComponentProxy(HitResults[0].ImpactPoint, GetActorRotation());
 			}
-
-			{ //HUD Stuff - Delete Widget
-				if (HandleShowDeleteWidget(HitResults[0])) return;
-			}
-
-			{
-				/*If there is An Active Building Component Move the Proxy to the new location.*/
-				if(ActiveBuildingComponentProxy)
-				{
-					/*Simple Move to Location*/
-					//TODO:: Does this need to be deleted after completion of snapping? 
-					BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint);
-				}
-			}
+			
+			if (HandleBuildingComponentPlacement()) return;
 		}
 	}
+}
+
+bool ATimberPlayableCharacter::HandleBuildingComponentPlacement()
+{
+	//Handle Building Component Placement
+	//Hit Result is Stored in Global Scope of the Player Character
+	if(HitResults.Num() >= 2)
+	{
+		//If the second hit is a building component, snap to that building component utilizing the quadrant system.
+		// Using the 2nd Hit because the first visible hit is the Quadrant Box Component.
+		/* Hit a Building Component Condition */
+		if(Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
+		{
+			BuildSystemManager->HandleBuildingComponentSnapping(HitResults[0], HitResults[1]);
+		}
+
+		//TODO:: Can we move this anywhere that will work for both traps and building components 
+		//HUD Stuff - Delete Widget
+		//Needs to be able to get to the actor component during the multicast.
+		if (HandleShowDeleteWidget(HitResults[1])) return true;
+		
+						
+	}
+	else //Handles the Case where there is no overlap with a Building Component and Moves the Building Component Around
+	{
+		//HUD Stuff - Delete Widget
+		if (HandleShowDeleteWidget(HitResults[0])) return true;
+		
+		/*If there is An Active Building Component Move the Proxy to the new location.*/
+		if(BuildSystemManager->GetActiveBuildingComponent())
+		{
+			/*Simple Move to Location*/
+			BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint);
+		}
+		
+	}
+	return false;
 }
 
 bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)

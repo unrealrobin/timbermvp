@@ -7,6 +7,8 @@
 #include "BuildSystemManagerComponent.generated.h"
 
 
+class ATrapBase;
+class ABuildableBase;
 class IBuildable;
 enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
@@ -27,20 +29,16 @@ protected:
 	//Should match the Width of the most common Building Component.
 	int GridSize = 100.f;
 
-	//Class to be spawned with the SpawnActor function
+	//Class to be spawned with the SpawnActor function - Triggered by Selection in Building Component Icon Event Graph
 	UPROPERTY(EditAnywhere, Category="Building Component")
-	TSubclassOf<AActor> ActiveBuildingComponentClass;
-
-
-	// Can be either a Trap or a Building Component
-	//UPROPERTY(VisibleAnywhere, Category = "Building Component")
+	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 	
-	
-
-	// Name Change Recommended :  Proxy Building Component
 	// Actor Reference to be stored after player selects a building component to use
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
+
+	UPROPERTY(EditAnywhere, Category="Trap Component")
+	ATrapBase* ActiveTrapComponentProxy = nullptr;
 
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
@@ -81,17 +79,21 @@ public:
 	
 	UFUNCTION()
 	void SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation);
+	
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
 	
-	UFUNCTION()
-	ATimberBuildingComponentBase* GetActiveBuildingComponent();
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
 
 	/*Getters & Setters*/
+	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() {return ActiveBuildableComponentClass;} ;
+	
+	UFUNCTION()
+	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponentProxy;};
+	
 	UFUNCTION(BlueprintCallable, Category="Building Component")
-	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildingComponentClass = BuildingComponentClass;};
-	FORCEINLINE TSubclassOf<AActor> GetActiveBuildingComponentClass() {return ActiveBuildingComponentClass;} ;
+	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildableComponentClass = BuildingComponentClass;};
+	
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
 
 	/*Component Snapping */

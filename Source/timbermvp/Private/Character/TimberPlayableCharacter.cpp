@@ -90,29 +90,82 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 }
 
 
+void ATimberPlayableCharacter::ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass)
+{
+	if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+	{
+		if(BuildSystemManager->GetActiveBuildingComponent())
+		{
+			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
+			BuildSystemManager->SetActiveBuildingComponentToNull();
+		}
+	}
+
+	if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
+	{
+		if(BuildSystemManager->GetActiveTrapComponent())
+		{
+			BuildSystemManager->GetActiveTrapComponent()->Destroy();
+			BuildSystemManager->SetActiveTrapComponentToNull();
+		}
+	}
+}
 
 void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 {
 	TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
 	if (bHits)
 	{
-		/*
-		 * 1st Hit: Quadrant Box Component - HitResult['0']
-		 * 2nd Hit: Static Mesh of Building Component Actor - HitResult['1']
-		 */
-		
 		/* Hit Something/Anything */
 		DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
-
-		
 		
 		if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 		{
+			// This just spawns the trap component proxy if it doesn't exist or if its different then the ActiveBuildableClass
+			// This is the first time the trap component is spawned.
+			// Hit - Not a Building Component
+			// Cant be Final Spawned
+			ATrapBase* ActiveTrapComponentProxy = BuildSystemManager->GetActiveTrapComponent();
+			if(ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass()!= BuildSystemManager->GetActiveBuildableClass())
+			{
+				BuildSystemManager->SpawnTrapComponentProxy(HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
+				if(ActiveTrapComponentProxy)
+				{
+					ActiveTrapComponentProxy->IsTrapFinalized = false;
+				}
+			}
 
-			//Handle Trap Placement - Has Access to HitResults
+			// Getting the first hit Building Component
+			ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
+			for(const FHitResult& Hits : HitResults)
+			{
+				if(Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
+				{
+					FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
+					break;
+				}
+			}
+
+			//Hit a Building Component
+			if(FirstHitBuildingComponent)
+			{
+					BuildSystemManager->MoveBuildingComponent
+					(FVector_NetQuantize(FirstHitBuildingComponent->CenterSnap->GetComponentTransform().GetLocation()), 
+					ActiveTrapComponentProxy);
+			}
+			else
+			{
+				if(ActiveTrapComponentProxy)
+				{
+					BuildSystemManager->MoveBuildingComponent(HitResults[0].TraceEnd, ActiveTrapComponentProxy);
+				}
+			}
+
+			//If there is a hit, but it's not a building component, move the trap component around.
 			
 		}
-		else if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+		
+		if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 		{
 			// Spawning ActiveBuildingComponent if it doesn't exist or if its different then the ActiveBuildingComponentClass
 			ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->GetActiveBuildingComponent();
@@ -123,6 +176,12 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 			
 			if (HandleBuildingComponentPlacement()) return;
 		}
+		
+	}
+	else
+	{
+		//No Hits, just don't show anything, clear the variables.
+		ResetBuildableComponents(ActiveBuildableClass);
 	}
 }
 
@@ -156,7 +215,7 @@ bool ATimberPlayableCharacter::HandleBuildingComponentPlacement()
 		if(BuildSystemManager->GetActiveBuildingComponent())
 		{
 			/*Simple Move to Location*/
-			BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint);
+			BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint, BuildSystemManager->GetActiveBuildingComponent());
 		}
 		
 	}

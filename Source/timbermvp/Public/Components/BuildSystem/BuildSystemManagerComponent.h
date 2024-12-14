@@ -66,7 +66,6 @@ protected:
 	float GhostOpacity = 0.5f;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
@@ -74,7 +73,9 @@ public:
 
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
-	void MoveBuildingComponent(FVector_NetQuantize Location);
+	UFUNCTION()
+	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
+	void MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* BuildingComponent);
 	void RotateBuildingComponent();
 	
 	UFUNCTION()
@@ -90,10 +91,14 @@ public:
 	
 	UFUNCTION()
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponentProxy;};
+
+	UFUNCTION()
+	FORCEINLINE ATrapBase* GetActiveTrapComponent() const {return ActiveTrapComponentProxy;};
 	
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildableComponentClass = BuildingComponentClass;};
-	
+	FORCEINLINE void SetActiveBuildingComponentToNull() {ActiveBuildingComponentProxy = nullptr;};
+	FORCEINLINE void SetActiveTrapComponentToNull() {ActiveTrapComponentProxy = nullptr;};
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
 
 	/*Component Snapping */

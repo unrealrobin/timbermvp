@@ -46,4 +46,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
+	bool IsTrapFinalized = false;
 };

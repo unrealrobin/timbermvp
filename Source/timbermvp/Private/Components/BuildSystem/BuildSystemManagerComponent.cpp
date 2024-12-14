@@ -5,6 +5,7 @@
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildSystem/BuildingComponents/TimberHorizontalBuildingComponent.h"
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
+#include "BuildSystem/Traps/TrapBase.h"
 #include "UObject/GarbageCollectionSchema.h"
 
 // Sets default values for this component's properties
@@ -414,13 +415,27 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 	}
 }
 
-void UBuildSystemManagerComponent::MoveBuildingComponent(FVector_NetQuantize Location)
+void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator)
 {
-	if(ActiveBuildingComponentProxy)
+	FActorSpawnParameters SpawnParameters;
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(ActiveBuildableComponentClass,
+		Location,
+		SpawnRotator,
+		SpawnParameters);
+	if(SpawnedActor)
+	{
+		ActiveTrapComponentProxy = Cast<ATrapBase>(SpawnedActor);
+	}
+}
+
+void UBuildSystemManagerComponent::MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* BuildingComponent)
+{
+	if(BuildingComponent)
 	{
 		//REMEMBER to change this back in the future if you want some snapping.
 		//ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
-		ActiveBuildingComponentProxy->SetActorLocation(Location);
+		BuildingComponent->SetActorLocation(Location);
 	}
 }
 

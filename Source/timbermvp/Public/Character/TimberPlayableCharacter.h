@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildSystem/BuildableBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
@@ -101,6 +102,7 @@ public:
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
+	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 	bool HandleBuildingComponentPlacement();
 
 	UPROPERTY(EditAnywhere, Category="Build System Info")

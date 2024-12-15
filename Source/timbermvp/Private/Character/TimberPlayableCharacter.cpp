@@ -89,28 +89,6 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 	}
 }
 
-
-void ATimberPlayableCharacter::ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass)
-{
-	if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-	{
-		if(BuildSystemManager->GetActiveBuildingComponent())
-		{
-			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
-			BuildSystemManager->SetActiveBuildingComponentToNull();
-		}
-	}
-
-	if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
-	{
-		if(BuildSystemManager->GetActiveTrapComponent())
-		{
-			BuildSystemManager->GetActiveTrapComponent()->Destroy();
-			BuildSystemManager->SetActiveTrapComponentToNull();
-		}
-	}
-}
-
 void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 {
 	TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
@@ -131,10 +109,9 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 				BuildSystemManager->SpawnTrapComponentProxy(HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
 				if(ActiveTrapComponentProxy)
 				{
-					ActiveTrapComponentProxy->IsTrapFinalized = false;
+					ActiveTrapComponentProxy->CanTrapBeFinalized = false;
 				}
 			}
-
 			// Getting the first hit Building Component
 			ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
 			for(const FHitResult& Hits : HitResults)
@@ -145,26 +122,24 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 					break;
 				}
 			}
-
 			//Hit a Building Component
 			if(FirstHitBuildingComponent)
 			{
 					BuildSystemManager->MoveBuildingComponent
 					(FVector_NetQuantize(FirstHitBuildingComponent->CenterSnap->GetComponentTransform().GetLocation()), 
-					ActiveTrapComponentProxy);
+					ActiveTrapComponentProxy,
+					FirstHitBuildingComponent->GetActorRotation());
+					BuildSystemManager->GetActiveTrapComponent()->CanTrapBeFinalized = true;
 			}
-			else
+			else //Hit - Not a Building Component
 			{
 				if(ActiveTrapComponentProxy)
 				{
-					BuildSystemManager->MoveBuildingComponent(HitResults[0].TraceEnd, ActiveTrapComponentProxy);
+					BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint, ActiveTrapComponentProxy, 
+					HitResults[0].GetActor()->GetActorRotation());
 				}
 			}
-
-			//If there is a hit, but it's not a building component, move the trap component around.
-			
 		}
-		
 		if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 		{
 			// Spawning ActiveBuildingComponent if it doesn't exist or if its different then the ActiveBuildingComponentClass
@@ -173,15 +148,13 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 			{
 				BuildSystemManager->SpawnBuildingComponentProxy(HitResults[0].ImpactPoint, GetActorRotation());
 			}
-			
 			if (HandleBuildingComponentPlacement()) return;
 		}
-		
 	}
 	else
 	{
 		//No Hits, just don't show anything, clear the variables.
-		ResetBuildableComponents(ActiveBuildableClass);
+		BuildSystemManager->ResetBuildableComponents(ActiveBuildableClass);
 	}
 }
 

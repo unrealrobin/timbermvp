@@ -63,6 +63,27 @@ void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult Hi
 	
 }
 
+void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass)
+{
+	if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+	{
+		if(GetActiveBuildingComponent())
+		{
+			GetActiveBuildingComponent()->Destroy();
+			SetActiveBuildingComponentToNull();
+		}
+	}
+
+	if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
+	{
+		if(GetActiveTrapComponent())
+		{
+			GetActiveTrapComponent()->Destroy();
+			SetActiveTrapComponentToNull();
+		}
+	}
+}
+
 int UBuildSystemManagerComponent::SnappingCondition(
 	EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2)
 {
@@ -168,9 +189,9 @@ void UBuildSystemManagerComponent::SameOrientationSnapCondition(FHitResult HitAc
 	}
 }
 
-void UBuildSystemManagerComponent::RotateProxyToSnapRotation(FRotator HitActorRotation)
+void UBuildSystemManagerComponent::RotateProxyToSnapRotation(FRotator HitActorRotation, ABuildableBase* BuildingComponent)
 {
-	ActiveBuildingComponentProxy->SetActorRotation(HitActorRotation);
+	BuildingComponent->SetActorRotation(HitActorRotation);
 }
 
 void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant)
@@ -279,7 +300,6 @@ void UBuildSystemManagerComponent::HorizontalToVerticalSnapCondition(FHitResult 
 
 void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation)
 {
-	UE_LOG(LogTemp, Warning, TEXT("MoveToProxyLocation Function Fired."))
 	//Returns a vector
 	FVector MoveLocation = SnapLocation - ProxySnapLocation;
 	FVector CurrentLocation = ActiveBuildingComponentProxy->GetActorLocation();
@@ -362,6 +382,7 @@ FRotator UBuildSystemManagerComponent::SnapToRotation(FRotator CharactersRotatio
 	return SavedRotation;
 }
 
+/* Material Shading */
 void UBuildSystemManagerComponent::MakeBuildingComponentProxy(AActor* BuildingComponentProxy)
 {
 	//Get the Static MeshComponent of the passed in Building Component
@@ -429,11 +450,18 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 	}
 }
 
-void UBuildSystemManagerComponent::MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* BuildingComponent)
+void UBuildSystemManagerComponent::MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* 
+BuildingComponent, const FRotator& Rotation)
 {
 	if(BuildingComponent)
 	{
-		//REMEMBER to change this back in the future if you want some snapping.
+		//OnHits we will pass in the Rotation of the HitActor so the Components Match its Rotation
+		if(Rotation != FRotator::ZeroRotator)
+		{
+			GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Rotated Trap to match Building Component.");
+			BuildingComponent->SetActorRotation(Rotation);
+		}
+			//REMEMBER to change this back in the future if you want some snapping.
 		//ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
 		BuildingComponent->SetActorLocation(Location);
 	}

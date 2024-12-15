@@ -48,5 +48,5 @@ public:
 	FSlateBrush BuildingComponentIconImage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
-	bool IsTrapFinalized = false;
+	bool CanTrapBeFinalized = false;
 };

@@ -102,7 +102,6 @@ public:
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
-	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 	bool HandleBuildingComponentPlacement();
 
 	UPROPERTY(EditAnywhere, Category="Build System Info")

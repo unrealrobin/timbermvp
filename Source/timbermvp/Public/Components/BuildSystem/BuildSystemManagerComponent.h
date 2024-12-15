@@ -51,7 +51,7 @@ protected:
 	UFUNCTION()
 	void SameOrientationSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
-	void RotateProxyToSnapRotation(FRotator HitActorRotation);
+	void RotateProxyToSnapRotation(FRotator HitActorRotation, ABuildableBase* BuildingComponent);
 	UFUNCTION()
 	void VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
@@ -70,12 +70,14 @@ public:
 
 	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
+	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
-	void MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* BuildingComponent);
+	void MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation 
+	= FRotator::ZeroRotator);
 	void RotateBuildingComponent();
 	
 	UFUNCTION()
@@ -85,7 +87,6 @@ public:
 	FRotator FinalSpawnRotation;
 	
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
-
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() {return ActiveBuildableComponentClass;} ;
 	

@@ -307,6 +307,41 @@ void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLoca
 	
 }
 
+// Returns the closest snap location based on the impact point of the raycast for the building component.
+FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
+	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent)
+{
+	if(BuildingComponent->FrontTrapSnap && BuildingComponent->BackTrapSnap)
+	{
+		FTrapSnapData TrapSnapData;
+		FVector FrontTrapSnapLocation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetLocation();
+		FVector BackTrapSnapLocation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetLocation();
+
+		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
+		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
+
+		if(LengthToFrontTrapSnap < LengthToBackTrapSnap)
+		{
+			GEngine->AddOnScreenDebugMessage(6, 5.0f, FColor::Red, "FrontSnap.");
+			TrapSnapData.TrapLocation = FrontTrapSnapLocation;
+			TrapSnapData.TrapRotation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetRotation().Rotator();
+			return TrapSnapData;
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap.");
+			TrapSnapData.TrapLocation = BackTrapSnapLocation;
+			TrapSnapData.TrapRotation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetRotation().Rotator();
+			return TrapSnapData;
+		}
+		
+	}else
+	{
+		return FTrapSnapData();
+	}
+	
+}
+
 EBuildingComponentOrientation UBuildSystemManagerComponent::CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked)
 {
 	

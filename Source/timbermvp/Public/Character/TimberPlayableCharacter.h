@@ -102,6 +102,7 @@ public:
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
+	void HandleTrapPlacement();
 	bool HandleBuildingComponentPlacement();
 
 	UPROPERTY(EditAnywhere, Category="Build System Info")
@@ -113,6 +114,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category="Build System Info")
 	TArray<FHitResult> HitResults;
+	FVector BuildingComponentImpactPoint;
 
 	UFUNCTION()
 	void ExitBuildMode();

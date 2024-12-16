@@ -13,6 +13,23 @@ class IBuildable;
 enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
 
+USTRUCT(BlueprintType)
+struct FTrapSnapData
+{
+	GENERATED_BODY()
+
+public:
+	FTrapSnapData()
+		: TrapLocation(FVector::ZeroVector), TrapRotation(FRotator::ZeroRotator)
+	{
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Struct Example")
+	FVector TrapLocation;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Trup Snap Data")
+	FRotator TrapRotation;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TIMBERMVP_API UBuildSystemManagerComponent : public UActorComponent
 {
@@ -101,6 +118,11 @@ public:
 	FORCEINLINE void SetActiveBuildingComponentToNull() {ActiveBuildingComponentProxy = nullptr;};
 	FORCEINLINE void SetActiveTrapComponentToNull() {ActiveTrapComponentProxy = nullptr;};
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
+
+	/*Buildable Placement Functions*/
+
+	FTrapSnapData GetTrapSnapTransform(FVector ImpactPoint, ATimberBuildingComponentBase* 
+	BuildingComponent);
 
 	/*Component Snapping */
 	UFUNCTION(BlueprintCallable, Category="Building")

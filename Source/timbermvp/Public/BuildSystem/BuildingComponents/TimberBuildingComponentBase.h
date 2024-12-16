@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BuildSystem/BuildableBase.h"
+#include "BuildSystem/Traps/TrapBase.h"
 #include "GameFramework/Actor.h"
 #include "Styling/SlateBrush.h"
 #include "TimberBuildingComponentBase.generated.h"
@@ -73,6 +74,16 @@ public:
 	USceneComponent* LeftSnap;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* CenterSnap;
+
+	/* Trap Snap Locations */
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
+	USceneComponent* FrontTrapSnap;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
+	USceneComponent* BackTrapSnap;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
+	ATrapBase* FrontTrap = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
+	ATrapBase* BackTrap = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
 	UBoxComponent* TopQuadrant;

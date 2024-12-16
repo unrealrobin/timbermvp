@@ -99,47 +99,9 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		
 		if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 		{
-			// This just spawns the trap component proxy if it doesn't exist or if its different then the ActiveBuildableClass
-			// This is the first time the trap component is spawned.
-			// Hit - Not a Building Component
-			// Cant be Final Spawned
-			ATrapBase* ActiveTrapComponentProxy = BuildSystemManager->GetActiveTrapComponent();
-			if(ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass()!= BuildSystemManager->GetActiveBuildableClass())
-			{
-				BuildSystemManager->SpawnTrapComponentProxy(HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
-				if(ActiveTrapComponentProxy)
-				{
-					ActiveTrapComponentProxy->CanTrapBeFinalized = false;
-				}
-			}
-			// Getting the first hit Building Component
-			ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
-			for(const FHitResult& Hits : HitResults)
-			{
-				if(Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
-				{
-					FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
-					break;
-				}
-			}
-			//Hit a Building Component
-			if(FirstHitBuildingComponent)
-			{
-					BuildSystemManager->MoveBuildingComponent
-					(FVector_NetQuantize(FirstHitBuildingComponent->CenterSnap->GetComponentTransform().GetLocation()), 
-					ActiveTrapComponentProxy,
-					FirstHitBuildingComponent->GetActorRotation());
-					BuildSystemManager->GetActiveTrapComponent()->CanTrapBeFinalized = true;
-			}
-			else //Hit - Not a Building Component
-			{
-				if(ActiveTrapComponentProxy)
-				{
-					BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint, ActiveTrapComponentProxy, 
-					HitResults[0].GetActor()->GetActorRotation());
-				}
-			}
+			HandleTrapPlacement();
 		}
+		
 		if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 		{
 			// Spawning ActiveBuildingComponent if it doesn't exist or if its different then the ActiveBuildingComponentClass
@@ -195,6 +157,51 @@ bool ATimberPlayableCharacter::HandleBuildingComponentPlacement()
 	return false;
 }
 
+void ATimberPlayableCharacter::HandleTrapPlacement()
+{
+	ATrapBase* ActiveTrapComponentProxy = BuildSystemManager->GetActiveTrapComponent();
+	if(ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass()!= BuildSystemManager->GetActiveBuildableClass())
+	{
+		BuildSystemManager->SpawnTrapComponentProxy(HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
+		if(ActiveTrapComponentProxy)
+		{
+			ActiveTrapComponentProxy->CanTrapBeFinalized = false;
+		}
+	}
+	// Getting the first hit Building Component
+	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
+	for(const FHitResult& Hits : HitResults)
+	{
+		if(Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
+		{
+			FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
+			BuildingComponentImpactPoint = Hits.ImpactPoint;
+			break;
+		}
+	}
+	//Hit a Building Component
+	if(FirstHitBuildingComponent)
+	{
+		FTrapSnapData TrapSnapData = BuildSystemManager->GetTrapSnapTransform(BuildingComponentImpactPoint,
+		 FirstHitBuildingComponent);
+		
+		BuildSystemManager->MoveBuildingComponent
+		(FVector_NetQuantize(TrapSnapData.TrapLocation), 
+		 ActiveTrapComponentProxy,
+		 TrapSnapData.TrapRotation);
+		
+		BuildSystemManager->GetActiveTrapComponent()->CanTrapBeFinalized = true;
+	}
+	else //Hit - Not a Building Component
+	{
+		if(ActiveTrapComponentProxy)
+		{
+			BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint, ActiveTrapComponentProxy, 
+													  HitResults[0].GetActor()->GetActorRotation());
+		}
+	}
+}
+
 bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 {
 	//TODO:: Can we somehow get an array of hitresult from the RaycastMulti and check if the array contrains a Building Component?
@@ -245,7 +252,6 @@ void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
 {
 	ShouldRaycast = !bIsBuildMenuOpen;
 }
-
 
 /*Death & Damage*/
 

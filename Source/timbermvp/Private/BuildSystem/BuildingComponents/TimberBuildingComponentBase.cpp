@@ -90,6 +90,10 @@ void ATimberBuildingComponentBase::CreateSnapPoints()
 	RightSnap->SetupAttachment(RootComponent);
 	CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
 	CenterSnap->SetupAttachment(RootComponent);
+	FrontTrapSnap = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
+	FrontTrapSnap->SetupAttachment(RootComponent);
+	BackTrapSnap = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
+	BackTrapSnap->SetupAttachment(RootComponent);
 }
 
 void ATimberBuildingComponentBase::CreateQuadrantComponents()

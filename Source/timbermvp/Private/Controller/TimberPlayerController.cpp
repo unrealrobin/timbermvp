@@ -482,16 +482,10 @@ void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& V
 void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Value)
 {
 	
-
 	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
 	if(BuildSystemManager)
 	{
-		BuildSystemManager->SpawnFinalBuildingComponent(BuildSystemManager->FinalSpawnLocation, BuildSystemManager->FinalSpawnRotation);
-		
-		if(GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(4, 5.0f, FColor::Green, "LMB Key Pressed in Build Mode");
-		}
+		BuildSystemManager->SpawnFinalBuildingComponent();
 	}
 	
 }

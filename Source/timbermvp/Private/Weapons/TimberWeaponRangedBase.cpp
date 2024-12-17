@@ -49,7 +49,9 @@ void ATimberWeaponRangedBase::FireRangedWeapon()
 
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = WeaponOwner;
-			SpawnParams.Instigator = Cast<APawn>(this);
+
+			//TODO:: if you've had no issues delete this. 
+			//SpawnParams.Instigator = Cast<APawn>(this);
 
 			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, 
 			ProjectileSpawnLocation, ControllerDirection, SpawnParams);

@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildSystem/Traps/TrapBase.h"
 #include "Components/ActorComponent.h"
 #include "BuildSystemManagerComponent.generated.h"
 
 
+enum class EBuildingComponentTrapDirection : uint8;
 class ATrapBase;
 class ABuildableBase;
 class IBuildable;
@@ -24,7 +26,7 @@ public:
 	{
 	}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Struct Example")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Snap Data")
 	FVector TrapLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Trup Snap Data")
 	FRotator TrapRotation;
@@ -79,6 +81,8 @@ protected:
 
 	/* @params - GhostOpacity */
 	void MakeBuildingComponentProxy(AActor* BuildingComponentProxy);
+	bool SpawnFinalTrap(FActorSpawnParameters SpawnParameters);
+	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
 	//How transparent to make the Proxy Material Color
 	float GhostOpacity = 0.5f;
 
@@ -98,7 +102,7 @@ public:
 	void RotateBuildingComponent();
 	
 	UFUNCTION()
-	void SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation);
+	void SpawnFinalBuildingComponent();
 	
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
@@ -121,8 +125,10 @@ public:
 
 	/*Buildable Placement Functions*/
 
-	FTrapSnapData GetTrapSnapTransform(FVector ImpactPoint, ATimberBuildingComponentBase* 
-	BuildingComponent);
+	FTrapSnapData GetTrapSnapTransform(
+		FVector ImpactPoint, ATimberBuildingComponentBase* 
+		BuildingComponent, ATrapBase* TrapComponent);
+	
 
 	/*Component Snapping */
 	UFUNCTION(BlueprintCallable, Category="Building")

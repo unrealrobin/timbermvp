@@ -75,7 +75,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* CenterSnap;
 
-	/* Trap Snap Locations */
+	/* Trap Snap Locations & Slots */
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* FrontTrapSnap;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")

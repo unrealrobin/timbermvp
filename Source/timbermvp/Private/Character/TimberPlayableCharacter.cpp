@@ -115,8 +115,9 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 	}
 	else
 	{
-		//No Hits, just don't show anything, clear the variables.
-		BuildSystemManager->ResetBuildableComponents(ActiveBuildableClass);
+		//TODO:: This can be reduced and simplified 
+		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
+		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 	}
 }
 
@@ -159,16 +160,19 @@ bool ATimberPlayableCharacter::HandleBuildingComponentPlacement()
 
 void ATimberPlayableCharacter::HandleTrapPlacement()
 {
+	//SPAWNING TRAP COMPONENT
 	ATrapBase* ActiveTrapComponentProxy = BuildSystemManager->GetActiveTrapComponent();
 	if(ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass()!= BuildSystemManager->GetActiveBuildableClass())
 	{
 		BuildSystemManager->SpawnTrapComponentProxy(HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
+		
 		if(ActiveTrapComponentProxy)
 		{
 			ActiveTrapComponentProxy->CanTrapBeFinalized = false;
 		}
 	}
-	// Getting the first hit Building Component
+	
+	// LOOKING FOR HITS ON A BUILDING COMPONENT
 	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
 	for(const FHitResult& Hits : HitResults)
 	{
@@ -179,26 +183,36 @@ void ATimberPlayableCharacter::HandleTrapPlacement()
 			break;
 		}
 	}
-	//Hit a Building Component
+	
+	//HIT A BUILDING COMPONENT
 	if(FirstHitBuildingComponent)
 	{
+		// Pairing the trap with the wall its Hovering over.
+		if(ActiveTrapComponentProxy)
+		{
+			ActiveTrapComponentProxy->HoveredBuildingComponent = FirstHitBuildingComponent;
+		}
+		
 		FTrapSnapData TrapSnapData = BuildSystemManager->GetTrapSnapTransform(BuildingComponentImpactPoint,
-		 FirstHitBuildingComponent);
-		
+		                                                                      FirstHitBuildingComponent, BuildSystemManager->GetActiveTrapComponent());
 		BuildSystemManager->MoveBuildingComponent
-		(FVector_NetQuantize(TrapSnapData.TrapLocation), 
-		 ActiveTrapComponentProxy,
-		 TrapSnapData.TrapRotation);
-		
-		BuildSystemManager->GetActiveTrapComponent()->CanTrapBeFinalized = true;
+			(FVector_NetQuantize(TrapSnapData.TrapLocation), 
+			 ActiveTrapComponentProxy,
+			 TrapSnapData.TrapRotation);
 	}
-	else //Hit - Not a Building Component
+	else 
 	{
 		if(ActiveTrapComponentProxy)
 		{
-			BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint, ActiveTrapComponentProxy, 
-													  HitResults[0].GetActor()->GetActorRotation());
+			ActiveTrapComponentProxy->HoveredBuildingComponent = nullptr;
+			if(HitResults[0].ImpactPoint != FVector::ZeroVector)
+			{
+				BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint, ActiveTrapComponentProxy, 
+				HitResults[0].GetActor()->GetActorRotation());
+			}
 		}
+		
+		
 	}
 }
 

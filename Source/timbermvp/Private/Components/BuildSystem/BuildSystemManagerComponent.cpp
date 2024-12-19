@@ -2,16 +2,20 @@
 
 
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
+#include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildSystem/BuildingComponents/TimberHorizontalBuildingComponent.h"
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
 #include "BuildSystem/Traps/TrapBase.h"
+#include "BuildSystem/BuildableBase.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
+
+	
 }
 
 void UBuildSystemManagerComponent::BeginPlay()
@@ -23,7 +27,6 @@ void UBuildSystemManagerComponent::BeginPlay()
 void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
 }
 
 /*Component to Component Snapping*/
@@ -358,8 +361,95 @@ FRotator UBuildSystemManagerComponent::SnapToRotation(FRotator CharactersRotatio
 	
 	return SavedRotation;
 }
+// Returns the closest snap location based on the impact point of the raycast for the building component.
+FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
+	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponent)
+{
+	// Default Snap Data is facing the player at the impact point
+	FTrapSnapData TrapSnapData;
+	TrapSnapData.TrapLocation = ImpactPoint;
+	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
+	TrapSnapData.TrapRotation.Yaw += 90;
+	
+	if(BuildingComponent->FrontTrapSnap && BuildingComponent->BackTrapSnap)
+	{
+
+		/* Getting Distance from impact point to the closest scene component
+		 * that would always give the side of the wall/floor/ceiling's Snap location
+		 */
+		
+		FVector FrontTrapSnapLocation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetLocation();
+		FVector BackTrapSnapLocation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetLocation();
+		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
+		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
+
+		if(LengthToFrontTrapSnap < LengthToBackTrapSnap)
+		{//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
+			if(BuildingComponent->FrontTrap == nullptr)
+			{
+				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetRotation().Rotator();
+				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
+				TrapComponent->SetCanTrapBeFinalized(true);
+				
+			}
+			else
+			{
+				//TODO:: Make Trap Red to indicate it cannot be placed there. 
+				TrapComponent->SetCanTrapBeFinalized(false);
+				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
+			}
+			
+		}
+		else
+		{
+			if(BuildingComponent->BackTrap == nullptr)
+			{
+				TrapSnapData.TrapLocation = BackTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetRotation().Rotator();
+				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
+				TrapComponent->SetCanTrapBeFinalized(true);
+			}
+			else
+			{
+				TrapComponent->SetCanTrapBeFinalized(false);
+				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap Taken.");
+			}
+		}
+	}
+	else
+	{
+		TrapComponent->SetCanTrapBeFinalized(false);
+		TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+	}
+	return TrapSnapData;
+}
 
 /* Material Shading */
+void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinalized)
+{
+	if(bCanTrapBeFinalized)
+	{
+		GEngine->AddOnScreenDebugMessage(3, 4.0, FColor::Red, "Trap Can Be Finalized. Setting Color to Blue.");
+		MakeMaterialHoloColor(ActiveTrapComponentProxy, BlueHoloMaterial);
+	}else
+	{
+		GEngine->AddOnScreenDebugMessage(3, 4.0, FColor::Red, "Trap Cant Be Finalized. Setting Color to Red.");
+		MakeMaterialHoloColor(ActiveTrapComponentProxy, RedHoloMaterial);
+	}
+}
+
+void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponent)
+{
+	if(TrapComponent)
+	{
+		TrapComponent->OnTrapFinalizationChange.AddDynamic(this, &UBuildSystemManagerComponent::HandleTrapMaterialChange);
+		HandleTrapMaterialChange(TrapComponent->GetCanTrapBeFinalized());
+	}
+}
+
 void UBuildSystemManagerComponent::MakeBuildingComponentProxy(AActor* BuildingComponentProxy)
 {
 	//Get the Static MeshComponent of the passed in Building Component
@@ -385,6 +475,44 @@ void UBuildSystemManagerComponent::MakeBuildingComponentProxy(AActor* BuildingCo
 			}
 		}
 	}
+}
+
+void UBuildSystemManagerComponent::GetStaticMeshComponents(AActor* BuildingComponentActor)
+{
+	if(BuildingComponentActor)
+	{
+		//Gets static Meshes and returns them to the GlobalArray.
+		BuildingComponentActor->GetComponents<UStaticMeshComponent>(StaticMeshs);
+	}
+}
+
+void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor)
+{
+	if(StaticMeshs.Num() == 0)
+	{
+		GetStaticMeshComponents(BuildingComponentActor);
+	}
+	
+	if(StaticMeshs.Num() > 0)
+	{
+		GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Green, "Changing mesh color now.");
+		for(UStaticMeshComponent* MeshComponent : StaticMeshs)
+		{
+			if(MeshComponent && MeshComponent->GetStaticMesh())
+			{
+				TArray<FStaticMaterial> MaterialSlots = MeshComponent->GetStaticMesh()->GetStaticMaterials();
+				for(int Index = 0; Index < MaterialSlots.Num(); Index++)
+				{
+					
+					if(HoloMaterialColor)
+					{
+						MeshComponent->SetMaterial(Index, HoloMaterialColor);
+					}
+				}
+			}
+		}
+	}
+	
 }
 
 /* Spawn */
@@ -435,6 +563,9 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 
 void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator)
 {
+	//Clearing any existing stored Static Meshes from Previous Trap Proxies
+	ClearStoredStaticMeshes();
+	
 	FActorSpawnParameters SpawnParameters;
 	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(ActiveBuildableComponentClass,
@@ -444,13 +575,16 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 	if(SpawnedActor)
 	{
 		ActiveTrapComponentProxy = Cast<ATrapBase>(SpawnedActor);
-		MakeBuildingComponentProxy(ActiveTrapComponentProxy);
+
+		
+		//Binding the Delegate Call to the newly Spawned Trap Component
+		RegisterTrapComponent(ActiveTrapComponentProxy);
 	}
 }
 
 bool UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnParameters)
 {
-	if(ActiveTrapComponentProxy->CanTrapBeFinalized == true)
+	if(ActiveTrapComponentProxy && ActiveTrapComponentProxy->GetCanTrapBeFinalized())
 	{
 		//Spawn Final Trap
 		GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
@@ -494,7 +628,6 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 	 ActiveBuildingComponentProxy->GetActorLocation(),
 	 ActiveBuildingComponentProxy->GetActorRotation(), 
 	 SpawnParameters);
-
 	SpawnedActor->SetActorEnableCollision(true);
 }
 
@@ -511,74 +644,8 @@ BuildingComponent, const FRotator& Rotation)
 		}
 		//REMEMBER to change this back in the future if you want some snapping.
 		//ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
+		
 		BuildingComponent->SetActorLocation(Location);
-	}
-}
-
-// Returns the closest snap location based on the impact point of the raycast for the building component.
-FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
-	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponent)
-{
-	if(BuildingComponent->FrontTrapSnap && BuildingComponent->BackTrapSnap)
-	{
-
-		/* Getting Distance from impact point to the closest scene component
-		 * that would always give the side of the wall/floor/ceiling's Snap location
-		 */
-		FTrapSnapData TrapSnapData;
-		FVector FrontTrapSnapLocation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetLocation();
-		FVector BackTrapSnapLocation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetLocation();
-		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
-		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
-
-		if(LengthToFrontTrapSnap < LengthToBackTrapSnap)
-		{
-			GEngine->AddOnScreenDebugMessage(6, 5.0f, FColor::Red, "FrontSnap.");
-			
-			//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
-			if(BuildingComponent->FrontTrap == nullptr)
-			{
-				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetRotation().Rotator();
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
-				GetActiveTrapComponent()->CanTrapBeFinalized = true;
-				return TrapSnapData;
-			}
-			else
-			{
-				//TODO:: Make Trap Red to indicate it cannot be placed there. 
-				TrapComponent->CanTrapBeFinalized = false;
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
-				return FTrapSnapData();
-			}
-			
-		}
-		else //If the BackSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
-		{
-			GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap.");
-			if(BuildingComponent->BackTrap == nullptr)
-			{
-				TrapSnapData.TrapLocation = BackTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetRotation().Rotator();
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
-				GetActiveTrapComponent()->CanTrapBeFinalized = true;
-				return TrapSnapData;
-			}
-			else
-			{
-				//TODO:: Make Trap Red to indicate it cannot be placed there. 
-				TrapComponent->CanTrapBeFinalized = false;
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap Taken.");
-				return FTrapSnapData();
-				
-			}
-		}
-	}
-	else
-	{
-		return FTrapSnapData();
 	}
 }
 

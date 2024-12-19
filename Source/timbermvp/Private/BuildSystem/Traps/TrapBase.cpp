@@ -26,6 +26,8 @@ void ATrapBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
+	
 }
 
 void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
@@ -37,5 +39,16 @@ void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
 void ATrapBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ATrapBase::SetCanTrapBeFinalized(bool bCanTrapBeFinalized)
+{
+	if(bCanTrapBeFinalized != CanTrapBeFinalized)
+	{
+		CanTrapBeFinalized = bCanTrapBeFinalized;
+		GEngine->AddOnScreenDebugMessage(4, 3.0, FColor::Black, "Broadcasting Trap Finalization", false);
+		OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
+	}
+
 }
 

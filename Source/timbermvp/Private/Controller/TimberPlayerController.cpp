@@ -421,16 +421,8 @@ void ATimberPlayerController::RemoveBuildingComponentProxy()
 	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
 	if(BuildSystemManager)
 	{
-		ATimberBuildingComponentBase* ActiveComponent = BuildSystemManager->GetActiveBuildingComponent();
-  		//Destroy the Active Building Component if it exists.
-		if(ActiveComponent) 
-		{
-			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
-		}
-
-		//After utilizing the proxy for visualization, we destroy the proxy and then empty the active build component.
-		// This will be set again when ray-casting on a new frame.
-		BuildSystemManager->EmptyActiveBuildingComponent();
+		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
+		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 	}
 
 	if(GEngine)

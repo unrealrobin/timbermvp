@@ -11,7 +11,6 @@
 enum class EBuildingComponentTrapDirection : uint8;
 class ATrapBase;
 class ABuildableBase;
-class IBuildable;
 enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
 
@@ -42,7 +41,6 @@ public:
 	UBuildSystemManagerComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	//Should match the Width of the most common Building Component.
@@ -86,15 +84,40 @@ protected:
 	//How transparent to make the Proxy Material Color
 	float GhostOpacity = 0.5f;
 
-public:	
+	/*Static Mesh Utilities*/
+	UPROPERTY(VisibleAnywhere, Category="Building Component")
+	TArray<UStaticMeshComponent*> StaticMeshs;
+	void GetStaticMeshComponents(AActor* BuildingComponentActor);
+	UFUNCTION()
+	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
+	UMaterial* RedHoloMaterial;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
+	UMaterial* YellowHoloMaterial;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
+	UMaterial* BlueHoloMaterial;
+
+
+public:
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
+	void HandleTrapMaterialChange(bool bCanTrapBeFinalized);
+	
+	/*Registering Buildable*/
+	void RegisterTrapComponent(ATrapBase* TrapComponent);
+
+	UFUNCTION()
+	FORCEINLINE void ClearStoredStaticMeshes() {StaticMeshs.Empty();};
+	
 	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
 	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
+	
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
 	void MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation 
@@ -124,7 +147,6 @@ public:
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
 
 	/*Buildable Placement Functions*/
-
 	FTrapSnapData GetTrapSnapTransform(
 		FVector ImpactPoint, ATimberBuildingComponentBase* 
 		BuildingComponent, ATrapBase* TrapComponent);

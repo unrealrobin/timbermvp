@@ -160,6 +160,8 @@ bool ATimberPlayableCharacter::HandleBuildingComponentPlacement()
 
 void ATimberPlayableCharacter::HandleTrapPlacement()
 {
+	//Just to get Here the Raycast must of hit something.
+	
 	//SPAWNING TRAP COMPONENT
 	ATrapBase* ActiveTrapComponentProxy = BuildSystemManager->GetActiveTrapComponent();
 	if(ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass()!= BuildSystemManager->GetActiveBuildableClass())
@@ -168,7 +170,7 @@ void ATimberPlayableCharacter::HandleTrapPlacement()
 		
 		if(ActiveTrapComponentProxy)
 		{
-			ActiveTrapComponentProxy->CanTrapBeFinalized = false;
+			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
 		}
 	}
 	
@@ -191,24 +193,28 @@ void ATimberPlayableCharacter::HandleTrapPlacement()
 		if(ActiveTrapComponentProxy)
 		{
 			ActiveTrapComponentProxy->HoveredBuildingComponent = FirstHitBuildingComponent;
+
+			FTrapSnapData TrapSnapData = BuildSystemManager->GetTrapSnapTransform(BuildingComponentImpactPoint,
+																			  FirstHitBuildingComponent, BuildSystemManager->GetActiveTrapComponent());
+			BuildSystemManager->MoveBuildingComponent
+				(FVector_NetQuantize(TrapSnapData.TrapLocation), 
+				 ActiveTrapComponentProxy,
+				 TrapSnapData.TrapRotation);
 		}
 		
-		FTrapSnapData TrapSnapData = BuildSystemManager->GetTrapSnapTransform(BuildingComponentImpactPoint,
-		                                                                      FirstHitBuildingComponent, BuildSystemManager->GetActiveTrapComponent());
-		BuildSystemManager->MoveBuildingComponent
-			(FVector_NetQuantize(TrapSnapData.TrapLocation), 
-			 ActiveTrapComponentProxy,
-			 TrapSnapData.TrapRotation);
 	}
-	else 
+	else // HIT BUT NOT A BUILDING COMPONENT
 	{
 		if(ActiveTrapComponentProxy)
 		{
+			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
 			ActiveTrapComponentProxy->HoveredBuildingComponent = nullptr;
 			if(HitResults[0].ImpactPoint != FVector::ZeroVector)
 			{
+				FRotator PlayerRotation = GetActorTransform().GetRotation().Rotator();
+				PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
 				BuildSystemManager->MoveBuildingComponent(HitResults[0].ImpactPoint, ActiveTrapComponentProxy, 
-				HitResults[0].GetActor()->GetActorRotation());
+				PlayerRotation);
 			}
 		}
 		

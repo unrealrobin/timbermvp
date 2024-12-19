@@ -40,7 +40,14 @@ protected:
 
 	void DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
+	bool CanTrapBeFinalized = false;
+
 public:
+
+	/*Delegates*/
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTrapFinalizationChange, bool, CanTrapBeFinalized);
+	FOnTrapFinalizationChange OnTrapFinalizationChange;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building Component")
 	ATimberBuildingComponentBase* HoveredBuildingComponent = nullptr;
@@ -58,9 +65,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
-	bool CanTrapBeFinalized = false;
-
+	
 	EBuildingComponentTrapDirection BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+
+	/* Getters / Setters */
+
+	FORCEINLINE bool GetCanTrapBeFinalized() const { return CanTrapBeFinalized; };
+	void SetCanTrapBeFinalized(bool bCanTrapBeFinalized);
 };

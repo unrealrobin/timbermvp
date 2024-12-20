@@ -15,7 +15,7 @@ ASpikeTrap::ASpikeTrap()
 	TrapSpikeMesh->SetupAttachment(RootComponent);
 	DisableAllStaticMeshCollisions(TrapSpikeMesh);
 
-	DamageAreaBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::ExecuteAttack);
+	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::ExecuteAttack);
 }
 
 // Called when the game starts or when spawned

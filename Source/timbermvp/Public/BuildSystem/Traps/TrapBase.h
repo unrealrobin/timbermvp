@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "TrapBase.generated.h"
 
+class ATimberEnemyCharacter;
 class ATimberBuildingComponentBase;
 class UBoxComponent;
 
@@ -43,33 +44,46 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
 	bool CanTrapBeFinalized = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
+	TArray<ATimberEnemyCharacter*> InsideHitBoxArray;
+
 public:
 
+	virtual void Tick(float DeltaTime) override;
+	
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTrapFinalizationChange, bool, CanTrapBeFinalized);
 	FOnTrapFinalizationChange OnTrapFinalizationChange;
 
+	/* Placement Utilities */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building Component")
 	ATimberBuildingComponentBase* HoveredBuildingComponent = nullptr;
 	
-	virtual void Tick(float DeltaTime) override;
-
+	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	UStaticMeshComponent* TrapBaseStaticMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	USceneComponent* TrapCenterSnapLocation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
-	ETrapType TrapType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
-	UBoxComponent* DamageAreaBoxComponent;
-
+	UBoxComponent* HitBoxComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;
-	
+
+	/* ENUMS */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
+	ETrapType TrapType;
 	EBuildingComponentTrapDirection BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 
 	/* Getters / Setters */
-
 	FORCEINLINE bool GetCanTrapBeFinalized() const { return CanTrapBeFinalized; };
 	void SetCanTrapBeFinalized(bool bCanTrapBeFinalized);
+
+	/*Hit Area Utilities*/
+	virtual void HitBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void HitBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	void AddEnemyToInsideHitBoxArray(ATimberEnemyCharacter* Enemy);
+	void RemoveEnemyFromInsideHitBoxArray(ATimberEnemyCharacter* Enemy);
 };

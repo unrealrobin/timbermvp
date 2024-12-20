@@ -3,6 +3,7 @@
 
 #include "BuildSystem/Traps/TrapBase.h"
 
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 
 
@@ -18,8 +19,8 @@ ATrapBase::ATrapBase()
 	
 	DisableAllStaticMeshCollisions(TrapBaseStaticMesh);
 
-	DamageAreaBoxComponent = CreateDefaultSubobject<UBoxComponent>("DamageArea");
-	DamageAreaBoxComponent->SetupAttachment(RootComponent);
+	HitBoxComponent = CreateDefaultSubobject<UBoxComponent>("DamageArea");
+	HitBoxComponent->SetupAttachment(RootComponent);
 }
 
 void ATrapBase::BeginPlay()
@@ -46,9 +47,40 @@ void ATrapBase::SetCanTrapBeFinalized(bool bCanTrapBeFinalized)
 	if(bCanTrapBeFinalized != CanTrapBeFinalized)
 	{
 		CanTrapBeFinalized = bCanTrapBeFinalized;
-		GEngine->AddOnScreenDebugMessage(4, 3.0, FColor::Black, "Broadcasting Trap Finalization", false);
 		OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
 	}
+}
 
+void ATrapBase::HitBoxBeginOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
+	if(Enemy)
+	{
+		AddEnemyToInsideHitBoxArray(Enemy);
+	}
+}
+
+void ATrapBase::HitBoxEndOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+
+	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
+	if(Enemy)
+	{
+		RemoveEnemyFromInsideHitBoxArray(Enemy);
+	}
+	
+}
+
+void ATrapBase::AddEnemyToInsideHitBoxArray(ATimberEnemyCharacter* Enemy)
+{
+	InsideHitBoxArray.Add(Enemy);
+}
+
+void ATrapBase::RemoveEnemyFromInsideHitBoxArray(ATimberEnemyCharacter* Enemy)
+{
+	InsideHitBoxArray.Remove(Enemy);
 }
 

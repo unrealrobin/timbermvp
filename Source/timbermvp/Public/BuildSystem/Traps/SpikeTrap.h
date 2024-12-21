@@ -6,6 +6,9 @@
 #include "TrapBase.h"
 #include "SpikeTrap.generated.h"
 
+class UCurveVector;
+class UTimelineComponent;
+
 UCLASS()
 class TIMBERMVP_API ASpikeTrap : public ATrapBase
 {
@@ -27,6 +30,38 @@ public:
 	UStaticMeshComponent* TrapSpikeMesh;
 
 	UFUNCTION()
-	void ExecuteAttack(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	void HandleSpikeTrapOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	 int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	UFUNCTION()
+	void HandleSpikeOutAttack();
+
+	float SpikeDamage = 10.f;
+
+	/*Timeline Animation*/
+	void SetupTimelineComponents();
+	void SetupTimelineData();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UTimelineComponent* SpikeOutTimeline;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UCurveVector* SpikeAnimVectorCurve;
+	UFUNCTION()
+	void HandleVectorCurveUpdate(FVector CurveVector);
+	UFUNCTION()
+	void SpikeOutTimelineFinished();
+	UFUNCTION()
+	void PlaySpikeOutTimeline();
+	UFUNCTION()
+	void PlaySpikeOutTimeline_Reverse();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
+	bool IsSpikesOut = false;
+	
+	/*Timers*/
+	FTimerHandle TimeToActiveSpikeOutAttack;
+	float TimeToActiveSpikeOutAttackValue = 2.0f;
+	FTimerHandle SpikeOutCooldown;
+	float SpikeOutCooldownValue = 3.0f;
+	void EmptyTimerFunction(); // Empty function to be used in the timer manager.
+	
 };
+
+

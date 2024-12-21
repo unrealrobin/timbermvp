@@ -18,6 +18,7 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
+	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -39,6 +40,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 {
 	CurrentHealth -= DamageAmount;
 
+	//TODO:: We need to change this here to be more dynamic. We need to check what caused the damage to the enemy. Only if it was the player should it generate threat.
 	//Used for AI Damage/Aggro System
 	//If the player has dealt more than 20 damage to the enemy, the enemy will aggro the player. Causing the BB Value to Change
 	if(MaxHealth - CurrentHealth > 20.f)

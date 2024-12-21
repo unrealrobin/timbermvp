@@ -330,13 +330,9 @@ FRotator UBuildSystemManagerComponent::SnapToRotation(FRotator CharactersRotatio
 	{
 		return SavedRotation;
 	}
-
-	//TODO:: From where is CharacterRotation passed from and what is it referencing?
 	float CharacterRotationYaw = CharactersRotation.Yaw;
 	
 	// I think the intent here was to always make the Spawned Proxy and the Spawned Component Face the player when spawned.
-	//TODO:: Simplify this.
-	
 	if(CharacterRotationYaw <= 45 && CharacterRotationYaw >= 0)
 	{
 		SavedRotation.Yaw = 180;

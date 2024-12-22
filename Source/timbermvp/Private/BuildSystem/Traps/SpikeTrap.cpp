@@ -19,15 +19,15 @@ ASpikeTrap::ASpikeTrap()
 	DisableAllStaticMeshCollisions(TrapSpikeMesh);
 
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::HandleSpikeTrapOverlap);
-	//SetupTimelineComponents();
 	SpikeOutTimeline = CreateDefaultSubobject<UTimelineComponent>("SpikeOutTimeline");
 }
 
-// Called when the game starts or when spawned
 void ASpikeTrap::BeginPlay()
 {
 	Super::BeginPlay();
 	SetupTimelineData();
+	FVector SpikeStartScale = FVector(0.1f, 1.0f, 1.0f);
+	TrapSpikeMesh->SetRelativeScale3D(SpikeStartScale);
 	
 }
 

@@ -34,7 +34,7 @@ public:
 	 int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	UFUNCTION()
 	void HandleSpikeOutAttack();
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage");
 	float SpikeDamage = 10.f;
 
 	/*Timeline Animation*/
@@ -57,8 +57,10 @@ public:
 	
 	/*Timers*/
 	FTimerHandle TimeToActiveSpikeOutAttack;
-	float TimeToActiveSpikeOutAttackValue = 2.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
+	float TimeToActiveSpikeOutAttackValue = 0.5f;
 	FTimerHandle SpikeOutCooldown;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
 	float SpikeOutCooldownValue = 3.0f;
 	void EmptyTimerFunction(); // Empty function to be used in the timer manager.
 	

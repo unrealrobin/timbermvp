@@ -3,6 +3,7 @@
 
 #include "BuildSystem/Traps/TrapBase.h"
 
+#include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 
@@ -21,12 +22,15 @@ ATrapBase::ATrapBase()
 
 	HitBoxComponent = CreateDefaultSubobject<UBoxComponent>("DamageArea");
 	HitBoxComponent->SetupAttachment(RootComponent);
+
+
 }
 
 void ATrapBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATrapBase::HitBoxBeginOverlap);
+	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATrapBase::HitBoxEndOverlap);
 	OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
 	
 }
@@ -55,10 +59,16 @@ void ATrapBase::HitBoxBeginOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	GEngine->AddOnScreenDebugMessage(13, 3.0f, FColor::Red, "Trap HitBox Overlap");
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
+	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
 	if(Enemy)
 	{
-		AddEnemyToInsideHitBoxArray(Enemy);
+		AddEnemyToInsideHitBoxArray(OtherActor);
+	}
+	if(Player)
+	{
+		AddEnemyToInsideHitBoxArray(OtherActor);
 	}
 }
 
@@ -74,12 +84,12 @@ void ATrapBase::HitBoxEndOverlap(
 	
 }
 
-void ATrapBase::AddEnemyToInsideHitBoxArray(ATimberEnemyCharacter* Enemy)
+void ATrapBase::AddEnemyToInsideHitBoxArray(AActor* Enemy)
 {
 	InsideHitBoxArray.Add(Enemy);
 }
 
-void ATrapBase::RemoveEnemyFromInsideHitBoxArray(ATimberEnemyCharacter* Enemy)
+void ATrapBase::RemoveEnemyFromInsideHitBoxArray(AActor* Enemy)
 {
 	InsideHitBoxArray.Remove(Enemy);
 }

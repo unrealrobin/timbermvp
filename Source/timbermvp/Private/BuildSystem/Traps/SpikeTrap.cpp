@@ -18,13 +18,14 @@ ASpikeTrap::ASpikeTrap()
 	TrapSpikeMesh->SetupAttachment(RootComponent);
 	DisableAllStaticMeshCollisions(TrapSpikeMesh);
 
-	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::HandleSpikeTrapOverlap);
+	
 	SpikeOutTimeline = CreateDefaultSubobject<UTimelineComponent>("SpikeOutTimeline");
 }
 
 void ASpikeTrap::BeginPlay()
 {
 	Super::BeginPlay();
+	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::HandleSpikeTrapOverlap);
 	SetupTimelineData();
 	FVector SpikeStartScale = FVector(0.1f, 1.0f, 1.0f);
 	TrapSpikeMesh->SetRelativeScale3D(SpikeStartScale);
@@ -121,11 +122,12 @@ void ASpikeTrap::PlaySpikeOutTimeline()
 	{
 		SpikeOutTimeline->PlayFromStart();
 		IsSpikesOut = true;
-		for(ATimberEnemyCharacter* Enemy : InsideHitBoxArray)
+		//TODO:: Implement a function that applies damage here to any enemies in the hit box.
+		/*for(ATimberEnemyCharacter* Enemy : InsideHitBoxArray)
 		{
 			//We are going to have an issue here with aggro. SPike Damage can activate aggro on the player because of how the threat system works.
 			Enemy->TakeDamage(SpikeDamage);
-		}
+		}*/
 	}
 }
 

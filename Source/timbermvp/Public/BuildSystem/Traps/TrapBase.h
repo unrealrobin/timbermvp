@@ -45,7 +45,7 @@ protected:
 	bool CanTrapBeFinalized = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
-	TArray<ATimberEnemyCharacter*> InsideHitBoxArray;
+	TArray<AActor*> InsideHitBoxArray;
 
 public:
 
@@ -79,11 +79,13 @@ public:
 	void SetCanTrapBeFinalized(bool bCanTrapBeFinalized);
 
 	/*Hit Area Utilities*/
+	UFUNCTION()
 	virtual void HitBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
 	virtual void HitBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
-	void AddEnemyToInsideHitBoxArray(ATimberEnemyCharacter* Enemy);
-	void RemoveEnemyFromInsideHitBoxArray(ATimberEnemyCharacter* Enemy);
+	void AddEnemyToInsideHitBoxArray(AActor* Enemy);
+	void RemoveEnemyFromInsideHitBoxArray(AActor* Enemy);
 };

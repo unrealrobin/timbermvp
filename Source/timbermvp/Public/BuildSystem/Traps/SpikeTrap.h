@@ -15,15 +15,12 @@ class TIMBERMVP_API ASpikeTrap : public ATrapBase
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ASpikeTrap();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Component")
@@ -35,7 +32,9 @@ public:
 	UFUNCTION()
 	void HandleSpikeOutAttack();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage");
-	float SpikeDamage = 10.f;
+	float SpikeDamage = 10;
+	
+	void ApplyDamageToActorsInHitBox();
 
 	/*Timeline Animation*/
 	void SetupTimelineComponents();
@@ -58,11 +57,12 @@ public:
 	/*Timers*/
 	FTimerHandle TimeToActiveSpikeOutAttack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
-	float TimeToActiveSpikeOutAttackValue = 0.5f;
+	float TimeToActiveSpikeOutAttackValue = 0.3f;
 	FTimerHandle SpikeOutCooldown;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
 	float SpikeOutCooldownValue = 3.0f;
-	void EmptyTimerFunction(); // Empty function to be used in the timer manager.
+	bool IsSpikeOnCooldown = false;
+	void EndSpikeTrapCooldown(); // Empty function to be used in the timer manager.
 	
 };
 

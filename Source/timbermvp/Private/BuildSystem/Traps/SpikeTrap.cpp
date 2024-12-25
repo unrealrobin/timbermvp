@@ -17,8 +17,6 @@ ASpikeTrap::ASpikeTrap()
 	TrapSpikeMesh  = CreateDefaultSubobject<UStaticMeshComponent>("Spikes");
 	TrapSpikeMesh->SetupAttachment(RootComponent);
 	DisableAllStaticMeshCollisions(TrapSpikeMesh);
-
-	
 	SpikeOutTimeline = CreateDefaultSubobject<UTimelineComponent>("SpikeOutTimeline");
 }
 
@@ -46,11 +44,11 @@ OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult
 	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
 	if(Player || Enemy)
 	{
-		bool IsSpikeOnCooldown = GetWorld()->GetTimerManager().IsTimerActive(SpikeOutCooldown);
 		if(!IsSpikeOnCooldown) // IF the spike is not on cooldown, then we can activate the spike out attack.
 		{
 			GetWorld()->GetTimerManager().SetTimer(TimeToActiveSpikeOutAttack, this, &ASpikeTrap::HandleSpikeOutAttack, 
 			TimeToActiveSpikeOutAttackValue, false);
+			IsSpikeOnCooldown = true;
 		}
 	}
 	
@@ -59,11 +57,20 @@ OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult
 
 void ASpikeTrap::HandleSpikeOutAttack()
 {
-	// I check this in here as well just in case multiple overlaps occur before the cooldown timer can be set. The window of opportunity is the TimeToActiveSpikeOutAttackValue.
-	bool IsSpikeOnCooldown = GetWorld()->GetTimerManager().IsTimerActive(SpikeOutCooldown);
-	if(!IsSpikeOnCooldown)
-	{
 		PlaySpikeOutTimeline();
+		ApplyDamageToActorsInHitBox();
+}
+
+void ASpikeTrap::ApplyDamageToActorsInHitBox()
+{
+	for (AActor* Actors : InsideHitBoxArray )
+	{
+		if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(Actors))
+		{
+			EnemyCharacter->TakeDamage(SpikeDamage);
+			GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
+			UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
+		}
 	}
 }
 
@@ -111,7 +118,7 @@ void ASpikeTrap::SpikeOutTimelineFinished()
 	{
 		IsSpikesOut = false;
 		//Timer Initiates a Cool down before the Spike Attack can Happen again.
-		GetWorld()->GetTimerManager().SetTimer(SpikeOutCooldown, this, &ASpikeTrap::EmptyTimerFunction, SpikeOutCooldownValue, 
+		GetWorld()->GetTimerManager().SetTimer(SpikeOutCooldown, this, &ASpikeTrap::EndSpikeTrapCooldown, SpikeOutCooldownValue, 
 		false);
 	}
 }
@@ -122,12 +129,6 @@ void ASpikeTrap::PlaySpikeOutTimeline()
 	{
 		SpikeOutTimeline->PlayFromStart();
 		IsSpikesOut = true;
-		//TODO:: Implement a function that applies damage here to any enemies in the hit box.
-		/*for(ATimberEnemyCharacter* Enemy : InsideHitBoxArray)
-		{
-			//We are going to have an issue here with aggro. SPike Damage can activate aggro on the player because of how the threat system works.
-			Enemy->TakeDamage(SpikeDamage);
-		}*/
 	}
 }
 
@@ -137,8 +138,9 @@ void ASpikeTrap::PlaySpikeOutTimeline_Reverse()
 	IsSpikesOut = false;
 }
 
-void ASpikeTrap::EmptyTimerFunction()
+void ASpikeTrap::EndSpikeTrapCooldown()
 {
+	IsSpikeOnCooldown = false;
 	UE_LOG(LogTemp, Warning, TEXT("Spike Cooldown Finished."));
 }
 

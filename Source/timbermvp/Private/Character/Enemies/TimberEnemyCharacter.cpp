@@ -9,6 +9,7 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -28,6 +29,9 @@ void ATimberEnemyCharacter::BeginPlay()
 	/* Listening to Delegate Broadcast from TimberGameMode */
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
+
+	
+	
 	
 }
 

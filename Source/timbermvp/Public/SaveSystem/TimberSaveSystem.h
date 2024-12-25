@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BuildSystem/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "GameFramework/SaveGame.h"
 #include "TimberSaveSystem.generated.h"
 

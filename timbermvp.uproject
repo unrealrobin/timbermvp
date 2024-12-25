@@ -46,6 +46,10 @@
 		{
 			"Name": "USDImporter",
 			"Enabled": true
+		},
+		{
+			"Name": "StaticMeshEditorModeling",
+			"Enabled": true
 		}
 	]
 }

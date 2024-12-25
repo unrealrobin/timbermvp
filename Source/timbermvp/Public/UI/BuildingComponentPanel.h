@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "BuildSystem/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildingComponentPanel.generated.h"
 
 /**

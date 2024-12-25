@@ -1,7 +1,7 @@
 // Property of Paracosm Industries. Dont use my shit.
 
 
-#include "BuildSystem/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
@@ -10,7 +10,9 @@
 // Sets default values
 ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 {
- 	
+
+	BuildableType = EBuildableType::BuildingComponent;
+	
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMesh;
@@ -61,12 +63,13 @@ void ATimberBuildingComponentBase::HandleOverlapNotifies(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Will handle attacks from the Enemy.
+	//Will handle mellee attacks from the Enemy.
 	if(OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
 	{
 		BuildingComponentTakeDamage(25.f);
 	}
 
+	//Handles Enemy Projectile Damage
 	if(OtherActor->IsA(ATimberEnemyProjectile::StaticClass()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Building Component Hit by Enemy Projectile."));
@@ -87,6 +90,10 @@ void ATimberBuildingComponentBase::CreateSnapPoints()
 	RightSnap->SetupAttachment(RootComponent);
 	CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
 	CenterSnap->SetupAttachment(RootComponent);
+	FrontTrapSnap = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
+	FrontTrapSnap->SetupAttachment(RootComponent);
+	BackTrapSnap = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
+	BackTrapSnap->SetupAttachment(RootComponent);
 }
 
 void ATimberBuildingComponentBase::CreateQuadrantComponents()

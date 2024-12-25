@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildSystem/BuildableBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
@@ -22,7 +23,6 @@ enum class EWeaponState : uint8
 	AxeEquipped UMETA(DisplayName = "AxeEquipped"),
 	ChainsawEquipped UMETA(DisplayName = "ChainsawEquipped"),
 	RangedEquipped UMETA(DisplayName = "RangedEquipped"),
-	
 };
 
 UENUM(BlueprintType)
@@ -97,11 +97,14 @@ public:
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);
 	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
 	bool HandleShowDeleteWidget(FHitResult HitResult);
+	void HandleRaycastHitConditions(bool bHits);
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const {return CurrentlyEquippedWeapon;}
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
-	
+	void HandleTrapPlacement();
+	bool HandleBuildingComponentPlacement();
+
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 1000.f;
 	bool ShouldRaycast = true;
@@ -111,6 +114,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category="Build System Info")
 	TArray<FHitResult> HitResults;
+	FVector BuildingComponentImpactPoint;
 
 	UFUNCTION()
 	void ExitBuildMode();

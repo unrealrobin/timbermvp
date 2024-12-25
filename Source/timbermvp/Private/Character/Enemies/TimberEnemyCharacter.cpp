@@ -5,10 +5,11 @@
 
 #include "AI/TimberAiControllerBase.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "BuildSystem/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -18,6 +19,7 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
+	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -27,6 +29,9 @@ void ATimberEnemyCharacter::BeginPlay()
 	/* Listening to Delegate Broadcast from TimberGameMode */
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
+
+	
+	
 	
 }
 
@@ -39,6 +44,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 {
 	CurrentHealth -= DamageAmount;
 
+	//TODO:: We need to change this here to be more dynamic. We need to check what caused the damage to the enemy. Only if it was the player should it generate threat.
 	//Used for AI Damage/Aggro System
 	//If the player has dealt more than 20 damage to the enemy, the enemy will aggro the player. Causing the BB Value to Change
 	if(MaxHealth - CurrentHealth > 20.f)

@@ -3,12 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildSystem/Traps/TrapBase.h"
 #include "Components/ActorComponent.h"
 #include "BuildSystemManagerComponent.generated.h"
 
 
+enum class EBuildingComponentTrapDirection : uint8;
+class ATrapBase;
+class ABuildableBase;
 enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
+
+USTRUCT(BlueprintType)
+struct FTrapSnapData
+{
+	GENERATED_BODY()
+
+public:
+	FTrapSnapData()
+		: TrapLocation(FVector::ZeroVector), TrapRotation(FRotator::ZeroRotator)
+	{
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Snap Data")
+	FVector TrapLocation;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Trup Snap Data")
+	FRotator TrapRotation;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TIMBERMVP_API UBuildSystemManagerComponent : public UActorComponent
@@ -20,20 +41,21 @@ public:
 	UBuildSystemManagerComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	//Should match the Width of the most common Building Component.
 	int GridSize = 100.f;
 
-	//Class to be spawned with the SpawnActor function
+	//Class to be spawned with the SpawnActor function - Triggered by Selection in Building Component Icon Event Graph
 	UPROPERTY(EditAnywhere, Category="Building Component")
-	TSubclassOf<AActor> ActiveBuildingComponentClass;
-
-	// Name Change Recommended :  Proxy Building Component
+	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
+	
 	// Actor Reference to be stored after player selects a building component to use
 	UPROPERTY(EditAnywhere, Category="Building Component")
-	ATimberBuildingComponentBase* ActiveBuildingComponent = nullptr;
+	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
+
+	UPROPERTY(EditAnywhere, Category="Trap Component")
+	ATrapBase* ActiveTrapComponentProxy = nullptr;
 
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
@@ -46,7 +68,7 @@ protected:
 	UFUNCTION()
 	void SameOrientationSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
-	void RotateProxyToSnapRotation(FRotator HitActorRotation);
+	void RotateProxyToSnapRotation(FRotator HitActorRotation, ABuildableBase* BuildingComponent);
 	UFUNCTION()
 	void VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
@@ -56,36 +78,79 @@ protected:
 
 
 	/* @params - GhostOpacity */
-	void MakeBuildingComponentProxy(ATimberBuildingComponentBase* BuildingComponent);
+	void MakeBuildingComponentProxy(AActor* BuildingComponentProxy);
+	bool SpawnFinalTrap(FActorSpawnParameters SpawnParameters);
+	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
 	//How transparent to make the Proxy Material Color
 	float GhostOpacity = 0.5f;
 
-public:	
-	// Called every frame
+	/*Static Mesh Utilities*/
+	UPROPERTY(VisibleAnywhere, Category="Building Component")
+	TArray<UStaticMeshComponent*> StaticMeshs;
+	void GetStaticMeshComponents(AActor* BuildingComponentActor);
+	UFUNCTION()
+	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
+	UMaterial* RedHoloMaterial;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
+	UMaterial* YellowHoloMaterial;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
+	UMaterial* BlueHoloMaterial;
+
+
+public:
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
+	void HandleTrapMaterialChange(bool bCanTrapBeFinalized);
+	
+	/*Registering Buildable*/
+	void RegisterTrapComponent(ATrapBase* TrapComponent);
+
+	UFUNCTION()
+	FORCEINLINE void ClearStoredStaticMeshes() {StaticMeshs.Empty();};
+	
+	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
+	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
-	void MoveBuildingComponent(FVector_NetQuantize Location);
+	
+	UFUNCTION()
+	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
+	void MoveBuildingComponent(FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation 
+	= FRotator::ZeroRotator);
 	void RotateBuildingComponent();
 	
 	UFUNCTION()
-	void SpawnFinalBuildingComponent(const FVector& Location, const FRotator& Rotation);
+	void SpawnFinalBuildingComponent();
+	
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
 	
-	UFUNCTION()
-	ATimberBuildingComponentBase* GetActiveBuildingComponent();
-	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponent = nullptr;};
-
+	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
 	/*Getters & Setters*/
+	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() {return ActiveBuildableComponentClass;} ;
+	
+	UFUNCTION()
+	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponentProxy;};
+
+	UFUNCTION()
+	FORCEINLINE ATrapBase* GetActiveTrapComponent() const {return ActiveTrapComponentProxy;};
+	
 	UFUNCTION(BlueprintCallable, Category="Building Component")
-	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildingComponentClass = BuildingComponentClass;};
-	FORCEINLINE TSubclassOf<AActor> GetActiveBuildingComponentClass() {return ActiveBuildingComponentClass;} ;
+	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildableComponentClass = BuildingComponentClass;};
+	FORCEINLINE void SetActiveBuildingComponentToNull() {ActiveBuildingComponentProxy = nullptr;};
+	FORCEINLINE void SetActiveTrapComponentToNull() {ActiveTrapComponentProxy = nullptr;};
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
+
+	/*Buildable Placement Functions*/
+	FTrapSnapData GetTrapSnapTransform(
+		FVector ImpactPoint, ATimberBuildingComponentBase* 
+		BuildingComponent, ATrapBase* TrapComponent);
+	
 
 	/*Component Snapping */
 	UFUNCTION(BlueprintCallable, Category="Building")

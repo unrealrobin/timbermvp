@@ -4,7 +4,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
-#include "BuildSystem/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
@@ -421,16 +421,8 @@ void ATimberPlayerController::RemoveBuildingComponentProxy()
 	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
 	if(BuildSystemManager)
 	{
-		ATimberBuildingComponentBase* ActiveComponent = BuildSystemManager->GetActiveBuildingComponent();
-  		//Destroy the Active Building Component if it exists.
-		if(ActiveComponent) 
-		{
-			BuildSystemManager->GetActiveBuildingComponent()->Destroy();
-		}
-
-		//After utilizing the proxy for visualization, we destroy the proxy and then empty the active build component.
-		// This will be set again when ray-casting on a new frame.
-		BuildSystemManager->EmptyActiveBuildingComponent();
+		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
+		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 	}
 
 	if(GEngine)
@@ -473,31 +465,19 @@ void ATimberPlayerController::CloseBuildModeSelectionMenu()
 
 void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)
 {
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(3,5.0f, FColor::Green, "Q Key Pressed");
-	}
 	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->BuildSystemManager)
 	{
 		TimberCharacter->BuildSystemManager->RotateBuildingComponent();
-		
 	}
-	
 }
 
 void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Value)
 {
 	
-
 	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
 	if(BuildSystemManager)
 	{
-		BuildSystemManager->SpawnFinalBuildingComponent(BuildSystemManager->FinalSpawnLocation, BuildSystemManager->FinalSpawnRotation);
-		
-		if(GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(4, 5.0f, FColor::Green, "LMB Key Pressed in Build Mode");
-		}
+		BuildSystemManager->SpawnFinalBuildingComponent();
 	}
 	
 }

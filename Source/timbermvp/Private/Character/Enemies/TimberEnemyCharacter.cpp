@@ -9,6 +9,8 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -57,13 +59,10 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
 		ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 		GameMode->CheckArrayForEnemy(this);
-
-		//Plays the Death Animation that Calls the Destroy Function From an Event Notify
-
+		//Stops all AI Behavior
 		StopAiControllerBehaviorTree();
-		
+		OnDeath_HandleCollision();
 		PlayMontageAtRandomSection(DeathMontage);
-		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 	else
 	{
@@ -90,6 +89,34 @@ void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 		GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "Playing Hit Sound.");
 		UGameplayStatics::PlaySoundAtLocation(this, MeleeHitSound, HitLocation);
 	}
+}
+
+void ATimberEnemyCharacter::OnDeath_HandleCollision()
+{
+	//Disable Collision
+	TArray<USceneComponent*> CollisionComponents;
+	GetRootComponent()->GetChildrenComponents(true, CollisionComponents);
+	CollisionComponents.Add(GetRootComponent());
+	for (USceneComponent* Component: CollisionComponents)
+	{
+		
+		if (UShapeComponent* ShapeComponent = Cast<UShapeComponent>(Component) )
+		{
+			/*Remove All Collisions but dont fall through the map.*/
+			ShapeComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+			ShapeComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+			ShapeComponent->SetCanEverAffectNavigation(false);
+			ShapeComponent->bFillCollisionUnderneathForNavmesh = true;
+		}
+		else if (UStaticMeshComponent* StaticMesh = Cast<UStaticMeshComponent>(Component))
+		{
+			StaticMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+			StaticMesh->SetCanEverAffectNavigation(false);
+			StaticMesh->bFillCollisionUnderneathForNavmesh = true;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Collision Disabled for a Single Component"));
+	}
+	
 }
 
 void ATimberEnemyCharacter::HandleEnemyDeath()

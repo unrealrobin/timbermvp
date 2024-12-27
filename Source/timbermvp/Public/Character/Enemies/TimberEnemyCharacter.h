@@ -50,6 +50,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* StandardAttackMontage;
 
+	//Called from Animation Montage when montage ends.
 	UFUNCTION(BlueprintCallable)
 	void HandleEnemyDeath();
 	void HandleWeaponDestruction();
@@ -69,6 +70,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
 
+	/* Death */
+	void OnDeath_HandleCollision();
+	
+	
+	/* Animation */
 	void PlayMontageAtRandomSection(UAnimMontage* Montage);
 	
 	/*Delegate Functions*/

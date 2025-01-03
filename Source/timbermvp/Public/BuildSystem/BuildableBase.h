@@ -11,6 +11,7 @@ enum class EBuildableType : uint8
 {
 	Trap UMETA(DisplayName = "Trap"),
 	BuildingComponent UMETA(DisplayName = "BuildingComponent"),
+	Ramp UMETA(DisplayName = "Ramp"),
 	Default UMETA(DisplayName = "Default"),
 };
 

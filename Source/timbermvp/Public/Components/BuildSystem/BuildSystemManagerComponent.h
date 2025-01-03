@@ -42,6 +42,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
+	/* Buildable Utils */
+	
 
 	//Should match the Width of the most common Building Component.
 	int GridSize = 100.f;
@@ -50,13 +53,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 	
-	// Actor Reference to be stored after player selects a building component to use
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="Trap Component")
 	ATrapBase* ActiveTrapComponentProxy = nullptr;
 
+	UPROPERTY(EditAnywhere, Category="Ramp Component")
+	ARampBase* ActiveRampComponent = nullptr;
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
 	FRotator SnapToRotation(FRotator CharactersRotation);
@@ -75,7 +79,6 @@ protected:
 	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
 	void MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
-
 
 	/* @params - GhostOpacity */
 	void MakeBuildingComponentProxy(AActor* BuildingComponentProxy);
@@ -99,9 +102,8 @@ protected:
 
 
 public:
-	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	UFUNCTION()
+	void HandleRampPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
 	void HandleTrapMaterialChange(bool bCanTrapBeFinalized);
 	

@@ -24,11 +24,6 @@ void UBuildSystemManagerComponent::BeginPlay()
 	
 }
 
-void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
 /*Component to Component Snapping*/
 void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor)
 {	
@@ -423,6 +418,18 @@ FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
 	return TrapSnapData;
 }
 
+/* Buildable Placement */
+void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitResults)
+{
+	//Just to get Here the Raycast must have hit something.
+	
+	//SPAWNING TRAP COMPONENT
+	if (ActiveRampComponent == nullptr || ActiveRampComponent->GetClass() != GetActiveBuildableClass())
+	{
+		//Spawn the first iterations of the Ramp into the world.
+	}
+}
+
 /* Material Shading */
 void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinalized)
 {
@@ -439,6 +446,7 @@ void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinal
 
 void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponent)
 {
+	/* When the trap*/
 	if(TrapComponent)
 	{
 		TrapComponent->OnTrapFinalizationChange.AddDynamic(this, &UBuildSystemManagerComponent::HandleTrapMaterialChange);
@@ -488,7 +496,8 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 	{
 		GetStaticMeshComponents(BuildingComponentActor);
 	}
-	
+
+	// Get all Static Meshes from the Actor
 	if(StaticMeshs.Num() > 0)
 	{
 		GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Green, "Changing mesh color now.");

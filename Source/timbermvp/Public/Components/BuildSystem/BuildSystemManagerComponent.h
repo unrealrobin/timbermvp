@@ -8,10 +8,11 @@
 #include "BuildSystemManagerComponent.generated.h"
 
 
+enum class EBuildingComponentOrientation : uint8;
 enum class EBuildingComponentTrapDirection : uint8;
+class ARampBase;
 class ATrapBase;
 class ABuildableBase;
-enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
 
 USTRUCT(BlueprintType)
@@ -60,7 +61,8 @@ protected:
 	ATrapBase* ActiveTrapComponentProxy = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="Ramp Component")
-	ARampBase* ActiveRampComponent = nullptr;
+	ARampBase* ActiveRampComponentProxy = nullptr;
+	
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
 	FRotator SnapToRotation(FRotator CharactersRotation);
@@ -117,8 +119,16 @@ public:
 	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
 	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 
+	/* Spawning */
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
+	UFUNCTION()
+	void SpawnFinalBuildingComponent();
+	
+	UFUNCTION()
+	void SpawnRampComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
+	UFUNCTION()
+	void SpawnFinalRampComponent(FVector_NetQuantize Location, FRotator SpawnRotator);
 	
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
@@ -126,8 +136,7 @@ public:
 	= FRotator::ZeroRotator);
 	void RotateBuildingComponent();
 	
-	UFUNCTION()
-	void SpawnFinalBuildingComponent();
+	
 	
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
@@ -135,7 +144,7 @@ public:
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() {return ActiveBuildableComponentClass;} ;
-	
+
 	UFUNCTION()
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponentProxy;};
 

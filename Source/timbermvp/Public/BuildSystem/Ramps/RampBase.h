@@ -6,6 +6,8 @@
 #include "BuildSystem/BuildableBase.h"
 #include "RampBase.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class TIMBERMVP_API ARampBase : public ABuildableBase
 {
@@ -23,6 +25,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
+	UBoxComponent* RootComponentBox;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
 	UStaticMeshComponent* StaticMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")

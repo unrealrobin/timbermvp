@@ -3,6 +3,8 @@
 
 #include "BuildSystem/Ramps/RampBase.h"
 
+#include "Components/BoxComponent.h"
+
 
 // Sets default values
 ARampBase::ARampBase()
@@ -11,8 +13,10 @@ ARampBase::ARampBase()
 	PrimaryActorTick.bCanEverTick = true;
 	BuildableType = EBuildableType::Ramp;
 
+	RootComponentBox = CreateDefaultSubobject<UBoxComponent>("RootComponentBox");
+	RootComponent = RootComponentBox;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
-	RootComponent = StaticMesh;
+	StaticMesh->SetupAttachment(RootComponent);
 	VerticalCenterSnap = CreateDefaultSubobject<USceneComponent>("VerticalCenterSnap");
 	HorizontalCenterSnap = CreateDefaultSubobject<USceneComponent>("HorizontalCenterSnap");
 	VerticalCenterSnap->SetupAttachment(RootComponent);

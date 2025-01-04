@@ -8,6 +8,7 @@
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "BuildSystem/BuildableBase.h"
+#include "BuildSystem/Ramps/RampBase.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
@@ -422,11 +423,59 @@ FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
 void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitResults)
 {
 	//Just to get Here the Raycast must have hit something.
+
+	FVector_NetQuantize Location = HitResults[0].ImpactPoint;
+
+	FActorSpawnParameters SpawnParameters;
 	
 	//SPAWNING TRAP COMPONENT
-	if (ActiveRampComponent == nullptr || ActiveRampComponent->GetClass() != GetActiveBuildableClass())
+	//TODO:: This type of function is used repeatedly. Can we make a function that handles this?
+	if (ActiveRampComponentProxy == nullptr || ActiveRampComponentProxy->GetClass() != GetActiveBuildableClass())
 	{
 		//Spawn the first iterations of the Ramp into the world.
+		AActor* SpawnedRamp = GetWorld()->SpawnActor<ARampBase>(Location, FRotator::ZeroRotator, SpawnParameters);
+		if(SpawnedRamp)
+		{
+			ActiveRampComponentProxy = Cast<ARampBase>(SpawnedRamp);
+		}
+	};
+
+	//HANDLE RAMP PLACEMENT
+	/*
+	 * Get the first Hit Building Component.
+	 * Find vector Difference (Offset) between the Ramps Center Snap and the Building Components Center Snap. (Horizontal or Vertical)
+	 * Move the Ramp the Offset Amount so that the Ramps Center Snap is at the Building Components Center Snap.
+	 */
+	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
+	for(const FHitResult& Hits : HitResults)
+	{
+		//If the Hit Actor is a Building Component
+		if(Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
+		{
+			FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
+			if(FirstHitBuildingComponent && ActiveRampComponentProxy)
+			{
+				if(FirstHitBuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Vertical)
+				{
+					// Snap Ramps Vertical Snap to the Building Components Vertical Center Snap
+					FVector RampVerticalCenterSnap = ActiveRampComponentProxy->VerticalCenterSnap->GetComponentLocation();
+					FVector HitBuildingCenterSnap = FirstHitBuildingComponent->CenterSnap->GetComponentLocation();
+					FVector OffsetVector = HitBuildingCenterSnap - RampVerticalCenterSnap;
+
+					ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
+				}
+				else if (FirstHitBuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Horizontal)
+				{
+					// Snap Ramps Horizontal Snap to the Building Components Horizontal Center Snap
+					FVector RampHorizontalCenterSnap = ActiveRampComponentProxy->HorizontalCenterSnap->GetComponentLocation();
+					FVector HitBuildingCenterSnap = FirstHitBuildingComponent->CenterSnap->GetComponentLocation();
+					FVector OffsetVector = HitBuildingCenterSnap - RampHorizontalCenterSnap;
+
+					ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
+				}
+			}
+			break;
+		}
 	}
 }
 
@@ -539,6 +588,14 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 	{
 		GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
 	}
+}
+
+void UBuildSystemManagerComponent::SpawnRampComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator)
+{
+}
+
+void UBuildSystemManagerComponent::SpawnFinalRampComponent(FVector_NetQuantize Location, FRotator SpawnRotator)
+{
 }
 
 void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)

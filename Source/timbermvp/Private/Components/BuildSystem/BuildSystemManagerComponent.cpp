@@ -534,10 +534,6 @@ void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitRes
 		{
 			SetActiveRampComponent(SpawnedRamp);
 		}
-		else
-		{
-			SpawnedActor->Destroy();
-		}
 	};
 
 	//Getting the First Hit Building Component
@@ -568,7 +564,7 @@ void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitRes
 			FVector HitBuildingCenterSnap = FirstHitBuildingComponent->CenterSnap->GetComponentLocation();
 			FVector OffsetVector = HitBuildingCenterSnap - RampVerticalCenterSnap;
 			ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
-			MakeMaterialHoloColor(GetActiveRampComponent(), BlueHoloMaterial);
+			MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
 			ActiveRampComponentProxy->SetRampFinalization(true);
 		}
 		else if (FirstHitBuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Horizontal)
@@ -578,7 +574,7 @@ void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitRes
 			FVector HitBuildingCenterSnap = FirstHitBuildingComponent->CenterSnap->GetComponentLocation();
 			FVector OffsetVector = HitBuildingCenterSnap - RampHorizontalCenterSnap;
 			ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
-			MakeMaterialHoloColor(GetActiveRampComponent(), BlueHoloMaterial);
+			MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
 			ActiveRampComponentProxy->SetRampFinalization(true);
 		}
 	}
@@ -617,16 +613,15 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 
 void UBuildSystemManagerComponent::SpawnFinalRampComponent()
 {
-	if(ActiveRampComponentProxy->GetRampFinalization())
+	if(ActiveRampComponentProxy && ActiveRampComponentProxy->GetRampFinalization())
 	{
 		//Spawn Final Ramp at the Component Proxies location
 		FActorSpawnParameters SpawnParams;
-		GetWorld()->SpawnActor<AActor>
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(ActiveBuildableComponentClass,
-		GetActiveRampComponent()->GetActorLocation(),
-		GetActiveRampComponent()->GetActorRotation(),
+		ActiveRampComponentProxy->GetActorLocation(),
+		ActiveRampComponentProxy->GetActorRotation(),
 		SpawnParams);
-		
 	}
 }
 
@@ -783,6 +778,7 @@ void UBuildSystemManagerComponent::RotateBuildingComponent()
 			SavedRotation.Yaw = 0;
 		}
 		ActiveBuildingComponentProxy->SetActorRotation(SavedRotation);
+		
 		//Updating FinalSpawnRotation after Player Rotates Component
 		FinalSpawnRotation = SavedRotation;
 	}

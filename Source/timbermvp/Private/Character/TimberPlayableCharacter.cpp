@@ -303,7 +303,6 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 
 void ATimberPlayableCharacter::ExitBuildMode()
 {
-	
 	HoveredBuildingComponent = nullptr;
 	HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
 }

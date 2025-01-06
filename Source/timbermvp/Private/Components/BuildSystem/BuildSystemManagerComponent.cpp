@@ -528,11 +528,11 @@ void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitRes
 		FRotator::ZeroRotator,
 		SpawnParameters);
 		ARampBase* SpawnedRamp = Cast<ARampBase>(SpawnedActor);
-
-		//TODO:: I dont love this spawn destroy thing, but it works for now. Revise Later. 
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
 		if(SpawnedRamp)
 		{
 			SetActiveRampComponent(SpawnedRamp);
+			SpawnedRamp->SetActorEnableCollision(false);
 		}
 	};
 
@@ -643,6 +643,8 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 				SpawnParameters);
 
 		ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(SpawnedActor);
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+		
 		ActiveBuildingComponentProxy->SetActorEnableCollision(false);
 
 		//Make the Building Component have the "see-through" material look
@@ -765,19 +767,21 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 			SetActiveRampComponentToNull();
 		}
 	}
+
+	SetBuildableRefToNull();
 }
 
 /*Input Callbacks*/
 void UBuildSystemManagerComponent::RotateBuildingComponent()
 {
-	if(ActiveBuildingComponentProxy)
+	if(BuildableRef)
 	{
 		SavedRotation.Yaw += 90;
 		if (SavedRotation.Yaw >= 360) // Reset Yaw to 0 if it reaches 360
 		{
 			SavedRotation.Yaw = 0;
 		}
-		ActiveBuildingComponentProxy->SetActorRotation(SavedRotation);
+		BuildableRef->SetActorRotation(SavedRotation);
 		
 		//Updating FinalSpawnRotation after Player Rotates Component
 		FinalSpawnRotation = SavedRotation;

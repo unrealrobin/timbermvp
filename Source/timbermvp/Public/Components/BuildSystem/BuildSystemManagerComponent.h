@@ -51,6 +51,9 @@ protected:
 	//Class to be spawned with the SpawnActor function - Triggered by Selection in Building Component Icon Event Graph
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
+
+	UPROPERTY(EditAnywhere, Category="Building Component")
+	ABuildableBase* BuildableRef = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
@@ -135,6 +138,7 @@ public:
 	FRotator FinalSpawnRotation;
 	
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
+	
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() {return ActiveBuildableComponentClass;} ;
 	UFUNCTION()
@@ -149,6 +153,11 @@ public:
 	FORCEINLINE void SetActiveTrapComponentToNull() {ActiveTrapComponentProxy = nullptr;};
 	FORCEINLINE void SetActiveRampComponentToNull() {ActiveRampComponentProxy = nullptr;};
 	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) {ActiveRampComponentProxy = RampComponent;};
+	
+	FORCEINLINE void SetBuildableRefToNull() {BuildableRef = nullptr;};
+	FORCEINLINE ABuildableBase* GetBuildableRef() {return BuildableRef;};
+	FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) {BuildableRef = BuildingComponent;};
+	
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
 
 	/*Buildable Placement Functions*/

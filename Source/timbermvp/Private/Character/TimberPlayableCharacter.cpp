@@ -125,6 +125,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		//TODO:: This can be reduced and simplified 
 		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
+		BuildSystemManager->ResetBuildableComponents(ARampBase::StaticClass());
 	}
 }
 

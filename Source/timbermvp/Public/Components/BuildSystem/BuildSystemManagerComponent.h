@@ -45,8 +45,6 @@ protected:
 	virtual void BeginPlay() override;
 	
 	/* Buildable Utils */
-	
-
 	//Should match the Width of the most common Building Component.
 	int GridSize = 100.f;
 
@@ -124,11 +122,8 @@ public:
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
 	UFUNCTION()
 	void SpawnFinalBuildingComponent();
-	
 	UFUNCTION()
-	void SpawnRampComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
-	UFUNCTION()
-	void SpawnFinalRampComponent(FVector_NetQuantize Location, FRotator SpawnRotator);
+	void SpawnFinalRampComponent();
 	
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
@@ -136,25 +131,24 @@ public:
 	= FRotator::ZeroRotator);
 	void RotateBuildingComponent();
 	
-	
-	
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
 	
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() {return ActiveBuildableComponentClass;} ;
-
 	UFUNCTION()
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponentProxy;};
-
+	UFUNCTION()
+	FORCEINLINE ATrapBase* GetActiveRampComponent() const {return ActiveTrapComponentProxy;};
 	UFUNCTION()
 	FORCEINLINE ATrapBase* GetActiveTrapComponent() const {return ActiveTrapComponentProxy;};
-	
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildableComponentClass = BuildingComponentClass;};
 	FORCEINLINE void SetActiveBuildingComponentToNull() {ActiveBuildingComponentProxy = nullptr;};
 	FORCEINLINE void SetActiveTrapComponentToNull() {ActiveTrapComponentProxy = nullptr;};
+	FORCEINLINE void SetActiveRampComponentToNull() {ActiveRampComponentProxy = nullptr;};
+	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) {ActiveRampComponentProxy = RampComponent;};
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
 
 	/*Buildable Placement Functions*/

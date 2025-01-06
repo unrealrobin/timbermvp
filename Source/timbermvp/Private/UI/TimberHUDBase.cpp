@@ -64,7 +64,7 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 	if(BuildMenuWidget)
 	{
 		bIsBuildMenuOpen.Broadcast(true);
-		TimberPlayerController->RemoveBuildingComponentProxy();
+		//TimberPlayerController->RemoveBuildingComponentProxy(); (Function moved to Build System Manager Component - RemoveBuildingComponentProxies_All)
 		BuildMenuWidget->AddToViewport(2);
 	}
 }

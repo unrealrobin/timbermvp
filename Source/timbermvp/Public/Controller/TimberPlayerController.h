@@ -99,8 +99,6 @@ public:
 	UFUNCTION()
 	void ToggleBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
-	void RemoveBuildingComponentProxy();
-	UFUNCTION()
 	void RotateBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
 	void PlaceBuildingComponent(const FInputActionValue& Value);

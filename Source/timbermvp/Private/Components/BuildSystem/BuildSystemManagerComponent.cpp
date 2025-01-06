@@ -552,8 +552,7 @@ void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitRes
 			break;
 		}
 	}
-
-	//TODO:: Need to Get the Ramp Rotation. 
+	
 	//LOCATION PLACEMENT OF THE RAMP
 	if(FirstHitBuildingComponent && ActiveRampComponentProxy)
 	{
@@ -743,32 +742,44 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 {
 	if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 	{
-		if(GetActiveBuildingComponent())
+		if(ActiveBuildingComponentProxy)
 		{
-			GetActiveBuildingComponent()->Destroy();
-			SetActiveBuildingComponentToNull();
+			ActiveBuildingComponentProxy->Destroy();
+			ActiveBuildingComponentProxy = nullptr;
 		}
 	}
 
 	if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 	{
-		if(GetActiveTrapComponent())
+		if(ActiveTrapComponentProxy)
 		{
-			GetActiveTrapComponent()->Destroy();
-			SetActiveTrapComponentToNull();
+			ActiveTrapComponentProxy->Destroy();
+			ActiveTrapComponentProxy = nullptr;
 		}
 	}
 
 	if(ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
 	{
-		if(GetActiveRampComponent())
+		if(ActiveRampComponentProxy)
 		{
-			GetActiveRampComponent()->Destroy();
-			SetActiveRampComponentToNull();
+			ActiveRampComponentProxy->Destroy();
+			ActiveRampComponentProxy = nullptr;
 		}
 	}
 
 	SetBuildableRefToNull();
+	StaticMeshs.Empty();
+}
+
+void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
+{
+	ResetBuildableComponents(ATrapBase::StaticClass());
+	ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
+	ResetBuildableComponents(ARampBase::StaticClass());
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
+	}
 }
 
 /*Input Callbacks*/

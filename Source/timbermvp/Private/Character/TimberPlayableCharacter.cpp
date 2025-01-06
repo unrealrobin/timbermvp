@@ -3,6 +3,7 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/Ramps/RampBase.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
@@ -101,6 +102,12 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		{
 			HandleTrapPlacement();
 		}
+
+		if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
+		{
+			//TODO:: Call to function in Build System Manager Component to Handle Ramp Spawn and Placement.
+			BuildSystemManager->HandleRampPlacement(HitResults);
+		}
 		
 		if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 		{
@@ -118,11 +125,13 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		//TODO:: This can be reduced and simplified 
 		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
+		BuildSystemManager->ResetBuildableComponents(ARampBase::StaticClass());
 	}
 }
 
 bool ATimberPlayableCharacter::HandleBuildingComponentPlacement()
 {
+	//TODO:: Change this to a more dynamic way of finding the first hit Building Component and Quadrant. Similar to the approach in HandleTrapPlacement.
 	//Handle Building Component Placement
 	//Hit Result is Stored in Global Scope of the Player Character
 	if(HitResults.Num() >= 2)
@@ -160,7 +169,7 @@ bool ATimberPlayableCharacter::HandleBuildingComponentPlacement()
 
 void ATimberPlayableCharacter::HandleTrapPlacement()
 {
-	//Just to get Here the Raycast must of hit something.
+	//Just to get Here the Raycast must have hit something.
 	
 	//SPAWNING TRAP COMPONENT
 	ATrapBase* ActiveTrapComponentProxy = BuildSystemManager->GetActiveTrapComponent();
@@ -175,6 +184,7 @@ void ATimberPlayableCharacter::HandleTrapPlacement()
 	}
 	
 	// LOOKING FOR HITS ON A BUILDING COMPONENT
+	// Search all hits of Multi Ray Cast for one the first that casts to a BuildingComponentBase (Ramp || Wall )
 	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
 	for(const FHitResult& Hits : HitResults)
 	{
@@ -293,7 +303,7 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 
 void ATimberPlayableCharacter::ExitBuildMode()
 {
-	
+	BuildSystemManager->RemoveBuildingComponentProxies_All();
 	HoveredBuildingComponent = nullptr;
 	HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
 }

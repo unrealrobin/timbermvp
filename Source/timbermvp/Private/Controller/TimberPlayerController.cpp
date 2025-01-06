@@ -414,22 +414,6 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 		
 	}
 }
-//If a player exits build mode with an active building component that isn't placed, destroy it.
-void ATimberPlayerController::RemoveBuildingComponentProxy()
-{
-	
-	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
-	if(BuildSystemManager)
-	{
-		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
-		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
-	}
-
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "Building Component Proxy Removed");
-	}
-}
 
 void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 {
@@ -442,7 +426,7 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 	{
 		// Removing the Buttons used for Build Mode.
 		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
-		RemoveBuildingComponentProxy();
+		
 	}
 	
 	TimberCharacter->ExitBuildMode();

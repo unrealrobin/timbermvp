@@ -8,10 +8,11 @@
 #include "BuildSystemManagerComponent.generated.h"
 
 
+enum class EBuildingComponentOrientation : uint8;
 enum class EBuildingComponentTrapDirection : uint8;
+class ARampBase;
 class ATrapBase;
 class ABuildableBase;
-enum class EBuildingComponentOrientation : uint8;
 class ATimberBuildingComponentBase;
 
 USTRUCT(BlueprintType)
@@ -42,21 +43,27 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	
+	/* Buildable Utils */
 	//Should match the Width of the most common Building Component.
 	int GridSize = 100.f;
 
 	//Class to be spawned with the SpawnActor function - Triggered by Selection in Building Component Icon Event Graph
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
+
+	UPROPERTY(EditAnywhere, Category="Building Component")
+	ABuildableBase* BuildableRef = nullptr;
 	
-	// Actor Reference to be stored after player selects a building component to use
 	UPROPERTY(EditAnywhere, Category="Building Component")
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="Trap Component")
 	ATrapBase* ActiveTrapComponentProxy = nullptr;
 
+	UPROPERTY(EditAnywhere, Category="Ramp Component")
+	ARampBase* ActiveRampComponentProxy = nullptr;
+	
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
 	FRotator SnapToRotation(FRotator CharactersRotation);
@@ -75,7 +82,6 @@ protected:
 	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
 	void MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
-
 
 	/* @params - GhostOpacity */
 	void MakeBuildingComponentProxy(AActor* BuildingComponentProxy);
@@ -99,9 +105,8 @@ protected:
 
 
 public:
-	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	UFUNCTION()
+	void HandleRampPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
 	void HandleTrapMaterialChange(bool bCanTrapBeFinalized);
 	
@@ -114,9 +119,15 @@ public:
 	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
 	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
+	void RemoveBuildingComponentProxies_All();
 
+	/* Spawning */
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
+	UFUNCTION()
+	void SpawnFinalBuildingComponent();
+	UFUNCTION()
+	void SpawnFinalRampComponent();
 	
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
@@ -124,26 +135,29 @@ public:
 	= FRotator::ZeroRotator);
 	void RotateBuildingComponent();
 	
-	UFUNCTION()
-	void SpawnFinalBuildingComponent();
-	
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
 	
 	FORCEINLINE void EmptyActiveBuildingComponent() {ActiveBuildingComponentProxy = nullptr;};
+	
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() {return ActiveBuildableComponentClass;} ;
-	
 	UFUNCTION()
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const {return ActiveBuildingComponentProxy;};
-
+	UFUNCTION()
+	FORCEINLINE ATrapBase* GetActiveRampComponent() const {return ActiveTrapComponentProxy;};
 	UFUNCTION()
 	FORCEINLINE ATrapBase* GetActiveTrapComponent() const {return ActiveTrapComponentProxy;};
-	
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass) {ActiveBuildableComponentClass = BuildingComponentClass;};
 	FORCEINLINE void SetActiveBuildingComponentToNull() {ActiveBuildingComponentProxy = nullptr;};
 	FORCEINLINE void SetActiveTrapComponentToNull() {ActiveTrapComponentProxy = nullptr;};
+	FORCEINLINE void SetActiveRampComponentToNull() {ActiveRampComponentProxy = nullptr;};
+	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) {ActiveRampComponentProxy = RampComponent;};
+	FORCEINLINE void SetBuildableRefToNull() {BuildableRef = nullptr;};
+	FORCEINLINE ABuildableBase* GetBuildableRef() {return BuildableRef;};
+	FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) {BuildableRef = BuildingComponent;};
+	
 	void SetSavedRotation(FRotator Rotation) {SavedRotation = Rotation;};
 
 	/*Buildable Placement Functions*/

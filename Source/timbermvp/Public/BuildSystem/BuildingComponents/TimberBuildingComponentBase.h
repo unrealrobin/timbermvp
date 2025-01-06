@@ -53,6 +53,8 @@ public:
 	EBuildingComponentOrientation BuildingOrientation = EBuildingComponentOrientation::Default;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
+
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

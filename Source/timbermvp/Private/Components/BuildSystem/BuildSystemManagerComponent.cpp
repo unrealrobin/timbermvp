@@ -2,12 +2,12 @@
 
 
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
-#include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildSystem/BuildingComponents/TimberHorizontalBuildingComponent.h"
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "BuildSystem/BuildableBase.h"
+#include "BuildSystem/Ramps/RampBase.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
@@ -22,11 +22,6 @@ void UBuildSystemManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-void UBuildSystemManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 /*Component to Component Snapping*/
@@ -439,6 +434,7 @@ void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinal
 
 void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponent)
 {
+	/* When the trap changes its finalization capability, this callback will happen. This changes the color from red to blue depending on finalization capabilities*/
 	if(TrapComponent)
 	{
 		TrapComponent->OnTrapFinalizationChange.AddDynamic(this, &UBuildSystemManagerComponent::HandleTrapMaterialChange);
@@ -446,6 +442,7 @@ void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponen
 	}
 }
 
+//May be removed in the future for alternate MakeMaterialHoloColor function. V
 void UBuildSystemManagerComponent::MakeBuildingComponentProxy(AActor* BuildingComponentProxy)
 {
 	//Get the Static MeshComponent of the passed in Building Component
@@ -488,7 +485,8 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 	{
 		GetStaticMeshComponents(BuildingComponentActor);
 	}
-	
+
+	// Get all Static Meshes from the Actor
 	if(StaticMeshs.Num() > 0)
 	{
 		GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Green, "Changing mesh color now.");
@@ -511,6 +509,82 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 	
 }
 
+/* Buildable Placement */
+void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitResults)
+{
+	//Just to get Here the Raycast must have hit something.
+
+	FVector_NetQuantize Location = HitResults[0].ImpactPoint;
+	FActorSpawnParameters SpawnParameters;
+	
+	//SPAWNING TRAP COMPONENT
+	//TODO:: This type of function is used repeatedly. Can we make a function that handles this?
+	if (ActiveRampComponentProxy == nullptr || ActiveRampComponentProxy->GetClass() != GetActiveBuildableClass())
+	{
+		//Spawn the first iterations of the Ramp into the world.
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(ActiveBuildableComponentClass,
+		Location,
+		FRotator::ZeroRotator,
+		SpawnParameters);
+		ARampBase* SpawnedRamp = Cast<ARampBase>(SpawnedActor);
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+		if(SpawnedRamp)
+		{
+			SetActiveRampComponent(SpawnedRamp);
+			SpawnedRamp->SetActorEnableCollision(false);
+		}
+	};
+
+	//Getting the First Hit Building Component
+	/*
+	 * Get the first Hit Building Component.
+	 * Find vector Difference (Offset) between the Ramps Center Snap and the Building Components Center Snap. (Horizontal or Vertical)
+	 * Move the Ramp the Offset Amount so that the Ramps Center Snap is at the Building Components Center Snap.
+	 */
+	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
+	for(const FHitResult& Hits : HitResults)
+	{
+		//If the Hit Actor is a Building Component
+		if(Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
+		{
+			FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
+			break;
+		}
+	}
+	
+	//LOCATION PLACEMENT OF THE RAMP
+	if(FirstHitBuildingComponent && ActiveRampComponentProxy)
+	{
+		if(FirstHitBuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Vertical)
+		{
+			// Snap Ramps Vertical Snap to the Building Components Vertical Center Snap
+			FVector RampVerticalCenterSnap = ActiveRampComponentProxy->VerticalCenterSnap->GetComponentLocation();
+			FVector HitBuildingCenterSnap = FirstHitBuildingComponent->CenterSnap->GetComponentLocation();
+			FVector OffsetVector = HitBuildingCenterSnap - RampVerticalCenterSnap;
+			ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
+			MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
+			ActiveRampComponentProxy->SetRampFinalization(true);
+		}
+		else if (FirstHitBuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Horizontal)
+		{
+			// Snap Ramps Horizontal Snap to the Building Components Horizontal Center Snap
+			FVector RampHorizontalCenterSnap = ActiveRampComponentProxy->HorizontalCenterSnap->GetComponentLocation();
+			FVector HitBuildingCenterSnap = FirstHitBuildingComponent->CenterSnap->GetComponentLocation();
+			FVector OffsetVector = HitBuildingCenterSnap - RampHorizontalCenterSnap;
+			ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
+			MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
+			ActiveRampComponentProxy->SetRampFinalization(true);
+		}
+	}
+	else //Hit but not a building Component that is snappable.
+	{
+		MakeMaterialHoloColor(GetActiveRampComponent(), RedHoloMaterial);
+		ActiveRampComponentProxy->SetActorLocation(Location);
+		ActiveRampComponentProxy->SetRampFinalization(false);
+	}
+}
+
 /* Spawn */
 void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 {
@@ -526,9 +600,27 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 	{
 		SpawnFinalBuildingComponent(SpawnParameters);
 	}
+	else if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
+	{
+		SpawnFinalRampComponent();
+	}
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnFinalRampComponent()
+{
+	if(ActiveRampComponentProxy && ActiveRampComponentProxy->GetRampFinalization())
+	{
+		//Spawn Final Ramp at the Component Proxies location
+		FActorSpawnParameters SpawnParams;
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(ActiveBuildableComponentClass,
+		ActiveRampComponentProxy->GetActorLocation(),
+		ActiveRampComponentProxy->GetActorRotation(),
+		SpawnParams);
 	}
 }
 
@@ -550,6 +642,8 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 				SpawnParameters);
 
 		ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(SpawnedActor);
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+		
 		ActiveBuildingComponentProxy->SetActorEnableCollision(false);
 
 		//Make the Building Component have the "see-through" material look
@@ -571,8 +665,6 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 	if(SpawnedActor)
 	{
 		ActiveTrapComponentProxy = Cast<ATrapBase>(SpawnedActor);
-
-		
 		//Binding the Delegate Call to the newly Spawned Trap Component
 		RegisterTrapComponent(ActiveTrapComponentProxy);
 	}
@@ -616,6 +708,7 @@ bool UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 	return false;
 }
 
+// TODO:: This function is not used. Remove in the future. 
 void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters)
 {
 	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
@@ -649,34 +742,58 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 {
 	if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 	{
-		if(GetActiveBuildingComponent())
+		if(ActiveBuildingComponentProxy)
 		{
-			GetActiveBuildingComponent()->Destroy();
-			SetActiveBuildingComponentToNull();
+			ActiveBuildingComponentProxy->Destroy();
+			ActiveBuildingComponentProxy = nullptr;
 		}
 	}
 
 	if(ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 	{
-		if(GetActiveTrapComponent())
+		if(ActiveTrapComponentProxy)
 		{
-			GetActiveTrapComponent()->Destroy();
-			SetActiveTrapComponentToNull();
+			ActiveTrapComponentProxy->Destroy();
+			ActiveTrapComponentProxy = nullptr;
 		}
+	}
+
+	if(ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
+	{
+		if(ActiveRampComponentProxy)
+		{
+			ActiveRampComponentProxy->Destroy();
+			ActiveRampComponentProxy = nullptr;
+		}
+	}
+
+	SetBuildableRefToNull();
+	StaticMeshs.Empty();
+}
+
+void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
+{
+	ResetBuildableComponents(ATrapBase::StaticClass());
+	ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
+	ResetBuildableComponents(ARampBase::StaticClass());
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
 	}
 }
 
 /*Input Callbacks*/
 void UBuildSystemManagerComponent::RotateBuildingComponent()
 {
-	if(ActiveBuildingComponentProxy)
+	if(BuildableRef)
 	{
 		SavedRotation.Yaw += 90;
 		if (SavedRotation.Yaw >= 360) // Reset Yaw to 0 if it reaches 360
 		{
 			SavedRotation.Yaw = 0;
 		}
-		ActiveBuildingComponentProxy->SetActorRotation(SavedRotation);
+		BuildableRef->SetActorRotation(SavedRotation);
+		
 		//Updating FinalSpawnRotation after Player Rotates Component
 		FinalSpawnRotation = SavedRotation;
 	}

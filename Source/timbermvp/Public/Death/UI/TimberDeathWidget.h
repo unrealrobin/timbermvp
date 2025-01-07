@@ -15,7 +15,7 @@ class TIMBERMVP_API UTimberDeathWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void NativePreConstruct() override;
+	virtual void NativePreConstruct() override;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Death Stats")
 	int LastCompletedWave = 0;

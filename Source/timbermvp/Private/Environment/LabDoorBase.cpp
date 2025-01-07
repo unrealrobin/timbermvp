@@ -9,11 +9,10 @@
 // Sets default values
 ALabDoorBase::ALabDoorBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SetupLabDoorComponents();
-
 }
 
 // Called when the game starts or when spawned
@@ -28,10 +27,11 @@ void ALabDoorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(ShouldLabDoorBeOpen && !IsLabDoorOpen)
+	if (ShouldLabDoorBeOpen && !IsLabDoorOpen)
 	{
 		OpenLabDoor(DeltaTime);
-	}else if(!ShouldLabDoorBeOpen && IsLabDoorOpen)
+	}
+	else if (!ShouldLabDoorBeOpen && IsLabDoorOpen)
 	{
 		CloseLabDoor(DeltaTime);
 	}
@@ -62,42 +62,42 @@ void ALabDoorBase::SetupLabDoorComponents()
 
 void ALabDoorBase::OpenLabDoor(float DeltaTime)
 {
-
 	//Using Relative Locations here because the Lab door Locations changes during tick.
-	LabDoorLeft->SetRelativeLocation(FMath::VInterpConstantTo(LabDoorLeft->GetRelativeLocation(), LabDoorLeftOpenPos , DeltaTime, 155.f));
-	LabDoorRight->SetRelativeLocation(FMath::VInterpConstantTo(LabDoorRight->GetRelativeLocation(), LabDoorRightOpenPos , DeltaTime, 155.f));
+	LabDoorLeft->SetRelativeLocation(
+		FMath::VInterpConstantTo(LabDoorLeft->GetRelativeLocation(), LabDoorLeftOpenPos, DeltaTime, 155.f));
+	LabDoorRight->SetRelativeLocation(
+		FMath::VInterpConstantTo(LabDoorRight->GetRelativeLocation(), LabDoorRightOpenPos, DeltaTime, 155.f));
 
-	if(LabDoorLeft->GetRelativeLocation().Equals(LabDoorLeftOpenPos, 1.0f) && LabDoorRight->GetRelativeLocation().Equals(LabDoorRightOpenPos, 1.0f))
+	if (LabDoorLeft->GetRelativeLocation().Equals(LabDoorLeftOpenPos, 1.0f) && LabDoorRight->GetRelativeLocation().
+		Equals(LabDoorRightOpenPos, 1.0f))
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, TEXT("Lab Door Opened"));
 		IsLabDoorOpen = true;
 	}
-	
 }
 
 void ALabDoorBase::CloseLabDoor(float DeltaTime)
 {
-	
 	//Using Relative Locations here because the Lab door Locations changes during tick.
-	LabDoorLeft->SetRelativeLocation(FMath::VInterpConstantTo(LabDoorLeft->GetRelativeLocation(), FVector::ZeroVector , DeltaTime, 155.f));
-	LabDoorRight->SetRelativeLocation(FMath::VInterpConstantTo(LabDoorRight->GetRelativeLocation(), FVector::ZeroVector , DeltaTime, 155.f));
+	LabDoorLeft->SetRelativeLocation(
+		FMath::VInterpConstantTo(LabDoorLeft->GetRelativeLocation(), FVector::ZeroVector, DeltaTime, 155.f));
+	LabDoorRight->SetRelativeLocation(
+		FMath::VInterpConstantTo(LabDoorRight->GetRelativeLocation(), FVector::ZeroVector, DeltaTime, 155.f));
 
-	if(LabDoorLeft->GetRelativeLocation().Equals(FVector::ZeroVector, 1.0f)  && LabDoorRight->GetRelativeLocation().Equals(FVector::ZeroVector,1.0f)) 
+	if (LabDoorLeft->GetRelativeLocation().Equals(FVector::ZeroVector, 1.0f) && LabDoorRight->GetRelativeLocation().
+		Equals(FVector::ZeroVector, 1.0f))
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, TEXT("Lab Door Closed"));
 		IsLabDoorOpen = false;
 	}
-	
 }
 
 void ALabDoorBase::HandleOpenLabDoor(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	
-	
 	ATimberEnemyCharacter* TimberEnemyCharacter = Cast<ATimberEnemyCharacter>(OtherActor);
-	if(TimberEnemyCharacter)
+	if (TimberEnemyCharacter)
 	{
 		EnemiesInLabDoorActivator.Add(TimberEnemyCharacter);
 		SetLabDoorToBeOpen();
@@ -108,16 +108,14 @@ void ALabDoorBase::HandleCloseLabDoor(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	ATimberEnemyCharacter* TimberEnemyCharacter = Cast<ATimberEnemyCharacter>(OtherActor);
-	if(EnemiesInLabDoorActivator.Contains(TimberEnemyCharacter))
+	if (EnemiesInLabDoorActivator.Contains(TimberEnemyCharacter))
 	{
 		EnemiesInLabDoorActivator.Remove(TimberEnemyCharacter);
-		if(EnemiesInLabDoorActivator.IsEmpty())
+		if (EnemiesInLabDoorActivator.IsEmpty())
 		{
 			SetLabDoorToBeClosed();
 		}
 	}
-	
-	
 }
 
 void ALabDoorBase::SetLabDoorToBeOpen()
@@ -134,10 +132,11 @@ void ALabDoorBase::SetLabDoorToBeClosed()
 void ALabDoorBase::HandleTestLabDoorOpen()
 {
 	GEngine->AddOnScreenDebugMessage(2, 3.0, FColor::Green, TEXT("Handling Lab Door Open"));
-	if(IsLabDoorOpen)
+	if (IsLabDoorOpen)
 	{
 		SetLabDoorToBeClosed();
-	}else
+	}
+	else
 	{
 		SetLabDoorToBeOpen();
 	}
@@ -152,4 +151,3 @@ void ALabDoorBase::InitializeLabDoorProperties()
 	IsLabDoorOpen = false;
 	EnemiesInLabDoorActivator.Empty();
 }
-

@@ -32,9 +32,8 @@ UCLASS()
 class TIMBERMVP_API ATimberBuildingComponentBase : public ABuildableBase
 {
 	GENERATED_BODY()
-	
+
 public:
-	
 	ATimberBuildingComponentBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Attributes")
@@ -49,18 +48,16 @@ public:
 	void CreateQuadrantComponents();
 
 	/*States*/
-	UPROPERTY(VisibleAnywhere, Category="Building Component Info" )
+	UPROPERTY(VisibleAnywhere, Category="Building Component Info")
 	EBuildingComponentOrientation BuildingOrientation = EBuildingComponentOrientation::Default;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
 
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
@@ -98,7 +95,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
 	UBoxComponent* CenterQuadrant;
 
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool IsUnlocked = true;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -108,6 +105,7 @@ public:
 	FSlateBrush BuildingComponentIconImage;
 
 	UFUNCTION()
-	void HandleOverlapNotifies(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	
+	void HandleOverlapNotifies(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

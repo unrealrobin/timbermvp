@@ -18,5 +18,4 @@ class TIMBERMVP_API UBuildComponentDataAsset : public UPrimaryDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ATimberBuildingComponentBase> BuildingComponentClass;
-	
 };

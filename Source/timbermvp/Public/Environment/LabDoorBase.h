@@ -13,7 +13,7 @@ UCLASS()
 class TIMBERMVP_API ALabDoorBase : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	// Sets default values for this actor's properties
 	ALabDoorBase();
@@ -35,13 +35,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Door")
 	TArray<ATimberEnemyCharacter*> EnemiesInLabDoorActivator;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Door Meshes")
 	UBoxComponent* LabDoorActivatorComponent;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Lab Door Meshes")
 	UStaticMeshComponent* LabDoorFrame;
 
@@ -52,17 +52,21 @@ public:
 	UStaticMeshComponent* LabDoorRight;
 
 	UFUNCTION(BlueprintCallable)
-	void OpenLabDoor(float DeltaTime);	
+	void OpenLabDoor(float DeltaTime);
 
 	UFUNCTION(BlueprintCallable)
 	void CloseLabDoor(float DeltaTime);
 
 	UFUNCTION()
-	void HandleOpenLabDoor(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult);
+	void HandleOpenLabDoor(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void HandleCloseLabDoor(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void HandleCloseLabDoor(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 	void SetupLabDoorComponents();
 	// Debug Functions for Opening and closing of lab doors in the console in editor.
 	UFUNCTION()
@@ -79,5 +83,4 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool IsLabDoorOpen = false;
-	
 };

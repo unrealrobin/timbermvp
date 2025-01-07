@@ -10,9 +10,8 @@
 // Sets default values
 ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 {
-
 	BuildableType = EBuildableType::BuildingComponent;
-	
+
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMesh;
@@ -36,7 +35,6 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 void ATimberBuildingComponentBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage)
@@ -45,7 +43,7 @@ void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDam
 
 	UE_LOG(LogTemp, Warning, TEXT("Building Component Durability: %f."), ComponentDurability);
 
-	if(ComponentDurability <= 0 )
+	if (ComponentDurability <= 0)
 	{
 		//TODO::Add some destroyed animation
 		PlayDestroyedAnimation();
@@ -64,13 +62,13 @@ void ATimberBuildingComponentBase::HandleOverlapNotifies(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Will handle mellee attacks from the Enemy.
-	if(OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
+	if (OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
 	{
 		BuildingComponentTakeDamage(25.f);
 	}
 
 	//Handles Enemy Projectile Damage
-	if(OtherActor->IsA(ATimberEnemyProjectile::StaticClass()))
+	if (OtherActor->IsA(ATimberEnemyProjectile::StaticClass()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Building Component Hit by Enemy Projectile."));
 		//TODO:: Use the actual projectiles damage amount.
@@ -109,5 +107,3 @@ void ATimberBuildingComponentBase::CreateQuadrantComponents()
 	CenterQuadrant = CreateDefaultSubobject<UBoxComponent>("CenterQuadrant");
 	CenterQuadrant->SetupAttachment(RootComponent);
 }
-
-

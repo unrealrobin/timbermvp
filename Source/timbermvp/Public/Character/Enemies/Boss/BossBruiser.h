@@ -39,18 +39,23 @@ public:
 	UCapsuleComponent* OverHeadSmashCapsuleComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
 	USceneComponent* OverHeadSmashCapsuleSpawnLocation;
-	
+
 	UFUNCTION(BlueprintCallable)
 	void EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent);
 	UFUNCTION(BlueprintCallable)
 	void DisableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent);
 	UFUNCTION()
-	void HandleWhirlwindOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void HandleWhirlwindOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-	void HandleBHandSlapOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void HandleBHandSlapOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-	void HandleOverHeadSmashOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* 
-	OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void HandleOverHeadSmashOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION(BlueprintCallable)
 	void SpawnOverHeadCapsule();
 	UFUNCTION(BlueprintCallable)
@@ -68,5 +73,4 @@ public:
 	float OverHeadSmashCapsuleHeight = 250.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bruiser Info")
 	float OverHeadSmashCapsuleRadius = 250.f;
-	
 };

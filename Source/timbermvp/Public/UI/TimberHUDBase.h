@@ -18,16 +18,15 @@ UCLASS()
 class TIMBERMVP_API ATimberHUDBase : public AHUD
 {
 	GENERATED_BODY()
-	
-public:
 
+public:
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
 
 	/*Delegate Handles*/
 	UPROPERTY(BlueprintAssignable)
 	FIsBuildMenuOpen bIsBuildMenuOpen;
-	
+
 	virtual void BeginPlay() override;
 
 	//To Be Set on BP_TimberHUDBase
@@ -59,7 +58,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
 
-	
+
 	UFUNCTION(BlueprintCallable, Category="Build Menu")
 	void OpenBuildPanelMenu();
 	UFUNCTION(BlueprintCallable, Category="Build Menu")
@@ -76,12 +75,11 @@ public:
 	//Vars to shift in the X & Y direction when the DeleteBuildingComponentWidget is spawned. Shifted from Center.
 	float DeleteBuildingComponentWidgetShiftX = 100.f;
 	float DeleteBuildingComponentWidgetShiftY = 100.f;
+
 protected:
 	/*Delegate Listeners*/
 	UFUNCTION()
 	void HandleBuildPanelMenu(bool IsBuildPanelMenuOpen);
 	UFUNCTION()
 	void ShouldHideBuildMenu();
-
-	
 };

@@ -8,25 +8,25 @@
 void ATimberHUDBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 
-	if(RootWidgetClass)
+
+	if (RootWidgetClass)
 	{
 		RootWidget = CreateWidget<UUserWidget>(GetWorld(), RootWidgetClass);
-		if(RootWidget)
+		if (RootWidget)
 		{
 			RootWidget->AddToViewport(1);
 		}
 	}
 
-	if(BuildMenuWidgetClass)
+	if (BuildMenuWidgetClass)
 	{
 		BuildMenuWidget = CreateWidget<UUserWidget>(GetWorld(), BuildMenuWidgetClass);
 	}
 
 	//Caching Controller to Listen for Delegate Broadcast
 	TimberPlayerController = Cast<ATimberPlayerController>(GetWorld()->GetFirstPlayerController());
-	if(TimberPlayerController)
+	if (TimberPlayerController)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HUD has Cached Timber Character Controller"));
 
@@ -35,21 +35,23 @@ void ATimberHUDBase::BeginPlay()
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
 
 
-		ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(TimberPlayerController->GetCharacter());
-		
-		if(TimberCharacter)
+		ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(
+			TimberPlayerController->GetCharacter());
+
+		if (TimberCharacter)
 		{
-			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.AddDynamic(this, &ATimberHUDBase::ShowDeleteBuildingComponentWidget);
-			TimberCharacter->HandleRemoveDeleteIcon_DelegateHandle.AddDynamic(this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
+			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.AddDynamic(
+				this, &ATimberHUDBase::ShowDeleteBuildingComponentWidget);
+			TimberCharacter->HandleRemoveDeleteIcon_DelegateHandle.AddDynamic(
+				this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
 		}
-	};
+	}
 
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	if(GameMode)
+	if (GameMode)
 	{
 		GameMode->SwitchToStandardUI.BindUFunction(this, FName("SwitchToGameUI"));
 	}
-	
 }
 
 // Called by Player using the "B" Key, Listening for the Delegate on the Controller
@@ -60,8 +62,7 @@ void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
 
 void ATimberHUDBase::OpenBuildPanelMenu()
 {
-	
-	if(BuildMenuWidget)
+	if (BuildMenuWidget)
 	{
 		bIsBuildMenuOpen.Broadcast(true);
 		//TimberPlayerController->RemoveBuildingComponentProxy(); (Function moved to Build System Manager Component - RemoveBuildingComponentProxies_All)
@@ -72,7 +73,7 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 //Called from Building Component Icon in W_BuildingComponentIcon
 void ATimberHUDBase::CloseBuildPanelMenu()
 {
-	if(BuildMenuWidget)
+	if (BuildMenuWidget)
 	{
 		bIsBuildMenuOpen.Broadcast(false);
 		BuildMenuWidget->RemoveFromParent();
@@ -90,7 +91,7 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 void ATimberHUDBase::ShouldHideBuildMenu()
 {
 	//If the build menu is open, close it and disable the cursor (Build Mode, Raycasting)
-	if(BuildMenuWidget->IsInViewport())
+	if (BuildMenuWidget->IsInViewport())
 	{
 		TimberPlayerController->DisableCursor();
 		CloseBuildPanelMenu();
@@ -99,7 +100,6 @@ void ATimberHUDBase::ShouldHideBuildMenu()
 	{
 		TimberPlayerController->EnableCursor();
 		OpenBuildPanelMenu();
-		
 	}
 }
 
@@ -107,7 +107,7 @@ void ATimberHUDBase::SwitchToDeathUI()
 {
 	RootWidget->RemoveFromParent();
 	DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
-	if(DeathWidget)
+	if (DeathWidget)
 	{
 		DeathWidget->AddToViewport(1);
 	}
@@ -117,11 +117,11 @@ void ATimberHUDBase::SwitchToDeathUI()
 
 void ATimberHUDBase::SwitchToGameUI()
 {
-	if(DeathWidget)
+	if (DeathWidget)
 	{
 		DeathWidget->RemoveFromParent();
 	}
-	if(RootWidget)
+	if (RootWidget)
 	{
 		RootWidget->AddToViewport(1);
 	}
@@ -130,19 +130,20 @@ void ATimberHUDBase::SwitchToGameUI()
 void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY)
 {
 	//If widget is up, only update the position of the widget.
-	if(DeleteBuildingComponentWidget)
+	if (DeleteBuildingComponentWidget)
 	{
-		FVector2D ViewportLocation = FVector2d(ViewportLocationX+ DeleteBuildingComponentWidgetShiftX, 
-		ViewportLocationY+DeleteBuildingComponentWidgetShiftY);
+		FVector2D ViewportLocation = FVector2d(
+			ViewportLocationX + DeleteBuildingComponentWidgetShiftX,
+			ViewportLocationY + DeleteBuildingComponentWidgetShiftY);
 		DeleteBuildingComponentWidget->SetPositionInViewport(ViewportLocation, false);
 		return;
 	}
 
 	//If the widget is not up, create it and add it to the viewport.
-	if(DeleteBuildingComponentWidgetClass)
+	if (DeleteBuildingComponentWidgetClass)
 	{
 		DeleteBuildingComponentWidget = CreateWidget<UUserWidget>(GetWorld(), DeleteBuildingComponentWidgetClass);
-		if(DeleteBuildingComponentWidget)
+		if (DeleteBuildingComponentWidget)
 		{
 			DeleteBuildingComponentWidget->AddToViewport(1);
 
@@ -156,7 +157,7 @@ void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, 
 void ATimberHUDBase::HideDeleteBuildingComponentWidget()
 {
 	//A Way to remove the DeleteBuildingComponentWidget from the Viewport.
-	if(DeleteBuildingComponentWidget)
+	if (DeleteBuildingComponentWidget)
 	{
 		DeleteBuildingComponentWidget->RemoveFromParent();
 		DeleteBuildingComponentWidget = nullptr;

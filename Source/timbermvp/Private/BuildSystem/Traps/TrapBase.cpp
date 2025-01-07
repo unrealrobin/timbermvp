@@ -14,16 +14,14 @@ ATrapBase::ATrapBase()
 
 	BuildableType = EBuildableType::Trap;
 	TrapType = ETrapType::Default;
-	
+
 	TrapBaseStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("TrapBaseStaticMesh");
 	RootComponent = TrapBaseStaticMesh;
-	
+
 	DisableAllStaticMeshCollisions(TrapBaseStaticMesh);
 
 	HitBoxComponent = CreateDefaultSubobject<UBoxComponent>("DamageArea");
 	HitBoxComponent->SetupAttachment(RootComponent);
-
-
 }
 
 void ATrapBase::BeginPlay()
@@ -32,7 +30,6 @@ void ATrapBase::BeginPlay()
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATrapBase::HitBoxBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATrapBase::HitBoxEndOverlap);
 	OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
-	
 }
 
 void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
@@ -48,7 +45,7 @@ void ATrapBase::Tick(float DeltaTime)
 
 void ATrapBase::SetCanTrapBeFinalized(bool bCanTrapBeFinalized)
 {
-	if(bCanTrapBeFinalized != CanTrapBeFinalized)
+	if (bCanTrapBeFinalized != CanTrapBeFinalized)
 	{
 		CanTrapBeFinalized = bCanTrapBeFinalized;
 		OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
@@ -62,11 +59,11 @@ void ATrapBase::HitBoxBeginOverlap(
 	GEngine->AddOnScreenDebugMessage(13, 3.0f, FColor::Red, "Trap HitBox Overlap");
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
 	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(Enemy)
+	if (Enemy)
 	{
 		AddEnemyToInsideHitBoxArray(OtherActor);
 	}
-	if(Player)
+	if (Player)
 	{
 		AddEnemyToInsideHitBoxArray(OtherActor);
 	}
@@ -75,13 +72,11 @@ void ATrapBase::HitBoxBeginOverlap(
 void ATrapBase::HitBoxEndOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
-	if(Enemy)
+	if (Enemy)
 	{
 		RemoveEnemyFromInsideHitBoxArray(Enemy);
 	}
-	
 }
 
 void ATrapBase::AddEnemyToInsideHitBoxArray(AActor* Enemy)
@@ -93,4 +88,3 @@ void ATrapBase::RemoveEnemyFromInsideHitBoxArray(AActor* Enemy)
 {
 	InsideHitBoxArray.Remove(Enemy);
 }
-

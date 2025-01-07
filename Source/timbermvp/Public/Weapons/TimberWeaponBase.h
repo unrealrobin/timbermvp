@@ -13,8 +13,8 @@ UCLASS()
 class TIMBERMVP_API ATimberWeaponBase : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ATimberWeaponBase();
 
@@ -29,12 +29,11 @@ protected:
 	UAnimMontage* AttackMontage;
 
 public:
-
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
 	UStaticMeshComponent* StaticMesh;
-	
+
 	UFUNCTION()
-	virtual float GetWeaponBaseDamage() const {return BaseWeaponDamage;}
+	virtual float GetWeaponBaseDamage() const { return BaseWeaponDamage; }
 
 	UPROPERTY(VisibleAnywhere, Category="Attack Info")
 	TArray<AActor*> ActorsToIgnore;

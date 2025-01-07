@@ -17,7 +17,6 @@ class TIMBERMVP_API ATimberCharacterBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	
 	ATimberCharacterBase();
 
 protected:
@@ -34,6 +33,4 @@ public:
 	float MaxForwardSpeed = 800.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxBackwardSpeed = 500.f;
-	
-	
 };

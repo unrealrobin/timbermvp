@@ -19,10 +19,8 @@ class TIMBERMVP_API ATimberAiControllerBase : public AAIController
 	ATimberAiControllerBase();
 
 public:
-	void BeginPlay() override;
-	
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ai Behavior")
 	UBehaviorTreeComponent* AiBehaviorTree;
-
-	
 };

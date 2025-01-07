@@ -20,19 +20,20 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Ramp Component")
 	bool CanRampBeFinalized = false;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	/*UPROPERTY(VisibleAnywhere, Category = "Ramp Component")
 	TArray<UStaticMeshComponent*> StaticMeshs;*/
-	
+
 	/* Getters / Setters */
-	FORCEINLINE void SetRampFinalization(bool CanRampBeFinal){CanRampBeFinalized = CanRampBeFinal;};
-	FORCEINLINE bool GetRampFinalization() const {return CanRampBeFinalized;};
+	FORCEINLINE void SetRampFinalization(bool CanRampBeFinal) { CanRampBeFinalized = CanRampBeFinal; };
+	FORCEINLINE bool GetRampFinalization() const { return CanRampBeFinalized; };
 
 	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
@@ -43,6 +44,4 @@ public:
 	USceneComponent* VerticalCenterSnap;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
 	USceneComponent* HorizontalCenterSnap;
-	
-	
 };

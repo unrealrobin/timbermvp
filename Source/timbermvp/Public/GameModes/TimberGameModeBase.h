@@ -18,11 +18,10 @@ struct FWaveComposition
 
 	int GoblinCount;
 	int GhoulCount;
-	
+
 	int BasicRobotCount;
 	int MeleeWeaponRobotCount;
 	int RangedWeaponRobotCount;
-	
 };
 
 /**
@@ -34,17 +33,18 @@ class TIMBERMVP_API ATimberGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-
 	/* Delegate Signature*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCurrentWaveNumberHandle, float, CurrentWaveNumber);
+
 	DECLARE_DYNAMIC_DELEGATE(FSwitchToStandardUI);
+
 	DECLARE_DYNAMIC_DELEGATE(FEnableStandardInputMappingContext);
-	
+
 	/* Delegate Handle */
 	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
 	FSwitchToStandardUI SwitchToStandardUI;
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
-	
+
 	virtual void BeginPlay() override;
 
 	/* Wave System*/
@@ -55,7 +55,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int TimeToNextWave = 0;
-	
+
 	UFUNCTION(Category="Wave Composition")
 	void SpawnDynamicWave();
 
@@ -68,13 +68,13 @@ public:
 	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
 
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
-	
+
 
 	FTimerHandle TimeToNextWaveHandle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Seeda Info")
 	FVector SeedaLocation;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> ArrayOfSpawnedSeedas;
 
@@ -92,14 +92,13 @@ public:
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
 	UFUNCTION(BlueprintCallable, Category="Wave Composition")
 	void ClearAllWaveEnemies();
-	
-protected:
 
+protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> TimberEnemySpawnPoints;
-	
+
 	TArray<FVector> EnemySpawnPointLocations;
-	
+
 	void GatherAllSpawnLocation(TArray<AActor*> SpawnPoints);
 
 	//Default Spawn Parameters
@@ -122,7 +121,7 @@ protected:
 
 	UFUNCTION(Category="Wave Composition")
 	void ComposeWave();
-	
+
 	UFUNCTION(Category="Wave Composition")
 	void WaveComplete();
 
@@ -136,5 +135,4 @@ protected:
 	// No movement, No attacking, No AI logic.
 	UFUNCTION()
 	void FreezeAllAICharacters(bool bIsPlayerDead);
-	
 };

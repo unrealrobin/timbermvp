@@ -13,7 +13,7 @@ UCLASS()
 class TIMBERMVP_API ATimberEnemyMeleeBase : public ATimberEnemyCharacter
 {
 	GENERATED_BODY()
-	
+
 public:
 	ATimberEnemyMeleeBase();
 
@@ -21,8 +21,10 @@ public:
 
 	/*Overlap Delegate*/
 	UFUNCTION()
-	void HandleCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	
+	void HandleCapsuleOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	/* Melee Capsule Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee Components")
 	UCapsuleComponent* RightHandCapsuleComponent;
@@ -44,8 +46,4 @@ public:
 	float BaseMeleeAttackDamage = 10.0f;
 	UFUNCTION()
 	virtual float CalculateOutputDamage(float Damage) override;
-protected:
-	
-	
-	
 };

@@ -47,12 +47,16 @@ public:
 
 	//Delegates
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
+
 	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
+		FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
+
 	FHandleSpawnDeleteIconLocation HandleSpawnDeleteIconLocation_DelegateHandle;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHandleRemoveDeleteIcon);
+
 	FHandleRemoveDeleteIcon HandleRemoveDeleteIcon_DelegateHandle;
-	
+
 	//Constructor
 	ATimberPlayableCharacter();
 	virtual void BeginPlay() override;
@@ -65,7 +69,7 @@ public:
 	UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	USpringArmComponent* CameraSpringArm;
-	USpringArmComponent* GetSpringArmComponent() {return CameraSpringArm;}
+	USpringArmComponent* GetSpringArmComponent() { return CameraSpringArm; }
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System")
 	UBuildSystemManagerComponent* BuildSystemManager;
 
@@ -96,12 +100,12 @@ public:
 	ATimberWeaponRangedBase* WeaponThreeInstance;
 
 	/*Getters & Setters*/
-	EWeaponState GetCurrentWeaponState() const {return CurrentWeaponState;} 
+	EWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);
 	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
 	bool HandleShowDeleteWidget(FHitResult HitResult);
 	void HandleRaycastHitConditions(bool bHits);
-	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const {return CurrentlyEquippedWeapon;}
+	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
@@ -111,7 +115,7 @@ public:
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 1000.f;
 	bool ShouldRaycast = true;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	ATimberBuildingComponentBase* HoveredBuildingComponent;
 
@@ -145,6 +149,4 @@ protected:
 
 	UFUNCTION()
 	void PlayDeathAnimation();
-	
-	
 };

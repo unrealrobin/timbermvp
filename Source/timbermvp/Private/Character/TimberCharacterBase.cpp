@@ -8,8 +8,7 @@
 // Sets default values
 ATimberCharacterBase::ATimberCharacterBase()
 {
- 	PrimaryActorTick.bCanEverTick = false;
-	
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 // Called when the game starts or when spawned
@@ -18,14 +17,4 @@ void ATimberCharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	UCapsuleComponent* EnemyCapsuleComponent = GetCapsuleComponent();
-	
-	
 }
-
-
-
-
-
-
-
-

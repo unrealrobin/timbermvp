@@ -10,8 +10,8 @@ UCLASS()
 class TIMBERMVP_API ATimberEnemySpawnLocations : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ATimberEnemySpawnLocations();
 
@@ -23,6 +23,4 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMeshComponent;
-
-
 };

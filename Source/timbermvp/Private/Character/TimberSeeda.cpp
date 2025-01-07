@@ -21,7 +21,6 @@ ATimberSeeda::ATimberSeeda()
 void ATimberSeeda::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -35,4 +34,3 @@ void ATimberSeeda::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
-

@@ -14,7 +14,7 @@ ASpikeTrap::ASpikeTrap()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	TrapSpikeMesh  = CreateDefaultSubobject<UStaticMeshComponent>("Spikes");
+	TrapSpikeMesh = CreateDefaultSubobject<UStaticMeshComponent>("Spikes");
 	TrapSpikeMesh->SetupAttachment(RootComponent);
 	DisableAllStaticMeshCollisions(TrapSpikeMesh);
 	SpikeOutTimeline = CreateDefaultSubobject<UTimelineComponent>("SpikeOutTimeline");
@@ -27,7 +27,6 @@ void ASpikeTrap::BeginPlay()
 	SetupTimelineData();
 	FVector SpikeStartScale = FVector(0.1f, 1.0f, 1.0f);
 	TrapSpikeMesh->SetRelativeScale3D(SpikeStartScale);
-	
 }
 
 // Called every frame
@@ -36,34 +35,34 @@ void ASpikeTrap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASpikeTrap::HandleSpikeTrapOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* 
-OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void ASpikeTrap::HandleSpikeTrapOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+	OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Timer from initial activation to spike out attack
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
 	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(Player || Enemy)
+	if (Player || Enemy)
 	{
-		if(!IsSpikeOnCooldown) // IF the spike is not on cooldown, then we can activate the spike out attack.
+		if (!IsSpikeOnCooldown) // IF the spike is not on cooldown, then we can activate the spike out attack.
 		{
-			GetWorld()->GetTimerManager().SetTimer(TimeToActiveSpikeOutAttack, this, &ASpikeTrap::HandleSpikeOutAttack, 
-			TimeToActiveSpikeOutAttackValue, false);
+			GetWorld()->GetTimerManager().SetTimer(
+				TimeToActiveSpikeOutAttack, this, &ASpikeTrap::HandleSpikeOutAttack,
+				TimeToActiveSpikeOutAttackValue, false);
 			IsSpikeOnCooldown = true;
 		}
 	}
-	
-	
 }
 
 void ASpikeTrap::HandleSpikeOutAttack()
 {
-		PlaySpikeOutTimeline();
-		ApplyDamageToActorsInHitBox();
+	PlaySpikeOutTimeline();
+	ApplyDamageToActorsInHitBox();
 }
 
 void ASpikeTrap::ApplyDamageToActorsInHitBox()
 {
-	for (AActor* Actors : InsideHitBoxArray )
+	for (AActor* Actors : InsideHitBoxArray)
 	{
 		if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(Actors))
 		{
@@ -82,7 +81,7 @@ void ASpikeTrap::SetupTimelineComponents()
 
 void ASpikeTrap::SetupTimelineData()
 {
-	if(SpikeAnimVectorCurve)
+	if (SpikeAnimVectorCurve)
 	{
 		//Called every frame while timeline is running.
 		FOnTimelineVector SpikeOutProgress;
@@ -102,7 +101,7 @@ void ASpikeTrap::SetupTimelineData()
 void ASpikeTrap::HandleVectorCurveUpdate(FVector CurveVector)
 {
 	//where you define what happens every frame, such as changing scale, position, or material.
-	if(TrapSpikeMesh)
+	if (TrapSpikeMesh)
 	{
 		TrapSpikeMesh->SetRelativeScale3D(CurveVector);
 	}
@@ -110,7 +109,7 @@ void ASpikeTrap::HandleVectorCurveUpdate(FVector CurveVector)
 
 void ASpikeTrap::SpikeOutTimelineFinished()
 {
-	if(IsSpikesOut) // This is what is called when the Spike Anim unleashes the spikes as the end function.
+	if (IsSpikesOut) // This is what is called when the Spike Anim unleashes the spikes as the end function.
 	{
 		PlaySpikeOutTimeline_Reverse();
 	}
@@ -118,14 +117,15 @@ void ASpikeTrap::SpikeOutTimelineFinished()
 	{
 		IsSpikesOut = false;
 		//Timer Initiates a Cool down before the Spike Attack can Happen again.
-		GetWorld()->GetTimerManager().SetTimer(SpikeOutCooldown, this, &ASpikeTrap::EndSpikeTrapCooldown, SpikeOutCooldownValue, 
-		false);
+		GetWorld()->GetTimerManager().SetTimer(
+			SpikeOutCooldown, this, &ASpikeTrap::EndSpikeTrapCooldown, SpikeOutCooldownValue,
+			false);
 	}
 }
 
 void ASpikeTrap::PlaySpikeOutTimeline()
 {
-	if(SpikeOutTimeline)
+	if (SpikeOutTimeline)
 	{
 		SpikeOutTimeline->PlayFromStart();
 		IsSpikesOut = true;
@@ -143,6 +143,3 @@ void ASpikeTrap::EndSpikeTrapCooldown()
 	IsSpikeOnCooldown = false;
 	UE_LOG(LogTemp, Warning, TEXT("Spike Cooldown Finished."));
 }
-
-
-

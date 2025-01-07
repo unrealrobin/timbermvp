@@ -8,7 +8,10 @@ public class timbermvp : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", 
-            "EnhancedInput", "UMG","SlateCore", "Slate"});
+		PublicDependencyModuleNames.AddRange(new[]
+		{
+			"Core", "CoreUObject", "Engine", "InputCore",
+			"EnhancedInput", "UMG", "SlateCore", "Slate"
+		});
 	}
 }

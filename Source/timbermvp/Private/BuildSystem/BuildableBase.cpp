@@ -15,7 +15,6 @@ ABuildableBase::ABuildableBase()
 void ABuildableBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -23,4 +22,3 @@ void ABuildableBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

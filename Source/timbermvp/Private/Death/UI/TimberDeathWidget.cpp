@@ -10,7 +10,7 @@ void UTimberDeathWidget::NativePreConstruct()
 	Super::NativePreConstruct();
 
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	if(GameMode)
+	if (GameMode)
 	{
 		LastCompletedWave = GameMode->CurrentWaveNumber;
 	}

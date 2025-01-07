@@ -20,12 +20,12 @@ ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>("Collision Box");
 	WeaponBoxComponent->SetupAttachment(GetRootComponent());
 	WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	WeaponBoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	WeaponBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 
-	if(WeaponBoxComponent)
+	if (WeaponBoxComponent)
 	{
-	WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapBegin);
-	WeaponBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapEnd);
+		WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapBegin);
+		WeaponBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapEnd);
 	}
 }
 
@@ -36,8 +36,6 @@ void ATimberWeaponMeleeBase::BeginPlay()
 
 	WeaponOwner = GetOwner();
 	WeaponInstigator = Cast<ATimberPlayableCharacter>(GetInstigator());
-	
-	
 }
 
 // Called every frame
@@ -48,16 +46,16 @@ void ATimberWeaponMeleeBase::Tick(float DeltaTime)
 
 void ATimberWeaponMeleeBase::HandleWeaponCollision(bool ShouldReadyCollision) const
 {
-	if(ShouldReadyCollision)
+	if (ShouldReadyCollision)
 	{
 		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Sword Collision Enabled")));
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
 	}
 	else
 	{
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Ignore);
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 	}
 }
 
@@ -66,14 +64,20 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Ignoring the Owning Character (Instigator) and the Actual Weapon itself.
-	if(OtherActor == WeaponInstigator || OtherActor == this) return;
+	if (OtherActor == WeaponInstigator || OtherActor == this)
+	{
+		return;
+	}
 	/* If Melee Hit is Against the Player Character
 	Used for when the AI Enemy have a Melee Weapon
 	Ensures swings only hit Player Characters and not other AI Enemy
 	*/
 	ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(ActorsToIgnore.Contains(HitCharacter)) return;
-	if(HitCharacter)
+	if (ActorsToIgnore.Contains(HitCharacter))
+	{
+		return;
+	}
+	if (HitCharacter)
 	{
 		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
 		ActorsToIgnore.Add(HitCharacter);
@@ -84,19 +88,20 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 
 	/*If Melee Hit is Against the AI Enemy Characters*/
 	ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
-	if(ActorsToIgnore.Contains(HitEnemy)) return;
-	if(HitEnemy && !ActorsToIgnore.Contains(HitEnemy))
+	if (ActorsToIgnore.Contains(HitEnemy))
+	{
+		return;
+	}
+	if (HitEnemy && !ActorsToIgnore.Contains(HitEnemy))
 	{
 		IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(OtherActor);
-		if(DamageableEnemy)
+		if (DamageableEnemy)
 		{
 			DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
 			DamageableEnemy->TakeDamage(BaseWeaponDamage);
 		}
 		ActorsToIgnore.Add(HitEnemy);
 	}
-	
-	
 }
 
 void ATimberWeaponMeleeBase::OnWeaponOverlapEnd(
@@ -114,24 +119,22 @@ void ATimberWeaponMeleeBase::EmptyActorToIgnoreArray()
 	ActorsToIgnore.Empty();
 }
 
-void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const 
+void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const
 {
-
 	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(WeaponInstigator);
 	const int32 NumberOfMontageSections = AttackMontage->GetNumSections();
-	
+
 	const int32 RandomSection = UKismetMathLibrary::RandomIntegerInRange(1, NumberOfMontageSections);
-	if(Character)
+	if (Character)
 	{
 		UAnimInstance* CharacterAnimInstance = Character->GetMesh()->GetAnimInstance();
-		if(CharacterAnimInstance)
+		if (CharacterAnimInstance)
 		{
-			FName RandomSectionName = AttackMontage->GetSectionName(RandomSection-1);
+			FName RandomSectionName = AttackMontage->GetSectionName(RandomSection - 1);
 			UE_LOG(LogTemp, Warning, TEXT("Section Name: %s"), *RandomSectionName.ToString());
 			UE_LOG(LogTemp, Warning, TEXT("Section Number: %i"), RandomSection);
 			CharacterAnimInstance->Montage_Play(AttackMontage, 1.f);
 			CharacterAnimInstance->Montage_JumpToSection(RandomSectionName);
-			
 		}
 	}
 }
@@ -140,4 +143,3 @@ void ATimberWeaponMeleeBase::PerformStandardAttack()
 {
 	HandlePlayAttackMontage();
 }
-

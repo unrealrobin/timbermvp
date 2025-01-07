@@ -11,15 +11,15 @@
 // Sets default values
 ATestObj::ATestObj()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>("CollisionSphere");
 	RootComponent = CollisionCapsule;
 	StaticMeshBase = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMeshBase->SetupAttachment(CollisionCapsule);
-	
 }
+
 // Called when the game starts or when spawned
 void ATestObj::BeginPlay()
 {
@@ -28,66 +28,61 @@ void ATestObj::BeginPlay()
 	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &ATestObj::SetInteractItem);
 	CollisionCapsule->OnComponentEndOverlap.AddDynamic(this, &ATestObj::UnSetInteractItem);
 	InitialLeverRotation = StaticMeshAttachment->GetRelativeRotation();
-	
 }
 
 // Called every frame
 void ATestObj::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ATestObj::Interact()
 {
 	//Purely Visual
 	//Rotates the Lever to Show it is being interacted with
-	if(InitialLeverRotation == StaticMeshAttachment->GetRelativeRotation())
+	if (InitialLeverRotation == StaticMeshAttachment->GetRelativeRotation())
 	{
 		FRotator NewRotation = LeverOnRotation;
 		StaticMeshAttachment->SetRelativeRotation(NewRotation);
-	};
+	}
 
 	// Calls the GameMode to Spawn the Enemy
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	GameMode->SaveCurrentGame();
-	if(GameMode)
+	if (GameMode)
 	{
 		GameMode->SpawnDynamicWave();
 		//GameMode->SpawnTestWave();
 	}
 }
 
-void ATestObj::SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void ATestObj::SetInteractItem(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
 
 {
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(TimberCharacter)
+	if (TimberCharacter)
 	{
 		ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
 		PlayerController->SetInteractableItem(Cast<IInteractable>(this));
 	}
-	
 }
 
 void ATestObj::UnSetInteractItem(
-	UPrimitiveComponent*OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
-	if(InitialLeverRotation != StaticMeshAttachment->GetRelativeRotation())
+	if (InitialLeverRotation != StaticMeshAttachment->GetRelativeRotation())
 	{
 		StaticMeshAttachment->SetRelativeRotation(InitialLeverRotation);
-	};
-	
+	}
+
 	StaticMeshAttachment->AddLocalRotation(FRotator3d(0.0f, 0.0f, 0.0f));
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 
-	if(TimberCharacter)
+	if (TimberCharacter)
 	{
 		ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
 		PlayerController->SetInteractableItem(nullptr);
 	}
-	
-
 }
-

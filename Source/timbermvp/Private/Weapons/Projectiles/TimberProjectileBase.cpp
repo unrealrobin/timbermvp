@@ -23,10 +23,11 @@ void ATimberProjectileBase::BeginPlay()
 	Super::BeginPlay();
 
 	FTimerHandle DestroyProjectileTimerHandle;
-	
-	GetWorld()->GetTimerManager().SetTimer(DestroyProjectileTimerHandle, this, 
-	&ATimberProjectileBase::HandleDestroyAfterNoCollision, 5.0f, false);
-	
+
+	GetWorld()->GetTimerManager().SetTimer(
+		DestroyProjectileTimerHandle, this,
+		&ATimberProjectileBase::HandleDestroyAfterNoCollision, 5.0f, false);
+
 	ProjectileOwner = Cast<ATimberPlayableCharacter>(GetOwner());
 }
 
@@ -35,6 +36,3 @@ void ATimberProjectileBase::HandleDestroyAfterNoCollision()
 	//Used to destroy the projectile after a certain amount of time if it has not collided with anything.
 	Destroy();
 }
-
-
-

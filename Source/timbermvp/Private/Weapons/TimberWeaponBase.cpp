@@ -13,22 +13,14 @@
 // Sets default values
 ATimberWeaponBase::ATimberWeaponBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
 	RootComponent = StaticMesh;
-	
-	
-	
 }
+
 // Called when the game starts or when spawned
 void ATimberWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	
-	
 }
-
-
-

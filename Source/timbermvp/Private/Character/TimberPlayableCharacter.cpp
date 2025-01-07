@@ -31,6 +31,8 @@ void ATimberPlayableCharacter::BeginPlay()
 	/*Delegate Binding*/
 	Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD())->bIsBuildMenuOpen.AddDynamic(this, 
 	&ATimberPlayableCharacter::HandleBuildMenuOpen);
+
+	RaycastController = Cast<ATimberPlayerController>(GetController());
 	
 }
 
@@ -43,6 +45,12 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	{
 		PerformBuildSystemRaycast();
 	}
+
+	//TODO:: This can be made more efficient by only calling this for like 2 seconds after last movement or rotation.
+	if(CurrentWeaponState == EWeaponState::RangedEquipped)
+	{
+		RaycastController->PerformReticleAlignment_Raycast();
+	}
 }
 
 /*Build System Stuff*/
@@ -51,7 +59,6 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 {
 	if(CharacterState == ECharacterState::Building)
 	{
-		ATimberPlayerController* RaycastController = Cast<ATimberPlayerController>(GetController());
 		if(RaycastController)
 		{
 			FVector RaycastStart;

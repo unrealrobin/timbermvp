@@ -8,6 +8,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class ATimberPlayerController;
 class ATimberWeaponRangedBase;
 class ATimberWeaponMeleeBase;
 class UBuildSystemManagerComponent;
@@ -41,6 +42,8 @@ class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Controller")
+	ATimberPlayerController* RaycastController;
 
 	//Delegates
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);

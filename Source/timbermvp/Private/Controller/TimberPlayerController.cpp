@@ -21,6 +21,8 @@ void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+
 	//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
 	// This is used for the Saving and Loading Process. We need a Location in space to respawn during load.
 	APlayerStart* PlayerStartObject = Cast<APlayerStart>(UGameplayStatics::GetActorOfClass(GetWorld(),
@@ -68,6 +70,45 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 	EnhancedInputComponent->BindAction(DeleteBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::DeleteBuildingComponent);
 	
+}
+
+void ATimberPlayerController::PerformReticleAlignment_Raycast()
+{
+	/*
+	 * Performs Raycast from the camera to the center of the screen and aligns the reticle to the hit location.
+	 */
+	FVector CameraLocation;
+	FVector CameraDirection;
+
+	int ViewportSizeX;
+	int ViewportSizeY;
+	GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+	FVector2d ScreenCenter(ViewportSizeX * 0.5f, ViewportSizeY * 0.5f);
+	
+	/*
+	 * Camera is the screen as you see it.
+	 * Line Trace goes from the center of the screen (where reticule should be) out to the world by X (10,000.f) units.
+	 * Expensive, but that's why we only want 1 hit result.
+	 */
+	if(DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, CameraLocation, CameraDirection))
+	{
+		if(CameraDirection.Normalize())
+		{
+			FHitResult HitResult;
+			FVector End = CameraLocation + (CameraDirection * 10000.f);
+			FCollisionQueryParams QueryParams;
+			QueryParams.AddIgnoredActor(GetPawn());
+			QueryParams.AddIgnoredActor(TimberCharacter->GetCurrentlyEquippedWeapon());
+			if(GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, End, ECC_Visibility))
+			{
+				ReticleHitLocation = HitResult.ImpactPoint;
+			}else
+			{
+				ReticleHitLocation = End;
+			}
+		}
+	}	
 }
 
 void ATimberPlayerController::MovePlayerToStartLocation()
@@ -369,7 +410,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::RangedEquipped:
 			{
-				TimberCharacter->WeaponThreeInstance->FireRangedWeapon();
+				TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticleHitLocation);
 			}
 			break;
 		case EWeaponState::Unequipped:

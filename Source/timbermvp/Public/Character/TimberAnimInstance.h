@@ -30,22 +30,19 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
 	ATimberPlayableCharacter* OwningPawn;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
 	ATimberPlayerController* PlayerController;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
 	bool CharacterNControllerInitialized = false;
 
 	UFUNCTION(BlueprintCallable)
 	void OnWeaponStateChange(EWeaponState WeaponState);
-	
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	bool isRangedEquipped = false;
 
 	UFUNCTION(BlueprintCallable)
 	void InitializeDelegates();
-
-private:
-	
 };

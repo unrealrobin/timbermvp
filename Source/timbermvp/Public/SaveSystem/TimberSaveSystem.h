@@ -28,7 +28,6 @@ class TIMBERMVP_API UTimberSaveSystem : public USaveGame
 	GENERATED_BODY()
 
 public:
-
 	//Save Game Variables Here.
 
 	UPROPERTY(VisibleAnywhere, Category="Wave Data")

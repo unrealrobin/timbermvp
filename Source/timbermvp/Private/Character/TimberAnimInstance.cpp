@@ -10,21 +10,19 @@ void UTimberAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 
-	if(!OwningPawn)
+	if (!OwningPawn)
 	{
 		OwningPawn = Cast<ATimberPlayableCharacter>(GetOwningActor());
 	}
 
-	if(OwningPawn)
+	if (OwningPawn)
 	{
 		PlayerController = Cast<ATimberPlayerController>(OwningPawn->GetController());
 	}
-	
 }
 
 void UTimberAnimInstance::InitializeDelegates()
 {
-	
 }
 
 void UTimberAnimInstance::NativeInitializeAnimation()
@@ -35,30 +33,26 @@ void UTimberAnimInstance::NativeInitializeAnimation()
 void UTimberAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
-	
 }
 
 void UTimberAnimInstance::OnWeaponStateChange(EWeaponState WeaponState)
 {
-	switch(WeaponState)
+	switch (WeaponState)
 	{
 	case EWeaponState::RangedEquipped:
 		isRangedEquipped = true;
 		break;
-	case EWeaponState::AxeEquipped :
+	case EWeaponState::AxeEquipped:
 		isRangedEquipped = false;
 		break;
-	case EWeaponState::ChainsawEquipped :
+	case EWeaponState::ChainsawEquipped:
 		isRangedEquipped = false;
 		break;
-	case EWeaponState::Unequipped :
+	case EWeaponState::Unequipped:
 		isRangedEquipped = false;
 		break;
-	default :
+	default:
 		isRangedEquipped = false;
 		break;
 	}
 }
-
-
-

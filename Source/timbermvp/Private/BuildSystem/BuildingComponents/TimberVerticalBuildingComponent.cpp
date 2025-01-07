@@ -11,14 +11,12 @@ ATimberVerticalBuildingComponent::ATimberVerticalBuildingComponent()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BuildingOrientation = EBuildingComponentOrientation::Vertical;
-	
 }
 
 // Called when the game starts or when spawned
 void ATimberVerticalBuildingComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -26,4 +24,3 @@ void ATimberVerticalBuildingComponent::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

@@ -13,5 +13,4 @@ UCLASS()
 class TIMBERMVP_API UTimberAiAnimInstanceBase : public UAnimInstance
 {
 	GENERATED_BODY()
-	
 };

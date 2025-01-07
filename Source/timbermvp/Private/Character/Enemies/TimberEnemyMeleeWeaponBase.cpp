@@ -19,7 +19,6 @@ void ATimberEnemyMeleeWeaponBase::BeginPlay()
 	Super::BeginPlay();
 
 	EquipMeleeWeapon(MeleeWeaponClassName);
-	
 }
 
 void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName)
@@ -29,30 +28,31 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 	SpawnParameters.Owner = this;
 	SpawnParameters.Instigator = GetInstigator();
 
-	if(GetMesh())
+	if (GetMesh())
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Black, "Mesh Found for Melee Weapon Spawn.");
-		
+
 		const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandWeaponSocket");
-		if(RHandSocketTransform.IsValid())
+		if (RHandSocketTransform.IsValid())
 		{
 			GEngine->AddOnScreenDebugMessage(2, 5.0, FColor::Black, "Right Hand Socket Transform Found");
-			
-			AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(WeaponClassName,
-				RHandSocketTransform.GetLocation(), 
+
+			AActor* WeaponActor = GetWorld()->SpawnActor<ATimberWeaponBase>(
+				WeaponClassName,
+				RHandSocketTransform.GetLocation(),
 				RHandSocketTransform
 				.GetRotation().Rotator(),
 				SpawnParameters);
-	
+
 			EquippedWeapon = Cast<ATimberWeaponBase>(WeaponActor);
-			if(EquippedWeapon)
+			if (EquippedWeapon)
 			{
-				EquippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandWeaponSocket" );
+				EquippedWeapon->AttachToComponent(
+					GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandWeaponSocket");
 				EnemyWeaponType = EEnemyWeaponState::MeleeWeaponEquipped;
 			}
 		}
 	}
-	
 }
 
 // Called every frame
@@ -60,4 +60,3 @@ void ATimberEnemyMeleeWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

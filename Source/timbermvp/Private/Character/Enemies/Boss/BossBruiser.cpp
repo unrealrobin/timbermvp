@@ -8,7 +8,6 @@
 #include "Components/CapsuleComponent.h"
 
 
-
 // Sets default values
 ABossBruiser::ABossBruiser()
 {
@@ -36,22 +35,19 @@ void ABossBruiser::Tick(float DeltaTime)
 
 void ABossBruiser::EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
 {
-	if(WWCapsuleComponent)
+	if (WWCapsuleComponent)
 	{
 		WWCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 		WWCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	}
-	
-	
 }
 
 void ABossBruiser::DisableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
 {
-	if(WWCapsuleComponent)
+	if (WWCapsuleComponent)
 	{
 		WWCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	}
-	
 }
 
 void ABossBruiser::HandleWhirlwindOverlap(
@@ -61,7 +57,7 @@ void ABossBruiser::HandleWhirlwindOverlap(
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 
 	//Only damages the Player, will not Damage other enemies or Building Components.
-	if(PlayerCharacter)
+	if (PlayerCharacter)
 	{
 		PlayerCharacter->PlayerTakeDamage(WhirlwindTickDamage);
 	}
@@ -72,7 +68,7 @@ void ABossBruiser::HandleBHandSlapOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(PlayerCharacter)
+	if (PlayerCharacter)
 	{
 		PlayerCharacter->PlayerTakeDamage(BHandSlapDamage);
 	}
@@ -84,7 +80,7 @@ void ABossBruiser::HandleOverHeadSmashOverlap(
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("OverHeadSmashOverlap"));
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	if(PlayerCharacter)
+	if (PlayerCharacter)
 	{
 		PlayerCharacter->PlayerTakeDamage(OverHeadSmashDamage);
 	}
@@ -93,22 +89,22 @@ void ABossBruiser::HandleOverHeadSmashOverlap(
 void ABossBruiser::SpawnOverHeadCapsule()
 {
 	OverHeadSmashCapsuleComponent = NewObject<UCapsuleComponent>(this);
-	if(OverHeadSmashCapsuleComponent)
+	if (OverHeadSmashCapsuleComponent)
 	{
-		OverHeadSmashCapsuleComponent->AttachToComponent(OverHeadSmashCapsuleSpawnLocation, 
-		FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		OverHeadSmashCapsuleComponent->AttachToComponent(
+			OverHeadSmashCapsuleSpawnLocation,
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		OverHeadSmashCapsuleComponent->RegisterComponent();
 		OverHeadSmashCapsuleComponent->SetCapsuleHalfHeight(OverHeadSmashCapsuleHeight, true);
 		OverHeadSmashCapsuleComponent->SetCapsuleRadius(OverHeadSmashCapsuleRadius, true);
 		//Collision Delegate
-		OverHeadSmashCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleOverHeadSmashOverlap);
+		OverHeadSmashCapsuleComponent->OnComponentBeginOverlap.AddDynamic(
+			this, &ABossBruiser::HandleOverHeadSmashOverlap);
 
 		//TODO:: May need to be more stringent with the collision setting. This should only damage players within the AOE of the attack.
 		OverHeadSmashCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 		OverHeadSmashCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		OverHeadSmashCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
-		
 	}
 }
 
@@ -122,12 +118,12 @@ void ABossBruiser::DestroyOverHeadCapsule()
 
 void ABossBruiser::SetupCapsuleComponents()
 {
-	if(GetMesh())
+	if (GetMesh())
 	{
 		//Used for HeadShotCollisions
 		HeadCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("HeadCapsuleComponent");
 		HeadCapsuleComponent->SetupAttachment(GetMesh(), FName("headSocket"));
-		
+
 		//Used only for attack animation collision
 		RightArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("RightArmCapsuleComponent");
 		LeftArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("LeftArmCapsuleComponent");
@@ -144,9 +140,8 @@ void ABossBruiser::SetupCapsuleComponents()
 		DisableCollisionToDamagePlayerOnly(WhirlwindLeftCollisionSphere);
 
 		//Creating Scene Component To Spawn Overhead Smash Location
-		OverHeadSmashCapsuleSpawnLocation = CreateDefaultSubobject<USceneComponent>("OverHeadSmashCapsuleSpawnLocation");
+		OverHeadSmashCapsuleSpawnLocation = CreateDefaultSubobject<
+			USceneComponent>("OverHeadSmashCapsuleSpawnLocation");
 		OverHeadSmashCapsuleSpawnLocation->SetupAttachment(GetRootComponent());
-		
-		
 	}
 }

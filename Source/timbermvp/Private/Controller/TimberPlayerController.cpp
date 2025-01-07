@@ -21,17 +21,18 @@ void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
 
 	//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
 	// This is used for the Saving and Loading Process. We need a Location in space to respawn during load.
-	APlayerStart* PlayerStartObject = Cast<APlayerStart>(UGameplayStatics::GetActorOfClass(GetWorld(),
-	APlayerStart::StaticClass()));
+	APlayerStart* PlayerStartObject = Cast<APlayerStart>(
+		UGameplayStatics::GetActorOfClass(
+			GetWorld(),
+			APlayerStart::StaticClass()));
 	PlayerStartLocation = PlayerStartObject->GetActorLocation();
-	
+
 	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
-	
+
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
@@ -41,7 +42,7 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberPlayerController::HandlePlayerDeath);
 
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	if(GameMode)
+	if (GameMode)
 	{
 		GameMode->EnableStandardInputMappingContext.BindUFunction(this, FName("EnableStandardKeyboardInput"));
 	}
@@ -55,21 +56,35 @@ void ATimberPlayerController::SetupInputComponent()
 
 	//Binding Move Function
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Move);
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ATimberPlayerController::MoveComplete);
+	EnhancedInputComponent->BindAction(
+		MoveAction, ETriggerEvent::Completed, this, &ATimberPlayerController::MoveComplete);
 	EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookUp);
-	EnhancedInputComponent->BindAction(LookRightAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookRight);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::CharacterJump);
-	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
-	EnhancedInputComponent->BindAction(EquipWeaponOneAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponOne);
-	EnhancedInputComponent->BindAction(EquipWeaponTwoAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponTwo);
-	EnhancedInputComponent->BindAction(EquipWeaponThreeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponThree);
-	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
-	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
-	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
-	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
-	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
-	EnhancedInputComponent->BindAction(DeleteBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::DeleteBuildingComponent);
-	
+	EnhancedInputComponent->BindAction(
+		LookRightAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookRight);
+	EnhancedInputComponent->BindAction(
+		JumpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::CharacterJump);
+	EnhancedInputComponent->BindAction(
+		InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
+	EnhancedInputComponent->BindAction(
+		EquipWeaponOneAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponOne);
+	EnhancedInputComponent->BindAction(
+		EquipWeaponTwoAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponTwo);
+	EnhancedInputComponent->BindAction(
+		EquipWeaponThreeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponThree);
+	EnhancedInputComponent->BindAction(
+		StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
+	EnhancedInputComponent->BindAction(
+		ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
+	EnhancedInputComponent->BindAction(
+		RotateBuildingComponentAction, ETriggerEvent::Triggered, this,
+		&ATimberPlayerController::RotateBuildingComponent);
+	EnhancedInputComponent->BindAction(
+		PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
+	EnhancedInputComponent->BindAction(
+		HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
+	EnhancedInputComponent->BindAction(
+		DeleteBuildingComponentAction, ETriggerEvent::Triggered, this,
+		&ATimberPlayerController::DeleteBuildingComponent);
 }
 
 void ATimberPlayerController::PerformReticleAlignment_Raycast()
@@ -85,35 +100,36 @@ void ATimberPlayerController::PerformReticleAlignment_Raycast()
 	GetViewportSize(ViewportSizeX, ViewportSizeY);
 
 	FVector2d ScreenCenter(ViewportSizeX * 0.5f, ViewportSizeY * 0.5f);
-	
+
 	/*
 	 * Camera is the screen as you see it.
 	 * Line Trace goes from the center of the screen (where reticule should be) out to the world by X (10,000.f) units.
 	 * Expensive, but that's why we only want 1 hit result.
 	 */
-	if(DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, CameraLocation, CameraDirection))
+	if (DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, CameraLocation, CameraDirection))
 	{
-		if(CameraDirection.Normalize())
+		if (CameraDirection.Normalize())
 		{
 			FHitResult HitResult;
 			FVector End = CameraLocation + (CameraDirection * 10000.f);
 			FCollisionQueryParams QueryParams;
 			QueryParams.AddIgnoredActor(GetPawn());
 			QueryParams.AddIgnoredActor(TimberCharacter->GetCurrentlyEquippedWeapon());
-			if(GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, End, ECC_Visibility))
+			if (GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, End, ECC_Visibility))
 			{
 				ReticleHitLocation = HitResult.ImpactPoint;
-			}else
+			}
+			else
 			{
 				ReticleHitLocation = End;
 			}
 		}
-	}	
+	}
 }
 
 void ATimberPlayerController::MovePlayerToStartLocation()
 {
-	if(PlayerStartLocation != FVector(0.f,0.f,0.f))
+	if (PlayerStartLocation != FVector(0.f, 0.f, 0.f))
 	{
 		TimberCharacter->SetActorLocation(PlayerStartLocation);
 	}
@@ -122,14 +138,16 @@ void ATimberPlayerController::MovePlayerToStartLocation()
 void ATimberPlayerController::EnableCursor()
 {
 	bShowMouseCursor = true;
-	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(
+		TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
 	CharacterSpringArm->bUsePawnControlRotation = false;
 }
 
 void ATimberPlayerController::DisableCursor()
 {
 	bShowMouseCursor = false;
-	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(
+		TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
 	CharacterSpringArm->bUsePawnControlRotation = true;
 }
 
@@ -156,7 +174,8 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 
 		// Rotates the Character to the direction of the Camera Smoothly
 		const FRotator TargetForwardDirection = FRotator(0.f, ControllerRotation.Yaw, 0.f);
-		FRotator NewRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), TargetForwardDirection, GetWorld()->GetDeltaSeconds(), 5.f);
+		FRotator NewRotation = FMath::RInterpTo(
+			ControlledPawn->GetActorRotation(), TargetForwardDirection, GetWorld()->GetDeltaSeconds(), 5.f);
 		ControlledPawn->SetActorRotation(NewRotation);
 
 		//Adding Movement Input to the Character
@@ -168,18 +187,17 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 void ATimberPlayerController::MoveComplete(const FInputActionValue& Value)
 {
 	//This just resets the MoveInputActionValue to 0,0 after the last input is released. Otherwise the character will keep moving in the last direction.
-	MoveInputActionValue = FVector2d(0.f,0.f);
-	
+	MoveInputActionValue = FVector2d(0.f, 0.f);
 }
 
 void ATimberPlayerController::LookUp(const FInputActionValue& Value)
 {
 	const float CurrentPitch = TimberCharacter->GetControlRotation().Pitch;
 	const float ClampedPitch = FMath::Clamp(CurrentPitch + Value.Get<float>(), ViewPitchMin, ViewPitchMax);
-	
+
 	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
 	UpdatedRotation.Pitch = ClampedPitch;
-	
+
 	SetControlRotation(UpdatedRotation);
 	PitchAngle = UpdatedRotation.Pitch;
 }
@@ -199,9 +217,12 @@ void ATimberPlayerController::CanCharacterJump()
 	bool bIsIdle = TimberCharacterMovementComponent->Velocity.Size() == 0.1f;
 	bool IsFalling = TimberCharacterMovementComponent->IsFalling();
 
-	if(IsFalling) CanJump = false;
-	
-	if(bIsMovingOnGround || bIsIdle )
+	if (IsFalling)
+	{
+		CanJump = false;
+	}
+
+	if (bIsMovingOnGround || bIsIdle)
 	{
 		CanJump = true;
 	}
@@ -213,7 +234,8 @@ void ATimberPlayerController::CanCharacterJump()
 
 void ATimberPlayerController::JumpComplete()
 {
-	TimberCharacter->IsNowJumping = false; //Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
+	TimberCharacter->IsNowJumping = false;
+	//Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
 	SwitchToWalking = true;
 	CanJump = false;
 }
@@ -222,22 +244,22 @@ void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 {
 	CanCharacterJump(); // sets the CanJump Variable
 	SwitchToWalking = false;
-	if(CanJump)
+	if (CanJump)
 	{
-		TimberCharacter->IsNowJumping = true; //Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
-		if(TimberCharacter->IsNowJumping)
+		TimberCharacter->IsNowJumping = true;
+		//Is the Bool we use to Switch between Animations Tracks for Blending Purposes.
+		if (TimberCharacter->IsNowJumping)
 		{
 			TimberCharacter->Jump();
 		}
 	}
-	
 }
 
 void ATimberPlayerController::Interact(const FInputActionValue& Value)
 {
-	if(Value.Get<bool>() && InteractableItem)
+	if (Value.Get<bool>() && InteractableItem)
 	{
-		if(InteractableItem)
+		if (InteractableItem)
 		{
 			InteractableItem->Interact();
 		}
@@ -246,45 +268,43 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 
 void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
-	if(TimberCharacter)
+	if (TimberCharacter)
 	{
-		
 		//TODO:: Play Equip Axe Animation
 		UnEquipWeapon();
 		ExitBuildMode(ECharacterState::Standard);
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
 		WeaponState.Broadcast(EWeaponState::AxeEquipped);
-		
+
 		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this; //Controller Owns the Object
-		SpawnParams.Instigator = Cast<ATimberPlayableCharacter>(GetPawn()); // Instigator uses the object and instigates the actions with the Actor.
+		SpawnParams.Instigator = Cast<ATimberPlayableCharacter>(GetPawn());
+		// Instigator uses the object and instigates the actions with the Actor.
 
 		//Socket Rotation and Location
 		const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("AxeSocket");
 		const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("AxeSocket");
 
-		FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("AxeSocket", ERelativeTransformSpace::RTS_World);
+		FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("AxeSocket", RTS_World);
 		FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
 		FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
-		
-		
+
 
 		//Spawn the Weapon
 		ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>
-		(TimberCharacter->WeaponOne, 
-		SocketWorldLocation, SocketWorldRotation, SpawnParams);
+		(
+			TimberCharacter->WeaponOne,
+			SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
 		//Attach Actor to the Socket Location
-		SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "AxeSocket");
+		SpawnedActor->AttachToComponent(
+			TimberCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "AxeSocket");
 
 		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
 		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
-		
-		
-		
 	}
 }
 
@@ -305,24 +325,25 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("ChainSawSocket");
 	const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("ChainSawSocket");
 
-	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("ChainSawSocket", ERelativeTransformSpace::RTS_World);
+	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("ChainSawSocket", RTS_World);
 	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
 	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
 
 	//Spawn the Actor
-	ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>(TimberCharacter->WeaponTwo, 
-	SocketWorldLocation, SocketWorldRotation, SpawnParams);
+	ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>(
+		TimberCharacter->WeaponTwo,
+		SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
 	//Attach Actor to the Socket Location
-	SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
-	FAttachmentTransformRules::SnapToTargetIncludingScale, "ChainSawSocket");
+	SpawnedActor->AttachToComponent(
+		TimberCharacter->GetMesh(),
+		FAttachmentTransformRules::SnapToTargetIncludingScale, "ChainSawSocket");
 
 	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 	TimberCharacter->WeaponTwoInstance = SpawnedActor;
 	TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
 	//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
 	SpawnedActor->SetOwner(TimberCharacter);
-	
 }
 
 void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
@@ -335,7 +356,7 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	WeaponState.Broadcast(EWeaponState::RangedEquipped);
 
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-	 FActorSpawnParameters SpawnParams;
+	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = TimberCharacter;
 	SpawnParams.Instigator = GetInstigator();
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -345,18 +366,20 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("RangedSocket");
 	const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("RangedSocket");
 
-	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("RangedSocket", ERelativeTransformSpace::RTS_World);
+	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("RangedSocket", RTS_World);
 	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
 	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
 
 	//Spawn the Actor
 	ATimberWeaponRangedBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponRangedBase>
-	(TimberCharacter->WeaponThree, 
-	SocketWorldLocation, SocketWorldRotation, SpawnParams);
+	(
+		TimberCharacter->WeaponThree,
+		SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
 	//Attach Actor to the Socket Location
-	SpawnedActor->AttachToComponent(TimberCharacter->GetMesh(), 
-	FAttachmentTransformRules::SnapToTargetIncludingScale, "RangedSocket");
+	SpawnedActor->AttachToComponent(
+		TimberCharacter->GetMesh(),
+		FAttachmentTransformRules::SnapToTargetIncludingScale, "RangedSocket");
 
 	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 	TimberCharacter->WeaponThreeInstance = SpawnedActor;
@@ -381,7 +404,7 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 void ATimberPlayerController::UnEquipWeapon() const
 {
 	//TODO:: Play Unequip Animation
-	if(TimberCharacter->GetCurrentlyEquippedWeapon())
+	if (TimberCharacter->GetCurrentlyEquippedWeapon())
 	{
 		//Removing the Currently EquippedWeapon
 		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
@@ -393,7 +416,7 @@ void ATimberPlayerController::UnEquipWeapon() const
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 {
-	if(TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped && CanAttackAgain)
+	if (TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped && CanAttackAgain)
 	{
 		switch (TimberCharacter->GetCurrentWeaponState())
 		{
@@ -421,8 +444,6 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		}
 	}
-
-	
 }
 
 
@@ -432,12 +453,12 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 
 void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 {
-	
-	TimberCharacter->CharacterState == ECharacterState::Building ? TimberCharacter->CharacterState = ECharacterState::Standard : 
-	TimberCharacter->CharacterState = ECharacterState::Building;
+	TimberCharacter->CharacterState == ECharacterState::Building
+		? TimberCharacter->CharacterState = ECharacterState::Standard
+		: TimberCharacter->CharacterState = ECharacterState::Building;
 
 	// Exiting Build Mode
-	if(TimberCharacter->CharacterState == ECharacterState::Standard)
+	if (TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
 		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
 		ExitBuildMode(ECharacterState::Standard);
@@ -447,12 +468,11 @@ void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 	if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
 		OpenBuildModeSelectionMenu();
-		if(Subsystem)
+		if (Subsystem)
 		{
 			Subsystem->AddMappingContext(BuildModeInputMappingContext, 2);
 		}
 		UnEquipWeapon();
-		
 	}
 }
 
@@ -462,14 +482,13 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 
 	CloseBuildModeSelectionMenu();
 	DisableCursor();
-	
-	if(Subsystem)
+
+	if (Subsystem)
 	{
 		// Removing the Buttons used for Build Mode.
 		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
-		
 	}
-	
+
 	TimberCharacter->ExitBuildMode();
 }
 
@@ -478,7 +497,6 @@ void ATimberPlayerController::OpenBuildModeSelectionMenu()
 	UE_LOG(LogTemp, Warning, TEXT("Opening Build Mode Selection Menu Broadcasted"));
 	IsBuildPanelOpen.Broadcast(true);
 	EnableCursor();
-	
 }
 
 void ATimberPlayerController::CloseBuildModeSelectionMenu()
@@ -490,7 +508,7 @@ void ATimberPlayerController::CloseBuildModeSelectionMenu()
 
 void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)
 {
-	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->BuildSystemManager)
+	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->BuildSystemManager)
 	{
 		TimberCharacter->BuildSystemManager->RotateBuildingComponent();
 	}
@@ -498,13 +516,11 @@ void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& V
 
 void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Value)
 {
-	
 	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
-	if(BuildSystemManager)
+	if (BuildSystemManager)
 	{
 		BuildSystemManager->SpawnFinalBuildingComponent();
 	}
-	
 }
 
 void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
@@ -519,7 +535,7 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 
 	//Pressing the E button will Delete if Held for 1 Full second.
 
-	if(TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
+	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 	{
 		//TODO:: Make some kind of Deleted Animation for Building Component so player visually understand the deletion.
 		TimberCharacter->HoveredBuildingComponent->Destroy();
@@ -530,9 +546,8 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 {
 	//TODO:: Implement Player Death
-	if(bIsPlayerDead)
+	if (bIsPlayerDead)
 	{
-		
 		//TODO:: Play Death Animation
 		EnableCursor();
 		DisableAllKeyboardInput();
@@ -540,12 +555,5 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 
 		//Subscribed on the HUD to Show the Death UI
 		HandleDeathUI_DelegateHandle.Execute();
-
-		
 	}
-	
 }
-
-
-
-

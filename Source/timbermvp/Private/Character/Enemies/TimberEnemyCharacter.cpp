@@ -24,7 +24,6 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	RaycastStartPoint->SetupAttachment(RootComponent);
 
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
-	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -34,7 +33,6 @@ void ATimberEnemyCharacter::BeginPlay()
 	/* Listening to Delegate Broadcast from TimberGameMode */
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
-	
 }
 
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
@@ -49,12 +47,12 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 	//TODO:: We need to change this here to be more dynamic. We need to check what caused the damage to the enemy. Only if it was the player should it generate threat.
 	//Used for AI Damage/Aggro System
 	//If the player has dealt more than 20 damage to the enemy, the enemy will aggro the player. Causing the BB Value to Change
-	if(MaxHealth - CurrentHealth > 20.f)
+	if (MaxHealth - CurrentHealth > 20.f)
 	{
 		bHasBeenAggroByPlayer = true;
 	}
 
-	if(CurrentHealth <= 0.f)
+	if (CurrentHealth <= 0.f)
 	{
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
 		ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -73,7 +71,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 void ATimberEnemyCharacter::PlayProjectileHitSound(FHitResult HitResult)
 {
 	FVector HitLocation = HitResult.ImpactPoint;
-	if(ProjectileHitSound)
+	if (ProjectileHitSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ProjectileHitSound, HitLocation);
 	}
@@ -84,7 +82,7 @@ void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 	GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "PlayMeleeHitSoundCalled.");
 
 	FVector HitLocation = HitResult.ImpactPoint;
-	if(MeleeHitSound)
+	if (MeleeHitSound)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "Playing Hit Sound.");
 		UGameplayStatics::PlaySoundAtLocation(this, MeleeHitSound, HitLocation);
@@ -97,10 +95,9 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 	TArray<USceneComponent*> CollisionComponents;
 	GetRootComponent()->GetChildrenComponents(true, CollisionComponents);
 	CollisionComponents.Add(GetRootComponent());
-	for (USceneComponent* Component: CollisionComponents)
+	for (USceneComponent* Component : CollisionComponents)
 	{
-		
-		if (UShapeComponent* ShapeComponent = Cast<UShapeComponent>(Component) )
+		if (UShapeComponent* ShapeComponent = Cast<UShapeComponent>(Component))
 		{
 			/*Remove All Collisions but dont fall through the map.*/
 			ShapeComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -116,7 +113,6 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 		}
 		UE_LOG(LogTemp, Warning, TEXT("Collision Disabled for a Single Component"));
 	}
-	
 }
 
 void ATimberEnemyCharacter::HandleEnemyDeath()
@@ -130,19 +126,19 @@ void ATimberEnemyCharacter::HandleWeaponDestruction()
 	ATimberEnemyMeleeWeaponBase* MeleeWeaponEnemy = Cast<ATimberEnemyMeleeWeaponBase>(this);
 	ATimberEnemyRangedBase* RangedWeaponEnemy = Cast<ATimberEnemyRangedBase>(this);
 
-	if(MeleeWeaponEnemy)
+	if (MeleeWeaponEnemy)
 	{
-		if(MeleeWeaponEnemy->EquippedWeapon)
+		if (MeleeWeaponEnemy->EquippedWeapon)
 		{
 			MeleeWeaponEnemy->EquippedWeapon->Destroy();
 		}
 	}
 
-	if(RangedWeaponEnemy)
+	if (RangedWeaponEnemy)
 	{
-		if(RangedWeaponEnemy->EquippedWeapon)
+		if (RangedWeaponEnemy->EquippedWeapon)
 		{
-		RangedWeaponEnemy->EquippedWeapon->Destroy();
+			RangedWeaponEnemy->EquippedWeapon->Destroy();
 		}
 	}
 }
@@ -177,23 +173,22 @@ ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 
 	//Get Seeda Location
 	FVector RaycastEnd = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode())->SeedaLocation;
-	
-	TArray<FHitResult> HitResults;
-	
-	bool bHit = GetWorld()->LineTraceMultiByChannel(
-				HitResults,
-				RaycastStart,
-				RaycastEnd,
-				ECC_Visibility);
 
-	for(FHitResult HitActors:  HitResults)
+	TArray<FHitResult> HitResults;
+
+	bool bHit = GetWorld()->LineTraceMultiByChannel(
+		HitResults,
+		RaycastStart,
+		RaycastEnd,
+		ECC_Visibility);
+
+	for (FHitResult HitActors : HitResults)
 	{
-		if(HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
+		if (HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
 		{
 			return Cast<ATimberBuildingComponentBase>(HitActors.GetActor());
 		}
 	}
 
 	return nullptr;
-	
 }

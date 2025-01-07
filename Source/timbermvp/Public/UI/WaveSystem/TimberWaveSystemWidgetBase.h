@@ -17,7 +17,6 @@ class TIMBERMVP_API UTimberWaveSystemWidgetBase : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
@@ -30,8 +29,6 @@ public:
 	ATimberGameModeBase* GameMode;
 
 protected:
-
 	UFUNCTION()
 	void UpdateCurrentWave(float CurrentWaveNumber);
-	
 };

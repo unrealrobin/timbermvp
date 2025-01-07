@@ -17,7 +17,6 @@ ATimberHorizontalBuildingComponent::ATimberHorizontalBuildingComponent()
 void ATimberHorizontalBuildingComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -25,4 +24,3 @@ void ATimberHorizontalBuildingComponent::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

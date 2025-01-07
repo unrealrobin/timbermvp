@@ -12,7 +12,7 @@ ATimberEnemyProjectile::ATimberEnemyProjectile()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	if(CapsuleComponent)
+	if (CapsuleComponent)
 	{
 		CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyProjectile::HandleOverlap);
 	}
@@ -22,7 +22,6 @@ ATimberEnemyProjectile::ATimberEnemyProjectile()
 void ATimberEnemyProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -37,7 +36,7 @@ void ATimberEnemyProjectile::HandleOverlap(
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 
-	if(PlayerCharacter)
+	if (PlayerCharacter)
 	{
 		PlayerCharacter->PlayerTakeDamage(ProjectileBaseDamage);
 		Destroy();
@@ -47,4 +46,3 @@ void ATimberEnemyProjectile::HandleOverlap(
 		Destroy();
 	}
 }
-

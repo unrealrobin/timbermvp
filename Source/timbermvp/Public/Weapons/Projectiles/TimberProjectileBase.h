@@ -14,8 +14,8 @@ UCLASS()
 class TIMBERMVP_API ATimberProjectileBase : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ATimberProjectileBase();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -31,10 +31,8 @@ protected:
 	float ProjectileBaseDamage = 2.0f;
 	UFUNCTION()
 	void HandleDestroyAfterNoCollision();
+
 public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Weapon Projectiles")
 	UProjectileMovementComponent* ProjectileMovementComponent;
-
-	
-
 };

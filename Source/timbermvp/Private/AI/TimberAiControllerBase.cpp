@@ -7,7 +7,6 @@
 ATimberAiControllerBase::ATimberAiControllerBase()
 {
 	AiBehaviorTree = CreateDefaultSubobject<UBehaviorTreeComponent>("BehaviorTreeComponent");
-	
 }
 
 void ATimberAiControllerBase::BeginPlay()

@@ -15,7 +15,7 @@ ATimberPlayerProjectile::ATimberPlayerProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	//Overlap Delegate
-	if(CapsuleComponent)
+	if (CapsuleComponent)
 	{
 		CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberPlayerProjectile::HandleOverlap);
 	}
@@ -25,7 +25,6 @@ ATimberPlayerProjectile::ATimberPlayerProjectile()
 void ATimberPlayerProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -39,8 +38,8 @@ void ATimberPlayerProjectile::HandleOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
-	
-	if(HitEnemy)
+
+	if (HitEnemy)
 	{
 		//Play the IDamageableEnemy's TakeDamage function. Interface.
 		HitEnemy->PlayProjectileHitSound(SweepResult);
@@ -49,6 +48,4 @@ void ATimberPlayerProjectile::HandleOverlap(
 		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
 		Destroy();
 	}
-	
 }
-

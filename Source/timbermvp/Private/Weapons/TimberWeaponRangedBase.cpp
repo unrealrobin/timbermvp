@@ -35,9 +35,9 @@ void ATimberWeaponRangedBase::Tick(float DeltaTime)
 
 void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 {
-	if(WeaponOwner && GetWorld())
+	if (WeaponOwner && GetWorld())
 	{
-		if(ProjectileType)
+		if (ProjectileType)
 		{
 			FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 			//FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
@@ -49,10 +49,11 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = WeaponOwner;
 
-			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, 
-			ProjectileSpawnLocation, AimRotation, SpawnParams);
+			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
+				ProjectileType,
+				ProjectileSpawnLocation, AimRotation, SpawnParams);
 
-			if(Projectile)
+			if (Projectile)
 			{
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, ProjectileSpawnLocation);
 				Projectile->SetOwner(this);
@@ -60,25 +61,26 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 			}
 		}
 	}
-	
-	
 }
 
 void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 {
-	if(WeaponOwner && GetWorld())
+	if (WeaponOwner && GetWorld())
 	{
-		if(ProjectileType)
+		if (ProjectileType)
 		{
 			GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile All Variables Loaded");
 			FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 
 			//Get Player Character
-			FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
-			FRotator RandomAimOffset = FRotator(FMath::RandRange(-3, 3), FMath::RandRange(-3, 3), FMath::RandRange(-3, 3));
-			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, ProjectileSpawnLocation, ControllerDirection + RandomAimOffset);
+			FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->
+				GetControlRotation();
+			FRotator RandomAimOffset = FRotator(
+				FMath::RandRange(-3, 3), FMath::RandRange(-3, 3), FMath::RandRange(-3, 3));
+			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
+				ProjectileType, ProjectileSpawnLocation, ControllerDirection + RandomAimOffset);
 
-			if(Projectile)
+			if (Projectile)
 			{
 				UGameplayStatics::PlaySoundAtLocation(this, FiringSound, ProjectileSpawnLocation);
 				Projectile->SetOwner(this);
@@ -91,4 +93,3 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 void ATimberWeaponRangedBase::PerformStandardAttack()
 {
 }
-

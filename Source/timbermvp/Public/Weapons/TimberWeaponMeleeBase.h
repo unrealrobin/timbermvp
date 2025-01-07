@@ -7,6 +7,7 @@
 #include "TimberWeaponMeleeBase.generated.h"
 
 class ATimberPlayableCharacter;
+class USoundCue;
 
 UCLASS()
 class TIMBERMVP_API ATimberWeaponMeleeBase : public ATimberWeaponBase
@@ -34,17 +35,19 @@ public:
 	/*Collision Component*/
 	UPROPERTY(EditAnywhere, Category="Components")
 	UBoxComponent* WeaponBoxComponent;
-	
+
 	UFUNCTION(BlueprintCallable, Category="Collision")
 	void HandleWeaponCollision(bool ShouldReadyCollision) const;
 
 	UFUNCTION()
-	virtual void OnWeaponOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* 
-	OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) ;
+	virtual void OnWeaponOverlapBegin(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	virtual void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* 
-	OtherComp, int32 OtherBodyIndex);
+	virtual void OnWeaponOverlapEnd(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+		OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
 	void EmptyActorToIgnoreArray();

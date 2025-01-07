@@ -17,7 +17,7 @@ class TIMBERMVP_API ATimberEnemyRangedBase : public ATimberEnemyCharacter
 public:
 	ATimberEnemyRangedBase();
 	virtual void Tick(float DeltaTime) override;
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,7 +30,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ".Weapon Info")
 	ATimberWeaponRangedBase* EquippedWeapon;
-
-	
-	
 };

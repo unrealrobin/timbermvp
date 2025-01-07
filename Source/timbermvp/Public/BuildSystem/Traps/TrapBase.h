@@ -32,11 +32,9 @@ class TIMBERMVP_API ATrapBase : public ABuildableBase
 	GENERATED_BODY()
 
 public:
-	
 	ATrapBase();
 
 protected:
-	
 	virtual void BeginPlay() override;
 
 	void DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh);
@@ -48,17 +46,17 @@ protected:
 	TArray<AActor*> InsideHitBoxArray;
 
 public:
-
 	virtual void Tick(float DeltaTime) override;
-	
+
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTrapFinalizationChange, bool, CanTrapBeFinalized);
+
 	FOnTrapFinalizationChange OnTrapFinalizationChange;
 
 	/* Placement Utilities */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building Component")
 	ATimberBuildingComponentBase* HoveredBuildingComponent = nullptr;
-	
+
 	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	UStaticMeshComponent* TrapBaseStaticMesh;
@@ -80,12 +78,14 @@ public:
 
 	/*Hit Area Utilities*/
 	UFUNCTION()
-	virtual void HitBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void HitBoxBeginOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-	virtual void HitBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
+	virtual void HitBoxEndOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 	void AddEnemyToInsideHitBoxArray(AActor* Enemy);
 	void RemoveEnemyFromInsideHitBoxArray(AActor* Enemy);
 };

@@ -14,8 +14,8 @@ UCLASS()
 class TIMBERMVP_API ATestObj : public AActor, public IInteractable
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ATestObj();
 
@@ -23,7 +23,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -37,9 +37,13 @@ public:
 	TObjectPtr<UStaticMeshComponent> StaticMeshAttachment;
 
 	UFUNCTION()
-	void SetInteractItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	void SetInteractItem(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-	void UnSetInteractItem(UPrimitiveComponent*OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void UnSetInteractItem(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 
 	UPROPERTY(EditAnywhere, Category = "Enemy")
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemyToSpawn;

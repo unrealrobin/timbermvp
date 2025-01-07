@@ -7,6 +7,7 @@
 #include "TimberWeaponRangedBase.generated.h"
 
 class ATimberCharacterBase;
+class USoundCue;
 
 UCLASS()
 class TIMBERMVP_API ATimberWeaponRangedBase : public ATimberWeaponBase
@@ -25,7 +26,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-
 	UPROPERTY(VisibleAnywhere, Category = Owner)
 	AActor* WeaponOwner;
 
@@ -34,8 +34,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Components")
 	TSubclassOf<ATimberProjectileBase> ProjectileType;
-	
-	virtual float GetWeaponBaseDamage() const override {return BaseWeaponDamage;} 
+
+	virtual float GetWeaponBaseDamage() const override { return BaseWeaponDamage; }
 
 	UFUNCTION()
 	void FireRangedWeapon(FVector TargetLocation);

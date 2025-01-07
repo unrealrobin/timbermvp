@@ -25,16 +25,18 @@ class TIMBERMVP_API ATimberPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-
 	virtual void BeginPlay() override;
 
 	/*Delegates*/
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState); 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
+
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
-	
-	
+
+
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
@@ -43,7 +45,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
-	
+
 
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -74,7 +76,7 @@ public:
 	UInputAction* HideBuildMenuAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* DeleteBuildingComponentAction;
-	
+
 	/*Player Controls*/
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
@@ -111,7 +113,7 @@ public:
 	FInputActionValue MoveInputActionValue;
 
 	UFUNCTION(BlueprintCallable)
-	FInputActionValue GetMoveInputActionValue(){return MoveInputActionValue;}
+	FInputActionValue GetMoveInputActionValue() { return MoveInputActionValue; }
 
 	void SetInteractableItem(IInteractable* Item);
 
@@ -120,17 +122,17 @@ public:
 	float PitchAngle = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	float YawAngle = 0.0f;
-	
+
 	/*Cursor*/
 	void EnableCursor();
 	void DisableCursor();
-	
+
 	/*Restart / After Death*/
 	void MovePlayerToStartLocation();
 
 	//Input Mapping Contexts
 	//This needs to be public because it gets called on the BP version of this class.
-	UFUNCTION(BlueprintCallable) 
+	UFUNCTION(BlueprintCallable)
 	void EnableStandardKeyboardInput();
 
 	/* Reticule Alignment*/
@@ -140,11 +142,9 @@ public:
 	void PerformReticleAlignment_Raycast();
 
 protected:
-	
 	virtual void SetupInputComponent() override;
 
 
-	
 	/*Move Data*/
 	UPROPERTY(BlueprintReadOnly)
 	FVector CharacterForwardMoveDirection;
@@ -165,7 +165,7 @@ protected:
 	USpringArmComponent* TimberCharacterSpringArmComponent;
 	float ViewPitchMax = 90.0f;
 	float ViewPitchMin = -80.0f;
-	
+
 	/*Jump Controls*/
 	UPROPERTY(BlueprintReadWrite)
 	bool CanJump = false;
@@ -204,10 +204,9 @@ private:
 	TObjectPtr<UInputMappingContext> StandardInputMappingContext;
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputMappingContext> BuildModeInputMappingContext;
-	
+
 	void DisableAllKeyboardInput();
 
 	UFUNCTION()
 	void UnEquipWeapon() const;
-	
 };

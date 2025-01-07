@@ -21,14 +21,12 @@ ARampBase::ARampBase()
 	HorizontalCenterSnap = CreateDefaultSubobject<USceneComponent>("HorizontalCenterSnap");
 	VerticalCenterSnap->SetupAttachment(RootComponent);
 	HorizontalCenterSnap->SetupAttachment(RootComponent);
-	
 }
 
 // Called when the game starts or when spawned
 void ARampBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -36,4 +34,3 @@ void ARampBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

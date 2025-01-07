@@ -14,9 +14,4 @@ UCLASS()
 class TIMBERMVP_API UBuildingComponentPanel : public UUserWidget
 {
 	GENERATED_BODY()
-
-public:
-	
-	
-	
 };

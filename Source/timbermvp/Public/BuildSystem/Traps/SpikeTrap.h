@@ -27,13 +27,15 @@ public:
 	UStaticMeshComponent* TrapSpikeMesh;
 
 	UFUNCTION()
-	void HandleSpikeTrapOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	 int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	void HandleSpikeTrapOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void HandleSpikeOutAttack();
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage");
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
+	;
 	float SpikeDamage = 10;
-	
+
 	void ApplyDamageToActorsInHitBox();
 
 	/*Timeline Animation*/
@@ -53,7 +55,7 @@ public:
 	void PlaySpikeOutTimeline_Reverse();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation")
 	bool IsSpikesOut = false;
-	
+
 	/*Timers*/
 	FTimerHandle TimeToActiveSpikeOutAttack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
@@ -63,7 +65,4 @@ public:
 	float SpikeOutCooldownValue = 3.0f;
 	bool IsSpikeOnCooldown = false;
 	void EndSpikeTrapCooldown(); // Empty function to be used in the timer manager.
-	
 };
-
-

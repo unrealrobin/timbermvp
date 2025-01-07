@@ -33,28 +33,24 @@ void ATimberWeaponRangedBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ATimberWeaponRangedBase::FireRangedWeapon()
+void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 {
-	GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Firing Ranged Weapon.");
-	
 	if(WeaponOwner && GetWorld())
 	{
 		if(ProjectileType)
 		{
-			GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile All Variables Loaded");
 			FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
-			FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
+			//FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
+
+			//This is the updated Rotation based on the raycast using the HitResult from the Screen Space. (More Accurate.)
+			FRotator AimRotation = (TargetLocation - ProjectileSpawnLocation).Rotation();
 
 			// Add Spawn Params for Projectile Owner and Instigator
-
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = WeaponOwner;
 
-			//TODO:: if you've had no issues delete this. 
-			//SpawnParams.Instigator = Cast<APawn>(this);
-
 			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(ProjectileType, 
-			ProjectileSpawnLocation, ControllerDirection, SpawnParams);
+			ProjectileSpawnLocation, AimRotation, SpawnParams);
 
 			if(Projectile)
 			{

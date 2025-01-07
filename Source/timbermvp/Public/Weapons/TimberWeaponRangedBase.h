@@ -38,7 +38,7 @@ public:
 	virtual float GetWeaponBaseDamage() const override {return BaseWeaponDamage;} 
 
 	UFUNCTION()
-	void FireRangedWeapon();
+	void FireRangedWeapon(FVector TargetLocation);
 
 	UFUNCTION(BlueprintCallable)
 	void AI_FireRangedWeapon();

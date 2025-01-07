@@ -133,9 +133,17 @@ public:
 	UFUNCTION(BlueprintCallable) 
 	void EnableStandardKeyboardInput();
 
+	/* Reticule Alignment*/
+	//Raycast to align the reticle to the hit location.
+	FVector ReticleHitLocation;
+	UFUNCTION()
+	void PerformReticleAlignment_Raycast();
+
 protected:
 	
 	virtual void SetupInputComponent() override;
+
+
 	
 	/*Move Data*/
 	UPROPERTY(BlueprintReadOnly)

@@ -11,6 +11,7 @@
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -21,6 +22,8 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
+
+	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
 	
 }
 
@@ -31,9 +34,6 @@ void ATimberEnemyCharacter::BeginPlay()
 	/* Listening to Delegate Broadcast from TimberGameMode */
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
-
-	
-	
 	
 }
 

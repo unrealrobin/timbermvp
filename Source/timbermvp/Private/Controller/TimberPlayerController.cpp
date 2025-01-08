@@ -4,6 +4,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
@@ -85,12 +86,14 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(
 		DeleteBuildingComponentAction, ETriggerEvent::Triggered, this,
 		&ATimberPlayerController::DeleteBuildingComponent);
+	EnhancedInputComponent->BindAction(ModifyCursorWithControllerAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
+	EnhancedInputComponent->BindAction(SimulateMouseClickAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::SimulateMouseClick);
 }
 
-void ATimberPlayerController::PerformReticleAlignment_Raycast()
+void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 {
 	/*
-	 * Performs Raycast from the camera to the center of the screen and aligns the reticle to the hit location.
+	 * Performs Raycast from the camera to the center of the screen and aligns the reticule to the hit location.
 	 */
 	FVector CameraLocation;
 	FVector CameraDirection;
@@ -446,11 +449,9 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 	}
 }
 
-
 /*
  * Build System Controls
  */
-
 void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
 {
 	TimberCharacter->CharacterState == ECharacterState::Building
@@ -556,4 +557,57 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 		//Subscribed on the HUD to Show the Death UI
 		HandleDeathUI_DelegateHandle.Execute();
 	}
+}
+
+
+/* Controller Only */
+void ATimberPlayerController::ModifyCursorWithController(const FInputActionValue& Value)
+{
+	// Get the current mouse position
+	FVector2D CurrentMousePos;
+	GetMousePosition(CurrentMousePos.X, CurrentMousePos.Y);
+
+	// Get the joystick input value
+	FVector2D AnalogValue = Value.Get<FVector2D>();
+
+	// Delta time for frame-independent movement
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+
+	// Define cursor speed (you can make this a class variable for tuning)
+	float CursorSpeed = 500.0f;
+
+	// Calculate the new mouse position
+	FVector2D NewMousePos = CurrentMousePos + (AnalogValue * CursorSpeed * DeltaTime);
+	DrawDebugPoint(GetWorld(), FVector(NewMousePos, 0), 5, FColor::Red, false, 1.0f);
+	UE_LOG(LogTemp, Warning, TEXT("ModifyCursorWithController called!"));
+	// Update the mouse location
+	SetMouseLocation(NewMousePos.X, NewMousePos.Y);
+}
+
+void ATimberPlayerController::SimulateMouseClick(const FInputActionValue& Value)
+{
+	/*// Get the currently focused widget
+	UWidget* FocusedWidget = UWidgetBlueprintLibrary::GetFocusedWidget();
+
+	if (FocusedWidget)
+	{
+		// Simulate Left Mouse Button press and release
+		UWidgetBlueprintLibrary::SimulatePointerKeyPress(this, EKeys::LeftMouseButton);
+		UWidgetBlueprintLibrary::SimulatePointerKeyRelease(this, EKeys::LeftMouseButton);
+
+		UE_LOG(LogTemp, Warning, TEXT("Simulated click on focused widget: %s"), *FocusedWidget->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No focused widget to click!"));
+	}*/
+
+	//TODO:: Find another approach for selecting the Widget.
+	/*
+	 * Hover focuses the widget.
+	 * Store the Widget in a variable.
+	 * Pass the Widget Reference to the Controller.
+	 * Controller can just call the Widget's function with any InputAction callback.
+	 */	
+	
 }

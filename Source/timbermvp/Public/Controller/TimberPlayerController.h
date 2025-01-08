@@ -76,6 +76,10 @@ public:
 	UInputAction* HideBuildMenuAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* DeleteBuildingComponentAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ModifyCursorWithControllerAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* SimulateMouseClickAction;
 
 	/*Player Controls*/
 	UFUNCTION()
@@ -108,7 +112,11 @@ public:
 	void HideBuildMenu(const FInputActionValue& Value);
 	UFUNCTION()
 	void DeleteBuildingComponent(const FInputActionValue& Value);
-
+	UFUNCTION()
+	void ModifyCursorWithController(const FInputActionValue& Value);
+	UFUNCTION()
+	void SimulateMouseClick(const FInputActionValue& Value);
+	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;
 
@@ -139,11 +147,10 @@ public:
 	//Raycast to align the reticle to the hit location.
 	FVector ReticleHitLocation;
 	UFUNCTION()
-	void PerformReticleAlignment_Raycast();
+	void PerformReticuleAlignment_Raycast();
 
 protected:
 	virtual void SetupInputComponent() override;
-
 
 	/*Move Data*/
 	UPROPERTY(BlueprintReadOnly)

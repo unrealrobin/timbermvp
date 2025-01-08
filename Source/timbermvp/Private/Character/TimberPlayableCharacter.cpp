@@ -49,7 +49,7 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	//TODO:: This can be made more efficient by only calling this for like 2 seconds after last movement or rotation.
 	if (CurrentWeaponState == EWeaponState::RangedEquipped)
 	{
-		RaycastController->PerformReticleAlignment_Raycast();
+		RaycastController->PerformReticuleAlignment_Raycast();
 	}
 }
 

@@ -71,15 +71,17 @@ public:
 	void ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY);
 	UFUNCTION()
 	void HideDeleteBuildingComponentWidget();
+	UFUNCTION()
+	void ShouldHideBuildMenu();
 
 	//Vars to shift in the X & Y direction when the DeleteBuildingComponentWidget is spawned. Shifted from Center.
 	float DeleteBuildingComponentWidgetShiftX = 100.f;
 	float DeleteBuildingComponentWidgetShiftY = 100.f;
 
 protected:
+	
 	/*Delegate Listeners*/
 	UFUNCTION()
 	void HandleBuildPanelMenu(bool IsBuildPanelMenuOpen);
-	UFUNCTION()
-	void ShouldHideBuildMenu();
+	
 };

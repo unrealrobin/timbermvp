@@ -6,8 +6,11 @@
 #include "GameFramework/PlayerController.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "EnhancedInputComponent.h"
+#include "UI/BuildingComponent.h"
 #include "TimberPlayerController.generated.h"
 
+class UBuildComponentDataAsset;
+class UBuildingComponent;
 class ATimberBuildSystemManager;
 class IInteractable;
 class UCharacterMovementComponent;
@@ -76,6 +79,10 @@ public:
 	UInputAction* HideBuildMenuAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* DeleteBuildingComponentAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ModifyCursorAction_Controller;
+	UPROPERTY(EditAnywhere)
+	UInputAction* SelectIconAction_Controller;
 
 	/*Player Controls*/
 	UFUNCTION()
@@ -108,7 +115,11 @@ public:
 	void HideBuildMenu(const FInputActionValue& Value);
 	UFUNCTION()
 	void DeleteBuildingComponent(const FInputActionValue& Value);
-
+	UFUNCTION()
+	void ModifyCursorWithController(const FInputActionValue& Value);
+	UFUNCTION()
+	void SelectBCIcon_Controller(const FInputActionValue& Value);
+	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;
 
@@ -136,14 +147,20 @@ public:
 	void EnableStandardKeyboardInput();
 
 	/* Reticule Alignment*/
-	//Raycast to align the reticle to the hit location.
-	FVector ReticleHitLocation;
+	//Raycast to align the reticule to the hit location.
+	FVector ReticuleHitLocation;
 	UFUNCTION()
-	void PerformReticleAlignment_Raycast();
+	void PerformReticuleAlignment_Raycast();
 
+	/* Get-Set */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetFocusedUserWidget(UUserWidget* Widget) { FocusedWidget = Cast<UBuildingComponent>(Widget); }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Data")
+	UBuildComponentDataAsset* HoveredIconDataAsset;
+	
 protected:
 	virtual void SetupInputComponent() override;
-
 
 	/*Move Data*/
 	UPROPERTY(BlueprintReadOnly)
@@ -159,7 +176,7 @@ protected:
 	ATimberPlayableCharacter* TimberCharacter;
 	UPROPERTY(BlueprintReadOnly)
 	UCharacterMovementComponent* TimberCharacterMovementComponent;
-
+	
 	/*Camera Controls*/
 	UPROPERTY(BlueprintReadOnly)
 	USpringArmComponent* TimberCharacterSpringArmComponent;
@@ -190,6 +207,10 @@ protected:
 	UFUNCTION()
 	void CloseBuildModeSelectionMenu();
 
+	/*Controller Specific*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="UI")
+	UBuildingComponent* FocusedWidget;
+	
 	/*Death*/
 	UFUNCTION()
 	void HandlePlayerDeath(bool bIsPlayerDead);

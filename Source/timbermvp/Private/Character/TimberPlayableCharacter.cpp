@@ -49,7 +49,7 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	//TODO:: This can be made more efficient by only calling this for like 2 seconds after last movement or rotation.
 	if (CurrentWeaponState == EWeaponState::RangedEquipped)
 	{
-		RaycastController->PerformReticleAlignment_Raycast();
+		RaycastController->PerformReticuleAlignment_Raycast();
 	}
 }
 
@@ -99,7 +99,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 {
 	TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
-	if (bHits)
+	if (bHits && ActiveBuildableClass)
 	{
 		/* Hit Something/Anything */
 		DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);

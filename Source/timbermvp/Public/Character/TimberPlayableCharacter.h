@@ -62,6 +62,7 @@ public:
 	virtual void BeginPlay() override;
 
 	//CharacterState
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")
 	ECharacterState CharacterState = ECharacterState::Standard;
 
 	/*Components*/
@@ -114,6 +115,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 1000.f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	bool ShouldRaycast = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")

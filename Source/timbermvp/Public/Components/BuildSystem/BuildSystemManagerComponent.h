@@ -151,10 +151,8 @@ public:
 	UFUNCTION()
 	FORCEINLINE ATrapBase* GetActiveTrapComponent() const { return ActiveTrapComponentProxy; };
 	UFUNCTION(BlueprintCallable, Category="Building Component")
-	FORCEINLINE void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass)
-	{
-		ActiveBuildableComponentClass = BuildingComponentClass;
-	};
+	void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass);
+	
 	FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };

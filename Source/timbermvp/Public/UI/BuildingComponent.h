@@ -17,4 +17,7 @@ class TIMBERMVP_API UBuildingComponent : public UUserWidget
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
+	UDataAsset* BuildingComponentDataAsset;
 };

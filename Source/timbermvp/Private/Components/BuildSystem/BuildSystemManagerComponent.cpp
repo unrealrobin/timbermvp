@@ -597,9 +597,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 
 	if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 	{
-		if (SpawnFinalTrap(SpawnParameters))
-		{
-		}
+		SpawnFinalTrap(SpawnParameters);
 	}
 	else if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 	{
@@ -811,3 +809,13 @@ void UBuildSystemManagerComponent::RotateBuildingComponent()
 		FinalSpawnRotation = SavedRotation;
 	}
 }
+
+void UBuildSystemManagerComponent::SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass)
+{
+	ActiveBuildableComponentClass = BuildingComponentClass;
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Active Building Component Class Set.");
+	}
+}
+

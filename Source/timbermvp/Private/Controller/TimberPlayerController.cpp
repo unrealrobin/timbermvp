@@ -4,16 +4,18 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "UI/BuildingComponent.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
+#include "DataAssets/BuildComponentDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/TimberHUDBase.h"
 
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -86,8 +88,8 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(
 		DeleteBuildingComponentAction, ETriggerEvent::Triggered, this,
 		&ATimberPlayerController::DeleteBuildingComponent);
-	EnhancedInputComponent->BindAction(ModifyCursorWithControllerAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
-	EnhancedInputComponent->BindAction(SimulateMouseClickAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::SimulateMouseClick);
+	EnhancedInputComponent->BindAction(ModifyCursorAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
+	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
 }
 
 void ATimberPlayerController::PerformReticuleAlignment_Raycast()
@@ -120,11 +122,11 @@ void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 			QueryParams.AddIgnoredActor(TimberCharacter->GetCurrentlyEquippedWeapon());
 			if (GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, End, ECC_Visibility))
 			{
-				ReticleHitLocation = HitResult.ImpactPoint;
+				ReticuleHitLocation = HitResult.ImpactPoint;
 			}
 			else
 			{
-				ReticleHitLocation = End;
+				ReticuleHitLocation = End;
 			}
 		}
 	}
@@ -436,7 +438,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::RangedEquipped:
 			{
-				TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticleHitLocation);
+				TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticuleHitLocation);
 			}
 			break;
 		case EWeaponState::Unequipped:
@@ -574,40 +576,45 @@ void ATimberPlayerController::ModifyCursorWithController(const FInputActionValue
 	float DeltaTime = GetWorld()->GetDeltaSeconds();
 
 	// Define cursor speed (you can make this a class variable for tuning)
-	float CursorSpeed = 500.0f;
+	float CursorSpeed = 800.0f;
 
 	// Calculate the new mouse position
 	FVector2D NewMousePos = CurrentMousePos + (AnalogValue * CursorSpeed * DeltaTime);
 	DrawDebugPoint(GetWorld(), FVector(NewMousePos, 0), 5, FColor::Red, false, 1.0f);
-	UE_LOG(LogTemp, Warning, TEXT("ModifyCursorWithController called!"));
+	
 	// Update the mouse location
 	SetMouseLocation(NewMousePos.X, NewMousePos.Y);
 }
 
-void ATimberPlayerController::SimulateMouseClick(const FInputActionValue& Value)
+void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& Value)
 {
-	/*// Get the currently focused widget
-	UWidget* FocusedWidget = UWidgetBlueprintLibrary::GetFocusedWidget();
-
-	if (FocusedWidget)
-	{
-		// Simulate Left Mouse Button press and release
-		UWidgetBlueprintLibrary::SimulatePointerKeyPress(this, EKeys::LeftMouseButton);
-		UWidgetBlueprintLibrary::SimulatePointerKeyRelease(this, EKeys::LeftMouseButton);
-
-		UE_LOG(LogTemp, Warning, TEXT("Simulated click on focused widget: %s"), *FocusedWidget->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No focused widget to click!"));
-	}*/
-
-	//TODO:: Find another approach for selecting the Widget.
 	/*
 	 * Hover focuses the widget.
-	 * Store the Widget in a variable.
-	 * Pass the Widget Reference to the Controller.
-	 * Controller can just call the Widget's function with any InputAction callback.
-	 */	
+	 * Store the Widget in a variable on the controller.
+	 * Retrieve the Data Asset Stored on the Widget.
+	 * Get the BP Class Name Stored on the Data Asset.
+	 * Set that to the ActiveBuildableComponentClass.
+	 * Close the Build Menu Panel. HUD::ShouldHideBuildMenu 
+	 */
+			if(HoveredIconDataAsset)
+			{
+				TSubclassOf<ABuildableBase> BuildingComponentClassName = HoveredIconDataAsset->BuildingComponentClass;
+				UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
+				if(TimberCharacter)
+				{
+					TimberCharacter->BuildSystemManager->SetActiveBuildingComponentClass(BuildingComponentClassName);
+					ATimberHUDBase* HUD = Cast<ATimberHUDBase>(GetHUD());
+
+					//Close the Build Menu Panel (Doesn't Leave Build State, Same Effect as TAB)
+					HUD->CloseBuildPanelMenu();
+
+					//Clear Focused Widget
+					FocusedWidget = nullptr;
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("No data asset found on Building Component Icon Widget"));
+			}
 	
 }

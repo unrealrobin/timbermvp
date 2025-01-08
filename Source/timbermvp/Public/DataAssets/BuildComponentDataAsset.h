@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildableBase.h"
 #include "Engine/DataAsset.h"
 #include "BuildComponentDataAsset.generated.h"
 
@@ -17,5 +17,5 @@ class TIMBERMVP_API UBuildComponentDataAsset : public UPrimaryDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ATimberBuildingComponentBase> BuildingComponentClass;
+	TSubclassOf<ABuildableBase> BuildingComponentClass;
 };

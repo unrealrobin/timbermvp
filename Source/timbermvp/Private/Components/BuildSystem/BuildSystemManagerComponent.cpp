@@ -593,24 +593,27 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 {
 	FActorSpawnParameters SpawnParameters;
 
-	TSubclassOf<ABuildableBase> ActiveBuildableClass = GetActiveBuildableClass();
+	if(ActiveBuildableComponentClass)
+	{
+		if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+		{
+			SpawnFinalTrap(SpawnParameters);
+		}
+		else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+		{
+			SpawnFinalBuildingComponent(SpawnParameters);
+		}
+		else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
+		{
+			SpawnFinalRampComponent();
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
+		}
+	}
 
-	if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
-	{
-		SpawnFinalTrap(SpawnParameters);
-	}
-	else if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-	{
-		SpawnFinalBuildingComponent(SpawnParameters);
-	}
-	else if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
-	{
-		SpawnFinalRampComponent();
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
-	}
+	
 }
 
 void UBuildSystemManagerComponent::SpawnFinalRampComponent()

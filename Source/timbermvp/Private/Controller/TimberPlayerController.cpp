@@ -598,7 +598,7 @@ void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& V
 	 */
 			if(HoveredIconDataAsset)
 			{
-				TSubclassOf<ABuildableBase> BuildingComponentClassName = HoveredIconDataAsset->BuildingComponentClass;
+				TSubclassOf<ABuildableBase> BuildingComponentClassName = HoveredIconDataAsset->;
 				UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
 				if(TimberCharacter)
 				{

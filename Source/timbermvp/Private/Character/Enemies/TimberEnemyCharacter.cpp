@@ -156,9 +156,13 @@ void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
 
 void ATimberEnemyCharacter::PlayMontageAtRandomSection(UAnimMontage* Montage)
 {
-	int NumberOfMontageSections = Montage->GetNumSections();
-	int RandomSection = FMath::RandRange(0, NumberOfMontageSections - 1);
-	PlayAnimMontage(Montage, 1, Montage->GetSectionName(RandomSection));
+	if(Montage)
+	{
+		int NumberOfMontageSections = Montage->GetNumSections();
+		int RandomSection = FMath::RandRange(0, NumberOfMontageSections - 1);
+		PlayAnimMontage(Montage, 1, Montage->GetSectionName(RandomSection));
+	}
+	
 }
 
 //TODO::Why is the Current Wave Number important on the BaseEnemyClass?

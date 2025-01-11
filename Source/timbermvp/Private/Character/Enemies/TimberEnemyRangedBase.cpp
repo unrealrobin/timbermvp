@@ -30,26 +30,31 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 	//Getting the Socket Info from the Mesh
 	const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandRifleSocket");
 
-	//Spawning the Class at the Socket Info
-	ATimberWeaponBase* RangedWeaponInstance = GetWorld()->SpawnActor<ATimberWeaponBase>(
-		RangedWeaponClassName,
-		RHandSocketTransform.GetLocation(),
-		RHandSocketTransform
-		.GetRotation().Rotator(),
-		SpawnParameters);
-
-	//Casting the Instance to the Ranged Weapon Class, this will allow spawning of any weapon but only attaching of Ranged Weapon. Maybe change later idk.
-	if (RangedWeaponInstance)
+	if(RangedWeaponClassName != nullptr)
 	{
-		EquippedWeapon = Cast<ATimberWeaponRangedBase>(RangedWeaponInstance);
-		if (EquippedWeapon)
+		//Spawning the Class at the Socket Info
+		ATimberWeaponBase* RangedWeaponInstance = GetWorld()->SpawnActor<ATimberWeaponBase>(
+			RangedWeaponClassName,
+			RHandSocketTransform.GetLocation(),
+			RHandSocketTransform
+			.GetRotation().Rotator(),
+			SpawnParameters);
+
+		//Casting the Instance to the Ranged Weapon Class, this will allow spawning of any weapon but only attaching of Ranged Weapon. Maybe change later idk.
+		if (RangedWeaponInstance)
 		{
-			//Attaching the Weapon to the Socket, this locks the weapon to the socket during movement.
-			EquippedWeapon->AttachToComponent(
-				GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandRifleSocket");
-			EnemyWeaponType = EEnemyWeaponState::RangedWeaponEquipped;
+			EquippedWeapon = Cast<ATimberWeaponRangedBase>(RangedWeaponInstance);
+			if (EquippedWeapon)
+			{
+				//Attaching the Weapon to the Socket, this locks the weapon to the socket during movement.
+				EquippedWeapon->AttachToComponent(
+					GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandRifleSocket");
+				EnemyWeaponType = EEnemyWeaponState::RangedWeaponEquipped;
+			}
 		}
 	}
+
+	
 }
 
 // Called every frame

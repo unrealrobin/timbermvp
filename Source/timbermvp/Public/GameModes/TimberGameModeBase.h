@@ -111,6 +111,7 @@ public:
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
 	UFUNCTION(BlueprintCallable, Category="Wave Composition")
 	void ClearAllWaveEnemies();
+	void OpenAllLabDoors();
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -154,7 +155,12 @@ protected:
 
 	/*Handle Doors */
 	void OpenLabDoors();
+	void CloseAllLabDoors();
 	void CloseLabDoors();
-	
+	UFUNCTION(BlueprintCallable)
+	void GatherAllLabDoors();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Doors")
 	TArray<AActor*> ArrayOfLabDoors;
+
+	
 };

@@ -43,6 +43,8 @@ void ATimberGameModeBase::BeginPlay()
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(
 		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
+
+	GatherAllLabDoors();
 }
 
 
@@ -150,6 +152,11 @@ void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
 		FVector SpawnPointLocation = ActorSpawnPoints->GetActorLocation();
 		EnemySpawnPointLocations.Add(SpawnPointLocation);
 	}
+}
+
+void ATimberGameModeBase::GatherAllLabDoors()
+{
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
 }
 
 void ATimberGameModeBase::SpawnTestWave()
@@ -338,53 +345,55 @@ void ATimberGameModeBase::ClearAllWaveEnemies()
 	ArrayOfSpawnedWaveEnemies.Empty();
 }
 
+void ATimberGameModeBase::OpenAllLabDoors()
+{
+	for(AActor* LabDoors : ArrayOfLabDoors)
+	{
+		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
+		if (LabDoor)
+		{
+			GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
+
+			LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
+		}
+	}
+}
+
 void ATimberGameModeBase::OpenLabDoors()
 {
-	if(ArrayOfLabDoors.Num() == 0)
+	if(ArrayOfLabDoors.Num() <= 0)
 	{
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
-		for(AActor* LabDoors : ArrayOfLabDoors)
-		{
-			ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
-			if (LabDoor)
-			{
-				GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
-
-				LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
-			}
-		}
+		GatherAllLabDoors();
+		OpenAllLabDoors();
 	}
 	else
 	{
-		for(AActor* LabDoors : ArrayOfLabDoors)
-		{
-			ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
-			if (LabDoor)
-			{
-				GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
+		OpenAllLabDoors();
+	}
+}
 
-				LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
-			}
+void ATimberGameModeBase::CloseAllLabDoors()
+{
+	for(AActor* LabDoors : ArrayOfLabDoors)
+	{
+		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
+		if (LabDoor)
+		{
+			LabDoor->CloseLabDoor(GetWorld()->GetDeltaSeconds());
 		}
 	}
 }
 
 void ATimberGameModeBase::CloseLabDoors()
 {
-	if(ArrayOfLabDoors.Num() == 0)
+	if(ArrayOfLabDoors.Num() <= 0)
 	{
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
+		GatherAllLabDoors();
+		CloseAllLabDoors();
 	}
 	else
 	{
-		for(AActor* LabDoors : ArrayOfLabDoors)
-		{
-			ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
-			if (LabDoor)
-			{
-				LabDoor->CloseLabDoor(GetWorld()->GetDeltaSeconds());
-			}
-		}
+		CloseAllLabDoors();
 	}
 }
 

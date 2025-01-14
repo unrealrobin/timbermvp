@@ -56,6 +56,8 @@ void ALabDoorBase::SetupLabDoorComponents()
 	RootComponent = LabDoorFrame;
 	LabDoorLeft->SetupAttachment(LabDoorFrame);
 	LabDoorRight->SetupAttachment(LabDoorFrame);
+
+	PathTracerStart   = CreateDefaultSubobject<USceneComponent>("PathTracerStart");
 	
 }
 

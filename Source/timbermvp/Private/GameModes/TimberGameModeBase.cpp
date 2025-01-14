@@ -10,6 +10,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
 
@@ -48,45 +49,64 @@ void ATimberGameModeBase::BeginPlay()
 /*Wave Spawn System*/
 void ATimberGameModeBase::SpawnDynamicWave()
 {
+	// Sets number of each enemy to Spawn
 	ComposeWave();
-
-	/*//Spawn Ghouls
-	for(int i = 0; i < Wave.GhoulCount; i++)
-	{
-		SpawnEnemyAtLocation(GhoulEnemyClassName);
-	}
 	
-	//Spawn Goblins
-	for(int i = 0; i < Wave.GoblinCount; i++)
-	{
-		SpawnEnemyAtLocation(GoblinEnemyClassName);
-	}*/
+	OpenLabDoors();
 
-	//Spawn Basic Robots
-	for (int i = 0; i < Wave.BasicRobotCount; i++)
-	{
-		SpawnEnemyAtLocation(BasicRobotEnemyClassName);
-	}
-	//Spawn Melee Robots
-	for (int i = 0; i < Wave.MeleeWeaponRobotCount; i++)
-	{
-		SpawnEnemyAtLocation(MeleeRobotEnemyClassName);
-	}
-	//Spawn Ranged Robots
-	for (int i = 0; i < Wave.RangedWeaponRobotCount; i++)
-	{
-		SpawnEnemyAtLocation(RangedRobotEnemyClassName);
-	}
+	//Start the timer for next enemy to spawn, loops continuously until cleared when all enemies are spawned.
+	GetWorld()->GetTimerManager().SetTimer(SpawnIncrementsHandle, this , &ATimberGameModeBase::SpawnNextEnemy, 
+	TimeBetweenEnemySpawns, true, 1.0f);
+	
 }
 
 void ATimberGameModeBase::ComposeWave()
 {
-	/*Wave.GhoulCount = FMath::RandRange(1, (CurrentWaveNumber + 4));
-	Wave.GoblinCount = FMath::RandRange(0, CurrentWaveNumber + 2);*/
+	//Randomly set the number of each enemy to spawn based on the current wave number
+	WaveComposition.BasicRobotCount = FMath::RandRange(1, (CurrentWaveNumber + 5));
+	WaveComposition.MeleeWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 4);
+	WaveComposition.RangedWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 4);
+	//Add the enemies to spawn to the EnemiesToSpawn array
+	for(int i = 0; i < WaveComposition.BasicRobotCount; i++)
+	{
+		EnemiesToSpawn.Add(BasicRobotEnemyClassName);
+	}
+	for(int i = 0; i < WaveComposition.MeleeWeaponRobotCount; i++)
+	{
+		EnemiesToSpawn.Add(MeleeRobotEnemyClassName);
+	}
+	for(int i = 0; i < WaveComposition.RangedWeaponRobotCount; i++)
+	{
+		EnemiesToSpawn.Add(RangedRobotEnemyClassName);
+	}
 
-	Wave.BasicRobotCount = FMath::RandRange(1, (CurrentWaveNumber + 2));
-	Wave.MeleeWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 1);
-	Wave.RangedWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 1);
+	//TODO:: Shuffle the array for enemy randomness
+}
+
+void ATimberGameModeBase::SpawnNextEnemy()
+{
+	//Random number of enemies to Spawn
+	int EnemiesToSpawnNow = FMath::RandRange(1, 3);
+
+	//Loop through the number of enemies to spawn
+	for(int i = 0; i < EnemiesToSpawnNow; i++)
+	{
+		//If we have spawned fewer enemies than the total enemies to spawn this wave
+		if(TotalEnemiesSpawned < EnemiesToSpawn.Num())
+		{
+			//Were using the TotalEnemiesSpawned as the index to spawn the next enemy
+			//At the beginning it starts at 0 and increments by 1 each time an enemy is spawned
+			//This will spawn from the start of the array too the end
+			SpawnEnemyAtLocation(EnemiesToSpawn[TotalEnemiesSpawned]);
+			TotalEnemiesSpawned++;
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().ClearTimer(SpawnIncrementsHandle);
+			bAllEnemiesSpawned = true;
+			return;
+		}
+	}
 }
 
 void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName)
@@ -109,7 +129,7 @@ void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 	{
 		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is in the Array");
 		ArrayOfSpawnedWaveEnemies.Remove(Enemy);
-		if (ArrayOfSpawnedWaveEnemies.Num() == 0)
+		if (ArrayOfSpawnedWaveEnemies.Num() == 0 && bAllEnemiesSpawned == true)
 		{
 			WaveComplete();
 			GEngine->AddOnScreenDebugMessage(6, 5.0, FColor::Orange, "Wave Complete. Timer till next wave started.");
@@ -150,6 +170,9 @@ void ATimberGameModeBase::IncrementWaveNumber()
 
 void ATimberGameModeBase::WaveComplete()
 {
+	
+	bAllEnemiesSpawned = false;
+	
 	IncrementWaveNumber();
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 
@@ -157,6 +180,8 @@ void ATimberGameModeBase::WaveComplete()
 	//TODO::Ensure the timing of this works with Delegate Updates.
 	SaveCurrentGame();
 
+	CloseLabDoors();
+	
 	//Starts a Timer for the next wave to Spawn.
 	GetWorld()->GetTimerManager().SetTimer(
 		TimeToNextWaveHandle, this, &ATimberGameModeBase::SpawnDynamicWave, DurationBetweenWaves,
@@ -209,6 +234,11 @@ void ATimberGameModeBase::SaveCurrentGame()
 
 	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Demo Timber Save 1"), 0);
+
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Red, "ATimberGameModeBase::SaveCurrentGame() -> Game Saved");
+	}
 }
 
 void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance)
@@ -307,3 +337,42 @@ void ATimberGameModeBase::ClearAllWaveEnemies()
 
 	ArrayOfSpawnedWaveEnemies.Empty();
 }
+
+void ATimberGameModeBase::OpenLabDoors()
+{
+	if(ArrayOfLabDoors.Num() == 0)
+	{
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
+	}
+	else
+	{
+		for(AActor* LabDoors : ArrayOfLabDoors)
+		{
+			ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
+			if (LabDoor)
+			{
+				LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
+			}
+		}
+	}
+}
+
+void ATimberGameModeBase::CloseLabDoors()
+{
+	if(ArrayOfLabDoors.Num() == 0)
+	{
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
+	}
+	else
+	{
+		for(AActor* LabDoors : ArrayOfLabDoors)
+		{
+			ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
+			if (LabDoor)
+			{
+				LabDoor->CloseLabDoor(GetWorld()->GetDeltaSeconds());
+			}
+		}
+	}
+}
+

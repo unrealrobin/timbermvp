@@ -47,6 +47,10 @@ void ALabDoorBase::SetupLabDoorComponents()
 	LabDoorLeft->SetupAttachment(LabDoorFrame);
 	LabDoorRight->SetupAttachment(LabDoorFrame);
 
+	DoorOpenTimeline = CreateDefaultSubobject<UTimelineComponent>("DoorOpenTimeline");
+
+	/* TO BE DELETED BELOW*/
+	
 	// Setting the lab door open and close positions. These are not dynamic.
 	// These vectors are offset amounts from their current location. So from there current positions we want the doors to shift by the vector amount.
 	LabDoorLeftOpenPos = FVector(-310.f, 0.f, 0.f);
@@ -56,8 +60,8 @@ void ALabDoorBase::SetupLabDoorComponents()
 
 	LabDoorActivatorComponent = CreateDefaultSubobject<UBoxComponent>("LabDoorActivatorComponent");
 	LabDoorActivatorComponent->SetupAttachment(RootComponent);
-	LabDoorActivatorComponent->OnComponentBeginOverlap.AddDynamic(this, &ALabDoorBase::HandleOpenLabDoor);
-	LabDoorActivatorComponent->OnComponentEndOverlap.AddDynamic(this, &ALabDoorBase::HandleCloseLabDoor);
+	//LabDoorActivatorComponent->OnComponentBeginOverlap.AddDynamic(this, &ALabDoorBase::HandleOpenLabDoor);
+	//LabDoorActivatorComponent->OnComponentEndOverlap.AddDynamic(this, &ALabDoorBase::HandleCloseLabDoor);
 }
 
 void ALabDoorBase::OpenLabDoor(float DeltaTime)

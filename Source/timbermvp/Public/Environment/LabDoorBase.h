@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
 #include "LabDoorBase.generated.h"
 
+struct FTimeline;
 class ATimberEnemyCharacter;
 class UBoxComponent;
 
@@ -34,6 +36,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Door")
 	TArray<ATimberEnemyCharacter*> EnemiesInLabDoorActivator;
+
+	UPROPERTY()
+	UTimelineComponent* DoorOpenTimeline;
+	UPROPERTY(BlueprintReadWrite, Category="Animation")
+	UCurveFloat* FloatCurve;
 
 public:
 	// Called every frame

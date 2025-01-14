@@ -343,6 +343,16 @@ void ATimberGameModeBase::OpenLabDoors()
 	if(ArrayOfLabDoors.Num() == 0)
 	{
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
+		for(AActor* LabDoors : ArrayOfLabDoors)
+		{
+			ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
+			if (LabDoor)
+			{
+				GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
+
+				LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
+			}
+		}
 	}
 	else
 	{
@@ -351,6 +361,8 @@ void ATimberGameModeBase::OpenLabDoors()
 			ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
 			if (LabDoor)
 			{
+				GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
+
 				LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
 			}
 		}

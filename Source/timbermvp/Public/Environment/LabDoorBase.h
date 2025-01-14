@@ -27,20 +27,19 @@ protected:
 	//Closed Position for Doors.
 	FVector LabDoorLeftClosePos;
 	FVector LabDoorRightClosePos;
-	FVector LabDoorLeftOpenPos;
-	FVector LabDoorRightOpenPos;
 
 	//Timers for Testing Open and Closing of Lab Doors
 	FTimerHandle LabDoorOpenTimerHandle;
 	FTimerHandle LabDoorCloseTimerHandle;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Door")
-	TArray<ATimberEnemyCharacter*> EnemiesInLabDoorActivator;
-
 	UPROPERTY()
 	UTimelineComponent* DoorOpenTimeline;
-	UPROPERTY(BlueprintReadWrite, Category="Animation")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation")
 	UCurveFloat* FloatCurve;
+	UFUNCTION()
+	void HandleTimelineProgress(float Value);
+	UFUNCTION()
+	void HandleTimelineFinished();
 
 public:
 	// Called every frame
@@ -63,31 +62,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CloseLabDoor(float DeltaTime);
-
-	UFUNCTION()
-	void HandleOpenLabDoor(
-		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void HandleCloseLabDoor(
-		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex);
+	
 	void SetupLabDoorComponents();
-	// Debug Functions for Opening and closing of lab doors in the console in editor.
-	UFUNCTION()
-	void SetLabDoorToBeOpen();
-	UFUNCTION()
-	void SetLabDoorToBeClosed();
-	UFUNCTION()
-	void HandleTestLabDoorOpen();
-	UFUNCTION()
-	void InitializeLabDoorProperties();
-
-	UPROPERTY(VisibleAnywhere)
-	bool ShouldLabDoorBeOpen = false;
-
-	UPROPERTY(VisibleAnywhere)
-	bool IsLabDoorOpen = false;
 };

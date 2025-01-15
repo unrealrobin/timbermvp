@@ -611,8 +611,6 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 			GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
 		}
 	}
-
-	
 }
 
 void UBuildSystemManagerComponent::SpawnFinalRampComponent()
@@ -627,9 +625,51 @@ void UBuildSystemManagerComponent::SpawnFinalRampComponent()
 			ActiveRampComponentProxy->GetActorLocation(),
 			ActiveRampComponentProxy->GetActorRotation(),
 			SpawnParams);
+		if(SpawnedActor)
+		{
+			RedrawPathTraceHandle.Broadcast();
+		}
 	}
+}
 
-	RedrawPathTraceHandle.Broadcast();
+bool UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnParameters)
+{
+	if (ActiveTrapComponentProxy && ActiveTrapComponentProxy->GetCanTrapBeFinalized())
+	{
+		//Spawn Final Trap
+		GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			ActiveTrapComponentProxy->GetActorLocation(),
+			ActiveTrapComponentProxy->GetActorRotation(),
+			SpawnParameters);
+		
+		if (SpawnedActor && ActiveTrapComponentProxy && ActiveTrapComponentProxy->HoveredBuildingComponent)
+		{
+			EBuildingComponentTrapDirection TrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
+			switch (TrapDirection)
+			{
+			case EBuildingComponentTrapDirection::Front:
+				ActiveTrapComponentProxy->HoveredBuildingComponent->FrontTrap = Cast<ATrapBase>(SpawnedActor);
+				break;
+			case EBuildingComponentTrapDirection::Back:
+				ActiveTrapComponentProxy->HoveredBuildingComponent->BackTrap = Cast<ATrapBase>(SpawnedActor);
+				break;
+			case EBuildingComponentTrapDirection::Default:
+				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
+				return true;
+			}
+		}
+		//Needed to Replace the existing TrapComponentProxy with the new TrapComponent Proxy
+		ResetBuildableComponents(ATrapBase::StaticClass());
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(
+			8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
+	}
+	return false;
 }
 
 void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
@@ -680,58 +720,25 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 	}
 }
 
-bool UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnParameters)
-{
-	if (ActiveTrapComponentProxy && ActiveTrapComponentProxy->GetCanTrapBeFinalized())
-	{
-		//Spawn Final Trap
-		GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			ActiveTrapComponentProxy->GetActorLocation(),
-			ActiveTrapComponentProxy->GetActorRotation(),
-			SpawnParameters);
-		
-		if (SpawnedActor && ActiveTrapComponentProxy && ActiveTrapComponentProxy->HoveredBuildingComponent)
-		{
-			EBuildingComponentTrapDirection TrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
-			switch (TrapDirection)
-			{
-			case EBuildingComponentTrapDirection::Front:
-				ActiveTrapComponentProxy->HoveredBuildingComponent->FrontTrap = Cast<ATrapBase>(SpawnedActor);
-				break;
-			case EBuildingComponentTrapDirection::Back:
-				ActiveTrapComponentProxy->HoveredBuildingComponent->BackTrap = Cast<ATrapBase>(SpawnedActor);
-				break;
-			case EBuildingComponentTrapDirection::Default:
-				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
-				return true;
-			}
-		}
-		//Needed to Replace the existing TrapComponentProxy with the new TrapComponent Proxy
-		ResetBuildableComponents(ATrapBase::StaticClass());
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(
-			8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
-	}
-	return false;
-}
-
 // TODO:: This function is not used. Remove in the future. 
 void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters)
 {
 	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-	(
+	if(ActiveBuildableComponentClass)
+	{
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
 		ActiveBuildableComponentClass,
 		ActiveBuildingComponentProxy->GetActorLocation(),
 		ActiveBuildingComponentProxy->GetActorRotation(),
-		SpawnParameters);
-	SpawnedActor->SetActorEnableCollision(true);
-	RedrawPathTraceHandle.Broadcast();
+		SpawnParameters
+		);
+		if(SpawnedActor)
+		{
+			SpawnedActor->SetActorEnableCollision(true);
+			RedrawPathTraceHandle.Broadcast();
+		}
+	}
 }
 
 void UBuildSystemManagerComponent::MoveBuildingComponent(
@@ -748,9 +755,7 @@ void UBuildSystemManagerComponent::MoveBuildingComponent(
 		}
 		//REMEMBER to change this back in the future if you want some snapping.
 		//ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
-
 		BuildingComponent->SetActorLocation(Location);
-		
 	}
 }
 

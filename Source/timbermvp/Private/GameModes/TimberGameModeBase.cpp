@@ -7,6 +7,7 @@
 #include "AI/TimberAiControllerBase.h"
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -18,30 +19,44 @@ void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	DemoSpawnParameter.SpawnCollisionHandlingOverride =
-		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	UWorld* World = GetWorld();
-	if (World)
+	DemoSpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	
+	if (GetWorld())
 	{
-		UGameplayStatics::GetAllActorsOfClass(World, ATimberEnemySpawnLocations::StaticClass(), TimberEnemySpawnPoints);
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberEnemySpawnLocations::StaticClass(), 
+		TimberEnemySpawnPoints);
 	}
 	GatherAllSpawnLocation(TimberEnemySpawnPoints);
+
+
+	/*
+	 * When the build system component on the character spawns a building component at some location
+	 * the Game Mode will then Redraw the Path Trace to show the player where they can build.
+	 */
+	if(GetWorld())
+	{
+		TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), 
+		ATimberPlayableCharacter::StaticClass()));
+		if(TimberCharacter)
+		{
+			TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.AddDynamic(this, 
+			&ATimberGameModeBase::HandleRedrawPathTrace);
+		}
+	}
 
 	// Initial Wave Broadcast
 	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
 
 	/*Getting Seedas Location*/
-	UGameplayStatics::GetAllActorsOfClass(World, ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
 	if (ArrayOfSpawnedSeedas.Num() > 0)
 	{
 		SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
 	}
 
+	
 
 	/*Subscribing to Player Death Delegate Signature*/
-	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(
-		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
 
 	GatherAllLabDoors();
@@ -157,6 +172,11 @@ void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
 void ATimberGameModeBase::GatherAllLabDoors()
 {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
+}
+
+void ATimberGameModeBase::HandleRedrawPathTrace()
+{
+	RedrawPathTrace();
 }
 
 void ATimberGameModeBase::SpawnTestWave()
@@ -323,8 +343,6 @@ void ATimberGameModeBase::LoadPlayerState()
 	}
 
 	//Reset Player Health
-	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(
-		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	if (TimberCharacter)
 	{
 		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;

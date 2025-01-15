@@ -8,6 +8,7 @@
 #include "SaveSystem/TimberSaveSystem.h"
 #include "TimberGameModeBase.generated.h"
 
+class ATimberPlayableCharacter;
 class ALabDoorBase;
 class ATimberEnemyCharacter;
 class ATimberEnemySpawnLocations;
@@ -20,8 +21,6 @@ struct FWaveComposition
 	int BasicRobotCount;
 	int MeleeWeaponRobotCount;
 	int RangedWeaponRobotCount;
-
-	
 };
 
 /**
@@ -46,6 +45,9 @@ public:
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 
 	virtual void BeginPlay() override;
+
+	//Character
+	ATimberPlayableCharacter* TimberCharacter = nullptr;
 
 	/* Wave System*/
 	//Array of Class names to Spawn
@@ -161,5 +163,10 @@ protected:
 	void GatherAllLabDoors();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Doors")
 	TArray<AActor*> ArrayOfLabDoors;
-	
+
+	/* Path Tracing */
+	UFUNCTION(BlueprintImplementableEvent)
+	void RedrawPathTrace();
+	UFUNCTION()
+	void HandleRedrawPathTrace();
 };

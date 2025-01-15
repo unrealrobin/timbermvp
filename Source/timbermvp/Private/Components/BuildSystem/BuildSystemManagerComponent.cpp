@@ -386,7 +386,6 @@ FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
 			}
 			else
 			{
-				//TODO:: Make Trap Red to indicate it cannot be placed there. 
 				TrapComponent->SetCanTrapBeFinalized(false);
 				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
@@ -629,6 +628,8 @@ void UBuildSystemManagerComponent::SpawnFinalRampComponent()
 			ActiveRampComponentProxy->GetActorRotation(),
 			SpawnParams);
 	}
+
+	RedrawPathTraceHandle.Broadcast();
 }
 
 void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
@@ -648,7 +649,7 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 			Location1,
 			Rotation,
 			SpawnParameters);
-
+		
 		ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(SpawnedActor);
 		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
 
@@ -691,7 +692,7 @@ bool UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 			ActiveTrapComponentProxy->GetActorLocation(),
 			ActiveTrapComponentProxy->GetActorRotation(),
 			SpawnParameters);
-
+		
 		if (SpawnedActor && ActiveTrapComponentProxy && ActiveTrapComponentProxy->HoveredBuildingComponent)
 		{
 			EBuildingComponentTrapDirection TrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
@@ -730,6 +731,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 		ActiveBuildingComponentProxy->GetActorRotation(),
 		SpawnParameters);
 	SpawnedActor->SetActorEnableCollision(true);
+	RedrawPathTraceHandle.Broadcast();
 }
 
 void UBuildSystemManagerComponent::MoveBuildingComponent(
@@ -748,6 +750,7 @@ void UBuildSystemManagerComponent::MoveBuildingComponent(
 		//ActiveBuildingComponent->SetActorLocation(SnapToGrid(Location));
 
 		BuildingComponent->SetActorLocation(Location);
+		
 	}
 }
 

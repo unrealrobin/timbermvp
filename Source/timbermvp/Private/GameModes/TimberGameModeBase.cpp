@@ -274,7 +274,7 @@ void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameI
 	{
 		TArray<AActor*> CurrentBuildingComponents;
 		UGameplayStatics::GetAllActorsOfClass(
-			GetWorld(), ATimberBuildingComponentBase::StaticClass(), CurrentBuildingComponents);
+			GetWorld(), ABuildableBase::StaticClass(), CurrentBuildingComponents);
 
 		for (AActor* BuildingComponentActors : CurrentBuildingComponents)
 		{
@@ -316,7 +316,7 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 		{
 			if (BuildingComponentData.BuildingComponentClass)
 			{
-				GetWorld()->SpawnActor<ATimberBuildingComponentBase>(
+				GetWorld()->SpawnActor<ABuildableBase>(
 					BuildingComponentData.BuildingComponentClass,
 					BuildingComponentData.BuildingComponentTransform.GetLocation(),
 					BuildingComponentData.BuildingComponentTransform.GetRotation().Rotator());

@@ -161,6 +161,5 @@ protected:
 	void GatherAllLabDoors();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Doors")
 	TArray<AActor*> ArrayOfLabDoors;
-
 	
 };

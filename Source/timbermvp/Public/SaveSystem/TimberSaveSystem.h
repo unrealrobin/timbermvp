@@ -13,7 +13,7 @@ struct FBuildingComponentData
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TSubclassOf<ATimberBuildingComponentBase> BuildingComponentClass;
+	TSubclassOf<ABuildableBase> BuildingComponentClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FTransform BuildingComponentTransform;

@@ -40,6 +40,10 @@ public:
 	// Sets default values for this component's properties
 	UBuildSystemManagerComponent();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRedrawPathTraceHandle);
+	FRedrawPathTraceHandle RedrawPathTraceHandle;
+	
+
 protected:
 	virtual void BeginPlay() override;
 

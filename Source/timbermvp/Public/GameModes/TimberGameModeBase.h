@@ -8,6 +8,8 @@
 #include "SaveSystem/TimberSaveSystem.h"
 #include "TimberGameModeBase.generated.h"
 
+class ATimberPlayableCharacter;
+class ALabDoorBase;
 class ATimberEnemyCharacter;
 class ATimberEnemySpawnLocations;
 
@@ -15,9 +17,6 @@ USTRUCT()
 struct FWaveComposition
 {
 	GENERATED_BODY()
-
-	int GoblinCount;
-	int GhoulCount;
 
 	int BasicRobotCount;
 	int MeleeWeaponRobotCount;
@@ -47,14 +46,24 @@ public:
 
 	virtual void BeginPlay() override;
 
+	//Character
+	ATimberPlayableCharacter* TimberCharacter = nullptr;
+
 	/* Wave System*/
+	//Array of Class names to Spawn
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Wave Composition")
+	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Wave Composition")
+	int TotalEnemiesSpawned = 0;
+
+	UFUNCTION()
+	void SpawnNextEnemy();
+	
 	void SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName);
 
 	UPROPERTY(VisibleAnywhere, Category="Wave Composition")
 	int CurrentWaveNumber = 1;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int TimeToNextWave = 0;
 
 	UFUNCTION(Category="Wave Composition")
 	void SpawnDynamicWave();
@@ -68,10 +77,22 @@ public:
 	TArray<ATimberEnemyCharacter*> ArrayOfSpawnedWaveEnemies;
 
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
-
+	
+	FTimerHandle SpawnIncrementsHandle;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Wave Composition")
+	float TimeBetweenEnemySpawns = 1.f;
 
 	FTimerHandle TimeToNextWaveHandle;
 
+	// Stores the actual time remaining for the next wave to spawn. Used in UI.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int TimeToNextWave = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Wave Composition")
+	bool bAllEnemiesSpawned = false;
+
+	/* Seeda Details */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Seeda Info")
 	FVector SeedaLocation;
 
@@ -92,13 +113,12 @@ public:
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
 	UFUNCTION(BlueprintCallable, Category="Wave Composition")
 	void ClearAllWaveEnemies();
+	void OpenAllLabDoors();
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AActor*> TimberEnemySpawnPoints;
-
 	TArray<FVector> EnemySpawnPointLocations;
-
 	void GatherAllSpawnLocation(TArray<AActor*> SpawnPoints);
 
 	//Default Spawn Parameters
@@ -117,7 +137,7 @@ protected:
 	TSubclassOf<ATimberEnemyCharacter> RangedRobotEnemyClassName;
 
 	/* Wave Composition and Spawning */
-	FWaveComposition Wave;
+	FWaveComposition WaveComposition;
 
 	UFUNCTION(Category="Wave Composition")
 	void ComposeWave();
@@ -130,9 +150,23 @@ protected:
 	float DurationBetweenWaves = 10.f;
 
 	/*Character Freeze*/
-
 	// When the player dies, all AI / NPC characters should freeze in place.
 	// No movement, No attacking, No AI logic.
 	UFUNCTION()
 	void FreezeAllAICharacters(bool bIsPlayerDead);
+
+	/*Handle Doors */
+	void OpenLabDoors();
+	void CloseAllLabDoors();
+	void CloseLabDoors();
+	UFUNCTION(BlueprintCallable)
+	void GatherAllLabDoors();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Doors")
+	TArray<AActor*> ArrayOfLabDoors;
+
+	/* Path Tracing */
+	UFUNCTION(BlueprintImplementableEvent)
+	void RedrawPathTrace();
+	UFUNCTION()
+	void HandleRedrawPathTrace();
 };

@@ -85,14 +85,10 @@ protected:
 	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
 	void MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
-
-	/* @params - GhostOpacity */
-	void MakeBuildingComponentProxy(AActor* BuildingComponentProxy);
+	
 	bool SpawnFinalTrap(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
-	//How transparent to make the Proxy Material Color
-	float GhostOpacity = 0.5f;
-
+	
 	/*Static Mesh Utilities*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component")
 	TArray<UStaticMeshComponent*> StaticMeshs;

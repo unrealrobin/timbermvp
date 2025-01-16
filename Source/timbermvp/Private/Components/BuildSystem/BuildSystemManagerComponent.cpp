@@ -443,36 +443,6 @@ void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponen
 	}
 }
 
-//May be removed in the future for alternate MakeMaterialHoloColor function. V
-void UBuildSystemManagerComponent::MakeBuildingComponentProxy(AActor* BuildingComponentProxy)
-{
-	//Get the Static MeshComponent of the passed in Building Component
-	UStaticMeshComponent* MeshComponent = BuildingComponentProxy->FindComponentByClass<UStaticMeshComponent>();
-
-	if (MeshComponent)
-	{
-		{
-			//Creating a Material Instance if one doesn't exist already.
-			UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(
-				MeshComponent->GetMaterial(1),
-				this);
-
-			//Make the Opacity of the Material 0.5f
-			if (MaterialInstance)
-			{
-				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "There is a valid Material Instance.");
-				//Parameter Created in the Material Instance
-				// These are Parameter Nodes that are Created and Defaulted by us in the Material Editor.
-				//MaterialInstance->BlendMode = BLEND_Translucent;
-				MaterialInstance->SetScalarParameterValue("Opacity", GhostOpacity);
-				//Can be made Red in the future for unavailable build location.
-				MaterialInstance->SetVectorParameterValue("EmissiveColor", FLinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-				MeshComponent->SetMaterial(1, MaterialInstance);
-			}
-		}
-	}
-}
-
 void UBuildSystemManagerComponent::GetStaticMeshComponents(AActor* BuildingComponentActor)
 {
 	if (BuildingComponentActor)
@@ -696,7 +666,7 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 		ActiveBuildingComponentProxy->SetActorEnableCollision(false);
 
 		//Make the Building Component have the "see-through" material look
-		MakeBuildingComponentProxy(SpawnedActor);
+		MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
 	}
 }
 

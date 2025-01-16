@@ -306,6 +306,9 @@ void ATimberGameModeBase::LoadGame()
 	LoadPlayerState();
 	SwitchToStandardUI.Execute();
 	EnableStandardInputMappingContext.Execute();
+
+	//Redraw the path lines after loading
+	HandleRedrawPathTrace();
 }
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)

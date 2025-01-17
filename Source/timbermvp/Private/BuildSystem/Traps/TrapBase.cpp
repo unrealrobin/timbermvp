@@ -58,12 +58,7 @@ void ATrapBase::HitBoxBeginOverlap(
 {
 	GEngine->AddOnScreenDebugMessage(13, 3.0f, FColor::Red, "Trap HitBox Overlap");
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
-	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (Enemy)
-	{
-		AddEnemyToInsideHitBoxArray(OtherActor);
-	}
-	if (Player)
 	{
 		AddEnemyToInsideHitBoxArray(OtherActor);
 	}

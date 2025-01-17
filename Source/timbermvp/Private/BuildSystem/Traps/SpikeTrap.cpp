@@ -33,6 +33,21 @@ void ASpikeTrap::BeginPlay()
 void ASpikeTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	{ //Enemies pile up but don't Begin Overlap within the spike trap, so we force the spike out attack if the Trap is off cooldown.
+		if(InsideHitBoxArray.Num() != 0 && !IsSpikeOnCooldown)
+		{
+			SetSpikeOutAttackTimer();
+		}
+	}
+}
+
+void ASpikeTrap::SetSpikeOutAttackTimer()
+{
+	GetWorld()->GetTimerManager().SetTimer(
+		TimeToActiveSpikeOutAttack, this, &ASpikeTrap::HandleSpikeOutAttack,
+		TimeToActiveSpikeOutAttackValue, false);
+	IsSpikeOnCooldown = true;
 }
 
 void ASpikeTrap::HandleSpikeTrapOverlap(
@@ -41,15 +56,11 @@ void ASpikeTrap::HandleSpikeTrapOverlap(
 {
 	//Timer from initial activation to spike out attack
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
-	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
-	if (Player || Enemy)
+	if (Enemy)
 	{
 		if (!IsSpikeOnCooldown) // IF the spike is not on cooldown, then we can activate the spike out attack.
 		{
-			GetWorld()->GetTimerManager().SetTimer(
-				TimeToActiveSpikeOutAttack, this, &ASpikeTrap::HandleSpikeOutAttack,
-				TimeToActiveSpikeOutAttackValue, false);
-			IsSpikeOnCooldown = true;
+			SetSpikeOutAttackTimer();
 		}
 	}
 }
@@ -66,7 +77,8 @@ void ASpikeTrap::ApplyDamageToActorsInHitBox()
 	{
 		if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(Actors))
 		{
-			EnemyCharacter->TakeDamage(SpikeDamage);
+			
+			EnemyCharacter->TakeDamage(SpikeDamage, this);
 			GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
 			UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
 		}

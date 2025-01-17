@@ -35,28 +35,28 @@ void ATimberEnemyCharacter::BeginPlay()
 	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
 }
 
+
+
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 }
 
-void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
+void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 {
+	//Adding new damage to the accumulated damage during window
+	DamageAccumulatedDuringWindow += DamageAmount;
+	//Applying damage to Characters Health
 	CurrentHealth -= DamageAmount;
-
-	//TODO:: We need to change this here to be more dynamic. We need to check what caused the damage to the enemy. Only if it was the player should it generate threat.
-	//Used for AI Damage/Aggro System
-	//If the player has dealt more than 20 damage to the enemy, the enemy will aggro the player. Causing the BB Value to Change
-	if (MaxHealth - CurrentHealth > 20.f)
-	{
-		bHasBeenAggroByPlayer = true;
-	}
+	//Starting Damage Accumulation Window
+	StartDamageTimerWindow();
 
 	if (CurrentHealth <= 0.f)
 	{
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
 		ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 		GameMode->CheckArrayForEnemy(this);
+		ResetDamageWindow();
 		//Stops all AI Behavior
 		StopAiControllerBehaviorTree();
 		OnDeath_HandleCollision();
@@ -64,7 +64,42 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount)
 	}
 	else
 	{
+		bHasBeenAggroByPlayer = HandleAggroCheck(DamageInstigator, DamageAmount, DamageAccumulatedDuringWindow);
 		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+	}
+}
+
+bool ATimberEnemyCharacter::HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float fDamageAccumulatedDuringWindow)
+{
+	//If DamageInstigator is a player character, check if the enemy should aggro the player.
+	if (ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(DamageInstigator))
+	{
+		// If damage accumulated during window is greater than 20 or the enemy has lost more than 40% of its health, it will aggro the player.
+		if(DamageReceived > (MaxHealth * .40) || fDamageAccumulatedDuringWindow > 20 )
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+void ATimberEnemyCharacter::ResetDamageWindow()
+{
+	DamageAccumulatedDuringWindow = 0.f;
+}
+
+void ATimberEnemyCharacter::StartDamageTimerWindow()
+{
+	bool bIsTimerActive = GetWorld()->GetTimerManager().IsTimerActive(DamageWindowTimerHandle);
+	if(!bIsTimerActive)
+	{
+		// Starts the Damage Window Timer that starts at first hit for (X: DamageWindowTime ) and automatically resets itself at the end of the window.
+		GetWorld()->GetTimerManager().SetTimer(DamageWindowTimerHandle, this, &ATimberEnemyCharacter::ResetDamageWindow, DamageWindowTime, false);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Damage Window timer is already active."))
 	}
 }
 
@@ -99,7 +134,7 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 	{
 		if (UShapeComponent* ShapeComponent = Cast<UShapeComponent>(Component))
 		{
-			/*Remove All Collisions but dont fall through the map.*/
+			/*Remove All Collisions but don't fall through the map.*/
 			ShapeComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 			ShapeComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
 			ShapeComponent->SetCanEverAffectNavigation(false);

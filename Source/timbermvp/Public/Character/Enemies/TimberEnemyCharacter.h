@@ -29,7 +29,7 @@ public:
 	ATimberEnemyCharacter();
 
 	virtual void BeginPlay() override;
-	virtual void TakeDamage(float DamageAmount) override;
+	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
 	virtual void PlayProjectileHitSound(FHitResult HitResult) override;
 	virtual void PlayMeleeWeaponHitSound(FHitResult HitResult) override;
 
@@ -72,12 +72,21 @@ protected:
 
 	/* Death */
 	void OnDeath_HandleCollision();
-
-
+	
 	/* Animation */
 	void PlayMontageAtRandomSection(UAnimMontage* Montage);
 
 	/*Delegate Functions*/
 	UFUNCTION()
 	void UpdateCurrentWaveNumber(float CurrentWaveNumber);
+
+	bool HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float DamageAccumulatedDuringWindow);
+
+	/* Damage effects Aggro */
+	FTimerHandle DamageWindowTimerHandle;
+	float DamageWindowTime = 3.0f;
+	float DamageAccumulatedDuringWindow = 0.f;
+	void ResetDamageWindow();
+	void StartDamageTimerWindow();
+		
 };

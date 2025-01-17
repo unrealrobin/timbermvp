@@ -275,7 +275,6 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
 	if (TimberCharacter)
 	{
-		//TODO:: Play Equip Axe Animation
 		UnEquipWeapon();
 		ExitBuildMode(ECharacterState::Standard);
 		//Setting WeaponState on Character
@@ -284,9 +283,8 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 
 		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this; //Controller Owns the Object
-		SpawnParams.Instigator = Cast<ATimberPlayableCharacter>(GetPawn());
-		// Instigator uses the object and instigates the actions with the Actor.
+		SpawnParams.Owner = Cast<ATimberPlayableCharacter>(GetPawn());
+		SpawnParams.Instigator = GetPawn();
 
 		//Socket Rotation and Location
 		const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("AxeSocket");
@@ -324,8 +322,9 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
 	WeaponState.Broadcast(EWeaponState::ChainsawEquipped);
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-	const FActorSpawnParameters SpawnParams;
-
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = Cast<ATimberPlayableCharacter>(GetPawn());
+	SpawnParams.Instigator = GetPawn();  
 	//Socket Rotation and Location
 	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("ChainSawSocket");
 	const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("ChainSawSocket");
@@ -362,8 +361,8 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = TimberCharacter;
-	SpawnParams.Instigator = GetInstigator();
+	SpawnParams.Owner = Cast<ATimberPlayableCharacter>(GetPawn());
+	SpawnParams.Instigator = GetPawn();
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 

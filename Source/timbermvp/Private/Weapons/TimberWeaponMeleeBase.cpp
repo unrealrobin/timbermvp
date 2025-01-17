@@ -63,44 +63,48 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Ignoring the Owning Character (Instigator) and the Actual Weapon itself.
-	if (OtherActor == WeaponInstigator || OtherActor == this)
+	//Ignoring the Owning Character  and the Actual Weapon itself.
+	if (OtherActor == GetOwner() || OtherActor == this)
 	{
 		return;
 	}
-	/* If Melee Hit is Against the Player Character
-	Used for when the AI Enemy have a Melee Weapon
-	Ensures swings only hit Player Characters and not other AI Enemy
-	*/
-	ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	if (ActorsToIgnore.Contains(HitCharacter))
-	{
-		return;
-	}
-	if (HitCharacter)
-	{
-		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
-		ActorsToIgnore.Add(HitCharacter);
-		//TODO:: When damage can be buffed, first calculate damage in some function then pass here.
-		HitCharacter->PlayerTakeDamage(BaseWeaponDamage);
-		return;
+	
+	{ // AI using sword - Ignoring other AI
+		ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	
+		if (ActorsToIgnore.Contains(HitCharacter))
+		{
+			return;
+		}
+		if (HitCharacter) //Is the player character and doesn't need to be ignored.
+		{
+			GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
+			ActorsToIgnore.Add(HitCharacter);
+			//TODO:: When damage can be buffed, first calculate damage in some function then pass here.
+			HitCharacter->PlayerTakeDamage(BaseWeaponDamage);
+			return;
+		}
 	}
 
-	/*If Melee Hit is Against the AI Enemy Characters*/
-	ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
-	if (ActorsToIgnore.Contains(HitEnemy))
-	{
-		return;
-	}
-	if (HitEnemy && !ActorsToIgnore.Contains(HitEnemy))
-	{
-		IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(OtherActor);
-		if (DamageableEnemy)
+	{/* Player using Sword - If Melee Hit is Against the AI Enemy Characters*/
+		ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
+		if (ActorsToIgnore.Contains(HitEnemy))
 		{
-			DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
-			DamageableEnemy->TakeDamage(BaseWeaponDamage);
+			return;
 		}
-		ActorsToIgnore.Add(HitEnemy);
+		if (HitEnemy)
+		{
+			IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(OtherActor);
+			if (DamageableEnemy)
+			{
+				DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
+			
+				// Print the owner of the weapon
+				UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
+				DamageableEnemy->TakeDamage(BaseWeaponDamage, GetOwner());
+			}
+			ActorsToIgnore.Add(HitEnemy);
+		}
 	}
 }
 
@@ -131,8 +135,6 @@ void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const
 		if (CharacterAnimInstance)
 		{
 			FName RandomSectionName = AttackMontage->GetSectionName(RandomSection - 1);
-			UE_LOG(LogTemp, Warning, TEXT("Section Name: %s"), *RandomSectionName.ToString());
-			UE_LOG(LogTemp, Warning, TEXT("Section Number: %i"), RandomSection);
 			CharacterAnimInstance->Montage_Play(AttackMontage, 1.f);
 			CharacterAnimInstance->Montage_JumpToSection(RandomSectionName);
 		}

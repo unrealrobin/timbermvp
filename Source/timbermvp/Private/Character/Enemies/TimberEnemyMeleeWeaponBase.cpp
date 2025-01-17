@@ -23,10 +23,9 @@ void ATimberEnemyMeleeWeaponBase::BeginPlay()
 
 void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase> WeaponClassName)
 {
-	//TODO:: Spawn Weapon in Hand Slot
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Owner = this;
-	SpawnParameters.Instigator = GetInstigator();
+	SpawnParameters.Instigator = Cast<APawn>(this);
 
 	if (GetMesh())
 	{

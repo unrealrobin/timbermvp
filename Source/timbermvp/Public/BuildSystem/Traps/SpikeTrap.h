@@ -22,6 +22,7 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	void SetSpikeOutAttackTimer();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Component")
 	UStaticMeshComponent* TrapSpikeMesh;
@@ -32,9 +33,9 @@ public:
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void HandleSpikeOutAttack();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
-	;
-	float SpikeDamage = 10;
+	float SpikeDamage = 10.f;
 
 	void ApplyDamageToActorsInHitBox();
 

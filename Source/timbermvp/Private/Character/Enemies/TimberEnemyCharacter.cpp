@@ -136,7 +136,7 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 		{
 			/*Remove All Collisions but don't fall through the map.*/
 			ShapeComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-			ShapeComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+			ShapeComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 			ShapeComponent->SetCanEverAffectNavigation(false);
 			ShapeComponent->bFillCollisionUnderneathForNavmesh = true;
 		}

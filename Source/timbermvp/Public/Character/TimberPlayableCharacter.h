@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BuildSystem/BuildableBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "States/PlayerStateBase.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
-struct FInventory;
+class UInventoryObject;
 class ATimberPlayerController;
 class ATimberWeaponRangedBase;
 class ATimberWeaponMeleeBase;
@@ -44,6 +43,10 @@ class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
 	GENERATED_BODY()
 
 public:
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterInitialization);
+	FOnCharacterInitialization OnCharacterInitialization;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Controller")
 	ATimberPlayerController* RaycastController;
 
@@ -142,7 +145,8 @@ public:
 	bool bIsPlayerDead = false;
 
 	/*Inventory*/
-	FInventory Inventory;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
+	UInventoryObject* InventoryObject = nullptr;
 
 	UFUNCTION()
 	void GetPlayerInventoryFromPlayerState();
@@ -161,4 +165,5 @@ protected:
 
 	UFUNCTION()
 	void PlayDeathAnimation();
+	
 };

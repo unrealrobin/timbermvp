@@ -3,3 +3,9 @@
 
 #include "States/PlayerStateBase.h"
 
+void APlayerStateBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	MainInventory = NewObject<UInventoryObject>(this);
+}

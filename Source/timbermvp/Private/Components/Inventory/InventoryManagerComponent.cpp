@@ -3,12 +3,25 @@
 
 #include "Components/Inventory/InventoryManagerComponent.h"
 
+#include "SWarningOrErrorBox.h"
 #include "Character/TimberPlayableCharacter.h"
+#include "Controller/TimberPlayerController.h"
 
 
 UInventoryManagerComponent::UInventoryManagerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UInventoryManagerComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	LoadOwningPlayerState();
+}
+
+void UInventoryManagerComponent::LoadOwningPlayerState()
+{
+
 	/*
 	 * PCH - Player Character
 	 * PC - Player Controller
@@ -17,30 +30,33 @@ UInventoryManagerComponent::UInventoryManagerComponent()
 	ATimberPlayableCharacter* PCh = Cast<ATimberPlayableCharacter>(GetOwner());
 	if(PCh)
 	{
-		AController* PC = PCh->GetController();
+		UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player Character Loaded from GetOwner()"));
+		ATimberPlayerController* PC = Cast<ATimberPlayerController>(PCh->GetController());
 		if(PC)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player Controller Loaded."));
 			PS = PC->GetPlayerState<APlayerStateBase>();
+			if(PS == nullptr )
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player State Cast Failed."));
+			}
 			if(PS)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Player State Loaded for the Inventory Management Component."))
 			}
 		}
 	}
-	
-
-}
-
-void UInventoryManagerComponent::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void UInventoryManagerComponent::AddPartsToInventory(int PartsToAdd)
 {
 	if(PS)
 	{
-		PS->MainInventory.NumberOfParts += PartsToAdd;
+		
+		PS->MainInventory->NumberOfParts += PartsToAdd;
+		UE_LOG(LogTemp, Warning, TEXT("Part Added to Inventory. Parts In Inventory = %d"), PS->MainInventory->NumberOfParts);
+
+		UpdateInventoryHandle.Broadcast();
 	}
 }
 
@@ -48,7 +64,10 @@ void UInventoryManagerComponent::RemovePartsFromInventory(int PartsToRemove)
 {
 	if(bCanAffordPartsCost(PartsToRemove))
 	{
-		PS->MainInventory.NumberOfParts -= PartsToRemove;
+		PS->MainInventory->NumberOfParts -= PartsToRemove;
+
+		UpdateInventoryHandle.Broadcast();
+
 	}
 } 
 
@@ -59,18 +78,11 @@ bool UInventoryManagerComponent::bCanAffordPartsCost(int CostOfParts)
 	return false;
 }
 
-void UInventoryManagerComponent::TickComponent(
-	float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-}
-
 int UInventoryManagerComponent::GetPartsInInventory()
 {
 	if(PS)
 	{
-		return PS->MainInventory.NumberOfParts;
+		return PS->MainInventory->NumberOfParts;
 	}
 	else
 	{

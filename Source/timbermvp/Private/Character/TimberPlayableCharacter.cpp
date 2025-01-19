@@ -10,7 +10,9 @@
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameModes/TimberGameModeBase.h"
 #include "UI/TimberHUDBase.h"
 
 
@@ -30,6 +32,10 @@ void ATimberPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	/* Load Inventory */
+	GetPlayerInventoryFromPlayerState();
+
+	/* Set Character Movement Defaults*/
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
 
 	/*Delegate Binding*/
@@ -38,6 +44,26 @@ void ATimberPlayableCharacter::BeginPlay()
 		&ATimberPlayableCharacter::HandleBuildMenuOpen);
 
 	RaycastController = Cast<ATimberPlayerController>(GetController());
+	
+	{
+		 /*
+		  *Broadcasts a Delegate on the GameMode letting other Systems know that the Character is Initialized.
+		  *Allows other systems to bind to the Game Mode Delegate which is typically initialized before anything else.
+		  *Used to eliminate potential Initialization Races
+		  *Set at the bottoms of the Begin Play Function to ensure all other systems are initialized.
+		  */
+		ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+		if(GM)
+		{
+			GM->PlayerIsInitialized();
+		}
+	}
+	
+	
+
+	
+
+	
 }
 
 void ATimberPlayableCharacter::Tick(float DeltaSeconds)
@@ -329,8 +355,8 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 
 void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
 {
-	Inventory = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
-	if(Inventory.NumberOfParts)
+	InventoryObject = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
+	if(InventoryObject)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Inventory Loaded."));
 	}

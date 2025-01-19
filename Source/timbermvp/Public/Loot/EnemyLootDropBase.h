@@ -4,25 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "PartsItem.generated.h"
+#include "EnemyLootDropBase.generated.h"
 
 class UCapsuleComponent;
 
 UCLASS()
-class TIMBERMVP_API APartsItem : public AActor
+class TIMBERMVP_API AEnemyLootDropBase : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	APartsItem();
+	AEnemyLootDropBase();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void HandlePartsOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+	void SetCollisionProperties();
 
 public:
 

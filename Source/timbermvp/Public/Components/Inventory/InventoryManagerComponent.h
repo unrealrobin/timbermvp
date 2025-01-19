@@ -17,17 +17,17 @@ public:
 	// Sets default values for this component's properties
 	UInventoryManagerComponent();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FUpdateInventoryHandle);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player State")
-	APlayerStateBase* PS;
-
 public:
-	// Called every frame
-	virtual void TickComponent(
-		float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void LoadOwningPlayerState();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player State")
+	APlayerStateBase* PS = nullptr;
 
 	UFUNCTION()
 	int GetPartsInInventory();
@@ -38,5 +38,9 @@ public:
 	UFUNCTION()
 	void RemovePartsFromInventory(int PartsToRemove);
 
+	UFUNCTION()
 	bool bCanAffordPartsCost(int CostOfParts);
+
+	UPROPERTY(BlueprintAssignable, Category="Inventory Delegate Handle")
+	FUpdateInventoryHandle UpdateInventoryHandle;
 };

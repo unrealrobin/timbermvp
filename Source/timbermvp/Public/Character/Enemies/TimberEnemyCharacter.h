@@ -72,6 +72,7 @@ protected:
 
 	/* Death */
 	void OnDeath_HandleCollision();
+	void OnDeath_HandleDropParts();
 	
 	/* Animation */
 	void PlayMontageAtRandomSection(UAnimMontage* Montage);

@@ -5,17 +5,19 @@
 #include "CoreMinimal.h"
 #include "BuildSystem/BuildableBase.h"
 #include "Character/TimberCharacterBase.h"
+#include "States/PlayerStateBase.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+struct FInventory;
 class ATimberPlayerController;
 class ATimberWeaponRangedBase;
 class ATimberWeaponMeleeBase;
 class UBuildSystemManagerComponent;
 class ATimberBuildingComponentBase;
-class ATimberBuildSystemManager;
 class USpringArmComponent;
 class UCameraComponent;
+class UInventoryManagerComponent;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -73,6 +75,8 @@ public:
 	USpringArmComponent* GetSpringArmComponent() { return CameraSpringArm; }
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System")
 	UBuildSystemManagerComponent* BuildSystemManager;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
+	UInventoryManagerComponent* InventoryManager;
 
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
@@ -136,6 +140,12 @@ public:
 	void HandlePlayerDeath();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health")
 	bool bIsPlayerDead = false;
+
+	/*Inventory*/
+	FInventory Inventory;
+
+	UFUNCTION()
+	void GetPlayerInventoryFromPlayerState();
 
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")

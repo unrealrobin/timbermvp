@@ -7,6 +7,7 @@
 #include "BuildSystem/Traps/TrapBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -19,7 +20,10 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	Camera->SetupAttachment(CameraSpringArm);
 	CameraSpringArm->SetupAttachment(RootComponent);
+
+	/* Actor Components */
 	BuildSystemManager = CreateDefaultSubobject<UBuildSystemManagerComponent>("BuildSystemManager");
+	InventoryManager = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
 }
 
 void ATimberPlayableCharacter::BeginPlay()
@@ -320,6 +324,15 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 		//Broadcasting the Player Death Delegate
 		//Player Controller is Subscribed to this Delegate
 		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
+	}
+}
+
+void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
+{
+	Inventory = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
+	if(Inventory.NumberOfParts)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player Inventory Loaded."));
 	}
 }
 

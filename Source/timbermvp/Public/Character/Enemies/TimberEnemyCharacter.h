@@ -7,6 +7,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class AEnemyLootDropBase;
 class ATimberBuildingComponentBase;
 class USoundCue;
 UENUM(BlueprintType)
@@ -72,6 +73,8 @@ protected:
 
 	/* Death */
 	void OnDeath_HandleCollision();
+	void OnDeath_HandleDropParts();
+	virtual void OnDeath_DropLoot();
 	
 	/* Animation */
 	void PlayMontageAtRandomSection(UAnimMontage* Montage);
@@ -88,5 +91,15 @@ protected:
 	float DamageAccumulatedDuringWindow = 0.f;
 	void ResetDamageWindow();
 	void StartDamageTimerWindow();
-		
+
+	/* Loot */
+
+	void SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass);
+	// Items that can be dropped by any enemy.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
+	TArray<TSubclassOf<AEnemyLootDropBase>> StandardLootArray;
+
+	//Specific Enemies may drop specific Loot Items.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
+	TArray<TSubclassOf<AEnemyLootDropBase>> UniqueLootArray;
 };

@@ -15,6 +15,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
 
+
+
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -62,6 +64,11 @@ void ATimberGameModeBase::BeginPlay()
 	GatherAllLabDoors();
 }
 
+/* Tells all relying on systems that the character is initialized */
+void ATimberGameModeBase::PlayerIsInitialized()
+{
+	OnCharacterInitialization.Broadcast();
+}
 
 /*Wave Spawn System*/
 void ATimberGameModeBase::SpawnDynamicWave()

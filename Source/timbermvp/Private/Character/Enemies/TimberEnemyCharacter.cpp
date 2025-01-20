@@ -15,6 +15,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -61,6 +62,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 		StopAiControllerBehaviorTree();
 		OnDeath_HandleCollision();
 		PlayMontageAtRandomSection(DeathMontage);
+		OnDeath_DropLoot();
 	}
 	else
 	{
@@ -102,6 +104,8 @@ void ATimberEnemyCharacter::StartDamageTimerWindow()
 		UE_LOG(LogTemp, Warning, TEXT("Damage Window timer is already active."))
 	}
 }
+
+
 
 void ATimberEnemyCharacter::PlayProjectileHitSound(FHitResult HitResult)
 {
@@ -149,6 +153,43 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 		UE_LOG(LogTemp, Warning, TEXT("Collision Disabled for a Single Component"));
 	}
 }
+
+void ATimberEnemyCharacter::OnDeath_HandleDropParts()
+{
+	//When the enemy dies, it drops parts that the player can pick up.
+
+	
+}
+
+void ATimberEnemyCharacter::OnDeath_DropLoot()
+{
+	//When the enemy dies, it drops loot that the player can pick up.
+	//Can be overwritten by child Classes.
+
+	//Goes through each item in the array and spawns the loot.
+	//100% Chance now
+	//TODO:: Add a random chance to spawn loot for each Loot Item.
+	for(TSubclassOf<AEnemyLootDropBase> LootDrop : StandardLootArray)
+	{
+		if(LootDrop)
+		{
+			SpawnLoot(LootDrop);
+		}
+	}
+}
+
+void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	AActor* LootItem = GetWorld()->SpawnActor<AEnemyLootDropBase>(LootDropClass,
+		GetActorLocation(),
+		GetActorRotation(), 
+		SpawnParams);
+}
+
 
 void ATimberEnemyCharacter::HandleEnemyDeath()
 {

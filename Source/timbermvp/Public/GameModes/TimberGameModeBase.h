@@ -39,10 +39,15 @@ public:
 
 	DECLARE_DYNAMIC_DELEGATE(FEnableStandardInputMappingContext);
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterInitialization);
+
 	/* Delegate Handle */
 	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
 	FSwitchToStandardUI SwitchToStandardUI;
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
+	FOnCharacterInitialization OnCharacterInitialization;
+
+	void PlayerIsInitialized();
 
 	virtual void BeginPlay() override;
 

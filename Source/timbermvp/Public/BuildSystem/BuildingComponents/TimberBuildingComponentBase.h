@@ -98,8 +98,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool IsUnlocked = true;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int MaterialCost = 0;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;

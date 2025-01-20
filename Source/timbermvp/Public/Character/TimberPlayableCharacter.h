@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BuildSystem/BuildableBase.h"
 #include "Character/TimberCharacterBase.h"
+#include "States/PlayerStateBase.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class UInventoryObject;
 class ATimberPlayerController;
 class ATimberWeaponRangedBase;
 class ATimberWeaponMeleeBase;
 class UBuildSystemManagerComponent;
 class ATimberBuildingComponentBase;
-class ATimberBuildSystemManager;
 class USpringArmComponent;
 class UCameraComponent;
+class UInventoryManagerComponent;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -42,6 +43,10 @@ class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
 	GENERATED_BODY()
 
 public:
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterInitialization);
+	FOnCharacterInitialization OnCharacterInitialization;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Controller")
 	ATimberPlayerController* RaycastController;
 
@@ -73,6 +78,8 @@ public:
 	USpringArmComponent* GetSpringArmComponent() { return CameraSpringArm; }
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System")
 	UBuildSystemManagerComponent* BuildSystemManager;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
+	UInventoryManagerComponent* InventoryManager;
 
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
@@ -137,6 +144,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health")
 	bool bIsPlayerDead = false;
 
+	/*Inventory*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
+	UInventoryObject* InventoryObject = nullptr;
+
+	UFUNCTION()
+	void GetPlayerInventoryFromPlayerState();
+
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
@@ -151,4 +165,5 @@ protected:
 
 	UFUNCTION()
 	void PlayDeathAnimation();
+	
 };

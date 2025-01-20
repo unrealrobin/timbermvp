@@ -118,7 +118,7 @@ public:
 	/*Build System*/
 	void PerformBuildSystemRaycast();
 	void HandleTrapPlacement();
-	bool HandleBuildingComponentPlacement();
+	void HandleBuildingComponentPlacement();
 
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 1000.f;

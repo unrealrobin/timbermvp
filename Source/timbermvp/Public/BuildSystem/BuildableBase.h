@@ -6,6 +6,18 @@
 #include "GameFramework/Actor.h"
 #include "BuildableBase.generated.h"
 
+USTRUCT(BlueprintType)
+struct FBuildableCost
+{
+	GENERATED_BODY()
+
+public:
+	int CostOfParts = 0;
+	int CostOfMechanisms = 0;
+	int CostOfUniques = 0;
+};
+
+
 UENUM(BlueprintType)
 enum class EBuildableType : uint8
 {
@@ -24,6 +36,9 @@ public:
 	// Sets default values for this actor's properties
 	ABuildableBase();
 	EBuildableType BuildableType = EBuildableType::Default;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Cost")
+	FBuildableCost BuildableCost;
 
 protected:
 	// Called when the game starts or when spawned

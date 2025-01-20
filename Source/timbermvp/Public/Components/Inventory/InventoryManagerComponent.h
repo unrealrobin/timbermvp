@@ -8,6 +8,8 @@
 #include "InventoryManagerComponent.generated.h"
 
 
+struct FBuildableCost;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TIMBERMVP_API UInventoryManagerComponent : public UActorComponent
 {
@@ -39,7 +41,7 @@ public:
 	void RemovePartsFromInventory(int PartsToRemove);
 
 	UFUNCTION()
-	bool bCanAffordPartsCost(int CostOfParts);
+	bool bCanAffordCost(FBuildableCost CostOfBuildable);
 
 	UPROPERTY(BlueprintAssignable, Category="Inventory Delegate Handle")
 	FUpdateInventoryHandle UpdateInventoryHandle;

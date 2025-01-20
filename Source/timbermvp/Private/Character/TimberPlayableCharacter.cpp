@@ -58,12 +58,6 @@ void ATimberPlayableCharacter::BeginPlay()
 			GM->PlayerIsInitialized();
 		}
 	}
-	
-	
-
-	
-
-	
 }
 
 void ATimberPlayableCharacter::Tick(float DeltaSeconds)

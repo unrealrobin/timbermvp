@@ -4,6 +4,7 @@
 #include "Components/Inventory/InventoryManagerComponent.h"
 
 #include "SWarningOrErrorBox.h"
+#include "BuildSystem/BuildableBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
 
@@ -62,18 +63,16 @@ void UInventoryManagerComponent::AddPartsToInventory(int PartsToAdd)
 
 void UInventoryManagerComponent::RemovePartsFromInventory(int PartsToRemove)
 {
-	if(bCanAffordPartsCost(PartsToRemove))
+	if(PartsToRemove)
 	{
 		PS->MainInventory->NumberOfParts -= PartsToRemove;
-
 		UpdateInventoryHandle.Broadcast();
-
 	}
 } 
 
-bool UInventoryManagerComponent::bCanAffordPartsCost(int CostOfParts)
+bool UInventoryManagerComponent::bCanAffordCost(FBuildableCost CostOfBuildable)
 {
-	if(GetPartsInInventory() > CostOfParts) return true;
+	
 
 	return false;
 }

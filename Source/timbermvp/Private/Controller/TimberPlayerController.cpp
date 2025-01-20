@@ -521,7 +521,7 @@ void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Va
 	UBuildSystemManagerComponent* BuildSystemManager = TimberCharacter->BuildSystemManager;
 	if (BuildSystemManager)
 	{
-		BuildSystemManager->SpawnFinalBuildingComponent();
+		BuildSystemManager->SpawnFinalBuildable();
 	}
 }
 

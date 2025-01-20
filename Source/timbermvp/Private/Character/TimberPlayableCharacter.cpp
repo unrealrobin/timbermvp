@@ -131,7 +131,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 
 		if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 		{
-			HandleTrapPlacement();
+			BuildSystemManager->HandleTrapPlacement(HitResults);
 		}
 
 		if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
@@ -150,7 +150,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 				BuildSystemManager->SpawnBuildingComponentProxy(HitResults[0].ImpactPoint, GetActorRotation());
 			}
 
-			HandleBuildingComponentPlacement();
+			BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
 		}
 	}
 	else
@@ -159,177 +159,6 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ARampBase::StaticClass());
-	}
-}
-
-void ATimberPlayableCharacter::HandleBuildingComponentPlacement()
-{
-	/*Data for First Hit Building Component*/
-	FHitResult BuildingComponentHitResult;
-	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
-	
-	/* Data for first Hit Building Quadrant*/
-	FHitResult QuadrantHitResult;
-	UBoxComponent* QuadrantHitComponent = nullptr;
-
-	/* If the multicast has Multiple hits that could be both a building component and Building Quadrant get Both components*/
-	if(HitResults.Num() >= 2)
-	{
-		for (const FHitResult& Hits : HitResults)
-		{
-			if(FirstHitBuildingComponent == nullptr)
-			{
-				if (Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
-				{
-					BuildingComponentHitResult = Hits;
-					FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
-					BuildingComponentImpactPoint = Hits.ImpactPoint;
-				
-				}
-			}
-			if(QuadrantHitComponent == nullptr)
-			{
-				if(Cast<UBoxComponent>(Hits.GetComponent()))
-				{
-					QuadrantHitResult = Hits;
-					QuadrantHitComponent = Cast<UBoxComponent>(Hits.GetComponent());
-				
-				}
-			}
-			/* Exit Loop if both needed components are found*/
-			if(FirstHitBuildingComponent && QuadrantHitComponent)
-			{
-				break;
-			}
-		}
-
-		
-		if(FirstHitBuildingComponent && QuadrantHitComponent)
-		{
-			BuildSystemManager->HandleBuildingComponentSnapping(QuadrantHitResult, BuildingComponentHitResult);
-		}
-		
-		
-	}
-	else
-	{
-		/*If there is An Active Building Component Move the Proxy to the new location.*/
-		if (BuildSystemManager->GetActiveBuildingComponent())
-		{
-			/*Simple Move to Location*/
-			BuildSystemManager->MoveBuildingComponent(
-				HitResults[0].ImpactPoint, BuildSystemManager->GetActiveBuildingComponent());
-		}
-	}
-	
-
-
-
-
-	//IF NOT ISSUES WITH PLACEMENT OF BUILDING COMPONENTS (Walls and Floors you can safely remove this)
-	/*
-	//Handle Building Component Placement
-	//Hit Result is Stored in Global Scope of the Player Character
-	if (HitResults.Num() >= 2)
-	{
-		//If the second hit is a building component, snap to that building component utilizing the quadrant system.
-		// Using the 2nd Hit because the first visible hit is the Quadrant Box Component.
-		/* Hit a Building Component Condition #1#
-		if (Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
-		{
-			BuildSystemManager->HandleBuildingComponentSnapping(HitResults[0], HitResults[1]);
-		}
-
-		//HUD Stuff - Delete Widget
-		//Needs to be able to get to the actor component during the multicast.
-		if (HandleShowDeleteWidget(HitResults[1]))
-		{
-			return true;
-		}
-	}
-	else //Handles the Case where there is no overlap with a Building Component and Moves the Building Component Around
-	{
-		//HUD Stuff - Delete Widget
-		if (HandleShowDeleteWidget(HitResults[0]))
-		{
-			return true;
-		}
-
-		/*If there is An Active Building Component Move the Proxy to the new location.#1#
-		if (BuildSystemManager->GetActiveBuildingComponent())
-		{
-			/*Simple Move to Location#1#
-			BuildSystemManager->MoveBuildingComponent(
-				HitResults[0].ImpactPoint, BuildSystemManager->GetActiveBuildingComponent());
-		}
-	}
-	return false;*/
-}
-
-void ATimberPlayableCharacter::HandleTrapPlacement()
-{
-	//Just to get Here the Raycast must have hit something.
-
-	//SPAWNING TRAP COMPONENT
-	ATrapBase* ActiveTrapComponentProxy = BuildSystemManager->GetActiveTrapComponent();
-	if (ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass() != BuildSystemManager->
-		GetActiveBuildableClass())
-	{
-		BuildSystemManager->SpawnTrapComponentProxy(
-			HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
-
-		if (ActiveTrapComponentProxy)
-		{
-			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
-		}
-	}
-
-	// LOOKING FOR HITS ON A BUILDING COMPONENT
-	// Search all hits of Multi Ray Cast for one the first that casts to a BuildingComponentBase (Ramp || Wall )
-	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
-	for (const FHitResult& Hits : HitResults)
-	{
-		if (Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
-		{
-			FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
-			BuildingComponentImpactPoint = Hits.ImpactPoint;
-			break;
-		}
-	}
-
-	//HIT A BUILDING COMPONENT
-	if (FirstHitBuildingComponent)
-	{
-		// Pairing the trap with the wall its Hovering over.
-		if (ActiveTrapComponentProxy)
-		{
-			ActiveTrapComponentProxy->HoveredBuildingComponent = FirstHitBuildingComponent;
-
-			FTrapSnapData TrapSnapData = BuildSystemManager->GetTrapSnapTransform(
-				BuildingComponentImpactPoint,
-				FirstHitBuildingComponent, BuildSystemManager->GetActiveTrapComponent());
-			BuildSystemManager->MoveBuildingComponent
-			(
-				FVector_NetQuantize(TrapSnapData.TrapLocation),
-				ActiveTrapComponentProxy,
-				TrapSnapData.TrapRotation);
-		}
-	}
-	else // HIT BUT NOT A BUILDING COMPONENT
-	{
-		if (ActiveTrapComponentProxy)
-		{
-			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
-			ActiveTrapComponentProxy->HoveredBuildingComponent = nullptr;
-			if (HitResults[0].ImpactPoint != FVector::ZeroVector)
-			{
-				FRotator PlayerRotation = GetActorTransform().GetRotation().Rotator();
-				PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
-				BuildSystemManager->MoveBuildingComponent(
-					HitResults[0].ImpactPoint, ActiveTrapComponentProxy,
-					PlayerRotation);
-			}
-		}
 	}
 }
 

@@ -9,6 +9,7 @@
 #include "BuildSystem/BuildableBase.h"
 #include "BuildSystem/Ramps/RampBase.h"
 #include "Character/TimberPlayableCharacter.h"
+#include "Components/BoxComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
@@ -295,7 +296,6 @@ EBuildingComponentOrientation UBuildSystemManagerComponent::CheckClassBuildingCo
 	return EBuildingComponentOrientation::Default;
 }
 
-/*Spawn Setup*/
 FVector UBuildSystemManagerComponent::SnapToGrid(FVector RaycastLocation)
 {
 	FVector SnappedVector;
@@ -434,26 +434,6 @@ void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinal
 	}
 }
 
-void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponent)
-{
-	/* When the trap changes its finalization capability, this callback will happen. This changes the color from red to blue depending on finalization capabilities*/
-	if (TrapComponent)
-	{
-		TrapComponent->OnTrapFinalizationChange.AddDynamic(
-			this, &UBuildSystemManagerComponent::HandleTrapMaterialChange);
-		HandleTrapMaterialChange(TrapComponent->GetCanTrapBeFinalized());
-	}
-}
-
-void UBuildSystemManagerComponent::GetStaticMeshComponents(AActor* BuildingComponentActor)
-{
-	if (BuildingComponentActor)
-	{
-		//Gets static Meshes and returns them to the GlobalArray.
-		BuildingComponentActor->GetComponents<UStaticMeshComponent>(StaticMeshs);
-	}
-}
-
 void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor)
 {
 	if (StaticMeshs.Num() == 0)
@@ -482,7 +462,170 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 	}
 }
 
-/* Buildable Placement */
+/* Spawn */
+void UBuildSystemManagerComponent::SpawnFinalBuildable()
+{
+	FActorSpawnParameters SpawnParameters;
+
+	// If player can afford the transaction, apply the transaction and spawn the final building component.
+	if(Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost))
+	{
+		if(ActiveBuildableComponentClass)
+		{
+		
+			if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			{
+			
+				SpawnFinalTrap(SpawnParameters);
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+			{
+				SpawnFinalBuildingComponent(SpawnParameters);
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
+			{
+				SpawnFinalRampComponent(SpawnParameters);
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
+	}
+	
+}
+
+void UBuildSystemManagerComponent::SpawnFinalRampComponent(FActorSpawnParameters SpawnParameters)
+{
+	if (ActiveRampComponentProxy && ActiveRampComponentProxy->GetRampFinalization())
+	{
+		//Spawn Final Ramp at the Component Proxies location
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			ActiveRampComponentProxy->GetActorLocation(),
+			ActiveRampComponentProxy->GetActorRotation(),
+			SpawnParameters);
+		if(SpawnedActor)
+		{
+			RedrawPathTraceHandle.Broadcast();
+		}
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnParameters)
+{
+	if (ActiveTrapComponentProxy && ActiveTrapComponentProxy->GetCanTrapBeFinalized())
+	{
+		//Spawn Final Trap
+		GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			ActiveTrapComponentProxy->GetActorLocation(),
+			ActiveTrapComponentProxy->GetActorRotation(),
+			SpawnParameters);
+		
+		if (SpawnedActor && ActiveTrapComponentProxy && ActiveTrapComponentProxy->HoveredBuildingComponent)
+		{
+			EBuildingComponentTrapDirection TrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
+			switch (TrapDirection)
+			{
+			case EBuildingComponentTrapDirection::Front:
+				ActiveTrapComponentProxy->HoveredBuildingComponent->FrontTrap = Cast<ATrapBase>(SpawnedActor);
+				break;
+			case EBuildingComponentTrapDirection::Back:
+				ActiveTrapComponentProxy->HoveredBuildingComponent->BackTrap = Cast<ATrapBase>(SpawnedActor);
+				break;
+			case EBuildingComponentTrapDirection::Default:
+				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
+				break;
+			}
+		}
+		//Needed to Replace the existing TrapComponentProxy with the new TrapComponent Proxy
+		ResetBuildableComponents(ATrapBase::StaticClass());
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(
+			8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
+	}
+
+}
+
+void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters)
+{
+	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+	if(ActiveBuildableComponentClass)
+	{
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+		ActiveBuildableComponentClass,
+		ActiveBuildingComponentProxy->GetActorLocation(),
+		ActiveBuildingComponentProxy->GetActorRotation(),
+		SpawnParameters
+		);
+		if(SpawnedActor)
+		{
+			SpawnedActor->SetActorEnableCollision(true);
+			RedrawPathTraceHandle.Broadcast();
+		}
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
+{
+	if (ActiveBuildableComponentClass)
+	{
+		//TODO:: Remember to change this back in the future.
+		const FVector Location = SnapToGrid(SpawnVector);
+		const FVector Location1 = SpawnVector;
+		const FRotator Rotation = SnapToRotation(SpawnRotator);
+		const FActorSpawnParameters SpawnParameters;
+
+		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			Location1,
+			Rotation,
+			SpawnParameters);
+		
+		ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(SpawnedActor);
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+
+		ActiveBuildingComponentProxy->SetActorEnableCollision(false);
+
+		//Make the Building Component have the "see-through" material look
+		MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator)
+{
+	//Clearing any existing stored Static Meshes from Previous Trap Proxies
+	ClearStoredStaticMeshes();
+
+	FActorSpawnParameters SpawnParameters;
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+	(
+		ActiveBuildableComponentClass,
+		Location,
+		SpawnRotator,
+		SpawnParameters);
+	if (SpawnedActor)
+	{
+		ActiveTrapComponentProxy = Cast<ATrapBase>(SpawnedActor);
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+		//Binding the Delegate Call to the newly Spawned Trap Component
+		RegisterTrapComponent(ActiveTrapComponentProxy);
+	}
+}
+
 void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitResults)
 {
 	//Just to get Here the Raycast must have hit something.
@@ -559,172 +702,175 @@ void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitRes
 	}
 }
 
-/* Spawn */
-void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
+void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitResults)
 {
-	FActorSpawnParameters SpawnParameters;
+	//Just to get Here the Raycast must have hit something.
 
-	// If player can afford the transaction, apply the transaction and spawn the final building component.
-	if(Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost))
+	//SPAWNING TRAP COMPONENT
+	//ATrapBase* ActiveTrapComponentProxy = GetActiveTrapComponent();
+	if (ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass() != 
+		GetActiveBuildableClass())
 	{
-		if(ActiveBuildableComponentClass)
+		SpawnTrapComponentProxy(
+			HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
+
+		if (ActiveTrapComponentProxy)
 		{
-		
-			if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
+		}
+	}
+
+	// LOOKING FOR HITS ON A BUILDING COMPONENT
+	// Search all hits of Multi Ray Cast for one the first that casts to a BuildingComponentBase (Ramp || Wall )
+	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
+	for (const FHitResult& Hits : HitResults)
+	{
+		if (Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
+		{
+			FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
+			BuildingComponentImpactPoint = Hits.ImpactPoint;
+			break;
+		}
+	}
+
+	//HIT A BUILDING COMPONENT
+	if (FirstHitBuildingComponent)
+	{
+		// Pairing the trap with the wall its Hovering over.
+		if (ActiveTrapComponentProxy)
+		{
+			ActiveTrapComponentProxy->HoveredBuildingComponent = FirstHitBuildingComponent;
+
+			FTrapSnapData TrapSnapData = GetTrapSnapTransform(BuildingComponentImpactPoint,FirstHitBuildingComponent, GetActiveTrapComponent());
+			MoveBuildingComponent
+			(
+				FVector_NetQuantize(TrapSnapData.TrapLocation),
+				ActiveTrapComponentProxy,
+				TrapSnapData.TrapRotation);
+		}
+	}
+	else // HIT BUT NOT A BUILDING COMPONENT
+	{
+		if (ActiveTrapComponentProxy)
+		{
+			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
+			ActiveTrapComponentProxy->HoveredBuildingComponent = nullptr;
+			if (HitResults[0].ImpactPoint != FVector::ZeroVector)
 			{
-			
-				SpawnFinalTrap(SpawnParameters);
-			}
-			else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-			{
-				SpawnFinalBuildingComponent(SpawnParameters);
-			}
-			else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
-			{
-				SpawnFinalRampComponent();
-			}
-			else
-			{
-				GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
+				FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
+				PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
+				MoveBuildingComponent(
+					HitResults[0].ImpactPoint, ActiveTrapComponentProxy,
+					PlayerRotation);
 			}
 		}
 	}
+}
+
+void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(TArray<FHitResult> HitResults)
+{
+	/*Data for First Hit Building Component*/
+	FHitResult BuildingComponentHitResult;
+	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
+	
+	/* Data for first Hit Building Quadrant*/
+	FHitResult QuadrantHitResult;
+	UBoxComponent* QuadrantHitComponent = nullptr;
+
+	/* If the multicast has Multiple hits that could be both a building component and Building Quadrant get Both components*/
+	if(HitResults.Num() >= 2)
+	{
+		for (const FHitResult& Hits : HitResults)
+		{
+			if(FirstHitBuildingComponent == nullptr)
+			{
+				if (Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
+				{
+					BuildingComponentHitResult = Hits;
+					FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
+					BuildingComponentImpactPoint = Hits.ImpactPoint;
+				
+				}
+			}
+			if(QuadrantHitComponent == nullptr)
+			{
+				if(Cast<UBoxComponent>(Hits.GetComponent()))
+				{
+					QuadrantHitResult = Hits;
+					QuadrantHitComponent = Cast<UBoxComponent>(Hits.GetComponent());
+				
+				}
+			}
+			/* Exit Loop if both needed components are found*/
+			if(FirstHitBuildingComponent && QuadrantHitComponent)
+			{
+				break;
+			}
+		}
+
+		
+		if(FirstHitBuildingComponent && QuadrantHitComponent)
+		{
+			HandleBuildingComponentSnapping(QuadrantHitResult, BuildingComponentHitResult);
+		}
+		
+		
+	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
+		/*If there is An Active Building Component Move the Proxy to the new location.*/
+		if (GetActiveBuildingComponent())
+		{
+			/*Simple Move to Location*/
+			MoveBuildingComponent(HitResults[0].ImpactPoint, GetActiveBuildingComponent());
+		}
 	}
 	
-}
 
-void UBuildSystemManagerComponent::SpawnFinalRampComponent()
-{
-	if (ActiveRampComponentProxy && ActiveRampComponentProxy->GetRampFinalization())
+
+
+
+	//IF NOT ISSUES WITH PLACEMENT OF BUILDING COMPONENTS (Walls and Floors you can safely remove this)
+	/*
+	//Handle Building Component Placement
+	//Hit Result is Stored in Global Scope of the Player Character
+	if (HitResults.Num() >= 2)
 	{
-		//Spawn Final Ramp at the Component Proxies location
-		FActorSpawnParameters SpawnParams;
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			ActiveRampComponentProxy->GetActorLocation(),
-			ActiveRampComponentProxy->GetActorRotation(),
-			SpawnParams);
-		if(SpawnedActor)
+		//If the second hit is a building component, snap to that building component utilizing the quadrant system.
+		// Using the 2nd Hit because the first visible hit is the Quadrant Box Component.
+		/* Hit a Building Component Condition #1#
+		if (Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
 		{
-			RedrawPathTraceHandle.Broadcast();
+			BuildSystemManager->HandleBuildingComponentSnapping(HitResults[0], HitResults[1]);
+		}
+
+		//HUD Stuff - Delete Widget
+		//Needs to be able to get to the actor component during the multicast.
+		if (HandleShowDeleteWidget(HitResults[1]))
+		{
+			return true;
 		}
 	}
-}
-
-bool UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnParameters)
-{
-	if (ActiveTrapComponentProxy && ActiveTrapComponentProxy->GetCanTrapBeFinalized())
+	else //Handles the Case where there is no overlap with a Building Component and Moves the Building Component Around
 	{
-		//Spawn Final Trap
-		GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			ActiveTrapComponentProxy->GetActorLocation(),
-			ActiveTrapComponentProxy->GetActorRotation(),
-			SpawnParameters);
-		
-		if (SpawnedActor && ActiveTrapComponentProxy && ActiveTrapComponentProxy->HoveredBuildingComponent)
+		//HUD Stuff - Delete Widget
+		if (HandleShowDeleteWidget(HitResults[0]))
 		{
-			EBuildingComponentTrapDirection TrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
-			switch (TrapDirection)
-			{
-			case EBuildingComponentTrapDirection::Front:
-				ActiveTrapComponentProxy->HoveredBuildingComponent->FrontTrap = Cast<ATrapBase>(SpawnedActor);
-				break;
-			case EBuildingComponentTrapDirection::Back:
-				ActiveTrapComponentProxy->HoveredBuildingComponent->BackTrap = Cast<ATrapBase>(SpawnedActor);
-				break;
-			case EBuildingComponentTrapDirection::Default:
-				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
-				return true;
-			}
+			return true;
 		}
-		//Needed to Replace the existing TrapComponentProxy with the new TrapComponent Proxy
-		ResetBuildableComponents(ATrapBase::StaticClass());
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(
-			8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
-	}
-	return false;
-}
 
-void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
-{
-	if (ActiveBuildableComponentClass)
-	{
-		//TODO:: Remember to change this back in the future.
-		const FVector Location = SnapToGrid(SpawnVector);
-		const FVector Location1 = SpawnVector;
-		const FRotator Rotation = SnapToRotation(SpawnRotator);
-		const FActorSpawnParameters SpawnParameters;
-
-		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			Location1,
-			Rotation,
-			SpawnParameters);
-		
-		ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(SpawnedActor);
-		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
-
-		ActiveBuildingComponentProxy->SetActorEnableCollision(false);
-
-		//Make the Building Component have the "see-through" material look
-		MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
-	}
-}
-
-void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator)
-{
-	//Clearing any existing stored Static Meshes from Previous Trap Proxies
-	ClearStoredStaticMeshes();
-
-	FActorSpawnParameters SpawnParameters;
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-	(
-		ActiveBuildableComponentClass,
-		Location,
-		SpawnRotator,
-		SpawnParameters);
-	if (SpawnedActor)
-	{
-		ActiveTrapComponentProxy = Cast<ATrapBase>(SpawnedActor);
-		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
-		//Binding the Delegate Call to the newly Spawned Trap Component
-		RegisterTrapComponent(ActiveTrapComponentProxy);
-	}
-}
-
-// TODO:: This function is not used. Remove in the future. 
-void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters)
-{
-	//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-	if(ActiveBuildableComponentClass)
-	{
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-		ActiveBuildableComponentClass,
-		ActiveBuildingComponentProxy->GetActorLocation(),
-		ActiveBuildingComponentProxy->GetActorRotation(),
-		SpawnParameters
-		);
-		if(SpawnedActor)
+		/*If there is An Active Building Component Move the Proxy to the new location.#1#
+		if (BuildSystemManager->GetActiveBuildingComponent())
 		{
-			SpawnedActor->SetActorEnableCollision(true);
-			RedrawPathTraceHandle.Broadcast();
+			/*Simple Move to Location#1#
+			BuildSystemManager->MoveBuildingComponent(
+				HitResults[0].ImpactPoint, BuildSystemManager->GetActiveBuildingComponent());
 		}
 	}
+	return false;*/
 }
 
+/* Buildable Utils*/
 void UBuildSystemManagerComponent::MoveBuildingComponent(
 	FVector_NetQuantize Location, ABuildableBase*
 	BuildingComponent, const FRotator& Rotation)
@@ -785,6 +931,26 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	{
 		GEngine->AddOnScreenDebugMessage(
 			3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
+	}
+}
+
+void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponent)
+{
+	/* When the trap changes its finalization capability, this callback will happen. This changes the color from red to blue depending on finalization capabilities*/
+	if (TrapComponent)
+	{
+		TrapComponent->OnTrapFinalizationChange.AddDynamic(
+			this, &UBuildSystemManagerComponent::HandleTrapMaterialChange);
+		HandleTrapMaterialChange(TrapComponent->GetCanTrapBeFinalized());
+	}
+}
+
+void UBuildSystemManagerComponent::GetStaticMeshComponents(AActor* BuildingComponentActor)
+{
+	if (BuildingComponentActor)
+	{
+		//Gets static Meshes and returns them to the GlobalArray.
+		BuildingComponentActor->GetComponents<UStaticMeshComponent>(StaticMeshs);
 	}
 }
 

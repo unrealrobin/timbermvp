@@ -85,9 +85,8 @@ protected:
 	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
 	void MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
-	
-	bool SpawnFinalTrap(FActorSpawnParameters SpawnParameters);
-	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
+
+
 	
 	/*Static Mesh Utilities*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component")
@@ -96,17 +95,32 @@ protected:
 	UFUNCTION()
 	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
-	UMaterial* RedHoloMaterial;
+	UMaterial* RedHoloMaterial = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
-	UMaterial* YellowHoloMaterial;
+	UMaterial* YellowHoloMaterial = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
-	UMaterial* BlueHoloMaterial;
+	UMaterial* BlueHoloMaterial = nullptr;
 
 public:
+	/* Spawning */
+	UFUNCTION()
+	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
+	UFUNCTION()
+	void SpawnFinalBuildable();
+	void SpawnFinalRampComponent(FActorSpawnParameters SpawnParameters);
+	void SpawnFinalTrap(FActorSpawnParameters SpawnParameters);
+	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
+
+	/*Placement*/
 	UFUNCTION()
 	void HandleRampPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
+	void HandleTrapPlacement(TArray<FHitResult> HitResults);
+	UFUNCTION()
+	void HandleBuildingComponentPlacement(TArray<FHitResult> HitResults);
+	UFUNCTION()
 	void HandleTrapMaterialChange(bool bCanTrapBeFinalized);
+	FVector BuildingComponentImpactPoint;
 
 	/*Registering Buildable*/
 	void RegisterTrapComponent(ATrapBase* TrapComponent);
@@ -119,13 +133,7 @@ public:
 	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 	void RemoveBuildingComponentProxies_All();
 
-	/* Spawning */
-	UFUNCTION()
-	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
-	UFUNCTION()
-	void SpawnFinalBuildingComponent();
-	UFUNCTION()
-	void SpawnFinalRampComponent();
+	
 
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);

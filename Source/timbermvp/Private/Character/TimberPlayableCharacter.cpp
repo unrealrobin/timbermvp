@@ -93,7 +93,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			//1000 is the range to perform the Raycast.
 			FVector RaycastEnd = RaycastStart + (PlayerRotation.Vector() * BuildRaycastDistance);
 
-			/* Ignore the Player Raycasting*/
+			/* Ignore the Player Raycasting and the Weapon*/
 			FCollisionQueryParams CollisionParams;
 			CollisionParams.AddIgnoredActor(this);
 			CollisionParams.AddIgnoredActor(this->CurrentlyEquippedWeapon);
@@ -115,7 +115,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				ECC_Visibility,
 				CollisionParams);
 
-
+			HandleShowDeleteWidget();
 			HandleRaycastHitConditions(bHits);
 		}
 	}
@@ -162,11 +162,38 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 	}
 }
 
-bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
+bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 {
-	//TODO:: Can we somehow get an array of hitresult from the RaycastMulti and check if the array contrains a Building Component?
+	//Hit Results Passed in as a Global Variable
+	//First Hovered Building Component
+	HoveredBuildingComponent = nullptr;
+	for(FHitResult Hits : HitResults)
+	{
+		if(Cast<ABuildableBase>(Hits.GetActor()))
+		{
+			HoveredBuildingComponent = Cast<ABuildableBase>(Hits.GetActor());
+			UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component: %s"), *HoveredBuildingComponent->GetName());
+			FVector2d ScreenLocationOfImpactPoint;
 
-	AActor* HitActor = HitResult.GetComponent()->GetOwner();
+			/*Setting Impact Point at Location to show Delete Widget in Screen Space*/
+			GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(
+				Hits.ImpactPoint,
+				ScreenLocationOfImpactPoint);
+
+			// Broadcast a Delegate with the Impact Position to the HUD.
+			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(
+				ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
+		}
+		break;
+	}
+	if(HoveredBuildingComponent == nullptr)
+	{
+		ResetDeleteIcon();
+		return false;
+	}
+	
+	
+	/*AActor* HitActor = HitResults.GetComponent()->GetOwner();
 	//Hit can be one of the quadrants so we want to make sure that the hit is a Building Component
 	if (Cast<ATimberBuildingComponentBase>(HitActor))
 	{
@@ -176,7 +203,7 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 			//Translating a Location in World Space to Its Location in Screen Space
 			FVector2d ScreenLocationOfImpactPoint;
 			GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(
-				HitResult.ImpactPoint,
+				HitResults.ImpactPoint,
 				ScreenLocationOfImpactPoint);
 
 			// Broadcast a Delegate with the Impact Position to the HUD.
@@ -186,28 +213,23 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget(FHitResult HitResult)
 
 		return true;
 	}
-	if (Cast<ATimberBuildingComponentBase>(HitResult.GetActor()))
+	if (Cast<ATimberBuildingComponentBase>(HitResults.GetActor()))
 	{
-		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitResult.GetActor());
+		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitResults.GetActor());
 		if (HoveredBuildingComponent)
 		{
 			//Translating a Location in World Space to Its Location in Screen Space
 			FVector2d ScreenLocationOfImpactPoint;
 			GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(
-				HitResult.ImpactPoint,
+				HitResults.ImpactPoint,
 				ScreenLocationOfImpactPoint);
 
 			// Broadcast a Delegate with the Impact Position to the HUD.
 			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(
 				ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
 		}
-	}
-	else
-	{
-		ExitBuildMode();
-
-		return false;
-	}
+	}*/
+	
 
 
 	return false;
@@ -245,9 +267,8 @@ void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
 	}
 }
 
-void ATimberPlayableCharacter::ExitBuildMode()
+void ATimberPlayableCharacter::ResetDeleteIcon()
 {
-	BuildSystemManager->RemoveBuildingComponentProxies_All();
 	HoveredBuildingComponent = nullptr;
 	HandleRemoveDeleteIcon_DelegateHandle.Broadcast();
 }

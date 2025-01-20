@@ -8,6 +8,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class ABuildableBase;
 class UInventoryObject;
 class ATimberPlayerController;
 class ATimberWeaponRangedBase;
@@ -111,7 +112,7 @@ public:
 	EWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);
 	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
-	bool HandleShowDeleteWidget(FHitResult HitResult);
+	bool HandleShowDeleteWidget();
 	void HandleRaycastHitConditions(bool bHits);
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 
@@ -125,14 +126,14 @@ public:
 	bool ShouldRaycast = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
-	ATimberBuildingComponentBase* HoveredBuildingComponent;
+	ABuildableBase* HoveredBuildingComponent;
 
 	UPROPERTY(VisibleAnywhere, Category="Build System Info")
 	TArray<FHitResult> HitResults;
 	FVector BuildingComponentImpactPoint;
 
 	UFUNCTION()
-	void ExitBuildMode();
+	void ResetDeleteIcon();
 
 	/*Damage*/
 	void PlayerTakeDamage(float DamageAmount);

@@ -491,7 +491,8 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 		Subsystem->RemoveMappingContext(BuildModeInputMappingContext);
 	}
 
-	TimberCharacter->ExitBuildMode();
+	TimberCharacter->ResetDeleteIcon();
+	TimberCharacter->BuildSystemManager->RemoveBuildingComponentProxies_All();
 }
 
 void ATimberPlayerController::OpenBuildModeSelectionMenu()
@@ -539,7 +540,7 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 
 	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 	{
-		//TODO:: Make some kind of Deleted Animation for Building Component so player visually understand the deletion.
+		
 		TimberCharacter->HoveredBuildingComponent->Destroy();
 		TimberCharacter->HoveredBuildingComponent = nullptr;
 	}

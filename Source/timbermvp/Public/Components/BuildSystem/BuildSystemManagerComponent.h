@@ -85,8 +85,6 @@ protected:
 	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
 	UFUNCTION()
 	void MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
-
-
 	
 	/*Static Mesh Utilities*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component")
@@ -100,6 +98,8 @@ protected:
 	UMaterial* YellowHoloMaterial = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
 	UMaterial* BlueHoloMaterial = nullptr;
+
+	void DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent);
 
 public:
 	/* Spawning */
@@ -132,9 +132,7 @@ public:
 	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
 	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
 	void RemoveBuildingComponentProxies_All();
-
 	
-
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
 	void MoveBuildingComponent(

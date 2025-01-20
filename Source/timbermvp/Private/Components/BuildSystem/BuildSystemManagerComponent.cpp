@@ -577,6 +577,11 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 	}
 }
 
+void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent)
+{
+	BuildingComponent->SetActorEnableCollision(false);
+}
+
 void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
 {
 	if (ActiveBuildableComponentClass)
@@ -598,7 +603,7 @@ void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVect
 		ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(SpawnedActor);
 		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
 
-		ActiveBuildingComponentProxy->SetActorEnableCollision(false);
+		DisableBuildableProxyCollisions(ActiveBuildingComponentProxy);
 
 		//Make the Building Component have the "see-through" material look
 		MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
@@ -623,6 +628,9 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
 		//Binding the Delegate Call to the newly Spawned Trap Component
 		RegisterTrapComponent(ActiveTrapComponentProxy);
+
+		//Required so that delete functionality does delete the proxy
+		DisableBuildableProxyCollisions(ActiveTrapComponentProxy);
 	}
 }
 
@@ -649,7 +657,7 @@ void UBuildSystemManagerComponent::HandleRampPlacement(TArray<FHitResult> HitRes
 		if (SpawnedRamp)
 		{
 			SetActiveRampComponent(SpawnedRamp);
-			SpawnedRamp->SetActorEnableCollision(false);
+			DisableBuildableProxyCollisions(SpawnedRamp);
 		}
 	}
 

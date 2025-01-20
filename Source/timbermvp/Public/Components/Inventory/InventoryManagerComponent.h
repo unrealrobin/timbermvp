@@ -38,10 +38,16 @@ public:
 	void AddPartsToInventory(int PartsToAdd);
 
 	UFUNCTION()
+	void AddMechanismsToInventory(int MechanismsToAdd);
+
+	UFUNCTION()
 	void RemovePartsFromInventory(int PartsToRemove);
 
 	UFUNCTION()
 	bool bCanAffordCost(FBuildableCost CostOfBuildable);
+
+	UFUNCTION()
+	bool bHandleBuildableTransaction(FBuildableCost CostOfBuildable);
 
 	UPROPERTY(BlueprintAssignable, Category="Inventory Delegate Handle")
 	FUpdateInventoryHandle UpdateInventoryHandle;

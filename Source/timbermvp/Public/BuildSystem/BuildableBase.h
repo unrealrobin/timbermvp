@@ -12,8 +12,11 @@ struct FBuildableCost
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
 	int CostOfParts = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
 	int CostOfMechanisms = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
 	int CostOfUniques = 0;
 };
 
@@ -37,7 +40,7 @@ public:
 	ABuildableBase();
 	EBuildableType BuildableType = EBuildableType::Default;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Cost")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
 	FBuildableCost BuildableCost;
 
 protected:

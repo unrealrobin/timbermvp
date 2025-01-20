@@ -3,7 +3,6 @@
 
 #include "Components/Inventory/InventoryManagerComponent.h"
 
-#include "SWarningOrErrorBox.h"
 #include "BuildSystem/BuildableBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
@@ -61,6 +60,15 @@ void UInventoryManagerComponent::AddPartsToInventory(int PartsToAdd)
 	}
 }
 
+void UInventoryManagerComponent::AddMechanismsToInventory(int MechanismsToAdd)
+{
+	if(PS)
+	{
+		PS->MainInventory->NumberOfMechanism += MechanismsToAdd;
+		UpdateInventoryHandle.Broadcast();
+	}
+}
+
 void UInventoryManagerComponent::RemovePartsFromInventory(int PartsToRemove)
 {
 	if(PartsToRemove)
@@ -72,9 +80,71 @@ void UInventoryManagerComponent::RemovePartsFromInventory(int PartsToRemove)
 
 bool UInventoryManagerComponent::bCanAffordCost(FBuildableCost CostOfBuildable)
 {
+	// Getting Values
+	int CostOfParts = CostOfBuildable.CostOfParts;
+	int CostOfMechanisms = CostOfBuildable.CostOfMechanisms;
+	int CostOfUniques = CostOfBuildable.CostOfUniques;
+
+	int AvailableParts = PS->MainInventory->NumberOfParts;
+	int AvailableMechanisms = PS->MainInventory->NumberOfMechanism;
+	int AvailableUniques = PS->MainInventory->NumberOfUniques;
+
+	bool bCanAffordParts = false;
+	bool bCanAffordMechanisms = false;
+	bool bCanAffordUniques = false;
+
 	
+	// Comparing Costs
+	if(AvailableParts >= CostOfParts)
+	{
+		bCanAffordParts = true;
+	}
+	else
+	{
+		return false;
+	}
+
+	if(AvailableMechanisms >= CostOfMechanisms)
+	{
+		bCanAffordMechanisms = true;
+	}
+	else
+	{
+		return false;
+	}
+
+	if(AvailableUniques >= CostOfUniques)
+	{
+		bCanAffordUniques = true;
+	}
+	else
+	{
+		return false;
+	}
+
+	if(bCanAffordParts && bCanAffordMechanisms && bCanAffordUniques)
+	{
+		return true;
+	}
 
 	return false;
+}
+
+bool UInventoryManagerComponent::bHandleBuildableTransaction(FBuildableCost CostOfBuildable)
+{
+
+	//If the player can afford the cost of the buildable, then remove the parts from the inventory.
+	
+	if(bCanAffordCost(CostOfBuildable))
+	{
+		RemovePartsFromInventory(CostOfBuildable.CostOfParts);
+		RemovePartsFromInventory(CostOfBuildable.CostOfMechanisms);
+		RemovePartsFromInventory(CostOfBuildable.CostOfUniques);
+		return true;
+	}
+	
+	return false;
+	
 }
 
 int UInventoryManagerComponent::GetPartsInInventory()

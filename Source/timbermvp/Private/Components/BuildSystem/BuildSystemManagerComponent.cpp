@@ -8,6 +8,8 @@
 #include "BuildSystem/Traps/TrapBase.h"
 #include "BuildSystem/BuildableBase.h"
 #include "BuildSystem/Ramps/RampBase.h"
+#include "Character/TimberPlayableCharacter.h"
+#include "Components/Inventory/InventoryManagerComponent.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
@@ -562,25 +564,36 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent()
 {
 	FActorSpawnParameters SpawnParameters;
 
-	if(ActiveBuildableComponentClass)
+	// If player can afford the transaction, apply the transaction and spawn the final building component.
+	if(Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost))
 	{
-		if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+		if(ActiveBuildableComponentClass)
 		{
-			SpawnFinalTrap(SpawnParameters);
-		}
-		else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-		{
-			SpawnFinalBuildingComponent(SpawnParameters);
-		}
-		else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
-		{
-			SpawnFinalRampComponent();
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
+		
+			if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			{
+			
+				SpawnFinalTrap(SpawnParameters);
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+			{
+				SpawnFinalBuildingComponent(SpawnParameters);
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
+			{
+				SpawnFinalRampComponent();
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
+			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
+	}
+	
 }
 
 void UBuildSystemManagerComponent::SpawnFinalRampComponent()
@@ -685,6 +698,7 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 	if (SpawnedActor)
 	{
 		ActiveTrapComponentProxy = Cast<ATrapBase>(SpawnedActor);
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
 		//Binding the Delegate Call to the newly Spawned Trap Component
 		RegisterTrapComponent(ActiveTrapComponentProxy);
 	}

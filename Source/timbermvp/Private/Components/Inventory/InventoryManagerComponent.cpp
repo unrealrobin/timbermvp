@@ -69,6 +69,15 @@ void UInventoryManagerComponent::AddMechanismsToInventory(int MechanismsToAdd)
 	}
 }
 
+void UInventoryManagerComponent::AddUniquesToInventory(int UniquesToAdd)
+{
+	if(UniquesToAdd)
+	{
+		PS->MainInventory->NumberOfUniques += UniquesToAdd;
+		UpdateInventoryHandle.Broadcast();
+	}
+}
+
 void UInventoryManagerComponent::RemovePartsFromInventory(int PartsToRemove)
 {
 	if(PartsToRemove)
@@ -76,7 +85,25 @@ void UInventoryManagerComponent::RemovePartsFromInventory(int PartsToRemove)
 		PS->MainInventory->NumberOfParts -= PartsToRemove;
 		UpdateInventoryHandle.Broadcast();
 	}
-} 
+}
+
+void UInventoryManagerComponent::RemoveMechanismsFromInventory(int MechanismsToRemove)
+{
+	if(MechanismsToRemove)
+	{
+		PS->MainInventory->NumberOfMechanism -= MechanismsToRemove;
+		UpdateInventoryHandle.Broadcast();
+	}
+}
+
+void UInventoryManagerComponent::RemoveUniquesFromInventory(int UniquesToRemove)
+{
+	if(UniquesToRemove)
+	{
+		PS->MainInventory->NumberOfUniques -= UniquesToRemove;
+		UpdateInventoryHandle.Broadcast();
+	}
+}
 
 bool UInventoryManagerComponent::bCanAffordCost(FBuildableCost CostOfBuildable)
 {
@@ -138,8 +165,8 @@ bool UInventoryManagerComponent::bHandleBuildableTransaction(FBuildableCost Cost
 	if(bCanAffordCost(CostOfBuildable))
 	{
 		RemovePartsFromInventory(CostOfBuildable.CostOfParts);
-		RemovePartsFromInventory(CostOfBuildable.CostOfMechanisms);
-		RemovePartsFromInventory(CostOfBuildable.CostOfUniques);
+		RemoveMechanismsFromInventory(CostOfBuildable.CostOfMechanisms);
+		RemoveUniquesFromInventory(CostOfBuildable.CostOfUniques);
 		return true;
 	}
 	

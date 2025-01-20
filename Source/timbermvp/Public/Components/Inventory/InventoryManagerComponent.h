@@ -39,9 +39,18 @@ public:
 
 	UFUNCTION()
 	void AddMechanismsToInventory(int MechanismsToAdd);
+	
+	UFUNCTION()
+	void AddUniquesToInventory(int UniquesToAdd);
 
 	UFUNCTION()
 	void RemovePartsFromInventory(int PartsToRemove);
+
+	UFUNCTION()
+	void RemoveMechanismsFromInventory(int MechanismsToRemove);
+
+	UFUNCTION()
+	void RemoveUniquesFromInventory(int UniquesToRemove);
 
 	UFUNCTION()
 	bool bCanAffordCost(FBuildableCost CostOfBuildable);

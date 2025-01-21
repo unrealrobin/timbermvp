@@ -52,6 +52,7 @@ public:
 	virtual void BeginPlay() override;
 
 	//Character
+	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter = nullptr;
 
 	/* Wave System*/

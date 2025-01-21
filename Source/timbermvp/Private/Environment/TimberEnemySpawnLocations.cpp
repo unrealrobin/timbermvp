@@ -11,6 +11,7 @@ ATimberEnemySpawnLocations::ATimberEnemySpawnLocations()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	
 }
 
 // Called when the game starts or when spawned
@@ -19,4 +20,5 @@ void ATimberEnemySpawnLocations::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnLocation = GetActorLocation();
+	StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 }

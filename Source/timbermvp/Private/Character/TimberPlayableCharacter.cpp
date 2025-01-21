@@ -155,7 +155,6 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 	}
 	else
 	{
-		//TODO:: This can be reduced and simplified 
 		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ARampBase::StaticClass());
@@ -172,7 +171,7 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 		if(Cast<ABuildableBase>(Hits.GetActor()))
 		{
 			HoveredBuildingComponent = Cast<ABuildableBase>(Hits.GetActor());
-			UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component: %s"), *HoveredBuildingComponent->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component: %s"), *HoveredBuildingComponent->GetName());
 			FVector2d ScreenLocationOfImpactPoint;
 
 			/*Setting Impact Point at Location to show Delete Widget in Screen Space*/

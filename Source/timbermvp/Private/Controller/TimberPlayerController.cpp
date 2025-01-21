@@ -540,8 +540,8 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 
 	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 	{
-		
-		TimberCharacter->HoveredBuildingComponent->Destroy();
+		//When the Buildable is Deleted by the Player, it will redrop the cost of the buildable.
+		TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
 		TimberCharacter->HoveredBuildingComponent = nullptr;
 	}
 }

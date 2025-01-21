@@ -29,6 +29,7 @@ void ALootParts::HandleLootItemOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	//When overlapped, add coins to the players state inventory
+	UE_LOG(LogTemp, Warning, TEXT("Overlapped Part"));
 	ATimberPlayableCharacter* Character = Cast<ATimberPlayableCharacter>(OtherActor);
 	if(Character)
 	{

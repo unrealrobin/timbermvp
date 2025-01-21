@@ -465,36 +465,41 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 /* Spawn */
 void UBuildSystemManagerComponent::SpawnFinalBuildable()
 {
-	FActorSpawnParameters SpawnParameters;
-
-	// If player can afford the transaction, apply the transaction and spawn the final building component.
-	if(Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost))
+	
+	if(ActiveBuildableComponentClass&& BuildableRef)
 	{
-		if(ActiveBuildableComponentClass)
+		// If player can afford the transaction, apply the transaction and spawn the final building component.
+		if(Cast<ATimberPlayableCharacter>(GetOwner()))
 		{
-		
-			if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			if(Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost))
 			{
+				FActorSpawnParameters SpawnParameters;
+				if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+				{
 			
-				SpawnFinalTrap(SpawnParameters);
+					SpawnFinalTrap(SpawnParameters);
+				}
+				else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+				{
+					SpawnFinalBuildingComponent(SpawnParameters);
+				}
+				else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
+				{
+					SpawnFinalRampComponent(SpawnParameters);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
+				}
 			}
-			else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-			{
-				SpawnFinalBuildingComponent(SpawnParameters);
-			}
-			else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
-			{
-				SpawnFinalRampComponent(SpawnParameters);
-			}
-			else
-			{
-				GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
-			}
+		
+			
+			
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
+		GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
 	}
 	
 }
@@ -926,7 +931,7 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 		}
 	}
 
-	SetBuildableRefToNull();
+	BuildableRef = nullptr;
 	StaticMeshs.Empty();
 }
 

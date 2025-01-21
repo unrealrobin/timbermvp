@@ -163,7 +163,6 @@ public:
 	FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };
-	FORCEINLINE void SetBuildableRefToNull() { BuildableRef = nullptr; };
 	FORCEINLINE ABuildableBase* GetBuildableRef() { return BuildableRef; };
 	FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) { BuildableRef = BuildingComponent; };
 

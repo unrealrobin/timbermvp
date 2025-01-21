@@ -20,14 +20,15 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 
 public:
+	
+	virtual void BeginPlay() override;
+
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
 
 	/*Delegate Handles*/
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY()
 	FIsBuildMenuOpen bIsBuildMenuOpen;
-
-	virtual void BeginPlay() override;
 
 	//To Be Set on BP_TimberHUDBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
@@ -79,6 +80,8 @@ public:
 	float DeleteBuildingComponentWidgetShiftY = 100.f;
 
 protected:
+	UPROPERTY()
+	ATimberPlayableCharacter* TimberCharacter;
 	
 	/*Delegate Listeners*/
 	UFUNCTION()

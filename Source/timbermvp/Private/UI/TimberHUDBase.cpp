@@ -3,6 +3,7 @@
 
 #include "UI/TimberHUDBase.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 
 void ATimberHUDBase::BeginPlay()
@@ -35,7 +36,7 @@ void ATimberHUDBase::BeginPlay()
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
 
 
-		ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(
+		TimberCharacter = Cast<ATimberPlayableCharacter>(
 			TimberPlayerController->GetCharacter());
 
 		if (TimberCharacter)
@@ -93,12 +94,23 @@ void ATimberHUDBase::ShouldHideBuildMenu()
 	//If the build menu is open, close it and disable the cursor (Build Mode, Raycasting)
 	if (BuildMenuWidget->IsInViewport())
 	{
-		TimberPlayerController->DisableCursor();
+		if(TimberPlayerController)
+		{
+			TimberPlayerController->DisableCursor();
+		}
 		CloseBuildPanelMenu();
 	}
 	else //if the build menu is closed, open it and enable the cursor (Building Menu Mode, No Raycasting)
 	{
-		TimberPlayerController->EnableCursor();
+		if(TimberPlayerController)
+		{
+			TimberPlayerController->EnableCursor();
+		}
+		if(TimberCharacter)
+		{
+			/*When the player reopens the build menu with a component selected, I want the component to disappear.*/
+			TimberCharacter->BuildSystemManager->RemoveBuildingComponentProxies_All();
+		}
 		OpenBuildPanelMenu();
 	}
 }

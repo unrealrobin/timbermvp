@@ -43,6 +43,7 @@ void AEnemyLootDropBase::SetCollisionProperties()
 		CollisionCapsule->SetCollisionObjectType(ECC_WorldDynamic);
 		CollisionCapsule->SetCollisionResponseToAllChannels(ECR_Ignore);
 		CollisionCapsule->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Block);
+		CollisionCapsule->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 		CollisionCapsule->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	}
 }

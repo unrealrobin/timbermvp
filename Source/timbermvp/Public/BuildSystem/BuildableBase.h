@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Loot/EnemyLootDropBase.h"
 #include "BuildableBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -47,7 +48,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	
+	void SpawnLootInRange(int NumberOfParts = 0, int NumberOfMechanisms = 0, int NumberOfUniques = 0);
+
+	/*Potential Loot on Destruction */
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
+	TSubclassOf<AEnemyLootDropBase> PartsClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
+	TSubclassOf<AEnemyLootDropBase> MechanismsClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
+	TSubclassOf<AEnemyLootDropBase> UniquesClass;
+
 public:
+	void HandleDeletionOfBuildable();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 };

@@ -9,7 +9,14 @@
 void UTimberWaveSystemWidgetBase::NativeConstruct()
 {
 	Super::NativeConstruct();
-	GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CurrentWaveHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
+	if(!GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CurrentWaveHandle.IsBound())
+	{
+		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CurrentWaveHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
+	}
+	if(!GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->TimeToNextWaveSecondsHandle.IsBound())
+	{
+		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->TimeToNextWaveSecondsHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateTimeToNextWaveSeconds);
+	}
 	
 }
 
@@ -41,4 +48,5 @@ void UTimberWaveSystemWidgetBase::NativeTick(const FGeometry& MyGeometry, float 
 void UTimberWaveSystemWidgetBase::UpdateCurrentWave(int CurrentWaveNumber_FromSubsystem)
 {
 	CurrentWave = CurrentWaveNumber_FromSubsystem;
+	UpdatedWaveNumberUI(CurrentWave);
 }

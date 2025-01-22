@@ -7,13 +7,14 @@
 #include "BuildSystem/Traps/TrapBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
+#include "Character/TimberSeeda.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/TimberHUDBase.h"
 
 
@@ -43,6 +44,17 @@ void ATimberPlayableCharacter::BeginPlay()
 	Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD())->bIsBuildMenuOpen.AddDynamic(
 		this,
 		&ATimberPlayableCharacter::HandleBuildMenuOpen);
+
+
+	/*
+	 *	Seeda Dies - Broadcasts
+	 *	Player Binds to Broadcast - handles PLayer Death - Broadcasts
+	 *	Player Controller Binds to Broadcast - Handles Player Death - Disables Input ++, Broadcast
+	 *	Hud Binds to Broadcast - Shows Death UI
+	 */
+	Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()))->OnSeedaDeath.AddDynamic(
+		this,
+		&ATimberPlayableCharacter::HandlePlayerDeath);
 
 	RaycastController = Cast<ATimberPlayerController>(GetController());
 	
@@ -240,14 +252,9 @@ void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
 }
 
 /*Death & Damage*/
-
-void ATimberPlayableCharacter::PlayDeathAnimation()
+void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 {
-	PlayAnimMontage(DeathMontage, 1.f, FName("Death1"));
-}
-
-void ATimberPlayableCharacter::HandlePlayerDeath()
-{
+	bIsPlayerDead = bIsPlayerDeadNow;
 	if (bIsPlayerDead)
 	{
 		PlayDeathAnimation();
@@ -255,6 +262,11 @@ void ATimberPlayableCharacter::HandlePlayerDeath()
 		//Player Controller is Subscribed to this Delegate
 		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
 	}
+}
+
+void ATimberPlayableCharacter::PlayDeathAnimation()
+{
+	PlayAnimMontage(DeathMontage, 1.f, FName("Death1"));
 }
 
 void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
@@ -278,7 +290,7 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 	if (CurrentHealth <= 0.f)
 	{
 		bIsPlayerDead = true;
-		HandlePlayerDeath();
+		HandlePlayerDeath(bIsPlayerDead);
 	}
 	else
 	{

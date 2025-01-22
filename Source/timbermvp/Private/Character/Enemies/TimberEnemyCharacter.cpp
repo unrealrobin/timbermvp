@@ -154,13 +154,6 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 	}
 }
 
-void ATimberEnemyCharacter::OnDeath_HandleDropParts()
-{
-	//When the enemy dies, it drops parts that the player can pick up.
-
-	
-}
-
 void ATimberEnemyCharacter::OnDeath_DropLoot()
 {
 	//When the enemy dies, it drops loot that the player can pick up.

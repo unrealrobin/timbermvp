@@ -52,4 +52,8 @@ void ATimberPlayerProjectile::HandleOverlap(
 		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
 		Destroy();
 	}
+	else
+	{
+		Destroy();
+	}
 }

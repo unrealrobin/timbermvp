@@ -197,6 +197,7 @@ void UWaveGameInstanceSubsystem::EndWave()
 	//Start Timer for Next Wave
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
 	TimeBetweenWaves, false);
+	GetWorld()->GetTimerManager().SetTimer(UpdatedTimeToNextWaveTimerHandle, this, &UWaveGameInstanceSubsystem::UpdateTimeToNextWave, 1.f, true);
 }
 
 void UWaveGameInstanceSubsystem::IncrementWave()
@@ -256,6 +257,25 @@ void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 		}
 	}
 	SpawnedEnemies.Empty();
+}
+
+void UWaveGameInstanceSubsystem::UpdateTimeToNextWave()
+{
+	if(GetWorld()->GetTimerManager().IsTimerActive(TimeToNextWaveHandle))
+	{
+		TimeToNextWave = FMath::FloorToInt32(GetWorld()->GetTimerManager().GetTimerRemaining(TimeToNextWaveHandle));
+		if(TimeToNextWave == 0 )
+		{
+			GetWorld()->GetTimerManager().ClearTimer(UpdatedTimeToNextWaveTimerHandle);
+		}
+		
+	}
+	else
+	{
+		TimeToNextWave = 0;
+	}
+
+	TimeToNextWaveSecondsHandle.Broadcast(TimeToNextWave);
 }
 
 void UWaveGameInstanceSubsystem::HandleBossDoor(bool ShouldDoorBeOpen)

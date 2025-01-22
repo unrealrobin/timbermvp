@@ -27,7 +27,9 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCloseLabDoorHandle);
 	FOpenLabDoorHandle CloseLabDoorHandle;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSaveCurrentGameHandle);
-	FSaveCurrentGameHandle SaveCurrentGameHandle;	
+	FSaveCurrentGameHandle SaveCurrentGameHandle;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTimeToNextWaveSecondsHandle, int, TimeToNextWaveSeconds);
+	FTimeToNextWaveSecondsHandle TimeToNextWaveSecondsHandle;
 
 	/* Data Table */
 	UFUNCTION()
@@ -72,8 +74,8 @@ public:
 	void IncrementWave();
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
-	UPROPERTY()
-	int CurrentWaveNumber = 3;
+	UPROPERTY(BlueprintReadOnly)
+	int CurrentWaveNumber = 1;
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
 	UPROPERTY()
@@ -101,8 +103,13 @@ public:
 	/*Wave Iteration*/
 	UPROPERTY()
 	int TimeBetweenWaves = 20;
-
+	UPROPERTY(BlueprintReadOnly)
+	int TimeToNextWave = 0;
 	FTimerHandle TimeToNextWaveHandle;
+	UFUNCTION()
+	void UpdateTimeToNextWave();
+	FTimerHandle UpdatedTimeToNextWaveTimerHandle;
+	
 
 	/*Boss*/
 	UPROPERTY()

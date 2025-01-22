@@ -17,36 +17,6 @@
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 
-void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
-{
-	/*
-	 * When the build system component on the character spawns a building component at some location
-	 * the Game Mode will then Redraw the Path Trace to show the player where they can build.
-	 */
-	{//PathTracer
-		if(GetWorld())
-		{
-			TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), 
-				ATimberPlayableCharacter::StaticClass()));
-			if(TimberCharacter)
-			{
-				TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.AddDynamic(this, 
-					&ATimberGameModeBase::HandleRedrawPathTrace);
-			}
-		}
-	}
-}
-
-void ATimberGameModeBase::StoreSeedasLocation()
-{
-	/*Getting Seedas Location*/
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
-	if (ArrayOfSpawnedSeedas.Num() > 0)
-	{
-		SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
-	}
-}
-
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -55,7 +25,12 @@ void ATimberGameModeBase::BeginPlay()
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
 		GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
+		/*Subscribing to Player Death Delegate Signature*/
+		
 	}
+
+	// Initial Wave Broadcast - FOR UI Wave System Widget I think
+	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 	
 	{
 		GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
@@ -67,24 +42,45 @@ void ATimberGameModeBase::BeginPlay()
 		}
 		GatherAllSpawnLocation(TimberEnemySpawnPoints);*/
 	}
-
-
-	PathTracer_RedrawDelegateBinding();
-
-	// Initial Wave Broadcast - FOR UI I think
-	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
-
-	StoreSeedasLocation();
-	
-	/*Subscribing to Player Death Delegate Signature*/
-	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
-
+	GatherSeedaData();
 	GatherAllLabDoors();
 
 	if(WaveCompositionDataTable)
 	{
 		PassDataTableToWaveSubsystem(WaveCompositionDataTable);
 	}
+
+	TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberPlayableCharacter::StaticClass()));
+
+	if(TimberCharacter)
+	{
+		PathTracer_RedrawDelegateBinding();
+		TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
+	}
+}
+
+void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
+{
+	/*
+	 * When the build system component on the character spawns a building component at some location
+	 * the Game Mode will then Redraw the Path Trace to show the player where they can build.
+	 */
+	
+	if(GetWorld())
+	{
+		if(TimberCharacter && TimberCharacter->BuildSystemManager)
+		{
+			TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.AddDynamic(this, 
+				&ATimberGameModeBase::HandleRedrawPathTrace);
+		}
+	}
+	
+}
+
+void ATimberGameModeBase::GatherSeedaData()
+{
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
+	SeedaLocation = Seeda->GetActorLocation();
 }
 
 void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
@@ -97,6 +93,8 @@ void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
 void ATimberGameModeBase::PlayerIsInitialized()
 {
 	OnCharacterInitialization.Broadcast();
+
+	
 }
 
 UWaveGameInstanceSubsystem* ATimberGameModeBase::GetWaveGameInstanceSubsystem()

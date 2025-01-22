@@ -20,7 +20,9 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 
 public:
-	
+	void InitializeWidgets();
+	void CharacterAndControllerBindings();
+	void GameModeBindings();
 	virtual void BeginPlay() override;
 
 	/* Delegates */

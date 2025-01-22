@@ -54,12 +54,13 @@ public:
 	UDataTable* WaveCompositionDataTable;
 	void PlayerIsInitialized();
 	void PathTracer_RedrawDelegateBinding();
-	void StoreSeedasLocation();
+	void GatherSeedaData();
 	virtual void BeginPlay() override;
 
 	//Character
 	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter = nullptr;
+	
 	//-----------------------------------------------------------------
 	/*/* Wave System#1#
 	//Array of Class names to Spawn
@@ -144,19 +145,15 @@ public:
 	
 	void OpenAllLabDoors();
 
-protected:
-
-	UWaveGameInstanceSubsystem* GetWaveGameInstanceSubsystem();
-
-	
-	
-
-	
 	/*Character Freeze*/
 	// When the player dies, all AI / NPC characters should freeze in place.
 	// No movement, No attacking, No AI logic.
 	UFUNCTION()
 	void FreezeAllAICharacters(bool bIsPlayerDead);
+
+protected:
+
+	UWaveGameInstanceSubsystem* GetWaveGameInstanceSubsystem();
 
 	/*Handle Doors */
 	UFUNCTION()

@@ -46,4 +46,6 @@ public:
 	float BaseMeleeAttackDamage = 10.0f;
 	UFUNCTION()
 	virtual float CalculateOutputDamage(float Damage) override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack Information")
+	TArray<AActor*> ActorsToIgnore;
 };

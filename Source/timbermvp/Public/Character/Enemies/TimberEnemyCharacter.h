@@ -73,7 +73,6 @@ protected:
 
 	/* Death */
 	void OnDeath_HandleCollision();
-	void OnDeath_HandleDropParts();
 	virtual void OnDeath_DropLoot();
 	
 	/* Animation */

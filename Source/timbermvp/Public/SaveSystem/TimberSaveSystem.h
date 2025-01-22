@@ -31,7 +31,7 @@ public:
 	//Save Game Variables Here.
 
 	UPROPERTY(VisibleAnywhere, Category="Wave Data")
-	float WaveNumber = 0;
+	int WaveNumber = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Building Component Save Data")
 	TArray<FBuildingComponentData> BuildingComponentsArray;

@@ -3,6 +3,7 @@
 
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
 
+#include "Character/TimberSeeda.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -35,10 +36,15 @@ void ATimberEnemyProjectile::HandleOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->PlayerTakeDamage(ProjectileBaseDamage);
+		Destroy();
+	}
+	else if(Seeda)
+	{
+		Seeda->TakeDamage_Seeda(ProjectileBaseDamage);
 		Destroy();
 	}
 	else

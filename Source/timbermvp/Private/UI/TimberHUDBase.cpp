@@ -3,14 +3,30 @@
 
 #include "UI/TimberHUDBase.h"
 #include "Blueprint/UserWidget.h"
+#include "Character/TimberSeeda.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "GameModes/TimberGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+
+
 
 void ATimberHUDBase::BeginPlay()
 {
 	Super::BeginPlay();
+	InitializeWidgets();
+	CharacterAndControllerBindings();
+	GameModeBindings();
 
+}
 
+// Called by Player using the "B" Key, Listening for the Delegate on the Controller
+void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
+{
+	IsBuildPanelMenuOpen ? OpenBuildPanelMenu() : CloseBuildPanelMenu();
+}
+
+void ATimberHUDBase::InitializeWidgets()
+{
 	if (RootWidgetClass)
 	{
 		RootWidget = CreateWidget<UUserWidget>(GetWorld(), RootWidgetClass);
@@ -19,13 +35,14 @@ void ATimberHUDBase::BeginPlay()
 			RootWidget->AddToViewport(1);
 		}
 	}
-
 	if (BuildMenuWidgetClass)
 	{
 		BuildMenuWidget = CreateWidget<UUserWidget>(GetWorld(), BuildMenuWidgetClass);
 	}
+}
 
-	//Caching Controller to Listen for Delegate Broadcast
+void ATimberHUDBase::CharacterAndControllerBindings()
+{
 	TimberPlayerController = Cast<ATimberPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (TimberPlayerController)
 	{
@@ -47,7 +64,10 @@ void ATimberHUDBase::BeginPlay()
 				this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
 		}
 	}
+}
 
+void ATimberHUDBase::GameModeBindings()
+{
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
@@ -55,11 +75,7 @@ void ATimberHUDBase::BeginPlay()
 	}
 }
 
-// Called by Player using the "B" Key, Listening for the Delegate on the Controller
-void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
-{
-	IsBuildPanelMenuOpen ? OpenBuildPanelMenu() : CloseBuildPanelMenu();
-}
+
 
 void ATimberHUDBase::OpenBuildPanelMenu()
 {
@@ -124,7 +140,13 @@ void ATimberHUDBase::SwitchToDeathUI()
 		DeathWidget->AddToViewport(1);
 	}
 
-	//Make sure we disable the keyboard input when the player dies.
+	//When seeda dies, player dies.
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		GameMode->FreezeAllAICharacters(true);
+	}
+	//TODO:: Make sure we disable the keyboard input when the player dies.
 }
 
 void ATimberHUDBase::SwitchToGameUI()

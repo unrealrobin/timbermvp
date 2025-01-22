@@ -53,8 +53,8 @@ public:
 
 	//Delegates
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
-
 	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
+	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
 		FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
 
@@ -140,7 +140,7 @@ public:
 
 	/*Death*/
 	UFUNCTION()
-	void HandlePlayerDeath();
+	void HandlePlayerDeath(bool bIsPlayerDead = false);
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health")
 	bool bIsPlayerDead = false;
 

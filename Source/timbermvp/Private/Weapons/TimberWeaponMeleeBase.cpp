@@ -7,6 +7,7 @@
 
 #include "Character/TimberCharacterBase.h"
 #include "Character/TimberPlayableCharacter.h"
+#include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -71,17 +72,22 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	
 	{ // AI using sword - Ignoring other AI
 		ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	
-		if (ActorsToIgnore.Contains(HitCharacter))
+		ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
+		if (ActorsToIgnore.Contains(HitCharacter) || ActorsToIgnore.Contains(Seeda))
 		{
 			return;
 		}
 		if (HitCharacter) //Is the player character and doesn't need to be ignored.
 		{
-			GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *OtherActor->GetName()));
 			ActorsToIgnore.Add(HitCharacter);
 			//TODO:: When damage can be buffed, first calculate damage in some function then pass here.
 			HitCharacter->PlayerTakeDamage(BaseWeaponDamage);
+			return;
+		}
+		if(Seeda)
+		{
+			ActorsToIgnore.Add(Seeda);
+			Seeda->TakeDamage_Seeda(BaseWeaponDamage);
 			return;
 		}
 	}

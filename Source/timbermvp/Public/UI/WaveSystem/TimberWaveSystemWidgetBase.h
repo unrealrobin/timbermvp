@@ -30,5 +30,11 @@ public:
 
 protected:
 	UFUNCTION()
-	void UpdateCurrentWave(float CurrentWaveNumber);
+	void UpdateCurrentWave(int CurrentWaveNumber_FromSubsystem);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatedWaveNumberUI(float CurrentWaveNumber);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateTimeToNextWaveSeconds(int Seconds);
 };

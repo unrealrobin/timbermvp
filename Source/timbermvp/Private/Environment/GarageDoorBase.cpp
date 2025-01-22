@@ -36,7 +36,7 @@ void AGarageDoorBase::SetupGarageComponents()
 	GarageDoorStaticMesh->SetupAttachment(RootComponent);
 
 	GarageDoorBoxComponent = CreateDefaultSubobject<UBoxComponent>("GarageDoorCollisionBox");
-	GarageDoorBoxComponent->SetupAttachment(RootComponent);
+	GarageDoorBoxComponent->SetupAttachment(GarageDoorStaticMesh);
 }
 
 void AGarageDoorBase::OpenGarageDoor()

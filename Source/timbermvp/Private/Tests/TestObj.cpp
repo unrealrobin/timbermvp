@@ -6,7 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
-#include "GameModes/TimberGameModeBase.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 // Sets default values
 ATestObj::ATestObj()
@@ -46,13 +46,10 @@ void ATestObj::Interact()
 		StaticMeshAttachment->SetRelativeRotation(NewRotation);
 	}
 
-	// Calls the GameMode to Spawn the Enemy
-	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	GameMode->SaveCurrentGame();
-	if (GameMode)
 	{
-		GameMode->SpawnDynamicWave();
-		//GameMode->SpawnTestWave();
+		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->StartWave();
+		UE_LOG(LogTemp, Warning, TEXT("Game Instance Should Spawn Wave."))
+		
 	}
 }
 

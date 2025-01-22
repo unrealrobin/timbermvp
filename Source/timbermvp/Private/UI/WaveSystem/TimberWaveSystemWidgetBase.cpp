@@ -4,31 +4,20 @@
 #include "UI/WaveSystem/TimberWaveSystemWidgetBase.h"
 
 #include "GameModes/TimberGameModeBase.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 void UTimberWaveSystemWidgetBase::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	CurrentWave = GameMode->CurrentWaveNumber;
-	TimeToNextWaveWidget = GameMode->TimeToNextWave;
-
-	/*Delegate Call from Game Mode*/
-	/*
-	* We need to check if this is bound because, when the widget is removed and readded to the screen,
-	It tries to rebind the delegate again which causes an error. so We first check to ensure it isn't bound
-	before we wind the delegate to the handle.
-	 *
-	 * One of the ways this error happens is when the character dies and the UI changes and so the UI is recreated on load.
-	 *
-	 *
-	 *
-	*/
-
-	if (!GameMode->CurrentWaveNumberHandle.IsBound())
+	if(!GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CurrentWaveHandle.IsBound())
 	{
-		GameMode->CurrentWaveNumberHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
+		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CurrentWaveHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateCurrentWave);
 	}
+	if(!GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->TimeToNextWaveSecondsHandle.IsBound())
+	{
+		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->TimeToNextWaveSecondsHandle.AddDynamic(this, &UTimberWaveSystemWidgetBase::UpdateTimeToNextWaveSeconds);
+	}
+	
 }
 
 void UTimberWaveSystemWidgetBase::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -36,25 +25,28 @@ void UTimberWaveSystemWidgetBase::NativeTick(const FGeometry& MyGeometry, float 
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	// Widget is always checking if a timer is going to the wave timer. if there is less than 15 seconds it updates the time on the widget.
-	if (GetWorld()->GetTimerManager().IsTimerActive(GameMode->TimeToNextWaveHandle))
+	// TODO:: Change this to a delegate call from the Wave Subsystem to update the time.
+	int TempTime = FMath::CeilToInt(GetWorld()->GetTimerManager().GetTimerRemaining(GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->TimeToNextWaveHandle));
+	if (TempTime)
 	{
-		int TempTime = FMath::CeilToInt(
-			GetWorld()->GetTimerManager().GetTimerRemaining(GameMode->TimeToNextWaveHandle));
-		if (TempTime < 15)
+		//Reduced unchanging updates to the widget
+		if (TempTime != TimeToNextWaveWidget)
 		{
-			if (TempTime != TimeToNextWaveWidget)
-			{
-				TimeToNextWaveWidget = TempTime;
-			}
+			TimeToNextWaveWidget = TempTime;
 		}
 	}
 	else
 	{
-		TimeToNextWaveWidget = 0;
+		if(TimeToNextWaveWidget != 0)
+		{
+			TimeToNextWaveWidget = 0;
+		}
 	}
+	
 }
 
-void UTimberWaveSystemWidgetBase::UpdateCurrentWave(float CurrentWaveNumber)
+void UTimberWaveSystemWidgetBase::UpdateCurrentWave(int CurrentWaveNumber_FromSubsystem)
 {
-	CurrentWave = CurrentWaveNumber;
+	CurrentWave = CurrentWaveNumber_FromSubsystem;
+	UpdatedWaveNumberUI(CurrentWave);
 }

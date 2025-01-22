@@ -3,6 +3,8 @@
 
 #include "Character/TimberSeeda.h"
 
+#include "Components/CapsuleComponent.h"
+
 
 // Sets default values
 ATimberSeeda::ATimberSeeda()
@@ -12,9 +14,7 @@ ATimberSeeda::ATimberSeeda()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Static Mesh");
 	StaticMeshComponent->SetupAttachment(RootComponent);
-
-	MaxHealth = 400.0f;
-	CurrentHealth = 400.f;
+	CollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("Collision Sphere");
 }
 
 // Called when the game starts or when spawned
@@ -33,4 +33,16 @@ void ATimberSeeda::Tick(float DeltaTime)
 void ATimberSeeda::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)
+{
+	CurrentHealth -= DamageAmount;
+	UE_LOG(LogTemp, Warning, TEXT("Seeda Took %f Damage. Seeda Health: %f"), DamageAmount, CurrentHealth);
+	if (CurrentHealth <= 0)
+	{
+		OnSeedaDeath.Broadcast(true);
+		Destroy();
+	}
+	
 }

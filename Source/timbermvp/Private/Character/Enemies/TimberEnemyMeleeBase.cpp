@@ -4,6 +4,7 @@
 #include "Character/Enemies/TimberEnemyMeleeBase.h"
 
 #include "Character/TimberPlayableCharacter.h"
+#include "Character/TimberSeeda.h"
 #include "Components/CapsuleComponent.h"
 
 ATimberEnemyMeleeBase::ATimberEnemyMeleeBase()
@@ -13,7 +14,7 @@ ATimberEnemyMeleeBase::ATimberEnemyMeleeBase()
 	RightFootCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightFootCapsule"));
 	LeftFootCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftFootCapsule"));
 
-	RightHandCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("RHand1 Socket")));
+	RightHandCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("RHandCollisionSocket")));
 	LeftHandCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("LHandCollisionSocket")));
 	LeftFootCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("LFootCollisionSocket")));
 	RightFootCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("RFootCollisionSocket")));
@@ -42,6 +43,9 @@ void ATimberEnemyMeleeBase::DisableCapsuleComponent(UCapsuleComponent* MeleeCaps
 {
 	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+
+	//Empties the array of actors to ignore after the completion of the hand and leg swing.
+	ActorsToIgnore.Empty();
 }
 
 float ATimberEnemyMeleeBase::CalculateOutputDamage(float Damage)
@@ -53,14 +57,22 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	if(ActorsToIgnore.Contains(OtherActor))
+	{
+		return;
+	}
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter && PlayerCharacter->CurrentHealth > 0)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Red, "Capsule Overlap");
-		}
-		//PlayerCharacter->PlayerTakeDamage(CalculateOutputDamage(BaseMeleeAttackDamage));
+		
 		PlayerCharacter->PlayerTakeDamage(BaseMeleeAttackDamage);
+		ActorsToIgnore.Add(OtherActor);
+	}
+
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
+	if(Seeda && Seeda->CurrentHealth > 0)
+	{
+		Seeda->TakeDamage_Seeda(BaseMeleeAttackDamage);
+		ActorsToIgnore.Add(OtherActor);
 	}
 }

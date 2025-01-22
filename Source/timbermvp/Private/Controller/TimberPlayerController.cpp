@@ -9,7 +9,7 @@
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
-#include "DataAssets/BuildComponentDataAsset.h"
+#include "Data/DataAssets/BuildComponentDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/SpringArmComponent.h"

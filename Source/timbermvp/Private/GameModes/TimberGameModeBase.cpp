@@ -14,54 +14,83 @@
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 
-
-void ATimberGameModeBase::BeginPlay()
+void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
 {
-	Super::BeginPlay();
-
-	DemoSpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	
-	if (GetWorld())
-	{
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberEnemySpawnLocations::StaticClass(), 
-		TimberEnemySpawnPoints);
-	}
-	GatherAllSpawnLocation(TimberEnemySpawnPoints);
-
-
 	/*
 	 * When the build system component on the character spawns a building component at some location
 	 * the Game Mode will then Redraw the Path Trace to show the player where they can build.
 	 */
-	if(GetWorld())
-	{
-		TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), 
-		ATimberPlayableCharacter::StaticClass()));
-		if(TimberCharacter)
+	{//PathTracer
+		if(GetWorld())
 		{
-			TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.AddDynamic(this, 
-			&ATimberGameModeBase::HandleRedrawPathTrace);
+			TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), 
+				ATimberPlayableCharacter::StaticClass()));
+			if(TimberCharacter)
+			{
+				TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.AddDynamic(this, 
+					&ATimberGameModeBase::HandleRedrawPathTrace);
+			}
 		}
 	}
+}
 
-	// Initial Wave Broadcast
-	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
-
+void ATimberGameModeBase::StoreSeedasLocation()
+{
 	/*Getting Seedas Location*/
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberSeeda::StaticClass(), ArrayOfSpawnedSeedas);
 	if (ArrayOfSpawnedSeedas.Num() > 0)
 	{
 		SeedaLocation = ArrayOfSpawnedSeedas[0]->GetActorLocation();
 	}
+}
 
+void ATimberGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	{//Binding to Delegates
+		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
+		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
+		GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
+	}
 	
+	{
+		GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
+		// TO be replaced by Wave Subsystem
+		/*if (GetWorld())
+		{
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberEnemySpawnLocations::StaticClass(), 
+			TimberEnemySpawnPoints);
+		}
+		GatherAllSpawnLocation(TimberEnemySpawnPoints);*/
+	}
 
+
+	PathTracer_RedrawDelegateBinding();
+
+	// Initial Wave Broadcast - FOR UI I think
+	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+
+	StoreSeedasLocation();
+	
 	/*Subscribing to Player Death Delegate Signature*/
 	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
 
 	GatherAllLabDoors();
+
+	if(WaveCompositionDataTable)
+	{
+		PassDataTableToWaveSubsystem(WaveCompositionDataTable);
+	}
+}
+
+void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
+{
+	GetWaveGameInstanceSubsystem()->SetWaveCompositionDataTable(DataTable);
+	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received DataTable and Passed to Wave Subsystem"));
 }
 
 /* Tells all relying on systems that the character is initialized */
@@ -70,8 +99,14 @@ void ATimberGameModeBase::PlayerIsInitialized()
 	OnCharacterInitialization.Broadcast();
 }
 
+UWaveGameInstanceSubsystem* ATimberGameModeBase::GetWaveGameInstanceSubsystem()
+{
+	return GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+}
+
+
 /*Wave Spawn System*/
-void ATimberGameModeBase::SpawnDynamicWave()
+/*void ATimberGameModeBase::SpawnDynamicWave()
 {
 	// Sets number of each enemy to Spawn
 	ComposeWave();
@@ -82,8 +117,9 @@ void ATimberGameModeBase::SpawnDynamicWave()
 	GetWorld()->GetTimerManager().SetTimer(SpawnIncrementsHandle, this , &ATimberGameModeBase::SpawnNextEnemy, 
 	TimeBetweenEnemySpawns, true, 1.0f);
 	
-}
+}*/
 
+/*//TODO:: Delete because implements in Subsystem
 void ATimberGameModeBase::ComposeWave()
 {
 	//Randomly set the number of each enemy to spawn based on the current wave number
@@ -106,7 +142,7 @@ void ATimberGameModeBase::ComposeWave()
 
 	//TODO:: Shuffle the array for enemy randomness
 }
-
+//TODO:: Delete because implements in Subsystem
 void ATimberGameModeBase::SpawnNextEnemy()
 {
 	//Random number of enemies to Spawn
@@ -132,7 +168,7 @@ void ATimberGameModeBase::SpawnNextEnemy()
 		}
 	}
 }
-
+//TODO:: Delete because Implements in Subsystem
 void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName)
 {
 	float RandomLocation = FMath::RandRange(0, EnemySpawnPointLocations.Num() - 1);
@@ -142,12 +178,12 @@ void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter
 		FRotator::ZeroRotator, DemoSpawnParameter);
 
 	ArrayOfSpawnedWaveEnemies.Add(SpawnedActor);
-}
+}*/
 
 //Checks if destroyed enemies are the ones spawned by the wave system.
 // If so, removes them from the array they are stored in.
 // Once they are all removed, the wave is over.
-void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
+/*void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 {
 	if (ArrayOfSpawnedWaveEnemies.Contains(Enemy))
 	{
@@ -163,8 +199,9 @@ void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 	{
 		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is NOT in the Array");
 	}
-}
+}*/
 
+/*
 // Populated Enemy Spawn Point Locations, An Array of Vectors (locations), with all the Spawn points on the map.
 // The Spawn points have been put in by the Game Designer
 void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
@@ -175,6 +212,7 @@ void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
 		EnemySpawnPointLocations.Add(SpawnPointLocation);
 	}
 }
+*/
 
 void ATimberGameModeBase::GatherAllLabDoors()
 {
@@ -186,13 +224,15 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 	RedrawPathTrace();
 }
 
+//TODO:: Delete because implements in Subsystem
+/*
 void ATimberGameModeBase::SpawnTestWave()
 {
 	SpawnEnemyAtLocation(BasicRobotEnemyClassName);
 	SpawnEnemyAtLocation(RangedRobotEnemyClassName);
 	SpawnEnemyAtLocation(MeleeRobotEnemyClassName);
 }
-
+//TODO::Delete because implements in Subsystem
 void ATimberGameModeBase::IncrementWaveNumber()
 {
 	if (GEngine)
@@ -201,8 +241,9 @@ void ATimberGameModeBase::IncrementWaveNumber()
 	}
 	CurrentWaveNumber++;
 }
+*/
 
-void ATimberGameModeBase::WaveComplete()
+/*void ATimberGameModeBase::WaveComplete()
 {
 	
 	bAllEnemiesSpawned = false;
@@ -220,7 +261,7 @@ void ATimberGameModeBase::WaveComplete()
 	GetWorld()->GetTimerManager().SetTimer(
 		TimeToNextWaveHandle, this, &ATimberGameModeBase::SpawnDynamicWave, DurationBetweenWaves,
 		false);
-}
+}*/
 
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
@@ -297,14 +338,15 @@ void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameI
 
 void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
 {
-	SaveGameInstance->WaveNumber = CurrentWaveNumber;
-	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), CurrentWaveNumber);
+	SaveGameInstance->WaveNumber = GetWaveGameInstanceSubsystem()->CurrentWaveNumber;
+	
+	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), SaveGameInstance->WaveNumber);
 }
 
 /* Load System*/
 void ATimberGameModeBase::LoadGame()
 {
-	ClearAllWaveEnemies();
+	GetWaveGameInstanceSubsystem()->ResetWaveEnemies();
 	//Needs the Slot Name and the User Index
 	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(
 		UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
@@ -337,9 +379,9 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 
 void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 {
-	CurrentWaveNumber = LoadGameInstance->WaveNumber;
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), CurrentWaveNumber);
-	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
+	GetWaveGameInstanceSubsystem()->CurrentWaveNumber = LoadGameInstance->WaveNumber;
+	UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 }
 
 void ATimberGameModeBase::LoadPlayerState()
@@ -360,7 +402,7 @@ void ATimberGameModeBase::LoadPlayerState()
 	}
 }
 
-void ATimberGameModeBase::ClearAllWaveEnemies()
+/*void ATimberGameModeBase::ClearAllWaveEnemies()
 {
 	for (ATimberEnemyCharacter* ArrayOfSpawnedWaveEnemy : ArrayOfSpawnedWaveEnemies)
 	{
@@ -371,7 +413,7 @@ void ATimberGameModeBase::ClearAllWaveEnemies()
 	}
 
 	ArrayOfSpawnedWaveEnemies.Empty();
-}
+}*/
 
 void ATimberGameModeBase::OpenAllLabDoors()
 {
@@ -389,6 +431,7 @@ void ATimberGameModeBase::OpenAllLabDoors()
 
 void ATimberGameModeBase::OpenLabDoors()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received Broadcast from Wave Subsystem Opening Lab Doors"));
 	if(ArrayOfLabDoors.Num() <= 0)
 	{
 		GatherAllLabDoors();

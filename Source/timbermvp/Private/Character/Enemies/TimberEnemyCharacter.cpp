@@ -17,6 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
@@ -55,8 +56,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	if (CurrentHealth <= 0.f)
 	{
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
-		ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-		GameMode->CheckArrayForEnemy(this);
+		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CheckArrayForEnemy(this);
 		ResetDamageWindow();
 		//Stops all AI Behavior
 		StopAiControllerBehaviorTree();

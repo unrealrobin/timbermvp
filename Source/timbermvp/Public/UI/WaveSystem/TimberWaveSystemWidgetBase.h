@@ -30,5 +30,5 @@ public:
 
 protected:
 	UFUNCTION()
-	void UpdateCurrentWave(float CurrentWaveNumber);
+	void UpdateCurrentWave(int CurrentWaveNumber_FromSubsystem);
 };

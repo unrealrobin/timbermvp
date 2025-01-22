@@ -4,6 +4,7 @@
 #include "Death/UI/TimberDeathWidget.h"
 
 #include "GameModes/TimberGameModeBase.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 void UTimberDeathWidget::NativePreConstruct()
 {
@@ -12,6 +13,6 @@ void UTimberDeathWidget::NativePreConstruct()
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
-		LastCompletedWave = GameMode->CurrentWaveNumber;
+		LastCompletedWave = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CurrentWaveNumber;
 	}
 }

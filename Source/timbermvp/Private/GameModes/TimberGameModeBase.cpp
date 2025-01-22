@@ -32,16 +32,10 @@ void ATimberGameModeBase::BeginPlay()
 	// Initial Wave Broadcast - FOR UI Wave System Widget I think
 	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 	
-	{
-		GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
-		// TO be replaced by Wave Subsystem
-		/*if (GetWorld())
-		{
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberEnemySpawnLocations::StaticClass(), 
-			TimberEnemySpawnPoints);
-		}
-		GatherAllSpawnLocation(TimberEnemySpawnPoints);*/
-	}
+	
+	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
+		
+	
 	GatherSeedaData();
 	GatherAllLabDoors();
 
@@ -102,116 +96,6 @@ UWaveGameInstanceSubsystem* ATimberGameModeBase::GetWaveGameInstanceSubsystem()
 	return GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 }
 
-
-/*Wave Spawn System*/
-/*void ATimberGameModeBase::SpawnDynamicWave()
-{
-	// Sets number of each enemy to Spawn
-	ComposeWave();
-	
-	OpenLabDoors();
-
-	//Start the timer for next enemy to spawn, loops continuously until cleared when all enemies are spawned.
-	GetWorld()->GetTimerManager().SetTimer(SpawnIncrementsHandle, this , &ATimberGameModeBase::SpawnNextEnemy, 
-	TimeBetweenEnemySpawns, true, 1.0f);
-	
-}*/
-
-/*//TODO:: Delete because implements in Subsystem
-void ATimberGameModeBase::ComposeWave()
-{
-	//Randomly set the number of each enemy to spawn based on the current wave number
-	WaveComposition.BasicRobotCount = FMath::RandRange(1, (CurrentWaveNumber + 5));
-	WaveComposition.MeleeWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 4);
-	WaveComposition.RangedWeaponRobotCount = FMath::RandRange(0, CurrentWaveNumber + 4);
-	//Add the enemies to spawn to the EnemiesToSpawn array
-	for(int i = 0; i < WaveComposition.BasicRobotCount; i++)
-	{
-		EnemiesToSpawn.Add(BasicRobotEnemyClassName);
-	}
-	for(int i = 0; i < WaveComposition.MeleeWeaponRobotCount; i++)
-	{
-		EnemiesToSpawn.Add(MeleeRobotEnemyClassName);
-	}
-	for(int i = 0; i < WaveComposition.RangedWeaponRobotCount; i++)
-	{
-		EnemiesToSpawn.Add(RangedRobotEnemyClassName);
-	}
-
-	//TODO:: Shuffle the array for enemy randomness
-}
-//TODO:: Delete because implements in Subsystem
-void ATimberGameModeBase::SpawnNextEnemy()
-{
-	//Random number of enemies to Spawn
-	int EnemiesToSpawnNow = FMath::RandRange(1, 3);
-
-	//Loop through the number of enemies to spawn
-	for(int i = 0; i < EnemiesToSpawnNow; i++)
-	{
-		//If we have spawned fewer enemies than the total enemies to spawn this wave
-		if(TotalEnemiesSpawned < EnemiesToSpawn.Num())
-		{
-			//Were using the TotalEnemiesSpawned as the index to spawn the next enemy
-			//At the beginning it starts at 0 and increments by 1 each time an enemy is spawned
-			//This will spawn from the start of the array too the end
-			SpawnEnemyAtLocation(EnemiesToSpawn[TotalEnemiesSpawned]);
-			TotalEnemiesSpawned++;
-		}
-		else
-		{
-			GetWorld()->GetTimerManager().ClearTimer(SpawnIncrementsHandle);
-			bAllEnemiesSpawned = true;
-			return;
-		}
-	}
-}
-//TODO:: Delete because Implements in Subsystem
-void ATimberGameModeBase::SpawnEnemyAtLocation(TSubclassOf<ATimberEnemyCharacter> EnemyClassName)
-{
-	float RandomLocation = FMath::RandRange(0, EnemySpawnPointLocations.Num() - 1);
-	ATimberEnemyCharacter* SpawnedActor = GetWorld()->SpawnActor<ATimberEnemyCharacter>(
-		EnemyClassName,
-		EnemySpawnPointLocations[RandomLocation],
-		FRotator::ZeroRotator, DemoSpawnParameter);
-
-	ArrayOfSpawnedWaveEnemies.Add(SpawnedActor);
-}*/
-
-//Checks if destroyed enemies are the ones spawned by the wave system.
-// If so, removes them from the array they are stored in.
-// Once they are all removed, the wave is over.
-/*void ATimberGameModeBase::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
-{
-	if (ArrayOfSpawnedWaveEnemies.Contains(Enemy))
-	{
-		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is in the Array");
-		ArrayOfSpawnedWaveEnemies.Remove(Enemy);
-		if (ArrayOfSpawnedWaveEnemies.Num() == 0 && bAllEnemiesSpawned == true)
-		{
-			WaveComplete();
-			GEngine->AddOnScreenDebugMessage(6, 5.0, FColor::Orange, "Wave Complete. Timer till next wave started.");
-		}
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(5, 6.0, FColor::Magenta, "Enemy is NOT in the Array");
-	}
-}*/
-
-/*
-// Populated Enemy Spawn Point Locations, An Array of Vectors (locations), with all the Spawn points on the map.
-// The Spawn points have been put in by the Game Designer
-void ATimberGameModeBase::GatherAllSpawnLocation(TArray<AActor*> SpawnPoints)
-{
-	for (AActor* ActorSpawnPoints : SpawnPoints)
-	{
-		FVector SpawnPointLocation = ActorSpawnPoints->GetActorLocation();
-		EnemySpawnPointLocations.Add(SpawnPointLocation);
-	}
-}
-*/
-
 void ATimberGameModeBase::GatherAllLabDoors()
 {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
@@ -221,45 +105,6 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 {
 	RedrawPathTrace();
 }
-
-//TODO:: Delete because implements in Subsystem
-/*
-void ATimberGameModeBase::SpawnTestWave()
-{
-	SpawnEnemyAtLocation(BasicRobotEnemyClassName);
-	SpawnEnemyAtLocation(RangedRobotEnemyClassName);
-	SpawnEnemyAtLocation(MeleeRobotEnemyClassName);
-}
-//TODO::Delete because implements in Subsystem
-void ATimberGameModeBase::IncrementWaveNumber()
-{
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Wave Number Incremented");
-	}
-	CurrentWaveNumber++;
-}
-*/
-
-/*void ATimberGameModeBase::WaveComplete()
-{
-	
-	bAllEnemiesSpawned = false;
-	
-	IncrementWaveNumber();
-	CurrentWaveNumberHandle.Broadcast(CurrentWaveNumber);
-
-	//Save the Game after the Wave is Complete so the Player can continue from the next wave.
-	//TODO::Ensure the timing of this works with Delegate Updates.
-	SaveCurrentGame();
-
-	CloseLabDoors();
-	
-	//Starts a Timer for the next wave to Spawn.
-	GetWorld()->GetTimerManager().SetTimer(
-		TimeToNextWaveHandle, this, &ATimberGameModeBase::SpawnDynamicWave, DurationBetweenWaves,
-		false);
-}*/
 
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
@@ -399,19 +244,6 @@ void ATimberGameModeBase::LoadPlayerState()
 		TimberCharacter->bIsPlayerDead = false;
 	}
 }
-
-/*void ATimberGameModeBase::ClearAllWaveEnemies()
-{
-	for (ATimberEnemyCharacter* ArrayOfSpawnedWaveEnemy : ArrayOfSpawnedWaveEnemies)
-	{
-		if (ArrayOfSpawnedWaveEnemy)
-		{
-			ArrayOfSpawnedWaveEnemy->Destroy();
-		}
-	}
-
-	ArrayOfSpawnedWaveEnemies.Empty();
-}*/
 
 void ATimberGameModeBase::OpenAllLabDoors()
 {

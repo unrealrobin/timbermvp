@@ -13,8 +13,9 @@ ATimberSeeda::ATimberSeeda()
 	PrimaryActorTick.bCanEverTick = true;
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Static Mesh");
-	StaticMeshComponent->SetupAttachment(RootComponent);
 	CollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("Collision Sphere");
+	RootComponent = CollisionSphere;
+	StaticMeshComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -27,12 +28,6 @@ void ATimberSeeda::BeginPlay()
 void ATimberSeeda::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-// Called to bind functionality to input
-void ATimberSeeda::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)

@@ -203,46 +203,6 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 		return false;
 	}
 	
-	
-	/*AActor* HitActor = HitResults.GetComponent()->GetOwner();
-	//Hit can be one of the quadrants so we want to make sure that the hit is a Building Component
-	if (Cast<ATimberBuildingComponentBase>(HitActor))
-	{
-		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitActor);
-		if (HoveredBuildingComponent)
-		{
-			//Translating a Location in World Space to Its Location in Screen Space
-			FVector2d ScreenLocationOfImpactPoint;
-			GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(
-				HitResults.ImpactPoint,
-				ScreenLocationOfImpactPoint);
-
-			// Broadcast a Delegate with the Impact Position to the HUD.
-			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(
-				ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
-		}
-
-		return true;
-	}
-	if (Cast<ATimberBuildingComponentBase>(HitResults.GetActor()))
-	{
-		HoveredBuildingComponent = Cast<ATimberBuildingComponentBase>(HitResults.GetActor());
-		if (HoveredBuildingComponent)
-		{
-			//Translating a Location in World Space to Its Location in Screen Space
-			FVector2d ScreenLocationOfImpactPoint;
-			GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(
-				HitResults.ImpactPoint,
-				ScreenLocationOfImpactPoint);
-
-			// Broadcast a Delegate with the Impact Position to the HUD.
-			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(
-				ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
-		}
-	}*/
-	
-
-
 	return false;
 }
 

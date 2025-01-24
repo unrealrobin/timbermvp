@@ -7,7 +7,7 @@
 #include "TimberSeeda.generated.h"
 
 UCLASS()
-class TIMBERMVP_API ATimberSeeda : public ATimberCharacterBase
+class TIMBERMVP_API ATimberSeeda : public AActor
 {
 	GENERATED_BODY()
 
@@ -23,16 +23,19 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float CurrentHealth = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float MaxHealth = 0;
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaDeathHandle, bool, bIsPlayerDead);
 	FOnSeedaDeathHandle OnSeedaDeath;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMeshComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision Sphere")
 	UCapsuleComponent* CollisionSphere;
 
 	UFUNCTION()

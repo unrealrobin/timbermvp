@@ -35,9 +35,9 @@ void ATimberEnemyCharacter::BeginPlay()
 	/* Listening to Delegate Broadcast from TimberGameMode */
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
+
+
 }
-
-
 
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 {

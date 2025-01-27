@@ -25,8 +25,20 @@ struct FPlayerData
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	FTransform PlayerTransform;
+	FVector PlayerLocation;
 	
+};
+
+USTRUCT(BlueprintType)
+struct FSeedaData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FVector SeedaLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FRotator SeedaRotation;
 };
 
 /*
@@ -60,4 +72,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Player Save Data")
 	FPlayerData PlayerData;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Seeda Save Data")
+	FSeedaData SeedaData;
 };

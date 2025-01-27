@@ -4,11 +4,15 @@
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
+#include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Data/WaveData.h"
 #include "Environment/BossSpawnLocation.h"
 #include "Environment/GarageDoorBase.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
+#include "Weapons/TimberWeaponBase.h"
+#include "Weapons/TimberWeaponRangedBase.h"
 
 
 void UWaveGameInstanceSubsystem::SetWaveCompositionDataTable(UDataTable* DataTable)
@@ -69,6 +73,7 @@ void UWaveGameInstanceSubsystem::StartWave()
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
 		//Prepares the Wave Composition
 		ComposeWaveFromDataTable();
 		//Process of Opening Doors
@@ -87,9 +92,6 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 		UE_LOG(LogTemp, Error, TEXT("No Wave Composition Data Table Found"));
 		return;
 	}
-	
-	
-	UE_LOG(LogTemp, Warning, TEXT("Composing Wave from Data Table"));
 
 	//Used for Debugging/Find Row Error Context
 	static const FString ContextString(TEXT("Wave Composition"));
@@ -126,10 +128,11 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 				{
 					EnemiesToSpawn.Add(EnemyData.EnemyDataAsset->EnemyClassReference);
 					UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Enemy Added to SpawnList"));
-					TotalEnemiesToSpawn += EnemyData.NumberOfEnemiesToSpawn;
+					TotalEnemiesToSpawn += 1;
 				}
 				
 			}
+			
 		}
 	}
 }
@@ -153,18 +156,23 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 	//1-3 enemies can spawn at once - this will help with spreading out the enemies.
 	int RandomNumberOfEnemiesToSpawnAtOnce = FMath::RandRange(1, 3);
 
+	// If random num = 2, i = 0, i = 1 for loop
 	for(int i = 0; i < RandomNumberOfEnemiesToSpawnAtOnce; i++)
-	{
+	{          
 		if(TotalEnemiesSpawned < EnemiesToSpawn.Num())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("SpawnedEnemies.Num(): %d. EnemiesToSpawn.Num(): %d"), SpawnedEnemies.Num(), EnemiesToSpawn.Num());
+		//TODO:: Randomize this later.
+		    //Doesn't use random spawn. Spawned enemies in order of Data Table - Basics, Melee Weapons, Ranged
+			UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy at Index: %d"), TotalEnemiesSpawned);
 			SpawnEnemy(EnemiesToSpawn[TotalEnemiesSpawned], GetRandomStandardSpawnPointLocation());
-			TotalEnemiesSpawned++;
 		}
 		else
 		{
 			
 			GetWorld()->GetTimerManager().ClearTimer(SpawnPartOfWaveTimerHandle);
 			bAllEnemiesSpawned = true;
+			UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnPartOfWave() - All Enemies Spawned of Part."));
 			return;
 		}
 	}
@@ -216,6 +224,8 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 	if(Cast<ATimberEnemyCharacter>(Actor))
 	{
 		SpawnedEnemies.Add(Cast<ATimberEnemyCharacter>(Actor));
+		TotalEnemiesSpawned += 1;
+		UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
 	}
 }
 
@@ -225,6 +235,9 @@ void UWaveGameInstanceSubsystem::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy
 	if(SpawnedEnemies.Contains(Enemy))
 	{
 		SpawnedEnemies.Remove(Enemy);
+		TotalEnemiesKilled += 1;
+		UE_LOG(LogTemp, Warning, TEXT("Enemies remaining to Kill: %d"), TotalEnemiesToSpawn - TotalEnemiesKilled);
+		
 		if(SpawnedEnemies.Num() == 0 && bAllEnemiesSpawned)
 		{
 			EndWave();
@@ -253,10 +266,31 @@ void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 	{
 		if(Enemy)
 		{
+			//Destroys any weapons the enemies carry.
+			CheckEnemiesForWeapons(Enemy);
+			//Destroys the Enemy
 			Enemy->Destroy();
 		}
 	}
+
+	//Empty's any reference to the enemies in the SpawnedEnemies Array
 	SpawnedEnemies.Empty();
+}
+
+void UWaveGameInstanceSubsystem::CheckEnemiesForWeapons(ATimberEnemyCharacter* Enemy)
+{
+	//These are the only two enemies that carry weapons.
+	//They dont share a parent that stores the Equipped Weapon.
+	ATimberEnemyMeleeWeaponBase* MeleeWeaponEnemy = Cast<ATimberEnemyMeleeWeaponBase>(Enemy);
+	ATimberEnemyRangedBase* RangedWeaponEnemy = Cast<ATimberEnemyRangedBase>(Enemy);
+	if (MeleeWeaponEnemy)
+	{
+		MeleeWeaponEnemy->EquippedWeapon->Destroy();
+	}
+	if (RangedWeaponEnemy)
+	{
+		RangedWeaponEnemy->EquippedWeapon->Destroy();
+	}
 }
 
 void UWaveGameInstanceSubsystem::UpdateTimeToNextWave()

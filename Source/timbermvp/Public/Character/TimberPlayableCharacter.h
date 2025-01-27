@@ -44,28 +44,20 @@ class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
 	GENERATED_BODY()
 
 public:
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterInitialization);
-	FOnCharacterInitialization OnCharacterInitialization;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Controller")
-	ATimberPlayerController* RaycastController;
-
-	//Delegates
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
-	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
-	
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
-		FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
-
-	FHandleSpawnDeleteIconLocation HandleSpawnDeleteIconLocation_DelegateHandle;
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHandleRemoveDeleteIcon);
-
-	FHandleRemoveDeleteIcon HandleRemoveDeleteIcon_DelegateHandle;
-
-	//Constructor
 	ATimberPlayableCharacter();
-	virtual void BeginPlay() override;
+
+	//Delegates Signatures
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterInitialization);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHandleRemoveDeleteIcon);
+	
+	//Delegate Handles
+	FOnCharacterInitialization OnCharacterInitialization;
+	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
+	FHandleSpawnDeleteIconLocation HandleSpawnDeleteIconLocation_DelegateHandle;
+	FHandleRemoveDeleteIcon HandleRemoveDeleteIcon_DelegateHandle;
+	
 
 	//CharacterState
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")
@@ -118,10 +110,16 @@ public:
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
-	
 
+	UFUNCTION()
+	void ResetDeleteIcon();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Controller")
+	ATimberPlayerController* RaycastController;
+	
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 1000.f;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	bool ShouldRaycast = true;
 
@@ -130,10 +128,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category="Build System Info")
 	TArray<FHitResult> HitResults;
+	
 	FVector BuildingComponentImpactPoint;
-
-	UFUNCTION()
-	void ResetDeleteIcon();
 
 	/*Damage*/
 	void PlayerTakeDamage(float DamageAmount);
@@ -141,6 +137,7 @@ public:
 	/*Death*/
 	UFUNCTION()
 	void HandlePlayerDeath(bool bIsPlayerDead = false);
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health")
 	bool bIsPlayerDead = false;
 
@@ -151,7 +148,15 @@ public:
 	UFUNCTION()
 	void GetPlayerInventoryFromPlayerState();
 
+	UFUNCTION()
+	void UnbindFromSeedaDeathDelegate(AActor* DestroyedActor);
+	
+	UFUNCTION()
+	void BindToSeedaDelegates(AActor* Seeda);
+
 protected:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
 	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
 

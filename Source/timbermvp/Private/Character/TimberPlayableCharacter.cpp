@@ -17,7 +17,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/TimberHUDBase.h"
 
-
 ATimberPlayableCharacter::ATimberPlayableCharacter()
 {
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
@@ -40,23 +39,25 @@ void ATimberPlayableCharacter::BeginPlay()
 	/* Set Character Movement Defaults*/
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
 
+	RaycastController = Cast<ATimberPlayerController>(GetController());
+
 	/*Delegate Binding*/
 	Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD())->bIsBuildMenuOpen.AddDynamic(
 		this,
 		&ATimberPlayableCharacter::HandleBuildMenuOpen);
 
 
-	/*
-	 *	Seeda Dies - Broadcasts
-	 *	Player Binds to Broadcast - handles PLayer Death - Broadcasts
-	 *	Player Controller Binds to Broadcast - Handles Player Death - Disables Input ++, Broadcast
-	 *	Hud Binds to Broadcast - Shows Death UI
-	 */
-	Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()))->OnSeedaDeath.AddDynamic(
-		this,
-		&ATimberPlayableCharacter::HandlePlayerDeath);
-
-	RaycastController = Cast<ATimberPlayerController>(GetController());
+	{
+		//Binding to the GameMode Delegate to know when the Seeda is Initialized and then Binding to the Seeda Delegates
+		ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GM)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Binding to GameMode Delegate to know when Seeda is Initialized."));
+			//Basically says now you can Bind to the Seeda Delegates, and Passes in the Seeda Actor Ref.
+			//This is possible because we know for sure that the GM instance is available for binding by the time this BeginPlay fires.
+			GM->OnSeedaSpawn.AddDynamic(this, &ATimberPlayableCharacter::BindToSeedaDelegates);
+		}
+	}
 	
 	{
 		 /*
@@ -70,6 +71,38 @@ void ATimberPlayableCharacter::BeginPlay()
 		{
 			GM->PlayerIsInitialized();
 		}
+	}
+}
+
+/*Delegate Stuff*/
+
+void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
+{
+	ATimberSeeda* SeedaRef = Cast<ATimberSeeda>(Seeda);
+	if (SeedaRef)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda Initialized, Binding to Seeda Delegates."));
+
+		//When seeda dies, handle player death
+		SeedaRef->OnSeedaDeath.AddDynamic(this, &ATimberPlayableCharacter::HandlePlayerDeath);
+		//When Seeda is being Destroyed
+		SeedaRef->OnDestroyed.AddDynamic(this, &ATimberPlayableCharacter::UnbindFromSeedaDeathDelegate);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda Not Initialized, Cannot Bind to Seeda Delegates."));
+	}
+}
+
+void ATimberPlayableCharacter::UnbindFromSeedaDeathDelegate(AActor* DestroyedActor)
+{
+	//If Seeda Exists
+	if (Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass())))
+	{
+		//Unbind from Seeda Death Delegate - Will need to Rebind on Seeda Respawn, this gets Called when Seeda Dies.
+		Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()))->OnSeedaDeath.RemoveDynamic(
+			this,
+			&ATimberPlayableCharacter::HandlePlayerDeath);
 	}
 }
 
@@ -109,15 +142,6 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 			FCollisionQueryParams CollisionParams;
 			CollisionParams.AddIgnoredActor(this);
 			CollisionParams.AddIgnoredActor(this->CurrentlyEquippedWeapon);
-
-			/* Single Hit*/
-			/*FHitResult HitResult;
-			bool bHit = GetWorld()->LineTraceSingleByChannel(
-				HitResult,
-				RaycastStart,
-				RaycastEnd,
-				ECC_Visibility,
-				CollisionParams);*/
 
 			/*Multiple Hits*/
 			bool bHits = GetWorld()->LineTraceMultiByChannel(
@@ -254,7 +278,7 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+		//UE_LOG(LogTemp, Warning, TEXT("Player Hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 }
 
@@ -269,3 +293,4 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 {
 	CurrentlyEquippedWeapon = Weapon;
 }
+

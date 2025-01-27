@@ -149,6 +149,7 @@ void ATimberGameModeBase::SaveCurrentGame()
 	SaveBuildingComponentData(SaveGameInstance);
 	SaveWaveData(SaveGameInstance);
 	SavePlayerData(SaveGameInstance);
+	SaveSeedaData(SaveGameInstance);
 
 
 	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
@@ -191,8 +192,17 @@ void ATimberGameModeBase::SavePlayerData(UTimberSaveSystem* SaveGameInstance)
 {
 	if (TimberCharacter)
 	{
-		FPlayerData PlayerData;
-		PlayerData.PlayerTransform = TimberCharacter->GetActorTransform();
+		SaveGameInstance->PlayerData.PlayerLocation = TimberCharacter->GetActorLocation();
+	}
+}
+
+void ATimberGameModeBase::SaveSeedaData(UTimberSaveSystem* SaveGameInstance)
+{
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
+	if (Seeda && SaveGameInstance)
+	{
+		SaveGameInstance->SeedaData.SeedaLocation = Seeda->GetActorLocation();
+		SaveGameInstance->SeedaData.SeedaRotation = Seeda->GetActorRotation();
 	}
 }
 
@@ -203,11 +213,14 @@ void ATimberGameModeBase::LoadGame()
 	//Needs the Slot Name and the User Index
 	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(
 		UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
+	
 	LoadBuildingComponents(LoadGameInstance);
 	LoadWaveData(LoadGameInstance);
 	LoadPlayerState(LoadGameInstance);
+	LoadSeedaData(LoadGameInstance);
 
-	
+	CloseAllLabDoors();
+	GetWaveGameInstanceSubsystem()->HandleBossDoor(false);
 	SwitchToStandardUI.Execute();
 	EnableStandardInputMappingContext.Execute();
 	HandleRedrawPathTrace();
@@ -251,10 +264,25 @@ void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
 	//Reset Player Health
 	if (TimberCharacter)
 	{
-		TimberCharacter->SetActorTransform(LoadGameInstance->PlayerData.PlayerTransform);
+		TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
 		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 		TimberCharacter->bIsPlayerDead = false;
 	}
+}
+
+void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
+{
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()));
+	//If Seeda Wasn't destroyed - player only died - destroy the instance of Seeda
+	if (Seeda)
+	{
+		Seeda->Destroy();
+	}
+	
+	FActorSpawnParameters SpawnParams;
+	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass, LoadGameInstance->SeedaData.SeedaLocation, 
+	LoadGameInstance->SeedaData
+	.SeedaRotation, SpawnParams);
 }
 
 void ATimberGameModeBase::OpenAllLabDoors()

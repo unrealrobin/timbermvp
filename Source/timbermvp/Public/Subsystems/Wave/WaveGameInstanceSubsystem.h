@@ -85,6 +85,8 @@ public:
 	UPROPERTY()
 	int TotalEnemiesSpawned = 0;
 	UPROPERTY()
+	int TotalEnemiesKilled = 0;
+	UPROPERTY()
 	bool bAllEnemiesSpawned = false;
 	FTimerHandle SpawnPartOfWaveTimerHandle;
 	UPROPERTY()
@@ -99,6 +101,8 @@ public:
 	void ResetWaveEnemies();
 	UPROPERTY()
 	bool BossSpawned = false;
+	UFUNCTION()
+	void CheckEnemiesForWeapons(ATimberEnemyCharacter* Enemy);
 
 	/*Wave Iteration*/
 	UPROPERTY()

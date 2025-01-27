@@ -48,7 +48,7 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 			// Add Spawn Params for Projectile Owner and Instigator
 			FActorSpawnParameters SpawnParams;
 			// Print the owner of the weapon
-			UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
 			SpawnParams.Owner = WeaponOwner;
 
 			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(

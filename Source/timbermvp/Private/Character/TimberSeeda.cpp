@@ -3,7 +3,10 @@
 
 #include "Character/TimberSeeda.h"
 
+#include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "GameModes/TimberGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -22,6 +25,25 @@ ATimberSeeda::ATimberSeeda()
 void ATimberSeeda::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Used when Seeda is respawned to allow Listeners to Rebind to any Delegates
+	ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GM)
+	{
+		GM->OnCharacterInitialization.AddDynamic(this, &ATimberSeeda::HandleCharacterBindingToSeeda);
+	}
+
+	/*
+	 *Typically Seeda waits for the Initialization of the Character to Broadcast to the Character to bind to the Seeda Delegates.
+	 * When Seeda is Respawned during Runtime, the Character Initialization is never Broadcast, because the Broadcast occured during the Character's Begin Play.
+	 * So Seeda checks on Respawn if the character is valid, and if it is, ensures the character now rebinds to the required delegates.
+	 */
+	
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
+	if (PlayerCharacter)
+	{
+		HandleCharacterBindingToSeeda();
+	}
 }
 
 // Called every frame
@@ -33,7 +55,6 @@ void ATimberSeeda::Tick(float DeltaTime)
 void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)
 {
 	CurrentHealth -= DamageAmount;
-	UE_LOG(LogTemp, Warning, TEXT("Seeda Took %f Damage. Seeda Health: %f"), DamageAmount, CurrentHealth);
 	if (CurrentHealth <= 0)
 	{
 		OnSeedaDeath.Broadcast(true);
@@ -41,3 +62,14 @@ void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)
 	}
 	
 }
+
+void ATimberSeeda::HandleCharacterBindingToSeeda()
+{
+	ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if(GM)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda Broadcasts to GameMode"))
+		GM->OnSeedaSpawn.Broadcast(this);
+	}
+}
+

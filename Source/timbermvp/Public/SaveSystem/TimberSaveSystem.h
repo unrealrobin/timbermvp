@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -19,6 +19,28 @@ struct FBuildingComponentData
 	FTransform BuildingComponentTransform;
 };
 
+USTRUCT(BlueprintType)
+struct FPlayerData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FTransform PlayerTransform;
+	
+};
+
+/*
+ *
+ * Things that should be Saved.
+ * 1. Player Location.
+ * 2. All Building Components.
+ * 2a. Building Component Durability?
+ * 3. All of Players Inventory.
+ * 4. Wave Start State
+ * 4a. Wave Number, Door Positions, All Array contents Empty.
+ * 
+ */
+
 /**
  * 
  */
@@ -35,4 +57,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Building Component Save Data")
 	TArray<FBuildingComponentData> BuildingComponentsArray;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Player Save Data")
+	FPlayerData PlayerData;
 };

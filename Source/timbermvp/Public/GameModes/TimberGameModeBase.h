@@ -73,13 +73,14 @@ public:
 	void SaveCurrentGame();
 	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
 	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
-	void LoadPlayerState();
+	void SavePlayerData(UTimberSaveSystem* SaveGameInstance);
 
 	/*Load System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame();
 	void LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance);
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
+	void LoadPlayerState(UTimberSaveSystem* LoadGameInstance);
 	
 	void OpenAllLabDoors();
 

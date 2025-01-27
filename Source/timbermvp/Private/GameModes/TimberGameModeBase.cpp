@@ -148,6 +148,7 @@ void ATimberGameModeBase::SaveCurrentGame()
 
 	SaveBuildingComponentData(SaveGameInstance);
 	SaveWaveData(SaveGameInstance);
+	SavePlayerData(SaveGameInstance);
 
 
 	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
@@ -186,6 +187,15 @@ void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
 	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), SaveGameInstance->WaveNumber);
 }
 
+void ATimberGameModeBase::SavePlayerData(UTimberSaveSystem* SaveGameInstance)
+{
+	if (TimberCharacter)
+	{
+		FPlayerData PlayerData;
+		PlayerData.PlayerTransform = TimberCharacter->GetActorTransform();
+	}
+}
+
 /* Load System*/
 void ATimberGameModeBase::LoadGame()
 {
@@ -195,11 +205,11 @@ void ATimberGameModeBase::LoadGame()
 		UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
 	LoadBuildingComponents(LoadGameInstance);
 	LoadWaveData(LoadGameInstance);
-	LoadPlayerState();
+	LoadPlayerState(LoadGameInstance);
+
+	
 	SwitchToStandardUI.Execute();
 	EnableStandardInputMappingContext.Execute();
-
-	//Redraw the path lines after loading
 	HandleRedrawPathTrace();
 }
 
@@ -227,19 +237,21 @@ void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 }
 
-void ATimberGameModeBase::LoadPlayerState()
+void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
 {
+	//TODO:: Can we get rid of this MovePlayerToStartLocation() function? Logic is moved to TimberCharacter now.
 	//Move to Start Location
-	ATimberPlayerController* TimberPlayerController = Cast<ATimberPlayerController>(
+	/*ATimberPlayerController* TimberPlayerController = Cast<ATimberPlayerController>(
 		UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (TimberPlayerController)
 	{
 		TimberPlayerController->MovePlayerToStartLocation();
-	}
+	}*/
 
 	//Reset Player Health
 	if (TimberCharacter)
 	{
+		TimberCharacter->SetActorTransform(LoadGameInstance->PlayerData.PlayerTransform);
 		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 		TimberCharacter->bIsPlayerDead = false;
 	}

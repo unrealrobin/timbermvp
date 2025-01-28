@@ -8,8 +8,6 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
-
-
 void ATimberHUDBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -134,18 +132,26 @@ void ATimberHUDBase::ShouldHideBuildMenu()
 void ATimberHUDBase::SwitchToDeathUI()
 {
 	RootWidget->RemoveFromParent();
-	DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
 	if (DeathWidget)
 	{
-		DeathWidget->AddToViewport(1);
+		DeathWidget->SetVisibility(ESlateVisibility::Visible);	
 	}
-
-	//When seeda dies, player dies.
+	else
+	{
+		DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
+		if (DeathWidget)
+		{
+			DeathWidget->AddToViewport(1);
+			DeathWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+	
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
 		GameMode->FreezeAllAICharacters(true);
 	}
+	
 	//TODO:: Make sure we disable the keyboard input when the player dies.
 }
 
@@ -153,7 +159,8 @@ void ATimberHUDBase::SwitchToGameUI()
 {
 	if (DeathWidget)
 	{
-		DeathWidget->RemoveFromParent();
+		DeathWidget->SetVisibility(ESlateVisibility::Hidden);
+		UE_LOG(LogTemp, Warning, TEXT("HUD - Hid the Death Widget"));	
 	}
 	if (RootWidget)
 	{

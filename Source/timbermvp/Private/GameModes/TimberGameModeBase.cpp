@@ -8,6 +8,7 @@
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
+#include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -171,12 +172,20 @@ void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameI
 
 		for (AActor* BuildingComponentActors : CurrentBuildingComponents)
 		{
-			//Creating the Building Component Struct to pass to the Save System's Building Component Array
-			FBuildingComponentData BuildingComponentData;
-			BuildingComponentData.BuildingComponentClass = BuildingComponentActors->GetClass();
-			BuildingComponentData.BuildingComponentTransform = BuildingComponentActors->GetActorTransform();
+			//If the Building Component is an Environment Object - Don't Save it.
+			//The environment objects are added by the Developer and should not be saved. Only UGC should be saved.
+			if (!BuildingComponentActors->ActorHasTag(FName("ENV")))
+			{
+				//Creating the Building Component Struct to pass to the Save System's Building Component Array
+				FBuildingComponentData BuildingComponentData;
+				BuildingComponentData.BuildingComponentClass = BuildingComponentActors->GetClass();
+				BuildingComponentData.BuildingComponentTransform = BuildingComponentActors->GetActorTransform();
+				SaveGameInstance->BuildingComponentsArray.Add(BuildingComponentData);
+				UE_LOG(LogTemp, Warning, TEXT("Saved Building Component: %s"), *BuildingComponentActors->GetName());
+			}
 
-			SaveGameInstance->BuildingComponentsArray.Add(BuildingComponentData);
+			
+			
 		}
 	}
 }
@@ -193,6 +202,19 @@ void ATimberGameModeBase::SavePlayerData(UTimberSaveSystem* SaveGameInstance)
 	if (TimberCharacter)
 	{
 		SaveGameInstance->PlayerData.PlayerLocation = TimberCharacter->GetActorLocation();
+
+		APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());
+		if (PS)
+		{
+			SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts = PS->MainInventory->NumberOfParts;
+			SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
+			SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;
+			
+			UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
+				SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts,
+				SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism,
+				SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques);
+		}
 	}
 }
 
@@ -221,9 +243,10 @@ void ATimberGameModeBase::LoadGame()
 
 	CloseAllLabDoors();
 	GetWaveGameInstanceSubsystem()->HandleBossDoor(false);
+	HandleRedrawPathTrace();
+	
 	SwitchToStandardUI.Execute();
 	EnableStandardInputMappingContext.Execute();
-	HandleRedrawPathTrace();
 }
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
@@ -252,21 +275,29 @@ void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 
 void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
 {
-	//TODO:: Can we get rid of this MovePlayerToStartLocation() function? Logic is moved to TimberCharacter now.
-	//Move to Start Location
-	/*ATimberPlayerController* TimberPlayerController = Cast<ATimberPlayerController>(
-		UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (TimberPlayerController)
-	{
-		TimberPlayerController->MovePlayerToStartLocation();
-	}*/
-
-	//Reset Player Health
 	if (TimberCharacter)
 	{
 		TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
 		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 		TimberCharacter->bIsPlayerDead = false;
+
+
+		//Reverting player Inventory to last save.
+		APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());
+		if (PS)
+		{
+			PS->MainInventory->NumberOfParts = LoadGameInstance->PlayerData.PlayerInventory.NumberOfParts;
+			PS->MainInventory->NumberOfMechanism = LoadGameInstance->PlayerData.PlayerInventory.NumberOfMechanism;
+			PS->MainInventory->NumberOfUniques = LoadGameInstance->PlayerData.PlayerInventory.NumberOfUniques;
+			
+			//Broadcast update so HUD Reflects Inventory
+			TimberCharacter->InventoryManager->UpdateInventoryHandle.Broadcast();
+
+			UE_LOG(LogTemp, Warning, TEXT("Loaded Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
+                PS->MainInventory->NumberOfParts,
+                PS->MainInventory->NumberOfMechanism,
+                PS->MainInventory->NumberOfUniques);
+		}
 	}
 }
 

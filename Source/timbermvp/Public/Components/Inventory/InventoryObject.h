@@ -23,4 +23,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory Items")
 	int NumberOfUniques = 0;
+
+	
 };

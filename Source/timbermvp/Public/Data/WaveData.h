@@ -14,6 +14,12 @@ struct FEnemyData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data")
 	int32 NumberOfEnemiesToSpawn;
+
+	FEnemyData()
+	{
+		EnemyDataAsset = nullptr;
+		NumberOfEnemiesToSpawn = 0;
+	}
 	
 };
 
@@ -30,6 +36,12 @@ struct FWaveCompositionRow : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wave Composition Data")
 	TSubclassOf<AActor> BossEnemy;
+
+	FWaveCompositionRow()
+	{
+		WaveNumber = 0;
+		BossEnemy = nullptr;
+	}
 	
 };
 

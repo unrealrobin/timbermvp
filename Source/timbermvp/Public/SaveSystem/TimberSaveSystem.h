@@ -4,8 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "Components/Inventory/InventoryObject.h"
 #include "GameFramework/SaveGame.h"
 #include "TimberSaveSystem.generated.h"
+
+USTRUCT(BlueprintType)
+struct FInventoryData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int NumberOfParts;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int NumberOfMechanism;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int NumberOfUniques;
+
+	FInventoryData() :
+		NumberOfParts(0), NumberOfMechanism(0), NumberOfUniques(0)
+	{}
+};
 
 USTRUCT(BlueprintType)
 struct FBuildingComponentData
@@ -17,6 +37,11 @@ struct FBuildingComponentData
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FTransform BuildingComponentTransform;
+
+	//Default Constructor
+	FBuildingComponentData() :
+		BuildingComponentClass(nullptr), BuildingComponentTransform(FTransform::Identity)
+	{}
 };
 
 USTRUCT(BlueprintType)
@@ -26,6 +51,13 @@ struct FPlayerData
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FVector PlayerLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FInventoryData PlayerInventory;
+
+	FPlayerData() :
+		PlayerLocation(FVector::ZeroVector), PlayerInventory(FInventoryData())
+	{}
 	
 };
 
@@ -39,6 +71,10 @@ struct FSeedaData
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FRotator SeedaRotation;
+
+	FSeedaData() :
+		SeedaLocation(FVector::ZeroVector), SeedaRotation(FRotator::ZeroRotator)
+	{}
 };
 
 /*

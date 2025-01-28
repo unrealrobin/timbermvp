@@ -78,7 +78,7 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 			FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->
 				GetControlRotation();
 			FRotator RandomAimOffset = FRotator(
-				FMath::RandRange(-3, 3), FMath::RandRange(-3, 3), FMath::RandRange(-3, 3));
+				FMath::RandRange(-1, 1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1));
 			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
 				ProjectileType, ProjectileSpawnLocation, ControllerDirection + RandomAimOffset);
 

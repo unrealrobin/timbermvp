@@ -67,7 +67,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	else
 	{
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamageInstigator, DamageAmount, DamageAccumulatedDuringWindow);
-		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 }
 
@@ -101,7 +101,7 @@ void ATimberEnemyCharacter::StartDamageTimerWindow()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Damage Window timer is already active."))
+		//UE_LOG(LogTemp, Warning, TEXT("Damage Window timer is already active."))
 	}
 }
 
@@ -150,7 +150,7 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 			StaticMesh->SetCanEverAffectNavigation(false);
 			StaticMesh->bFillCollisionUnderneathForNavmesh = true;
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Collision Disabled for a Single Component"));
+		//UE_LOG(LogTemp, Warning, TEXT("Collision Disabled for a Single Component"));
 	}
 }
 

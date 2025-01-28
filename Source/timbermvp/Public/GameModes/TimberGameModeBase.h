@@ -8,22 +8,14 @@
 #include "SaveSystem/TimberSaveSystem.h"
 #include "TimberGameModeBase.generated.h"
 
+class ATimberSeeda;
 class UWaveGameInstanceSubsystem;
 class ATimberPlayableCharacter;
 class ALabDoorBase;
 class ATimberEnemyCharacter;
 class ATimberEnemySpawnLocations;
 
-/*//TODO:: Delete after full implementation in Wave Subsystem
-USTRUCT()
-struct FWaveComposition
-{
-	GENERATED_BODY()
 
-	int BasicRobotCount;
-	int MeleeWeaponRobotCount;
-	int RangedWeaponRobotCount;
-};*/
 
 /**
  * 
@@ -36,18 +28,17 @@ class TIMBERMVP_API ATimberGameModeBase : public AGameModeBase
 public:
 	/* Delegate Signature*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCurrentWaveNumberHandle, float, CurrentWaveNumber);
-
 	DECLARE_DYNAMIC_DELEGATE(FSwitchToStandardUI);
-
 	DECLARE_DYNAMIC_DELEGATE(FEnableStandardInputMappingContext);
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterInitialization);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaSpawn, AActor*, Seeda);
 
 	/* Delegate Handle */
 	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
 	FSwitchToStandardUI SwitchToStandardUI;
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	FOnCharacterInitialization OnCharacterInitialization;
+	FOnSeedaSpawn OnSeedaSpawn;
 
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
@@ -62,9 +53,10 @@ public:
 	ATimberPlayableCharacter* TimberCharacter = nullptr;
 	
 	/* Seeda Details */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Seeda")
+	TSubclassOf<ATimberSeeda> SeedaClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Seeda Info")
 	FVector SeedaLocation;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> ArrayOfSpawnedSeedas;
 
@@ -73,13 +65,16 @@ public:
 	void SaveCurrentGame();
 	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
 	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
-	void LoadPlayerState();
+	void SavePlayerData(UTimberSaveSystem* SaveGameInstance);
+	void SaveSeedaData(UTimberSaveSystem* SaveGameInstance);
 
 	/*Load System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame();
 	void LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance);
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
+	void LoadPlayerState(UTimberSaveSystem* LoadGameInstance);
+	void LoadSeedaData(UTimberSaveSystem* LoadGameInstance);
 	
 	void OpenAllLabDoors();
 

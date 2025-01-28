@@ -23,15 +23,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaDeathHandle, bool, bIsPlayerDead);
+	FOnSeedaDeathHandle OnSeedaDeath;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float CurrentHealth = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float MaxHealth = 0;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaDeathHandle, bool, bIsPlayerDead);
-	FOnSeedaDeathHandle OnSeedaDeath;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMeshComponent;
 
@@ -40,4 +40,7 @@ public:
 
 	UFUNCTION()
 	void TakeDamage_Seeda(float DamageAmount);
+
+	UFUNCTION()
+	void HandleCharacterBindingToSeeda();
 };

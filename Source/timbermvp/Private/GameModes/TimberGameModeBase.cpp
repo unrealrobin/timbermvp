@@ -27,15 +27,12 @@ void ATimberGameModeBase::BeginPlay()
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
 		GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
 		/*Subscribing to Player Death Delegate Signature*/
-		
 	}
 
 	// Initial Wave Broadcast - FOR UI Wave System Widget I think
 	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 	
-	
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
-		
 	
 	GatherSeedaData();
 	GatherAllLabDoors();

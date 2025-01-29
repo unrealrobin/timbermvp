@@ -25,13 +25,15 @@ void ATimberPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 
-	//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
-	// This is used for the Saving and Loading Process. We need a Location in space to respawn during load.
-	APlayerStart* PlayerStartObject = Cast<APlayerStart>(
-		UGameplayStatics::GetActorOfClass(
-			GetWorld(),
-			APlayerStart::StaticClass()));
-	PlayerStartLocation = PlayerStartObject->GetActorLocation();
+	{
+	/*//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
+		// This is used for the Saving and Loading Process. We need a Location in space to respawn during load.
+		APlayerStart* PlayerStartObject = Cast<APlayerStart>(
+			UGameplayStatics::GetActorOfClass(
+				GetWorld(),
+				APlayerStart::StaticClass()));
+		PlayerStartLocation = PlayerStartObject->GetActorLocation();*/
+	}
 
 	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
@@ -40,6 +42,13 @@ void ATimberPlayerController::BeginPlay()
 	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	EnableStandardKeyboardInput();
+	
+	{
+		//When switching from Game Start Menu to Level, we switch back the Input Mode to Game and UI
+		FInputModeGameAndUI GameAndUIInputMode;
+		FInputModeGameOnly GameOnlyInputMode;
+		SetInputMode(GameOnlyInputMode);
+	}
 
 	//Delegate Subscription
 	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberPlayerController::HandlePlayerDeath);
@@ -132,13 +141,13 @@ void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 	}
 }
 
-void ATimberPlayerController::MovePlayerToStartLocation()
+/*void ATimberPlayerController::MovePlayerToStartLocation()
 {
 	if (PlayerStartLocation != FVector(0.f, 0.f, 0.f))
 	{
 		TimberCharacter->SetActorLocation(PlayerStartLocation);
 	}
-}
+}*/
 
 void ATimberPlayerController::EnableCursor()
 {

@@ -26,4 +26,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UUserWidget* StartUpMenu;
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToGameLevel();
 };

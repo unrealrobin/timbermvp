@@ -3,6 +3,8 @@
 
 #include "GameModes/StartUpGameMode.h"
 
+#include "Kismet/GameplayStatics.h"
+
 void AStartUpGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -14,5 +16,16 @@ void AStartUpGameMode::BeginPlay()
 		{
 			StartUpMenu->AddToViewport();
 		}
+	}
+}
+
+void AStartUpGameMode::SwitchToGameLevel()
+{
+	if (StartUpMenu)
+	{
+		StartUpMenu->RemoveFromParent();
+		StartUpMenu = nullptr;
+
+		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}
 }

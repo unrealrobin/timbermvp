@@ -220,7 +220,10 @@ float ATimberEnemyCharacter::CalculateOutputDamage(float Damage)
 void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
 {
 	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
-	AiController->AiBehaviorTree->StopLogic("Enemy has been killed");
+	if (AiController && AiController->AiBehaviorTree)
+	{
+		AiController->AiBehaviorTree->StopLogic("Enemy has been killed");
+	}
 }
 
 void ATimberEnemyCharacter::PlayMontageAtRandomSection(UAnimMontage* Montage)

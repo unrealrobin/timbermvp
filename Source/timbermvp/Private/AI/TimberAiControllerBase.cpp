@@ -3,14 +3,26 @@
 
 #include "AI/TimberAiControllerBase.h"
 
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
 
 ATimberAiControllerBase::ATimberAiControllerBase()
 {
-	AiBehaviorTree = CreateDefaultSubobject<UBehaviorTreeComponent>("BehaviorTreeComponent");
+	BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>("BehaviorTree Component");
+	BlackboardComponent = CreateDefaultSubobject<UBlackboardComponent>("Blackboard Component");
+
 }
 
 void ATimberAiControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
-	AiBehaviorTree->StartLogic();
+
+	if (BehaviorTreeAsset)
+	{
+		if (UseBlackboard(BehaviorTreeAsset->BlackboardAsset, BlackboardComponent))
+		{
+			RunBehaviorTree(BehaviorTreeAsset);
+		}
+	}
 }

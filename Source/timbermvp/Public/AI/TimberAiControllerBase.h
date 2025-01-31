@@ -22,6 +22,19 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ai Behavior")
-	UBehaviorTreeComponent* AiBehaviorTree;
+
+	/* AI Setup */
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UBehaviorTree* BehaviorTreeAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UBlackboardData* BlackboardDataAsset;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ai Behavior")
+	UBehaviorTreeComponent* BehaviorTreeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	UBlackboardComponent* BlackboardComponent;
+	
 };

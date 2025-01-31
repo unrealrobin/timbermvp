@@ -6,6 +6,17 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "BossLola.generated.h"
 
+class AFloaterDrones;
+
+UENUM(BlueprintType)
+enum class ELolaState : uint8
+{
+	Stunned UMETA(DisplayName = "Stunned"),
+	NotStunned UMETA(DisplayName = "Not Stunned")
+	
+};
+
+
 UCLASS()
 class TIMBERMVP_API ABossLola : public ATimberEnemyCharacter
 {
@@ -18,10 +29,45 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	ELolaState LolaState = ELolaState::NotStunned;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Damage")
+	bool bCanLolaTakeDamage = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drones")
+	TArray<AFloaterDrones*> FloaterDronesArray;
+
+	UFUNCTION()
+	void PopulateDronesArray();
+
+	UFUNCTION()
+	void RandomizeDroneVulnerability();
+
+	UFUNCTION()
+	void RemoveDroneFromArray(AFloaterDrones* Drone);
+
+	UFUNCTION()
+	void SetDronesToNotDamageableDuringStun();
+
+	FTimerHandle RandomizeDroneVulnerability_Handle;
+	FTimerHandle LolaStunnedTimer_Handle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
+	float LolaStunTime = 5.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
+	float RandomizationTime = 5.0f;
 
 public:
-	// Called every frame
+
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+	ELolaState GetLolaState() const;
+	UFUNCTION()
+	void SetLolaToNotStunned();
+	UFUNCTION()
+	void SetLolaToStunned(AFloaterDrones* Drone);
+
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UCapsuleComponent* HeadCollisionComponent;
@@ -34,13 +80,25 @@ public:
 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UChildActorComponent* Drone1;
+	UChildActorComponent* Drone1Component;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UChildActorComponent* Drone2;
+	UChildActorComponent* Drone2Component;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UChildActorComponent* Drone3;
+	UChildActorComponent* Drone3Component;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	AFloaterDrones* Drone1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	AFloaterDrones* Drone2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	AFloaterDrones* Drone3;
+
+	
 
 	//Handles the initial components of the boss.
 	UFUNCTION(BlueprintCallable)
 	void LolaInitializeComponents();
 };
+
+
+
+

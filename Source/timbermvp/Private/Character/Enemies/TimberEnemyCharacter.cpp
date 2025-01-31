@@ -220,9 +220,9 @@ float ATimberEnemyCharacter::CalculateOutputDamage(float Damage)
 void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
 {
 	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
-	if (AiController && AiController->AiBehaviorTree)
+	if (AiController && AiController->BehaviorTreeComponent)
 	{
-		AiController->AiBehaviorTree->StopLogic("Enemy has been killed");
+		AiController->BehaviorTreeComponent->StopLogic("Enemy has been killed");
 	}
 }
 

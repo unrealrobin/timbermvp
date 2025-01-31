@@ -3,6 +3,8 @@
 
 #include "AI/BossAIControllerBase.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
+
 
 // Sets default values
 ABossAIControllerBase::ABossAIControllerBase()

@@ -25,6 +25,8 @@ public:
 
 	/* AI Setup */
 
+	virtual void OnPossess(APawn* InPawn) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	UBehaviorTree* BehaviorTreeAsset;
 
@@ -34,7 +36,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ai Behavior")
 	UBehaviorTreeComponent* BehaviorTreeComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	UBlackboardComponent* BlackboardComponent;
 	
 };

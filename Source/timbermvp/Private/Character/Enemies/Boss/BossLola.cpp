@@ -3,6 +3,8 @@
 
 #include "Character/Enemies/Boss/BossLola.h"
 
+#include "AI/BossAIControllerBase.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemies/FloaterDrones.h"
 #include "Components/CapsuleComponent.h"
 
@@ -15,26 +17,54 @@ ABossLola::ABossLola()
 }
 
 
-void ABossLola::BeginPlay()
+void ABossLola::BindToDroneDeathDelegates()
 {
-	Super::BeginPlay();
-
-	//Initializing Drones
-	PopulateDronesArray();
-
-	//When a drone dies Lola Get Stunned & isDamageable
 	if (Drone1 && Drone2 && Drone3)
 	{
 		Drone1->DroneDestroyedHandle.AddDynamic(this, &ABossLola::SetLolaToStunned);
 		Drone2->DroneDestroyedHandle.AddDynamic(this, &ABossLola::SetLolaToStunned);
 		Drone3->DroneDestroyedHandle.AddDynamic(this, &ABossLola::SetLolaToStunned);
 	}
+}
+
+void ABossLola::InitializeLolaController()
+{
+	LolaController = Cast<ABossAIControllerBase>(GetController());
+	if (LolaController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Lola bound to the Lola Controller."))
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Lola not bound to the Lola Controller."))
+	}
+	
+}
+
+void ABossLola::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Set Lola Controller
+	InitializeLolaController();
+
+	//Initializing Drones
+	PopulateDronesArray();
+
+	//When a drone dies Lola Get Stunned & isDamageable
+	BindToDroneDeathDelegates();
 
 	//Initial Drone Vulnerability Randomization
 	RandomizeDroneVulnerability();
+	
 	//Timer for randomizing Drone Vulnerability
 	GetWorld()->GetTimerManager().SetTimer(RandomizeDroneVulnerability_Handle, this, 
 	&ABossLola::RandomizeDroneVulnerability, RandomizationTime, true );
+}
+
+void ABossLola::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void ABossLola::PopulateDronesArray()
@@ -92,12 +122,6 @@ void ABossLola::SetDronesToNotDamageableDuringStun()
 	}
 }
 
-void ABossLola::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-
 void ABossLola::LolaInitializeComponents()
 {
 	HeadCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>("HeadCollisionComponent");
@@ -119,10 +143,16 @@ void ABossLola::LolaInitializeComponents()
 void ABossLola::SetLolaToStunned(AFloaterDrones* Drone)
 {
 	LolaState = ELolaState::Stunned;
+
+	//Setting a BB variable when Stunned
+	if (LolaController->BlackboardComponent)
+	{
+		LolaController->BlackboardComponent->SetValueAsBool("bIsLolaStunned", true);
+	}
 	
 	RemoveDroneFromArray(Drone);
 	SetDronesToNotDamageableDuringStun();
-
+	
 	//Pause the Timer for Randomizing Drone Vulnerability
 	GetWorld()->GetTimerManager().PauseTimer(RandomizeDroneVulnerability_Handle);
 
@@ -135,6 +165,8 @@ void ABossLola::SetLolaToStunned(AFloaterDrones* Drone)
 void ABossLola::SetLolaToNotStunned()
 {
 	LolaState = ELolaState::NotStunned;
+
+	LolaController->BlackboardComponent->SetValueAsBool("bIsLolaStunned", false);
 
 	//Randomize Drone Vulnerability - Forced
 	RandomizeDroneVulnerability();

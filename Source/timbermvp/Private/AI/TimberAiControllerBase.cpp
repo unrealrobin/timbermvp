@@ -17,10 +17,15 @@ ATimberAiControllerBase::ATimberAiControllerBase()
 void ATimberAiControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+}
 
+void ATimberAiControllerBase::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
 	if (BehaviorTreeAsset)
 	{
-		if (UseBlackboard(BehaviorTreeAsset->BlackboardAsset, BlackboardComponent))
+		if (UseBlackboard(BlackboardDataAsset, BlackboardComponent))
 		{
 			RunBehaviorTree(BehaviorTreeAsset);
 		}

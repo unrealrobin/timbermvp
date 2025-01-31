@@ -6,6 +6,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "BossLola.generated.h"
 
+class ABossAIControllerBase;
 class AFloaterDrones;
 
 UENUM(BlueprintType)
@@ -25,6 +26,8 @@ class TIMBERMVP_API ABossLola : public ATimberEnemyCharacter
 public:
 	// Sets default values for this character's properties
 	ABossLola();
+	void BindToDroneDeathDelegates();
+	void InitializeLolaController();
 
 protected:
 	// Called when the game starts or when spawned
@@ -56,6 +59,9 @@ protected:
 	float LolaStunTime = 5.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
 	float RandomizationTime = 5.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	ABossAIControllerBase* LolaController = nullptr;
 
 public:
 

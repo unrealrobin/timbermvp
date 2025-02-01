@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemies/FloaterDrones.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values
@@ -16,6 +17,34 @@ ABossLola::ABossLola()
 	LolaInitializeComponents();
 }
 
+void ABossLola::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Set Lola Controller
+	InitializeLolaController();
+
+	//Initializing Drones
+	PopulateDronesArray();
+
+	//When a drone dies Lola Get Stunned & isDamageable
+	BindToDroneDeathDelegates();
+
+	//Initial Drone Vulnerability Randomization
+	RandomizeDroneVulnerability();
+	
+	//Timer for randomizing Drone Vulnerability
+	GetWorld()->GetTimerManager().SetTimer(RandomizeDroneVulnerability_Handle, this, 
+	&ABossLola::RandomizeDroneVulnerability, RandomizationTime, true );
+
+	//Setting Max Walk Speed for Lola
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+}
+
+void ABossLola::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
 
 void ABossLola::BindToDroneDeathDelegates()
 {
@@ -39,32 +68,6 @@ void ABossLola::InitializeLolaController()
 		UE_LOG(LogTemp, Warning, TEXT("Lola not bound to the Lola Controller."))
 	}
 	
-}
-
-void ABossLola::BeginPlay()
-{
-	Super::BeginPlay();
-
-	//Set Lola Controller
-	InitializeLolaController();
-
-	//Initializing Drones
-	PopulateDronesArray();
-
-	//When a drone dies Lola Get Stunned & isDamageable
-	BindToDroneDeathDelegates();
-
-	//Initial Drone Vulnerability Randomization
-	RandomizeDroneVulnerability();
-	
-	//Timer for randomizing Drone Vulnerability
-	GetWorld()->GetTimerManager().SetTimer(RandomizeDroneVulnerability_Handle, this, 
-	&ABossLola::RandomizeDroneVulnerability, RandomizationTime, true );
-}
-
-void ABossLola::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void ABossLola::PopulateDronesArray()

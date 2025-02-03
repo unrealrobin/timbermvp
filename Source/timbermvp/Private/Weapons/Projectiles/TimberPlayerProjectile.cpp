@@ -41,14 +41,14 @@ void ATimberPlayerProjectile::HandleOverlap(
 
 	if (HitEnemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Overlapped: %ls"), *OverlappedComponent->GetFullName());
+		//UE_LOG(LogTemp, Warning, TEXT("Overlapped: %ls"), *OverlappedComponent->GetFullName());
 		//Play the IDamageableEnemy's TakeDamage function. Interface.
 		HitEnemy->PlayProjectileHitSound(SweepResult);
 		// Print the owner of the weapon
-		//UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
-		//UE_LOG(LogTemp, Warning, TEXT("Projectile's Owner's Owner: %s"), *GetOwner()->GetOwner()->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Projectile's Owner's Owner: %s"), *GetOwner()->GetOwner()->GetName());
 		// The Projectiles Owner is the Weapon and the Weapons Owner is the Player Character. The Player Character needs to be passed to Take Damage to calculate the Aggro condition.
-		HitEnemy->TakeDamage(25, GetOwner()->GetOwner());
+		HitEnemy->TakeDamage(ProjectileBaseDamage, GetOwner()->GetOwner());
 
 		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
 		Destroy();

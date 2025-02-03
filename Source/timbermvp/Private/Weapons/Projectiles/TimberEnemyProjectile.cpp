@@ -35,9 +35,6 @@ void ATimberEnemyProjectile::HandleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	
-
-	
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
 	if (PlayerCharacter)

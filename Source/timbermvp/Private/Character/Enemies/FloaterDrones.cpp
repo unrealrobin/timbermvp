@@ -18,8 +18,8 @@ void AFloaterDrones::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(FireProjectileTimerHandle, this, &AFloaterDrones::FireProjectile, 
-	TimeBetweenShots, true);
+	/*GetWorld()->GetTimerManager().SetTimer(FireProjectileTimerHandle, this, &AFloaterDrones::FireProjectile, 
+	TimeBetweenShots, true);*/
 	
 }
 
@@ -102,10 +102,10 @@ void AFloaterDrones::FireProjectile()
 		GetActorRotation(),
 		SpawnParams);
 
-		if (Projectile)
+		/*if (Projectile)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Floater Drone C++ - Projectile Fired."));
-		}
+		}*/
 	}
 	
 }

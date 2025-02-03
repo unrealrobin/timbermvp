@@ -13,13 +13,16 @@ ABuildableBase::ABuildableBase()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
-
-
-
 // Called when the game starts or when spawned
 void ABuildableBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABuildableBase::BeginDestroy()
+{
+	Super::BeginDestroy();
+	//UE_LOG(LogTemp, Warning, TEXT("Buildable - OnDestroy - Buildable is Being Destroyed."))
 }
 
 void ABuildableBase::HandleDeletionOfBuildable()

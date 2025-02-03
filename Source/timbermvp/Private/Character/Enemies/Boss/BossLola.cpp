@@ -5,6 +5,7 @@
 
 #include "AI/BossAIControllerBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BuildSystem/BuildableBase.h"
 #include "Character/Enemies/FloaterDrones.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -38,7 +39,7 @@ void ABossLola::BeginPlay()
 	&ABossLola::RandomizeDroneVulnerability, RandomizationTime, true );
 
 	//Setting Max Walk Speed for Lola
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	GetCharacterMovement()->MaxWalkSpeed = 100.f;
 }
 
 void ABossLola::Tick(float DeltaTime)
@@ -160,8 +161,25 @@ void ABossLola::SetLolaToStunned(AFloaterDrones* Drone)
 	GetWorld()->GetTimerManager().PauseTimer(RandomizeDroneVulnerability_Handle);
 
 	//Set Timer for Lola to be un-stunned
-	GetWorld()->GetTimerManager().SetTimer(LolaStunnedTimer_Handle, this, &ABossLola::SetLolaToNotStunned, LolaStunTime, 
-	false);
+	/*GetWorld()->GetTimerManager().SetTimer(LolaStunnedTimer_Handle, this, &ABossLola::SetLolaToNotStunned, LolaStunTime, 
+	false);*/
+}
+
+void ABossLola::DemolishBuildable()
+{
+	if (SweepHitActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Lola - Sweep Hit Actor Found. Demolishing Buildable."));
+		ABuildableBase* Buildable = Cast<ABuildableBase>(SweepHitActor);
+		if (Buildable)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Lola - Buildable Destroyed. Sweep Hit Cleared."));
+			Buildable->Destroy();
+			SweepHitActor = nullptr;
+
+			//TODO:: Potentially may need to Clear the Blackboard Value for "ClosestBuildingComponentActor" through the controller in the future.
+		}
+	}
 }
 
 

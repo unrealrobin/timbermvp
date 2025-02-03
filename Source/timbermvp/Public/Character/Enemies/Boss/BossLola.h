@@ -57,11 +57,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
 	float LolaStunTime = 5.0f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
 	float RandomizationTime = 5.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	ABossAIControllerBase* LolaController = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float WalkSpeed = 300.f;
 
 public:
 
@@ -69,12 +73,17 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	ELolaState GetLolaState() const;
-	UFUNCTION()
+	
+	UFUNCTION(BlueprintCallable)
 	void SetLolaToNotStunned();
+	
 	UFUNCTION()
 	void SetLolaToStunned(AFloaterDrones* Drone);
 
-	
+	UFUNCTION(BlueprintCallable)
+	void DemolishBuildable();
+
+	/*Collision Components*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UCapsuleComponent* HeadCollisionComponent;
 
@@ -84,7 +93,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UCapsuleComponent* RightArmCollisionComponent;
 
-	
+	/*Drones*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UChildActorComponent* Drone1Component;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")

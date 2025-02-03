@@ -50,18 +50,27 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	DamageAccumulatedDuringWindow += DamageAmount;
 	//Applying damage to Characters Health
 	CurrentHealth -= DamageAmount;
-	//Starting Damage Accumulation Window
+	//Starting Damage Accumulation Window / Used for Aggro Conditions
 	StartDamageTimerWindow();
 
 	if (CurrentHealth <= 0.f)
 	{
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
 		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CheckArrayForEnemy(this);
+
+		//Clears Aggro and Damage Set on the Damage Accumulation Window
 		ResetDamageWindow();
+		
 		//Stops all AI Behavior
 		StopAiControllerBehaviorTree();
+
+		//Handles Collisions so the enemy can be attacked more or block navigation
 		OnDeath_HandleCollision();
+
+		//Plays Death Animation
 		PlayMontageAtRandomSection(DeathMontage);
+
+		//Drops Any Loot set on the Characters Loot Drop
 		OnDeath_DropLoot();
 	}
 	else
@@ -104,8 +113,6 @@ void ATimberEnemyCharacter::StartDamageTimerWindow()
 		//UE_LOG(LogTemp, Warning, TEXT("Damage Window timer is already active."))
 	}
 }
-
-
 
 void ATimberEnemyCharacter::PlayProjectileHitSound(FHitResult HitResult)
 {
@@ -183,7 +190,6 @@ void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropCl
 		SpawnParams);
 }
 
-
 void ATimberEnemyCharacter::HandleEnemyDeath()
 {
 	HandleWeaponDestruction();
@@ -237,7 +243,7 @@ void ATimberEnemyCharacter::PlayMontageAtRandomSection(UAnimMontage* Montage)
 	
 }
 
-//TODO::Why is the Current Wave Number important on the BaseEnemyClass?
+//Not of use yet. Should be used to increase stats on enemies based on the wave Number. Health/Damage/Speed
 void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
 {
 	CurrentWave = CurrentWaveNumber;
@@ -267,4 +273,40 @@ ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 	}
 
 	return nullptr;
+}
+
+void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor)
+{
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f);
+	FVector SweepStart = RaycastStartPoint->GetComponentLocation();
+	FVector SweepEnd = SweepStart + RaycastStartPoint->GetForwardVector() * 100.f;
+	
+	TArray<FHitResult> HitResults;
+	bool bHit = GetWorld()->SweepMultiByChannel(HitResults,
+		SweepStart,
+		SweepEnd,
+		FQuat::Identity,
+		ECC_Visibility,
+		Sphere );
+
+	UE_LOG(LogTemp, Warning, TEXT("Swept for Actor."))
+	
+	if (bHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Actor Type Found In Array"));
+		for (FHitResult Hit : HitResults)
+		{
+			if (Hit.GetActor()->IsA(ActorToSweepFor))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Actor Found: %p"), Hit.GetActor()->GetClass());
+				SweepHitActor = Hit.GetActor();
+				DrawDebugSphere(GetWorld(), SweepHitActor->GetActorLocation(), 100.f, 12, FColor::Red, false, 3.f);
+				break;
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Actor Found"));
+	}
 }

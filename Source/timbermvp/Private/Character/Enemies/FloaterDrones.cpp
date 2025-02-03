@@ -4,6 +4,7 @@
 #include "Character/Enemies/FloaterDrones.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Weapons/Projectiles/TimberEnemyProjectile.h"
 
 
 // Sets default values
@@ -16,6 +17,9 @@ AFloaterDrones::AFloaterDrones()
 void AFloaterDrones::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetWorld()->GetTimerManager().SetTimer(FireProjectileTimerHandle, this, &AFloaterDrones::FireProjectile, 
+	TimeBetweenShots, true);
 	
 }
 
@@ -75,8 +79,6 @@ void AFloaterDrones::SetActorDamageable()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
-
-
 void AFloaterDrones::HandleChangeDamageState(EDroneState NewState)
 {
 	DroneState = NewState;
@@ -84,6 +86,28 @@ void AFloaterDrones::HandleChangeDamageState(EDroneState NewState)
 	HandleBaseMaterialColorChange(DroneState);
 
 	//Change Collision Parameters Based on current state.
+}
+
+void AFloaterDrones::FireProjectile()
+{
+	FActorSpawnParameters SpawnParams;\
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+
+	if (GetWorld())
+	{
+		ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
+		ProjectileClass,
+		RaycastStartPoint->GetComponentLocation(),
+		GetActorRotation(),
+		SpawnParams);
+
+		if (Projectile)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Floater Drone C++ - Projectile Fired."));
+		}
+	}
+	
 }
 
 

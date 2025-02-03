@@ -41,6 +41,7 @@ void ATimberPlayerProjectile::HandleOverlap(
 
 	if (HitEnemy)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Overlapped: %ls"), *OverlappedComponent->GetFullName());
 		//Play the IDamageableEnemy's TakeDamage function. Interface.
 		HitEnemy->PlayProjectileHitSound(SweepResult);
 		// Print the owner of the weapon

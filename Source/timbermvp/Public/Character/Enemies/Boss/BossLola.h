@@ -32,6 +32,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	ELolaState LolaState = ELolaState::NotStunned;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Damage")
@@ -67,12 +69,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	float WalkSpeed = 300.f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TArray<UPrimitiveComponent*> CapsuleComponentsArray;
+	
+	void SetLolaNotDamageable();
+
+	void SetLolaToDamageable();
+	
+	void GetAllCapsuleComponents();
+	
 public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
-	ELolaState GetLolaState() const;
+	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetLolaToNotStunned();
@@ -100,12 +110,15 @@ public:
 	UChildActorComponent* Drone2Component;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UChildActorComponent* Drone3Component;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drones")
 	AFloaterDrones* Drone1;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drones")
 	AFloaterDrones* Drone2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drones")
 	AFloaterDrones* Drone3;
+
+	UFUNCTION()
+	void HandleDroneDeath(AFloaterDrones* Drone);
 
 	
 

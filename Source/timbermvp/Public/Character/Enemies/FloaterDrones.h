@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "TimberEnemyCharacter.h"
+#include "Weapons/Projectiles/TimberProjectileBase.h"
 #include "FloaterDrones.generated.h"
 
+
+class ATimberEnemyProjectile;
 
 UENUM(BlueprintType)
 enum class EDroneState : uint8
@@ -59,4 +62,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
 	UMaterialInterface* NotDamageableMaterial = nullptr;
+
+	/* Projectile */
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	TSubclassOf<ATimberProjectileBase> ProjectileClass;
+	
+	UFUNCTION()
+	void FireProjectile();
+
+	FTimerHandle FireProjectileTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	float TimeBetweenShots = 2.f;
 };

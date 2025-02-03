@@ -45,16 +45,8 @@ void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDam
 
 	if (ComponentDurability <= 0)
 	{
-		//TODO::Add some destroyed animation
-		PlayDestroyedAnimation();
 		Destroy();
 	}
-}
-
-void ATimberBuildingComponentBase::PlayDestroyedAnimation()
-{
-	//TODO:: Add Chaos Destruction or some destroy animation.
-	UE_LOG(LogTemp, Warning, TEXT("Building Component Destroyed."));
 }
 
 void ATimberBuildingComponentBase::HandleOverlapNotifies(

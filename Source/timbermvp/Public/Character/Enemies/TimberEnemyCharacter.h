@@ -42,18 +42,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat")
 	bool bHasBeenAggroByPlayer = false;
-
-	UFUNCTION(BlueprintCallable)
-	ATimberBuildingComponentBase* LineTraceToSeeda();
-
+	
+	/* Montages */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* DeathMontage;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* StandardAttackMontage;
 
 	//Called from Animation Montage when montage ends.
 	UFUNCTION(BlueprintCallable)
 	void HandleEnemyDeath();
+	
 	void HandleWeaponDestruction();
 
 	/*Hit Sounds*/
@@ -62,6 +62,19 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
 	USoundCue* MeleeHitSound;
+
+	/*Sweep / Traces */
+	UFUNCTION(BlueprintCallable)
+	void SweepForActor(TSubclassOf<AActor> ActorToSweepFor);
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sweep")
+	AActor* SweepHitActor;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep")
+	float SweepDistance = 250.f;
+
+	UFUNCTION(BlueprintCallable)
+	ATimberBuildingComponentBase* LineTraceToSeeda();
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
@@ -73,6 +86,7 @@ protected:
 
 	/* Death */
 	void OnDeath_HandleCollision();
+	
 	virtual void OnDeath_DropLoot();
 	
 	/* Animation */
@@ -101,4 +115,6 @@ protected:
 	//Specific Enemies may drop specific Loot Items.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
 	TArray<TSubclassOf<AEnemyLootDropBase>> UniqueLootArray;
+
+	
 };

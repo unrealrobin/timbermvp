@@ -41,8 +41,6 @@ public:
 
 	UFUNCTION()
 	void BuildingComponentTakeDamage(float AmountOfDamage);
-	UFUNCTION()
-	void PlayDestroyedAnimation();
 
 	void CreateSnapPoints();
 	void CreateQuadrantComponents();

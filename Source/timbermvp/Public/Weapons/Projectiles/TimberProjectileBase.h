@@ -20,15 +20,19 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMesh;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UCapsuleComponent* CapsuleComponent;
 
 protected:
 	virtual void BeginPlay() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	ATimberPlayableCharacter* ProjectileOwner;
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Projectile Combat Info")
-	float ProjectileBaseDamage = 2.0f;
+	float ProjectileBaseDamage = 10.f;
+	
 	UFUNCTION()
 	void HandleDestroyAfterNoCollision();
 

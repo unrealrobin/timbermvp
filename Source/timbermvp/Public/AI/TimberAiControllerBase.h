@@ -15,12 +15,28 @@ class TIMBERMVP_API ATimberAiControllerBase : public AAIController
 {
 	GENERATED_BODY()
 
-	//write the constructor function for this class
+public:
 	ATimberAiControllerBase();
 
-public:
+protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ai Behavior")
-	UBehaviorTreeComponent* AiBehaviorTree;
+public:
+
+	/* AI Setup */
+
+	virtual void OnPossess(APawn* InPawn) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UBehaviorTree* BehaviorTreeAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UBlackboardData* BlackboardDataAsset;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ai Behavior")
+	UBehaviorTreeComponent* BehaviorTreeComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UBlackboardComponent* BlackboardComponent;
+	
 };

@@ -15,6 +15,7 @@ UENUM(BlueprintType)
 enum class ETrapType : uint8
 {
 	SpikeTrap UMETA(DisplayName = "SpikeTrap"),
+	FrostTrap UMETA(DisplayName = "FrostTrap"),
 	Default UMETA(DisplayName = "Default"),
 };
 
@@ -41,6 +42,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
 	bool CanTrapBeFinalized = false;
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
 	TArray<AActor*> InsideHitBoxArray;
@@ -60,8 +62,8 @@ public:
 	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	UStaticMeshComponent* TrapBaseStaticMesh;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
-	USceneComponent* TrapCenterSnapLocation;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
+	USceneComponent* TrapCenterSnapLocation;*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	UBoxComponent* HitBoxComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

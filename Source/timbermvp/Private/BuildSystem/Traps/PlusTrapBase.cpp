@@ -32,7 +32,8 @@ void APlusTrapBase::RaycastForHitBoxLength()
 	FVector StartPoint = BoxExtentRaycastStart->GetComponentLocation();
 
 	//Inverse the Right Vector to get the LeftVector (Needed because all building components are Y Forward)
-	FVector EndPoint = StartPoint + ( -1 * BoxExtentRaycastStart->GetRightVector() * MaxHitBoxLength);
+	//FVector EndPoint = StartPoint + ( -1 * BoxExtentRaycastStart->GetRightVector() * MaxHitBoxLength);
+	FVector EndPoint = StartPoint + ( BoxExtentRaycastStart->GetRightVector() * MaxHitBoxLength);
 	
 	bool bHits = GetWorld()->LineTraceMultiByChannel(HitResults, StartPoint, EndPoint, ECC_Visibility );
 
@@ -45,7 +46,7 @@ void APlusTrapBase::RaycastForHitBoxLength()
 		for (FHitResult Hit : HitResults)
 		{
 			// If Hit is a Buildable && It's not Itself 
-			 if (Cast<ABuildableBase>(Hit.GetActor())) //&& Cast<ATimberBuildingComponentBase>(Hit.GetActor()) != HoveredBuildingComponent && Hit.GetActor() != this
+			 if (Cast<ABuildableBase>(Hit.GetActor()) && Cast<ATimberBuildingComponentBase>(Hit.GetActor()) != HoveredBuildingComponent && Hit.GetActor() != this) 
 			 {
 			 	UE_LOG(LogTemp, Warning, TEXT("Hit a Building Component"));
 				HitLocation = Hit.ImpactPoint;
@@ -58,13 +59,13 @@ void APlusTrapBase::RaycastForHitBoxLength()
 			 }
 			 else
 			 {
-				 UE_LOG(LogTemp, Warning, TEXT("Hit a Non Building Component : %p"), Hit.GetActor());
+				 UE_LOG(LogTemp, Warning, TEXT("Hit a Non Building Component : %p"), *Hit.GetActor()->GetName());
 			 }
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Hit"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Hit"));
 		DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
 		DrawDebugSphere(GetWorld(), EndPoint, 10.f, 12, FColor::Red, false, -1.f);
 		DrawDebugSphere(GetWorld(), StartPoint, 10.f, 12, FColor::Green, false, -1.f);
@@ -77,18 +78,22 @@ void APlusTrapBase::RaycastForHitBoxLength()
 	//The Value Clamped to not Exceed the Max Hit Box Length (2 Grid Squares for thise Trap)
 	MaxHitBoxLength = UKismetMathLibrary::Clamp(DistanceDifference, 1.f, MaxHitBoxLength);
 
+	BoxLength = MaxHitBoxLength / 2 + 30.f;
+
 	//Setting the Box Extent Vector
-	FVector DynamicBoxExtent = FVector(BoxWidth, MaxHitBoxLength / 2 + 30, BoxHeight);
+	FVector DynamicBoxExtent = FVector(BoxWidth, BoxLength, BoxHeight);
 
 	//Setting the Box Extent
 	HitBoxComponent->SetBoxExtent(DynamicBoxExtent);
+
+	HitBoxComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	//Relative Locations because when scaling extents the box components scales in 2 directions
 	// -y <--MHBL--> +y
 	//So we position the center of the Dynamic HitBox in the middle of the Extent Scale
 	// So if we Want to scale the box to be 800 units long, we need to set the relative location to be 400 units in the Y direction (400 In each Direction)
 	// We use 30 Units to account for the Offset of the Raycast Start point from the Actual Trap Center (+- 30/40)
-	HitBoxComponent->SetRelativeLocation(FVector(0.f, MaxHitBoxLength / 2 + 30, 0.f));
+	HitBoxComponent->SetRelativeLocation(FVector(0.f, BoxLength, 0.f));
 }
 
 // Called every frame

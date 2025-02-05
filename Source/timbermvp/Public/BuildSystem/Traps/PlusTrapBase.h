@@ -20,7 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trap Components")
-	float MaxHitBoxLength = 770.f;
+	float MaxHitBoxLength = 750.f;
 
 	//Z
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Box Data")

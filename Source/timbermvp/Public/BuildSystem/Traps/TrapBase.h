@@ -43,7 +43,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
 	bool CanTrapBeFinalized = false;
 	
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
 	TArray<AActor*> InsideHitBoxArray;
 
@@ -62,8 +61,6 @@ public:
 	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	UStaticMeshComponent* TrapBaseStaticMesh;
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
-	USceneComponent* TrapCenterSnapLocation;*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	UBoxComponent* HitBoxComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -79,10 +76,13 @@ public:
 	void SetCanTrapBeFinalized(bool bCanTrapBeFinalized);
 
 	/*Hit Area Utilities*/
+	/* Adds Enemies to the Inside Hit Box Array*/
 	UFUNCTION()
 	virtual void HitBoxBeginOverlap(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	/* Removes Enemies from the Inside Hit Box Array*/
 	UFUNCTION()
 	virtual void HitBoxEndOverlap(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

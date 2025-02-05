@@ -54,7 +54,6 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 		PulseHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		PulseHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		PulseHitBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-		PulseHitBox->SetHiddenInGame(false);
 		
 		//Collision Delegate
 		PulseHitBox->OnComponentBeginOverlap.AddDynamic(this, &AElectroStaticPulseTrap::HandlePulseBoxOverlap);

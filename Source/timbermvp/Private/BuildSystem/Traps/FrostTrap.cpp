@@ -18,6 +18,8 @@ AFrostTrap::AFrostTrap()
 	FrostTrapVentMesh = CreateDefaultSubobject<UStaticMeshComponent>("Frost Trap Vent");
 	FrostTrapVentMesh->SetupAttachment(RootComponent);
 
+	TrapType = ETrapType::FrostTrap;
+
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapEndOverlap);
 	

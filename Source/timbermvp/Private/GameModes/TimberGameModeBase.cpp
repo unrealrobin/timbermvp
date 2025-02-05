@@ -265,9 +265,14 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 
 void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 {
-	GetWaveGameInstanceSubsystem()->CurrentWaveNumber = LoadGameInstance->WaveNumber;
-	UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
-	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+	if (LoadGameInstance)
+	{
+		GetWaveGameInstanceSubsystem()->CurrentWaveNumber = LoadGameInstance->WaveNumber;
+
+		UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+
+		CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+	}
 }
 
 void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
@@ -277,8 +282,7 @@ void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
 		TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
 		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 		TimberCharacter->bIsPlayerDead = false;
-
-
+		
 		//Reverting player Inventory to last save.
 		APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());
 		if (PS)

@@ -50,8 +50,7 @@ protected:
 	virtual void BeginDestroy() override;
 	void SpawnLootInRange(int NumberOfParts = 0, int NumberOfMechanisms = 0, int NumberOfUniques = 0);
 
-	/*Potential Loot on Destruction */
-
+	/*Potential Loot on Destruction / Gaurunteed on Deletion */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
 	TSubclassOf<AEnemyLootDropBase> PartsClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")

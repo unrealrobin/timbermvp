@@ -65,6 +65,9 @@ public:
 	UBoxComponent* HitBoxComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
+	USceneComponent* TrapCenterSnapLocation;
 
 	/* ENUMS */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")

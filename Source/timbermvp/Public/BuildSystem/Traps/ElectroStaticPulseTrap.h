@@ -23,6 +23,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	void MovePulseHitBox(float DeltaTime);
 
 	UFUNCTION()
 	void FireElectroPulse();
@@ -39,8 +40,17 @@ protected:
 	FTimerHandle FireElectroPulseTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cooldown")
-	float FireElectroPulseCooldown = 10.f;
+	float FireElectroPulseCooldown = 3.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMesh* PulseMesh = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UStaticMeshComponent* PulseMeshComponent = nullptr;
+
+	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void CreatePulseHitBox();
 };

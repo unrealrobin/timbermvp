@@ -282,8 +282,7 @@ void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
 		TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
 		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 		TimberCharacter->bIsPlayerDead = false;
-
-
+		
 		//Reverting player Inventory to last save.
 		APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());
 		if (PS)

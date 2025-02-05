@@ -7,55 +7,35 @@
 #include "Components/BoxComponent.h"
 
 
-// Sets default values
+
 AElectroStaticPulseTrap::AElectroStaticPulseTrap()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void AElectroStaticPulseTrap::BeginPlay()
 {
 	Super::BeginPlay();
 
 	//Continuously Fire the Electro-Pulse ever X Seconds
 	GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  
-	&AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, true );
+	&AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
 }
 
-// Called every frame
 void AElectroStaticPulseTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (PulseHitBox)
-	{
-		//Original Location
-		FVector PulseStartLocation = PulseHitBox->GetComponentLocation();
-
-		//Pulse Direction
-		FVector ForwardVector = BoxExtentRaycastStart->GetRightVector();
-		
-		//Amount of Translation 
-		FVector NewLocation =	PulseStartLocation + (ForwardVector * 200 * DeltaTime);
-		
-		PulseHitBox->SetRelativeLocation(NewLocation);
-
-		//Once the Pulse has Reached the End of the Hit Box Extents, Destroy the Pulse Hit Box.
-		bool HitEndOfBoxExtent = FVector::Dist(PulseHitBox->GetComponentLocation(), 
-		BoxExtentRaycastStart->GetComponentLocation()) >= MaxHitBoxLength;
-
-		if ( HitEndOfBoxExtent )
-		{
-			PulseHitBox->DestroyComponent();
-			PulseHitBox = nullptr;
-			UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Destroyed"));
-		}
-	}
+	MovePulseHitBox(DeltaTime);
 }
 
 void AElectroStaticPulseTrap::FireElectroPulse()
+{
+	CreatePulseHitBox();
+}
+
+void AElectroStaticPulseTrap::CreatePulseHitBox()
 {
 	//Spawns a Collision Box
 	PulseHitBox = NewObject<UBoxComponent>(this);
@@ -78,12 +58,61 @@ void AElectroStaticPulseTrap::FireElectroPulse()
 		
 		//Collision Delegate
 		PulseHitBox->OnComponentBeginOverlap.AddDynamic(this, &AElectroStaticPulseTrap::HandlePulseBoxOverlap);
-
 	}
-	
-	//Move the collision Box from Start to End of HitBoxComponent Length
-	
-	
+
+	if (PulseHitBox && PulseMesh)
+	{
+		//Create the Static Mesh Component of the Pulse
+		PulseMeshComponent = NewObject<UStaticMeshComponent>(this);
+		
+		PulseMeshComponent->RegisterComponent();
+		
+		PulseMeshComponent->AttachToComponent(PulseHitBox, FAttachmentTransformRules::KeepRelativeTransform);
+		
+		//PulseMeshComponent->SetWorldLocation(PulseHitBox->GetComponentLocation());
+
+		//Pulse Mesh is purely a visual representation of the Pulse Hit Box
+		PulseMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+		
+		//Setting the referenced Mesh as the mesh for this component.
+		PulseMeshComponent->SetStaticMesh(PulseMesh);
+	}
+}
+
+void AElectroStaticPulseTrap::MovePulseHitBox(float DeltaTime)
+{
+	if (PulseHitBox && PulseMeshComponent && PulseMeshComponent->GetStaticMesh())
+	{
+		//Original Location
+		FVector PulseStartLocation = PulseHitBox->GetComponentLocation();
+
+		//Pulse Direction
+		FVector ForwardVector = BoxExtentRaycastStart->GetRightVector();
+		
+		//Amount of Translation 
+		FVector NewLocation =	PulseStartLocation + (ForwardVector * 200 * DeltaTime);
+		
+		PulseHitBox->SetRelativeLocation(NewLocation);
+
+		//Once the Pulse has Reached the End of the Hit Box Extents, Destroy the Pulse Hit Box.
+		bool HitEndOfBoxExtent = FVector::Dist(PulseHitBox->GetComponentLocation(), 
+											   BoxExtentRaycastStart->GetComponentLocation()) >= MaxHitBoxLength;
+
+		if ( HitEndOfBoxExtent )
+		{
+			PulseHitBox->DestroyComponent();
+			PulseHitBox = nullptr;
+
+			//We don't set this to nullptr as we define the shape in the editor
+			PulseMeshComponent->DestroyComponent();
+
+			//Continuously Fire the Electro-Pulse ever @PARAM: FireElectroPulseCooldown Seconds
+			GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  
+			&AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
+			
+			UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Destroyed"));
+		}
+	}
 }
 
 void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
@@ -91,6 +120,8 @@ void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
+
+	UE_LOG(LogTemp, Warning, TEXT("HandlePulseBoxOverlap - %ls"), *OtherActor->GetName());
 
 	//Apply Initial Damage to Enemy.
 	if (Enemy)

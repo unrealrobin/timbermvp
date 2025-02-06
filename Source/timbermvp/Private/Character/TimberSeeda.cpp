@@ -107,6 +107,9 @@ void ATimberSeeda::AddInteractableToPlayer(
 		if (PC)
 		{
 			PC->SetInteractableItem(this);
+
+			//Tells the HUD to show the ToolTip
+			OnSeedaInteractOverlap.Broadcast(true);
 		}
 	}
 }
@@ -121,6 +124,9 @@ void ATimberSeeda::RemoveInteractableFromPlayer(
 		if (PC)
 		{
 			PC->ClearInteractableItem();
+
+			//Tells the HUD to hide the ToolTip
+			OnSeedaInteractOverlap.Broadcast(false);
 		}
 	}
 }

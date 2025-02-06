@@ -219,6 +219,7 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 			// Broadcast a Delegate with the Impact Position to the HUD.
 			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(
 				ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
+			
 		}
 		break;
 	}

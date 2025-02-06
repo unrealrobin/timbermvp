@@ -27,6 +27,9 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaDeathHandle, bool, bIsPlayerDead);
 	FOnSeedaDeathHandle OnSeedaDeath;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaInteractOverlap, bool, bShouldShowToolTip);
+	FOnSeedaInteractOverlap OnSeedaInteractOverlap;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float CurrentHealth = 0;
 

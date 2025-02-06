@@ -127,6 +127,7 @@ public:
 	FInputActionValue GetMoveInputActionValue() { return MoveInputActionValue; }
 
 	void SetInteractableItem(IInteractable* Item);
+	void ClearInteractableItem();
 
 	/*Controller Rotation*/
 	UPROPERTY(BlueprintReadOnly)

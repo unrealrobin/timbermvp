@@ -5,6 +5,7 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -19,6 +20,8 @@ ATimberSeeda::ATimberSeeda()
 	CollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("Collision Sphere");
 	RootComponent = CollisionSphere;
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	InteractOverlapSphere = CreateDefaultSubobject<UCapsuleComponent>("Interact Sphere");
+	InteractOverlapSphere->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -44,6 +47,9 @@ void ATimberSeeda::BeginPlay()
 	{
 		HandleCharacterBindingToSeeda();
 	}
+
+	InteractOverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberSeeda::AddInteractableToPlayer);
+	InteractOverlapSphere->OnComponentEndOverlap.AddDynamic(this, &ATimberSeeda::RemoveInteractableFromPlayer);
 }
 
 // Called every frame
@@ -70,6 +76,52 @@ void ATimberSeeda::HandleCharacterBindingToSeeda()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Seeda Broadcasts to GameMode"))
 		GM->OnSeedaSpawn.Broadcast(this);
+	}
+}
+
+void ATimberSeeda::RepairSeeda()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Seeda Repaired."));
+
+	//CheckPlayer Inventory for Repair Items
+	//Try Apply Repair Transaction
+	//If Successful - Heal Seeda X Amount
+	//If Unsuccessful - Do Nothing - Log Error
+}
+
+void ATimberSeeda::Interact()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Seeda Interacted with."));
+
+	RepairSeeda();
+}
+
+void ATimberSeeda::AddInteractableToPlayer(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+		if (PC)
+		{
+			PC->SetInteractableItem(this);
+		}
+	}
+}
+
+void ATimberSeeda::RemoveInteractableFromPlayer(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+		if (PC)
+		{
+			PC->ClearInteractableItem();
+		}
 	}
 }
 

@@ -170,6 +170,11 @@ void ATimberPlayerController::SetInteractableItem(IInteractable* Item)
 	InteractableItem = Item;
 }
 
+void ATimberPlayerController::ClearInteractableItem()
+{
+	InteractableItem = nullptr;
+}
+
 void ATimberPlayerController::Move(const FInputActionValue& Value)
 {
 	MoveInputActionValue = Value;
@@ -271,6 +276,8 @@ void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 
 void ATimberPlayerController::Interact(const FInputActionValue& Value)
 {
+	//TODO:: Need to implement some kind of check if overlapping multiple interactable items.
+	
 	if (Value.Get<bool>() && InteractableItem)
 	{
 		if (InteractableItem)

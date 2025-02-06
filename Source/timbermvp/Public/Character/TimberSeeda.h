@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "TimberCharacterBase.h"
+#include "Interfaces/Interactable.h"
 #include "TimberSeeda.generated.h"
 
 UCLASS()
-class TIMBERMVP_API ATimberSeeda : public AActor
+class TIMBERMVP_API ATimberSeeda : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 
@@ -38,9 +39,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision Sphere")
 	UCapsuleComponent* CollisionSphere;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision Sphere")
+	UCapsuleComponent* InteractOverlapSphere;
+
 	UFUNCTION()
 	void TakeDamage_Seeda(float DamageAmount);
 
 	UFUNCTION()
 	void HandleCharacterBindingToSeeda();
+
+	UFUNCTION()
+	void RepairSeeda();
+
+	/*Interface Functions*/
+
+	UFUNCTION()
+	void Interact() override;
+
+	UFUNCTION()
+	void AddInteractableToPlayer(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UFUNCTION()
+	void RemoveInteractableFromPlayer(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

@@ -25,12 +25,8 @@ protected:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxHealth = 100.0f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CurrentHealth = 100.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float InitialSpeed = 0.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxForwardSpeed = 800.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxBackwardSpeed = 500.f;
+	
 };

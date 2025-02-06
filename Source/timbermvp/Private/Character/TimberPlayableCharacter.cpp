@@ -85,6 +85,7 @@ void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
 
 		//When seeda dies, handle player death
 		SeedaRef->OnSeedaDeath.AddDynamic(this, &ATimberPlayableCharacter::HandlePlayerDeath);
+		
 		//When Seeda is being Destroyed
 		SeedaRef->OnDestroyed.AddDynamic(this, &ATimberPlayableCharacter::UnbindFromSeedaDeathDelegate);
 	}

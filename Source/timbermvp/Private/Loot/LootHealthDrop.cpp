@@ -20,6 +20,11 @@ void ALootHealthDrop::BeginPlay()
 	Super::BeginPlay();
 
 	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &ALootHealthDrop::HandlePlayerOverlap);
+
+	//Health Drops are available for 20 seconds
+	GetWorld()->GetTimerManager().SetTimer(HealthAvailableTimerHandle, this, &ALootHealthDrop::HandleDestroy, 
+	HealthAvailableTime, 
+	false );
 }
 
 // Called every frame
@@ -34,11 +39,6 @@ void ALootHealthDrop::HandlePlayerOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-
-	//Health Drops are available for 20 seconds
-	GetWorld()->GetTimerManager().SetTimer(HealthAvailableTimerHandle, this, &ALootHealthDrop::HandleDestroy, 
-	HealthAvailableTime, 
-	false );
 	
 	if (PlayerCharacter)
 	{

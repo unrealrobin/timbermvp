@@ -16,6 +16,8 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Loot/EnemyLootDropBase.h"
+#include "Loot/LootHealthDrop.h"
+#include "Loot/LootHealthDropMax.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -166,12 +168,16 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 	//When the enemy dies, it drops loot that the player can pick up.
 	//Can be overwritten by child Classes.
 
-	//Goes through each item in the array and spawns the loot.
-	//100% Chance now
+	//Array can contain parts, mechanisms, Uniques, health drops, etc
+	
 	//TODO:: Add a random chance to spawn loot for each Loot Item.
 	for(TSubclassOf<AEnemyLootDropBase> LootDrop : StandardLootArray)
 	{
-		if(LootDrop)
+		if(LootDrop->IsChildOf(ALootHealthDrop::StaticClass()))
+		{
+			HandleDropHealthLoot(LootDrop);
+		}
+		else
 		{
 			SpawnLoot(LootDrop);
 		}
@@ -188,6 +194,22 @@ void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropCl
 		GetActorLocation(),
 		GetActorRotation(), 
 		SpawnParams);
+}
+
+void ATimberEnemyCharacter::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass)
+{
+	float RandomNumber = FMath::RandRange(0, 100);
+
+	//If the class is a HealthDropMax, it will drop a health drop that will set the player's health to max.
+	if (RandomNumber <= MaxHealthDropChance && HealthDropClass->IsChildOf(ALootHealthDropMax::StaticClass()))
+	{
+		SpawnLoot(HealthDropClass);
+	}
+	//if the class is a HealthDrop, it will drop a health drop that will give the player health.
+	else if (RandomNumber <= HealthDropChance && HealthDropClass->IsChildOf(ALootHealthDrop::StaticClass()))
+	{
+		SpawnLoot(HealthDropClass);
+	}
 }
 
 void ATimberEnemyCharacter::HandleEnemyDeath()

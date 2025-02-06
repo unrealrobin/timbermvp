@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/Enemies/TimberEnemyCharacter.h"
+#include "BossBase.h"
+//#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "BossLola.generated.h"
 
 class ABossAIControllerBase;
@@ -19,7 +20,7 @@ enum class ELolaState : uint8
 
 
 UCLASS()
-class TIMBERMVP_API ABossLola : public ATimberEnemyCharacter
+class TIMBERMVP_API ABossLola : public ABossBase
 {
 	GENERATED_BODY()
 

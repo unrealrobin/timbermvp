@@ -15,6 +15,5 @@ ATimberCharacterBase::ATimberCharacterBase()
 void ATimberCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UCapsuleComponent* EnemyCapsuleComponent = GetCapsuleComponent();
+	
 }

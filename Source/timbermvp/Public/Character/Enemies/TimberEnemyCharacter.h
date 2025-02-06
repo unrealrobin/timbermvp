@@ -7,6 +7,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class ALootHealthDrop;
 class AEnemyLootDropBase;
 class ATimberBuildingComponentBase;
 class USoundCue;
@@ -108,10 +109,21 @@ protected:
 	/* Loot */
 
 	void SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass);
+
+	virtual void HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass);
+
+	//Basic Health Drop Chance - If in Loot Array
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
+	float HealthDropChance = 20.f;
+	
+	//Max Health Drop Chance - If in Loot Array
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
+	float MaxHealthDropChance = 5.f;
+	
 	// Items that can be dropped by any enemy.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
 	TArray<TSubclassOf<AEnemyLootDropBase>> StandardLootArray;
-
+	
 	//Specific Enemies may drop specific Loot Items.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
 	TArray<TSubclassOf<AEnemyLootDropBase>> UniqueLootArray;

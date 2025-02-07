@@ -5,6 +5,7 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -84,9 +85,41 @@ void ATimberSeeda::RepairSeeda()
 	UE_LOG(LogTemp, Warning, TEXT("Seeda Repaired."));
 
 	//CheckPlayer Inventory for Repair Items
-	//Try Apply Repair Transaction
-	//If Successful - Heal Seeda X Amount
-	//If Unsuccessful - Do Nothing - Log Error
+
+	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass
+	(GetWorld(), ATimberPlayableCharacter::StaticClass()));
+
+	if (CurrentHealth >= MaxHealth)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda is already at Full Health."));
+		return;
+	}
+
+	if (Player)
+	{
+		if (Player->InventoryManager)
+		{
+			int AvailableParts = Player->InventoryManager->GetPartsInInventory();
+			if (AvailableParts >= PartsToRepairSeeda)
+			{
+				Player->InventoryManager->RemovePartsFromInventory(2);
+				if (CurrentHealth + HealthAmountGainedOnRepair > MaxHealth)
+				{
+					CurrentHealth = MaxHealth;
+				}
+				else
+				{
+					{
+						CurrentHealth += HealthAmountGainedOnRepair;
+					}
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Not Enough Parts to Repair Seeda."));
+			}
+		}
+	}
 }
 
 void ATimberSeeda::Interact()

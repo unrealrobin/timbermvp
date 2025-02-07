@@ -54,6 +54,12 @@ public:
 	UFUNCTION()
 	void RepairSeeda();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Repair")
+	int PartsToRepairSeeda = 2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Repair")
+	float HealthAmountGainedOnRepair = 25;
+
 	/*Interface Functions*/
 
 	UFUNCTION()

@@ -127,6 +127,7 @@ public:
 	FInputActionValue GetMoveInputActionValue() { return MoveInputActionValue; }
 
 	void SetInteractableItem(IInteractable* Item);
+	void ClearInteractableItem();
 
 	/*Controller Rotation*/
 	UPROPERTY(BlueprintReadOnly)
@@ -137,12 +138,7 @@ public:
 	/*Cursor*/
 	void EnableCursor();
 	void DisableCursor();
-
-	//TO be deleted if not used.
-		/*/*Restart / After Death#1#
-	   void MovePlayerToStartLocation();*/
 	
-
 	//Input Mapping Contexts
 	//This needs to be public because it gets called on the BP version of this class.
 	UFUNCTION(BlueprintCallable)

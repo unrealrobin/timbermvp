@@ -80,6 +80,6 @@ void ATestObj::UnSetInteractItem(
 	if (TimberCharacter)
 	{
 		ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(TimberCharacter->GetController());
-		PlayerController->SetInteractableItem(nullptr);
+		PlayerController->ClearInteractableItem();
 	}
 }

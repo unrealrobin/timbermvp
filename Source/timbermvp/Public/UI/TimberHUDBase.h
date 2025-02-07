@@ -23,6 +23,7 @@ public:
 	void InitializeWidgets();
 	void CharacterAndControllerBindings();
 	void GameModeBindings();
+	void SeedaBinding();
 	virtual void BeginPlay() override;
 
 	/* Delegates */
@@ -58,6 +59,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* DeleteBuildingComponentWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> SeedaOverlapWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* SeedaOverlapWidget;
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
 
@@ -66,8 +73,10 @@ public:
 	void OpenBuildPanelMenu();
 	UFUNCTION(BlueprintCallable, Category="Build Menu")
 	void CloseBuildPanelMenu();
+	
 	UFUNCTION(BlueprintCallable, Category="Death UI")
 	void SwitchToDeathUI();
+	
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameUI();
 	UFUNCTION(Category="Action UI")
@@ -76,10 +85,13 @@ public:
 	void HideDeleteBuildingComponentWidget();
 	UFUNCTION()
 	void ShouldHideBuildMenu();
+	UFUNCTION()
+	void ShowSeedaOverlappingToolTip(bool bShouldShowToolTip);
 
-	//Vars to shift in the X & Y direction when the DeleteBuildingComponentWidget is spawned. Shifted from Center.
-	float DeleteBuildingComponentWidgetShiftX = 100.f;
-	float DeleteBuildingComponentWidgetShiftY = 100.f;
+	
+	FVector2d GetCenterOfScreen();
+
+	
 
 protected:
 	UPROPERTY()
@@ -88,5 +100,11 @@ protected:
 	/*Delegate Listeners*/
 	UFUNCTION()
 	void HandleBuildPanelMenu(bool IsBuildPanelMenuOpen);
+
+	//Vars to shift in the X & Y direction when the DeleteBuildingComponentWidget is spawned. Shifted from Center.
+	float DeleteBuildingComponentWidgetShiftX = 100.f;
+	float DeleteBuildingComponentWidgetShiftY = 100.f;
 	
 };
+
+

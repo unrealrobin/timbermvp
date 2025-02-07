@@ -5,11 +5,11 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Inventory/InventoryManagerComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
-
-// Sets default values
 ATimberSeeda::ATimberSeeda()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -19,9 +19,10 @@ ATimberSeeda::ATimberSeeda()
 	CollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("Collision Sphere");
 	RootComponent = CollisionSphere;
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	InteractOverlapSphere = CreateDefaultSubobject<UCapsuleComponent>("Interact Sphere");
+	InteractOverlapSphere->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
 void ATimberSeeda::BeginPlay()
 {
 	Super::BeginPlay();
@@ -44,9 +45,11 @@ void ATimberSeeda::BeginPlay()
 	{
 		HandleCharacterBindingToSeeda();
 	}
+
+	InteractOverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberSeeda::AddInteractableToPlayer);
+	InteractOverlapSphere->OnComponentEndOverlap.AddDynamic(this, &ATimberSeeda::RemoveInteractableFromPlayer);
 }
 
-// Called every frame
 void ATimberSeeda::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -70,6 +73,90 @@ void ATimberSeeda::HandleCharacterBindingToSeeda()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Seeda Broadcasts to GameMode"))
 		GM->OnSeedaSpawn.Broadcast(this);
+	}
+}
+
+void ATimberSeeda::RepairSeeda()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Seeda Repaired."));
+
+	//CheckPlayer Inventory for Repair Items
+
+	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass
+	(GetWorld(), ATimberPlayableCharacter::StaticClass()));
+
+	if (CurrentHealth >= MaxHealth)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda is already at Full Health."));
+		return;
+	}
+
+	if (Player)
+	{
+		if (Player->InventoryManager)
+		{
+			int AvailableParts = Player->InventoryManager->GetPartsInInventory();
+			if (AvailableParts >= PartsToRepairSeeda)
+			{
+				Player->InventoryManager->RemovePartsFromInventory(2);
+				if (CurrentHealth + HealthAmountGainedOnRepair > MaxHealth)
+				{
+					CurrentHealth = MaxHealth;
+				}
+				else
+				{
+					{
+						CurrentHealth += HealthAmountGainedOnRepair;
+					}
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Not Enough Parts to Repair Seeda."));
+			}
+		}
+	}
+}
+
+void ATimberSeeda::Interact()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Seeda Interacted with."));
+
+	RepairSeeda();
+}
+
+void ATimberSeeda::AddInteractableToPlayer(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+		if (PC)
+		{
+			PC->SetInteractableItem(this);
+
+			//Tells the HUD to show the ToolTip
+			OnSeedaInteractOverlap.Broadcast(true);
+		}
+	}
+}
+
+void ATimberSeeda::RemoveInteractableFromPlayer(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if (PlayerCharacter)
+	{
+		ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+		if (PC)
+		{
+			PC->ClearInteractableItem();
+
+			//Tells the HUD to hide the ToolTip
+			OnSeedaInteractOverlap.Broadcast(false);
+		}
 	}
 }
 

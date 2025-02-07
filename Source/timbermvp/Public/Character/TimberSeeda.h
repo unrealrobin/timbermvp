@@ -61,7 +61,15 @@ public:
 	float HealthAmountGainedOnRepair = 25;
 
 	/*Interface Functions*/
-
+	/*
+	 *Seedas are interactable objects that the player can repair.
+	 *Seeda will have other interactions in the future. But wont use the Interactable Interface.
+	 *Interface may be overkill for this, but we can pretty much give all actors 1 Interacts.
+	 *
+	 *
+	 * The Interact Input Action call a function on the player controller that calls the Referenced Interactable's Interact Function.
+	 * The interactable is stored on the Player Controller by overlap and removed by end overlap.
+	 */
 	UFUNCTION()
 	void Interact() override;
 

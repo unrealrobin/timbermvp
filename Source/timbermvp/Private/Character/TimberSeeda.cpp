@@ -10,8 +10,6 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
-
-// Sets default values
 ATimberSeeda::ATimberSeeda()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -25,7 +23,6 @@ ATimberSeeda::ATimberSeeda()
 	InteractOverlapSphere->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
 void ATimberSeeda::BeginPlay()
 {
 	Super::BeginPlay();
@@ -53,7 +50,6 @@ void ATimberSeeda::BeginPlay()
 	InteractOverlapSphere->OnComponentEndOverlap.AddDynamic(this, &ATimberSeeda::RemoveInteractableFromPlayer);
 }
 
-// Called every frame
 void ATimberSeeda::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

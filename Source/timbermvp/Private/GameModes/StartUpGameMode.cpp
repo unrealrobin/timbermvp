@@ -20,7 +20,15 @@ void AStartUpGameMode::BeginPlay()
 		}
 	}
 
-	PlayStartUpMusic();
+	//We must Initialize the the Music Manager in Every Game Mode so that it has the World Context to play Audio
+	UUMusicManagerSubsystem* MusicManager = GetWorld()->GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
+	if (MusicManager)
+	{
+		MusicManager->HandleInitialization();
+		PlayStartUpMusic(MusicManager);
+		UE_LOG(LogTemp, Warning, TEXT("Startup Level Initialized the Music Manager and Played Song."))
+	}
+	
 }
 
 void AStartUpGameMode::SwitchToGameLevel()
@@ -42,17 +50,14 @@ void AStartUpGameMode::SwitchToGameLevel()
 	}
 }
 
-void AStartUpGameMode::PlayStartUpMusic()
+void AStartUpGameMode::PlayStartUpMusic(UUMusicManagerSubsystem* MusicManager)
 {
 	//Getting the Music Manager Subsystem
-	UUMusicManagerSubsystem* MusicSubsystem = GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
 
-	if (MusicSubsystem)
+	if (MusicManager)
 	{
-		//Plays Track with Keyvalue Startup1 from the TMap in MusicLibraryDataAsset
-		MusicSubsystem->PlayMusic("Startup1");
+		//Plays Track with Key-value Startup1 from the TMap in MusicLibraryDataAsset
+		MusicManager->PlayMusic("Startup1");
 		UE_LOG(LogTemp, Warning, TEXT("Startup Music Played"));
 	}
-
-	
 }

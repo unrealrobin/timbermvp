@@ -29,8 +29,13 @@ public:
 	UFUNCTION()
 	void PlayMusic(FName TrackName, float FadeTime=2.0f);
 
-protected:
 	void HandleInitialization();
+
+protected:
+
+	UPROPERTY()
+	UWorld* WorldContext;
+	
 	void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 	UFUNCTION()

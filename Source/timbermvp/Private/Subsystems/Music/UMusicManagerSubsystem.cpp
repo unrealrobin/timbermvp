@@ -6,8 +6,25 @@
 #include "Components/AudioComponent.h"
 #include "Data/MusicLibraryDataAsset.h"
 
+
+
+void UUMusicManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UUMusicManagerSubsystem::HandleInitialization);
+
+	
+}
+
 void UUMusicManagerSubsystem::HandleInitialization()
 {
+	//Setting the WorldContext on the Subsystem, when new GameModes Call this function, resets the world context.
+	if (!WorldContext || WorldContext != GetWorld())
+	{
+		WorldContext = GetWorld();
+	}
+	
 	static const FString MusicLibaryAssetPath = TEXT("/Game/Music/DataAssets/DA_MusicLibrary");
 
 	MusicLibrary = LoadObject<UMusicLibraryDataAsset>(nullptr, *MusicLibaryAssetPath);
@@ -25,18 +42,9 @@ void UUMusicManagerSubsystem::HandleInitialization()
 
 	if (!MusicPlayer)
 	{
-
-		//Finding or creating an Actor to own the Music Player
-		AActor* AudioOwner = GetWorld()->GetFirstPlayerController()->GetPawn();
-		if (!AudioOwner)
-		{
-			AudioOwner = GetWorld()->SpawnActor<AActor>();
-		}
-
-		
-		//Create the Audio Component on Initialization
-		MusicPlayer = NewObject<UAudioComponent>(AudioOwner);
-		MusicPlayer->RegisterComponent();
+		MusicPlayer = NewObject<UAudioComponent>();
+		//Because this function is called from a Game Mode the Loaded level will work.
+		MusicPlayer->RegisterComponentWithWorld(WorldContext);
 		MusicPlayer->bAutoActivate = true;
 		MusicPlayer->bIsUISound = true;
 
@@ -45,15 +53,6 @@ void UUMusicManagerSubsystem::HandleInitialization()
 			UE_LOG(LogTemp, Warning, TEXT("Audio Object - Music Player - Created"));
 		}
 	}
-}
-
-void UUMusicManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-	Super::Initialize(Collection);
-
-	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UUMusicManagerSubsystem::HandleInitialization);
-
-	
 }
 
 void UUMusicManagerSubsystem::PlayMusic(FName TrackName, float FadeTime)
@@ -113,7 +112,6 @@ void UUMusicManagerSubsystem::PlayMusic(FName TrackName, float FadeTime)
 		UE_LOG(LogTemp, Warning, TEXT("Track %s not found in Music Library"), *TrackName.ToString());
 	}
 }
-
 
 void UUMusicManagerSubsystem::CrossfadeMusic(UMetaSoundSource* NewTrack, float FadeTime)
 {

@@ -15,8 +15,6 @@ class TIMBERMVP_API AStartUpGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-	
-
 protected:
 	
 	virtual void BeginPlay() override;
@@ -31,5 +29,5 @@ protected:
 	void SwitchToGameLevel();
 
 	UFUNCTION()
-	void PlayStartUpMusic();
+	void PlayStartUpMusic(UUMusicManagerSubsystem* MusicManager);
 };

@@ -17,9 +17,6 @@ class TIMBERMVP_API UUMusicManagerSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-
-	void Initialize(FSubsystemCollectionBase& Collection) override;
-
 	UPROPERTY()
 	UMusicLibraryDataAsset* MusicLibrary;
 
@@ -31,6 +28,10 @@ public:
 
 	UFUNCTION()
 	void PlayMusic(FName TrackName, float FadeTime=2.0f);
+
+protected:
+	void HandleInitialization();
+	void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 	UFUNCTION()
 	void CrossfadeMusic(UMetaSoundSource* NewTrack, float FadeTime=2.0f);

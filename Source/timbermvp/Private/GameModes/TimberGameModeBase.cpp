@@ -7,6 +7,7 @@
 #include "AI/TimberAiControllerBase.h"
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Components/AudioComponent.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
@@ -15,12 +16,15 @@
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
+#include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PlayBuildMusic();
 
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
@@ -92,6 +96,21 @@ void ATimberGameModeBase::PlayerIsInitialized()
 UWaveGameInstanceSubsystem* ATimberGameModeBase::GetWaveGameInstanceSubsystem()
 {
 	return GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+}
+
+void ATimberGameModeBase::PlayBuildMusic()
+{
+	UUMusicManagerSubsystem* MusicManager = GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
+
+	if (MusicManager)
+	{
+		/*FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, [MusicManager]()
+		{
+			
+		}, 5.0f, false);*/
+		MusicManager->PlayMusic("Build1", 2.0f);
+	}
 }
 
 void ATimberGameModeBase::GatherAllLabDoors()

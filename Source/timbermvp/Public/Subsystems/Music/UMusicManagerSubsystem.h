@@ -21,22 +21,36 @@ public:
 	UMusicLibraryDataAsset* MusicLibrary;
 
 	UPROPERTY()
-	UAudioComponent* MusicPlayer;
+	UAudioComponent* MusicPlayerAlpha;
 
+	UPROPERTY()
+	UAudioComponent* MusicPlayerBeta;
+	
 	UPROPERTY()
 	UMetaSoundSource* CurrentTrack;
 
 	UFUNCTION()
 	void PlayMusic(FName TrackName, float FadeTime=2.0f);
 
+	UFUNCTION()
+	void PlayStartUpMusic(FName TrackName);
+
+	UFUNCTION()
 	void HandleInitialization();
 
+	UFUNCTION()
+	UAudioComponent* GetUnusedAudioComponent();
 protected:
 
 	UPROPERTY()
 	UWorld* WorldContext;
+
+	UPROPERTY()
+	UMetaSoundSource* BlankTrack;
 	
 	void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	void Deinitialize() override;
 	
 	UFUNCTION()
 	void CrossfadeMusic(UMetaSoundSource* NewTrack, float FadeTime=2.0f);

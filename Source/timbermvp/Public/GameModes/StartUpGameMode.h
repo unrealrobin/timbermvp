@@ -27,7 +27,5 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameLevel();
-
-	UFUNCTION()
-	void PlayStartUpMusic(UUMusicManagerSubsystem* MusicManager);
+	
 };

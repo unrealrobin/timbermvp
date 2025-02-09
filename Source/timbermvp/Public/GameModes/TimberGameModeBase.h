@@ -86,6 +86,9 @@ protected:
 
 	UWaveGameInstanceSubsystem* GetWaveGameInstanceSubsystem();
 
+	UFUNCTION()
+	void PlayBuildMusic();
+
 	/*Handle Doors */
 	UFUNCTION()
 	void OpenLabDoors();

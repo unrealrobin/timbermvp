@@ -53,8 +53,7 @@ void UUMusicManagerSubsystem::HandleInitialization()
 			true,
 			false
 			);
-		//Because this function is called from a Game Mode the Loaded level will work.
-		MusicPlayerAlpha->RegisterComponentWithWorld(WorldContext);
+		
 		MusicPlayerAlpha->bAutoActivate = true;
 		MusicPlayerAlpha->bIsUISound = true;
 

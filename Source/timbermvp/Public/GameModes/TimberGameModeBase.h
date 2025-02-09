@@ -88,6 +88,8 @@ protected:
 
 	UFUNCTION()
 	void PlayBuildMusic();
+	UFUNCTION()
+	void PlayAttackMusic();
 
 	/*Handle Doors */
 	UFUNCTION()

@@ -115,6 +115,23 @@ void ATimberGameModeBase::PlayBuildMusic()
 	}
 }
 
+void ATimberGameModeBase::PlayAttackMusic()
+{
+	UUMusicManagerSubsystem* MusicManager = GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
+
+	if (MusicManager)
+	{
+		//Delays the playing of the music by InRate - Might be useful for a fade in effect later.
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([MusicManager]()
+		{
+			MusicManager->PlayMusic("Attack1", 1.0f);	
+		}), 3.0f, false);
+		
+		//MusicManager->PlayMusic("Build1", 2.0f);
+	}
+}
+
 void ATimberGameModeBase::GatherAllLabDoors()
 {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
@@ -340,6 +357,8 @@ void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
 
 void ATimberGameModeBase::OpenAllLabDoors()
 {
+	PlayAttackMusic();
+	
 	for(AActor* LabDoors : ArrayOfLabDoors)
 	{
 		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
@@ -368,6 +387,7 @@ void ATimberGameModeBase::OpenLabDoors()
 
 void ATimberGameModeBase::CloseAllLabDoors()
 {
+	PlayBuildMusic();
 	for(AActor* LabDoors : ArrayOfLabDoors)
 	{
 		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);

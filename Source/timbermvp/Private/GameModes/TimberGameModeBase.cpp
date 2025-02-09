@@ -104,12 +104,14 @@ void ATimberGameModeBase::PlayBuildMusic()
 
 	if (MusicManager)
 	{
-		/*FTimerHandle DelayHandle;
-		GetWorld()->GetTimerManager().SetTimer(DelayHandle, [MusicManager]()
+		//Delays the playing of the music by InRate - Might be useful for a fade in effect later.
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([MusicManager]()
 		{
-			
-		}, 5.0f, false);*/
-		MusicManager->PlayMusic("Build1", 2.0f);
+			MusicManager->PlayMusic("Build1", 2.0f);	
+		}), 3.0f, false);
+		
+		//MusicManager->PlayMusic("Build1", 2.0f);
 	}
 }
 

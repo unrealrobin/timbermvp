@@ -76,13 +76,14 @@ UAudioComponent* UUMusicManagerSubsystem::GetUnusedAudioComponent()
 
 void UUMusicManagerSubsystem::PlayMusic(FName TrackName, float FadeTime)
 {
-	//Checking Initialization of the Music Player component and that a Music Library Exists.
+	//Are the Music Player and Music Library Initialized? (HandleInitialization())
 	if (!MusicLibrary || !MusicPlayerAlpha)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Music Player or Music Library not found."));
 		return;
 	}
-	//Checking that the requested track exists in the Music Library
+	
+	//Does track exist in the Music Library?
 	if (!MusicLibrary->MusicTrackList.Contains(TrackName))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Track %s not found in Music Library"), *TrackName.ToString());
@@ -91,63 +92,23 @@ void UUMusicManagerSubsystem::PlayMusic(FName TrackName, float FadeTime)
 
 	//Get the Tracks Data Asset from the Music Library - @param TrackName
 	UMusicTrackDataAsset* TrackData = *MusicLibrary->MusicTrackList.Find(TrackName);
-	
-	if (TrackData)
+	UMetaSoundSource* NewTrack = TrackData->TrackMetaSound;
+	if (TrackData && NewTrack)
 	{
+		//If the Music Player Audio Component is playing another song -> Crossfade the songs.
+		if (MusicPlayerAlpha->IsPlaying())
+		{
+			CrossfadeMusic(NewTrack, 2.0f);
+			return;
+		}
 		//Stops any currently Playing Track
 		MusicPlayerAlpha->Stop();
 		//Setting Current track to the new track <MetaSoundSource>
-		CurrentTrack = TrackData->TrackMetaSound;
+		CurrentTrack = NewTrack;
 		//Setting the Sound to the Music Player
 		MusicPlayerAlpha->SetSound(CurrentTrack);
 		//Fade In Amount for the Song / @param FadeTime / Works as Play()
 		MusicPlayerAlpha->FadeIn(FadeTime);
-
-		if (MusicPlayerAlpha->IsPlaying())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Now playing: %s"), *TrackName.ToString());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Not playing: %s"), *TrackName.ToString());
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Track %s not found in Music Library"), *TrackName.ToString());
-	}
-}
-
-void UUMusicManagerSubsystem::PlayStartUpMusic(FName TrackName)
-{
-	//Checking Initialization of the Music Player component and that a Music Library Exists.
-	if (!MusicLibrary || !MusicPlayerAlpha)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Music Player or Music Library not found."));
-		return;
-	}
-	//Checking that the rquested track exists in the Music Library
-	if (!MusicLibrary->MusicTrackList.Contains(TrackName))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Track %s not found in Music Library"), *TrackName.ToString());
-		return;
-	}
-
-	//Finding a Key Value Pair in the Music Library {TrackName, UMusicTrackDataAsset}
-	UMusicTrackDataAsset* TrackData = *MusicLibrary->MusicTrackList.Find(TrackName);
-	
-	if (TrackData)
-	{
-		//Setting Current track to the new track <MetaSoundSource>
-		CurrentTrack = TrackData->TrackMetaSound;
-		//Setting the Sound to the Music Player
-		MusicPlayerAlpha->SetSound(TrackData->TrackMetaSound);
-		//Fade In Amount for the Song
-		MusicPlayerAlpha->FadeIn(2.0f);
-		//1.0f is Normal Volume
-		MusicPlayerAlpha->SetVolumeMultiplier(1.0f);
-		MusicPlayerAlpha->Play();
-		
 	}
 	else
 	{
@@ -172,27 +133,26 @@ void UUMusicManagerSubsystem::CrossfadeMusic(UMetaSoundSource* NewTrack, float F
 	{
 		if (MusicPlayerAlpha)
 		{
-			// Forcing stop of the current track and resetting the state
-			MusicPlayerAlpha->Stop();
-			MusicPlayerAlpha->SetSound(nullptr);
+			// Forcing stop of the current track and resetting the state - Just incase some FadeOut() timing is off.
+			MusicPlayerAlpha->OnAudioFinished.Clear();
+			//MusicPlayerAlpha->Deactivate();
+			UE_LOG(LogTemp, Warning, TEXT("Forcing Stop of MusicPlayerAlpha"));
+			//Prepping the new track in the Music Player
+			CurrentTrack = NewTrack;
+			MusicPlayerAlpha->SetSound(NewTrack);
+			UE_LOG(LogTemp, Warning, TEXT("New Tracked Prepped for Fade in: %s"), *NewTrack->GetName());
 
-			// Adding a small delay to ensure the MusicPlayer is reset
+			// Adding a small delay to ensure the MusicPlayer is set up and Ready
 			FTimerHandle InnerTimerHandle;
 			GetWorld()->GetTimerManager().SetTimer(InnerTimerHandle, FTimerDelegate::CreateLambda([this, NewTrack, FadeTime]()
 			{
-				CurrentTrack = NewTrack;
-				MusicPlayerAlpha->SetSound(NewTrack);
-
-				// Ensure the MusicPlayer is ready before starting FadeIn and Play
-				if (!MusicPlayerAlpha->IsPlaying())
-				{
-					MusicPlayerAlpha->FadeIn(FadeTime);
-					//MusicPlayer->Play();
-					UE_LOG(LogTemp, Warning, TEXT("Crossfading to new track"));
-				}
-			}), 0.1f, false);
+				//Fade in the New Track
+				MusicPlayerAlpha->FadeIn(FadeTime);
+				//MusicPlayerAlpha->Play();
+				UE_LOG(LogTemp, Warning, TEXT("New Track Faded In: %s"), *CurrentTrack->GetName());
+			}), 1.f, false);
 		}
-	}), FadeTime, false);
+	}), 3, false);
 }
 
 

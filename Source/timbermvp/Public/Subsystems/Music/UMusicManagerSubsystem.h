@@ -33,9 +33,6 @@ public:
 	void PlayMusic(FName TrackName, float FadeTime=2.0f);
 
 	UFUNCTION()
-	void PlayStartUpMusic(FName TrackName);
-
-	UFUNCTION()
 	void HandleInitialization();
 
 	UFUNCTION()

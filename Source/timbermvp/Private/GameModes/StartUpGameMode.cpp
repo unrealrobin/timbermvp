@@ -3,7 +3,9 @@
 
 #include "GameModes/StartUpGameMode.h"
 
+#include "Data/MusicLibraryDataAsset.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/Music/UMusicManagerSubsystem.h"
 
 void AStartUpGameMode::BeginPlay()
 {
@@ -17,6 +19,20 @@ void AStartUpGameMode::BeginPlay()
 			StartUpMenu->AddToViewport();
 		}
 	}
+
+	//We must Initialize the Music Manager in Every Game Mode so that it has the World Context to play Audio
+	UUMusicManagerSubsystem* MusicManager = GetWorld()->GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
+	if (MusicManager)
+	{
+		//AudioComponent Creation
+		MusicManager->HandleInitialization();
+
+		//Play the Startup1 Song
+		MusicManager->PlayMusic("Startup1", 2.0f);
+		
+		UE_LOG(LogTemp, Warning, TEXT("Startup Level Initialized the Music Manager and Played Song."))
+	}
+	
 }
 
 void AStartUpGameMode::SwitchToGameLevel()
@@ -29,3 +45,4 @@ void AStartUpGameMode::SwitchToGameLevel()
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}
 }
+

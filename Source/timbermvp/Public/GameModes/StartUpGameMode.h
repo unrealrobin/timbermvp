@@ -15,8 +15,6 @@ class TIMBERMVP_API AStartUpGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-	
-
 protected:
 	
 	virtual void BeginPlay() override;
@@ -29,4 +27,5 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameLevel();
+	
 };

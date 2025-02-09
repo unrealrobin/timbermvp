@@ -7,6 +7,7 @@
 #include "AI/TimberAiControllerBase.h"
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Components/AudioComponent.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
@@ -15,12 +16,15 @@
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
+#include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PlayBuildMusic();
 
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
@@ -92,6 +96,40 @@ void ATimberGameModeBase::PlayerIsInitialized()
 UWaveGameInstanceSubsystem* ATimberGameModeBase::GetWaveGameInstanceSubsystem()
 {
 	return GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+}
+
+void ATimberGameModeBase::PlayBuildMusic()
+{
+	UUMusicManagerSubsystem* MusicManager = GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
+
+	if (MusicManager)
+	{
+		//Delays the playing of the music by InRate - Might be useful for a fade in effect later.
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([MusicManager]()
+		{
+			MusicManager->PlayMusic("Build1", 2.0f);	
+		}), 3.0f, false);
+		
+		//MusicManager->PlayMusic("Build1", 2.0f);
+	}
+}
+
+void ATimberGameModeBase::PlayAttackMusic()
+{
+	UUMusicManagerSubsystem* MusicManager = GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
+
+	if (MusicManager)
+	{
+		//Delays the playing of the music by InRate - Might be useful for a fade in effect later.
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([MusicManager]()
+		{
+			MusicManager->PlayMusic("Attack1", 1.0f);	
+		}), 3.0f, false);
+		
+		//MusicManager->PlayMusic("Build1", 2.0f);
+	}
 }
 
 void ATimberGameModeBase::GatherAllLabDoors()
@@ -319,6 +357,8 @@ void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
 
 void ATimberGameModeBase::OpenAllLabDoors()
 {
+	PlayAttackMusic();
+	
 	for(AActor* LabDoors : ArrayOfLabDoors)
 	{
 		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
@@ -347,6 +387,7 @@ void ATimberGameModeBase::OpenLabDoors()
 
 void ATimberGameModeBase::CloseAllLabDoors()
 {
+	PlayBuildMusic();
 	for(AActor* LabDoors : ArrayOfLabDoors)
 	{
 		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);

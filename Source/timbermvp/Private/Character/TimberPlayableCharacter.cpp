@@ -3,6 +3,7 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "BuildSystem/Ramps/RampBase.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
@@ -118,6 +119,7 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	}
 
 	//TODO:: This can be made more efficient by only calling this for like 2 seconds after last movement or rotation.
+	//Used for aligning Projectile Direction with center of screen
 	if (CurrentWeaponState == EWeaponState::RangedEquipped)
 	{
 		RaycastController->PerformReticuleAlignment_Raycast();
@@ -165,6 +167,12 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 	{
 		/* Hit Something/Anything */
 		DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
+
+		//TODO:: We can generalize this to any Buildable that Snaps to Edges of Floor Only.
+		if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
+		{
+			BuildSystemManager->HandleTeleportConstructPlacement(HitResults);
+		}
 
 		if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 		{

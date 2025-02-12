@@ -184,7 +184,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Building")
 	EBuildingComponentOrientation CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked);
 
-	/*Teleport Util*/
+	/*Teleport Utils*/
 	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
 };
 

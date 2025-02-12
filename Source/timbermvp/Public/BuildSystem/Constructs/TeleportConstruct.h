@@ -6,6 +6,8 @@
 #include "ConstructBase.h"
 #include "TeleportConstruct.generated.h"
 
+class ATimberPlayableCharacter;
+
 UENUM(BlueprintType) // Allows usage in Blueprints
 enum class ETeleportConstructState : uint8
 {
@@ -24,6 +26,7 @@ class TIMBERMVP_API ATeleportConstruct : public AConstructBase
 	GENERATED_BODY()
 
 public:
+	void SetupComponents();
 	// Sets default values for this actor's properties
 	ATeleportConstruct();
 
@@ -38,6 +41,9 @@ protected:
 	USceneComponent* ComponentRoot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* TeleportEffectMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* PillarLeft;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
@@ -49,9 +55,31 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* TeleportOverlapBox;
 
-
 	UFUNCTION()
 	void HandleTeleportOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	
+	UFUNCTION()
+	void SaveDefaultMaterials();
+
+	UPROPERTY()
+	UMaterialInterface* DefaultBaseMaterial = nullptr;
+	UPROPERTY()
+	UMaterialInterface* DefaultOrbMaterial = nullptr;
+
+	/*Teleport Details*/
+	FVector StartLocation;
+	FVector TargetLocation;
+	float TeleportDuration;
+	float TeleportTimeElapsed;
+	FTimerHandle TeleportTimerHandle;
+	UPROPERTY()
+	ATimberPlayableCharacter* PlayerToTeleport = nullptr;
+	UFUNCTION()
+	void StartTeleport(FVector TargetDestination, float DurationToTeleport);
+	UFUNCTION()
+	void UpdateTeleport();
+
+
 
 public:
 	// Called every frame
@@ -59,4 +87,14 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	ATeleportConstruct* TeleportPair = nullptr;
+	
+	UFUNCTION()
+	void ApplyDefaultMaterials();
+
+	UFUNCTION()
+	void CheckForPairOutsideBuildMode();
+
+private:
+	UPROPERTY()
+	ATimberPlayableCharacter* PlayerCharacter = nullptr;
 };

@@ -8,6 +8,7 @@
 #include "BuildSystemManagerComponent.generated.h"
 
 
+class ATeleportConstruct;
 enum class EBuildingComponentOrientation : uint8;
 enum class EBuildingComponentTrapDirection : uint8;
 class ARampBase;
@@ -40,15 +41,15 @@ public:
 	// Sets default values for this component's properties
 	UBuildSystemManagerComponent();
 
+	// Called when a Buildable is Spawned, Makes the Game Mode Redraw Possible Paths from Doors to Seeda
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRedrawPathTraceHandle);
 	FRedrawPathTraceHandle RedrawPathTraceHandle;
-	
 
 protected:
 	virtual void BeginPlay() override;
 
 	/* Buildable Utils */
-	//Should match the Width of the most common Building Component.
+	//Should match the Width of the most common Building Component. Used for Snapping.
 	int GridSize = 100.f;
 
 	//Class to be spawned with the SpawnActor function - Triggered by Selection in Building Component Icon Event Graph
@@ -66,6 +67,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Ramp Component")
 	ARampBase* ActiveRampComponentProxy = nullptr;
+	
+	UPROPERTY(EditAnywhere, Category="Ramp Component")
+	ATeleportConstruct* ActiveTeleportConstructProxy = nullptr;
 
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
@@ -99,6 +103,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
 	UMaterial* BlueHoloMaterial = nullptr;
 
+	/*Collision Util*/
 	void DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent);
 
 public:
@@ -110,8 +115,13 @@ public:
 	void SpawnFinalRampComponent(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalTrap(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
+	void SpawnTemporayTeleportConstruct(FActorSpawnParameters SpawnParameters);
+	UFUNCTION()
+	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
 
 	/*Placement*/
+	UFUNCTION()
+	void HandleTeleportConstructPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
 	void HandleRampPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
@@ -119,30 +129,27 @@ public:
 	UFUNCTION()
 	void HandleBuildingComponentPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
-	void HandleTrapMaterialChange(bool bCanTrapBeFinalized);
-	FVector BuildingComponentImpactPoint;
-
-	/*Registering Buildable*/
-	void RegisterTrapComponent(ATrapBase* TrapComponent);
-
-	UFUNCTION()
-	FORCEINLINE void ClearStoredStaticMeshes() { StaticMeshs.Empty(); };
-
-	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
-	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
-	void RemoveBuildingComponentProxies_All();
-	
-	UFUNCTION()
-	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
 	void MoveBuildingComponent(
 		FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation
 			= FRotator::ZeroRotator);
 	void RotateBuildingComponent();
-
+	
+	/*Used for Trap Placement*/
+	UFUNCTION()
+	void HandleTrapMaterialChange(bool bCanTrapBeFinalized);
+	FVector BuildingComponentImpactPoint;
+	void RegisterTrapComponent(ATrapBase* TrapComponent);
+	UFUNCTION()
+	FORCEINLINE void ClearStoredStaticMeshes() { StaticMeshs.Empty(); };
+	
+	/*Clean up*/
+	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
+	void RemoveBuildingComponentProxies_All();
+	
+	/*Building Component Placement Variables*/
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
-
 	FORCEINLINE void EmptyActiveBuildingComponent() { ActiveBuildingComponentProxy = nullptr; };
 
 	/*Getters & Setters*/
@@ -158,7 +165,6 @@ public:
 	FORCEINLINE ATrapBase* GetActiveTrapComponent() const { return ActiveTrapComponentProxy; };
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass);
-	
 	FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
@@ -166,15 +172,19 @@ public:
 	FORCEINLINE ABuildableBase* GetBuildableRef() { return BuildableRef; };
 	FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) { BuildableRef = BuildingComponent; };
 
+	//Used to remember the previous Rotation of the Building Component after Leaving Build Mode.
 	void SetSavedRotation(FRotator Rotation) { SavedRotation = Rotation; };
 
 	/*Buildable Placement Functions*/
 	FTrapSnapData GetTrapSnapTransform(
 		FVector ImpactPoint, ATimberBuildingComponentBase*
 		BuildingComponent, ATrapBase* TrapComponent);
-
-
+	
 	/*Component Snapping */
 	UFUNCTION(BlueprintCallable, Category="Building")
 	EBuildingComponentOrientation CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked);
+
+	/*Teleport Utils*/
+	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
 };
+

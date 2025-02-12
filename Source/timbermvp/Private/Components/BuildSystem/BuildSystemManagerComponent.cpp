@@ -7,10 +7,12 @@
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "BuildSystem/BuildableBase.h"
+#include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "BuildSystem/Ramps/RampBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
@@ -466,7 +468,7 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 void UBuildSystemManagerComponent::SpawnFinalBuildable()
 {
 	
-	if(ActiveBuildableComponentClass&& BuildableRef)
+	if(ActiveBuildableComponentClass && BuildableRef)
 	{
 		// If player can afford the transaction, apply the transaction and spawn the final building component.
 		if(Cast<ATimberPlayableCharacter>(GetOwner()))
@@ -476,7 +478,6 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				FActorSpawnParameters SpawnParameters;
 				if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
 				{
-			
 					SpawnFinalTrap(SpawnParameters);
 				}
 				else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
@@ -487,14 +488,15 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				{
 					SpawnFinalRampComponent(SpawnParameters);
 				}
+				else if (ActiveBuildableComponentClass->IsChildOf(ATeleportConstruct::StaticClass()))
+				{
+					SpawnTemporayTeleportConstruct(SpawnParameters);
+				}
 				else
 				{
 					UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
 				}
 			}
-		
-			
-			
 		}
 	}
 	else
@@ -579,6 +581,72 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 			SpawnedActor->SetActorEnableCollision(true);
 			RedrawPathTraceHandle.Broadcast();
 		}
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnParameters SpawnParameters)
+{
+	// Called on Input from Controller
+	//Spawning Temporary Teleport Construct - This is 1/2 of the Teleport Pair
+	//Temp Values
+	ATeleportConstruct* TeleportConstructAlpha = TeleportTempPair.Key;
+	ATeleportConstruct* TeleportConstructBeta = TeleportTempPair.Value;
+	
+	if (ActiveTeleportConstructProxy)
+	{
+		//Spawn the Teleport half.
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(
+			ActiveBuildableComponentClass,
+			ActiveTeleportConstructProxy->GetActorLocation(),
+			ActiveTeleportConstructProxy->GetActorRotation(),
+			SpawnParameters);
+
+		ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
+
+		//Makes newly Spawned Material the Yellow Holo Material - Because it is temporary. We will move this to a delegate system.
+		MakeMaterialHoloColor(TeleportConstruct, YellowHoloMaterial);
+		
+		if (TeleportConstruct)
+		{
+			//Handle Pairing
+			if (TeleportTempPair.Key == nullptr)
+			{
+				//Setting the First Half of the Teleport Construct - Stored on BSM
+				TeleportTempPair.Key = TeleportConstruct;
+				//This is the first half of the Teleport Construct - storing in Memory and preparing for the second half.
+				TeleportConstruct->TeleportConstructState = ETeleportConstructState::Temporary;
+			}
+			else if (TeleportTempPair.Value == nullptr && TeleportTempPair.Key)
+			{
+				//Second Half of the Teleport Construct - Setting the Pairing - Stored on BSM
+				TeleportTempPair.Value = TeleportConstruct;
+				
+				//Resetting Local Value to new value
+				// Local Value       -     Stored on BSM
+				TeleportConstructAlpha = TeleportTempPair.Key;
+				TeleportConstructBeta = TeleportTempPair.Value;
+				
+				//Each Teleport Item now has a reference to the other in its pair.
+				//The Teleport Pair is stored on the Teleport Actor Class - this is how the teleporters will reference each other.
+				TeleportConstructAlpha->TeleportPair = TeleportConstructBeta;
+				TeleportConstructBeta->TeleportPair = TeleportConstructAlpha;
+
+				//Setting Finalized State
+				TeleportConstructAlpha->TeleportConstructState = ETeleportConstructState::Final;
+				TeleportConstructBeta->TeleportConstructState = ETeleportConstructState::Final;
+
+				//TODO::Give the Teleport Construct the Final Material Color. 
+				TeleportConstructAlpha->ApplyDefaultMaterials();
+				TeleportConstructBeta->ApplyDefaultMaterials();
+				
+				//Clear the Temp Pair on the BSM -  We don't need the local values if the Teleport Construct has ref to each other.
+				TeleportTempPair.Key = nullptr;
+				TeleportTempPair.Value = nullptr;
+
+				//TODO:: Called when final spawns are done. We can Reset any Active Components here.
+			}
+		}
+		
 	}
 }
 
@@ -883,6 +951,123 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(TArray<FHitR
 	return false;*/
 }
 
+void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitResult> HitResults)
+{
+	//Check Hit Results for any Building Components that are the floor. (TimberHorizontalBuildingComponent
+	ATimberHorizontalBuildingComponent* HitFloorComponent = nullptr;
+
+	//Search Hit Results for First Floor Component
+	for (FHitResult Hit : HitResults)
+	{
+		ATimberHorizontalBuildingComponent* TimberHorizontalBuildingComponent = Cast<ATimberHorizontalBuildingComponent>(Hit.GetActor());
+		if (Hit.GetActor() == TimberHorizontalBuildingComponent)
+		{
+			//This is the first floor component
+			HitFloorComponent = TimberHorizontalBuildingComponent;
+			//UE_LOG(LogTemp, Warning, TEXT("Hit Floor Component: %s"), *HitFloorComponent->GetName());
+			break;
+		}
+	}
+	
+	//Get Each Snap points location
+	//This will hold the exact snaps were looking for
+	TArray<USceneComponent*> FilteredSnapPoints;
+	//This holds all USceneComponents
+	TArray<USceneComponent*> AllSceneComponents;
+	if (HitFloorComponent)
+	{
+		HitFloorComponent->GetComponents<USceneComponent>(AllSceneComponents);
+	}else
+	{
+		//If we didnt hit a floor component, we dont want to continue.
+		return;
+	}
+
+	//Filter Snap Points
+	for (USceneComponent* SnapPoint : AllSceneComponents )
+	{
+		FString ComponentName = SnapPoint->GetName();
+		//These are the only Snap Points I want to Snap To.
+		if (ComponentName == TEXT("LeftSnap") || ComponentName == TEXT("RightSnap") || ComponentName == TEXT("TopSnap") || ComponentName == TEXT("BottomSnap"))
+		{
+			FilteredSnapPoints.Add(SnapPoint);
+			//UE_LOG(LogTemp, Warning, TEXT("Snap Point: %s added to FilteredSnapPoints"), *SnapPoint->GetName());
+		}
+	}
+	
+	//Check distance between Raycast Hit and Snap Point
+	//Get the Closest Snap Point
+	float DistanceToClosestSnapPoint = 0;
+	USceneComponent* ClosestSnapPoint = nullptr;
+	for (USceneComponent* SnapPoint : FilteredSnapPoints)
+	{
+		float CheckDistance = FVector::Dist(HitResults[0].ImpactPoint, SnapPoint->GetComponentLocation());
+		if (CheckDistance < DistanceToClosestSnapPoint || DistanceToClosestSnapPoint == 0)
+		{
+			DistanceToClosestSnapPoint = CheckDistance;
+			ClosestSnapPoint = SnapPoint;
+		}
+	}
+	
+	//Spawn Temporary Teleport if none spawned.
+	if (!ActiveTeleportConstructProxy && ClosestSnapPoint)
+	{
+		//Spawn Teleport Proxy @ Closest Snap Point
+		FActorSpawnParameters SpawnParameters;
+		
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			ClosestSnapPoint->GetComponentLocation(),
+			ClosestSnapPoint->GetComponentRotation(),
+			SpawnParameters);
+		
+		if (SpawnedActor)
+		{
+			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
+				//Set BuildableRef
+			BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+			
+			if (TeleportConstruct)
+			{
+				//Set Proxy
+				ActiveTeleportConstructProxy = TeleportConstruct;
+
+				//Orient the Building Component to Face the Floor Center
+				FVector ProxyForward = ActiveTeleportConstructProxy->GetActorLocation();
+				FVector FloorCenter = HitFloorComponent->CenterSnap->GetComponentLocation();
+				FRotator RotateToFace = UKismetMathLibrary::FindLookAtRotation(ProxyForward, FloorCenter) + FRotator(0, -90, 0);
+				ActiveTeleportConstructProxy->SetActorRotation(RotateToFace);
+				UE_LOG(LogTemp, Warning, TEXT("Teleport Construct Rotated to Face the Floor."));
+
+				//Handle Collision
+				DisableBuildableProxyCollisions(ActiveTeleportConstructProxy);
+				//Set State
+				ActiveTeleportConstructProxy->TeleportConstructState = ETeleportConstructState::Proxy;
+				//Set Material for Proxy State
+				MakeMaterialHoloColor(ActiveTeleportConstructProxy, BlueHoloMaterial); 
+			}
+		}
+	}
+	else if (ActiveTeleportConstructProxy && ClosestSnapPoint)
+	{
+		//TODO:: Why do we need to set this again if it was set originally on the initial spawn?
+		BuildableRef = Cast<ABuildableBase>(ActiveTeleportConstructProxy);
+		
+		//Move the Proxy to the Closest Snap Point
+		ActiveTeleportConstructProxy->SetActorLocation(ClosestSnapPoint->GetComponentLocation());
+		
+		//This may be off because Y is forward on the Teleport Construct
+		FVector ProxyForward = ActiveTeleportConstructProxy->GetActorLocation();
+		FVector FloorCenter = HitFloorComponent->CenterSnap->GetComponentLocation();
+		//Set Rotation
+		FRotator RotateToFace = UKismetMathLibrary::FindLookAtRotation(ProxyForward, FloorCenter) + FRotator(0, -90, 0);
+		//Set Location
+		ActiveTeleportConstructProxy->SetActorRotation(RotateToFace);
+		
+	}
+}
+
 /* Buildable Utils*/
 void UBuildSystemManagerComponent::MoveBuildingComponent(
 	FVector_NetQuantize Location, ABuildableBase*
@@ -913,6 +1098,15 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 		}
 	}
 
+	if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
+	{
+		if (ActiveTeleportConstructProxy)
+		{
+			ActiveTeleportConstructProxy->Destroy();
+			ActiveTeleportConstructProxy = nullptr;
+		}
+	}
+
 	if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
 	{
 		if (ActiveTrapComponentProxy)
@@ -940,6 +1134,8 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	ResetBuildableComponents(ATrapBase::StaticClass());
 	ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 	ResetBuildableComponents(ARampBase::StaticClass());
+	ResetBuildableComponents(ATeleportConstruct::StaticClass());
+	
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(

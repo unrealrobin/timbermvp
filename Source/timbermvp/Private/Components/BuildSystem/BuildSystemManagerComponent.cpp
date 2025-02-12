@@ -468,7 +468,7 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 void UBuildSystemManagerComponent::SpawnFinalBuildable()
 {
 	
-	if(ActiveBuildableComponentClass&& BuildableRef)
+	if(ActiveBuildableComponentClass && BuildableRef)
 	{
 		// If player can afford the transaction, apply the transaction and spawn the final building component.
 		if(Cast<ATimberPlayableCharacter>(GetOwner()))
@@ -610,16 +610,22 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 			//Handle Pairing
 			if (TeleportConstructAlpha == nullptr)
 			{
+				//Setting the First Half of the Teleport Construct - Stored on BSM
 				TeleportTempPair.Key = TeleportConstruct;
 				//This is the first half of the Teleport Construct - storing in Memory and preparing for the second half.
 				TeleportConstruct->TeleportConstructState = ETeleportConstructState::Temporary;
 			}
 			else if (TeleportConstructBeta == nullptr && TeleportConstructAlpha)
 			{
-				//Second Half of the Teleport Construct - Setting the Pairing
+				//Second Half of the Teleport Construct - Setting the Pairing - Stored on BSM
 				TeleportTempPair.Value = TeleportConstruct;
-
+				
+				//Resetting Local Value to new value
+				// Local Value       -     Stored on BSM
+				TeleportConstructBeta = TeleportTempPair.Value;
+				
 				//Each Teleport Item now has a reference to the other in its pair.
+				//The Teleport Pair is stored on the Teleport Actor Class - this is how the teleporters will reference each other.
 				TeleportConstructAlpha->TeleportPair = TeleportConstructBeta;
 				TeleportConstructBeta->TeleportPair = TeleportConstructAlpha;
 
@@ -629,15 +635,16 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 
 				//Give the Teleport Construct the Final Material Color
 
-				//Clear the Temp Pair on the BSM
+				//Clear the Temp Pair on the BSM -  We don't need the local values if the Teleport Construct has ref to each other.
 				TeleportTempPair.Key = nullptr;
 				TeleportTempPair.Value = nullptr;
+
+				//TODO:: Called when final spawns are done. We can Reset any Active Components here.
 			}
 		}
 		
 	}
 }
-
 
 void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent)
 {
@@ -1016,7 +1023,9 @@ void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitR
 		if (SpawnedActor)
 		{
 			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
+			
 			BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+			
 			if (TeleportConstruct)
 			{
 				ActiveTeleportConstructProxy = TeleportConstruct;

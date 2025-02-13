@@ -7,6 +7,7 @@
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/BuildingComponentPanel.h"
 
 void ATimberHUDBase::BeginPlay()
 {
@@ -15,12 +16,6 @@ void ATimberHUDBase::BeginPlay()
 	CharacterAndControllerBindings();
 	GameModeBindings();
 	SeedaBinding();
-}
-
-// Called by Player using the "B" Key, Listening for the Delegate on the Controller
-void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
-{
-	IsBuildPanelMenuOpen ? OpenBuildPanelMenu() : CloseBuildPanelMenu();
 }
 
 void ATimberHUDBase::InitializeWidgets()
@@ -36,6 +31,12 @@ void ATimberHUDBase::InitializeWidgets()
 	if (BuildMenuWidgetClass)
 	{
 		BuildMenuWidget = CreateWidget<UUserWidget>(GetWorld(), BuildMenuWidgetClass);
+		if (BuildMenuWidget)
+		{
+			//Creates the BuildMenuWidget and sets it to hidden. This is good because it can load all its data in the background before even showing it.
+			BuildMenuWidget->AddToViewport(10);
+			BuildMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }
 
@@ -86,13 +87,28 @@ void ATimberHUDBase::SeedaBinding()
 	}
 }
 
+// Called by Player using the "B" Key, Listening for the Delegate on the Controller
+void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
+{
+	IsBuildPanelMenuOpen ? OpenBuildPanelMenu() : CloseBuildPanelMenu();
+}
+
 void ATimberHUDBase::OpenBuildPanelMenu()
 {
+	
 	if (BuildMenuWidget)
 	{
+		BuildMenuWidget->SetVisibility(ESlateVisibility::Visible);
+		FInputModeGameAndUI GameAndUIInputMode;
+
+		//We may need to adjust this for focusing.
+		TimberPlayerController->SetInputMode(GameAndUIInputMode);
+		TimberPlayerController->SetFocusedUserWidget(BuildMenuWidget);
+		TimberPlayerController->SetMouseLocation(GetCenterOfScreen().X, GetCenterOfScreen().Y);
+		
+		//Broadcasts to Player - Stops Raycasting
 		bIsBuildMenuOpen.Broadcast(true);
-		//TimberPlayerController->RemoveBuildingComponentProxy(); (Function moved to Build System Manager Component - RemoveBuildingComponentProxies_All)
-		BuildMenuWidget->AddToViewport(2);
+		
 	}
 }
 
@@ -101,14 +117,17 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 {
 	if (BuildMenuWidget)
 	{
+		//Broadcasts to Player - Starts Raycasting
 		bIsBuildMenuOpen.Broadcast(false);
-		BuildMenuWidget->RemoveFromParent();
+		
+		BuildMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+		
 		FInputModeGameOnly InputMode;
-
 		//Setting the InputMode back to Game Only. Input mode is Changed in the Widget Blueprint in Event Preconstruct.
 		TimberPlayerController->SetInputMode(InputMode);
 		TimberPlayerController->DisableCursor();
 
+		//Only Shows delete icon when the build menu is closed.
 		HideDeleteBuildingComponentWidget();
 	}
 }

@@ -79,25 +79,26 @@ public:
 	float MaxRunSpeed = 2000.f;
 
 	/*Animation Montages*/
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* DeathMontage;
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* ReloadMontage;
 	/*Animation Properties*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
 	bool IsNowJumping = false;
 
 	/*Weapon Slots*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponOne;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
 	ATimberWeaponMeleeBase* WeaponOneInstance;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponTwo;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
 	ATimberWeaponMeleeBase* WeaponTwoInstance;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapons")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
-	UPROPERTY(BlueprintReadOnly, Category="Weapons")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
 	ATimberWeaponRangedBase* WeaponThreeInstance;
 
 	/*Getters & Setters*/

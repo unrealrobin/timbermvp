@@ -53,22 +53,22 @@ protected:
 	int GridSize = 100.f;
 
 	//Class to be spawned with the SpawnActor function - Triggered by Selection in Building Component Icon Event Graph
-	UPROPERTY(EditAnywhere, Category="Building Component")
+	UPROPERTY(EditAnywhere, Category="Buildable")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 
-	UPROPERTY(EditAnywhere, Category="Building Component")
+	UPROPERTY(EditAnywhere, Category="Buildable")
 	ABuildableBase* BuildableRef = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Building Component")
+	UPROPERTY(EditAnywhere, Category="Buildable")
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Trap Component")
+	UPROPERTY(EditAnywhere, Category="Buildable")
 	ATrapBase* ActiveTrapComponentProxy = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Ramp Component")
+	UPROPERTY(EditAnywhere, Category="Buildable")
 	ARampBase* ActiveRampComponentProxy = nullptr;
 	
-	UPROPERTY(EditAnywhere, Category="Ramp Component")
+	UPROPERTY(EditAnywhere, Category="Buildable")
 	ATeleportConstruct* ActiveTeleportConstructProxy = nullptr;
 
 	/*Grid Snap*/
@@ -185,6 +185,7 @@ public:
 	EBuildingComponentOrientation CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked);
 
 	/*Teleport Utils*/
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Teleport")
 	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
 };
 

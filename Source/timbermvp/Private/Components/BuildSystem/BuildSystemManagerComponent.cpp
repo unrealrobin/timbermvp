@@ -438,6 +438,9 @@ void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinal
 
 void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor)
 {
+	//Should get the static meshes for the new Building Component everytime we try to change the color.
+	ClearStoredStaticMeshes();
+	
 	if (StaticMeshs.Num() == 0)
 	{
 		GetStaticMeshComponents(BuildingComponentActor);
@@ -446,7 +449,7 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 	// Get all Static Meshes from the Actor
 	if (StaticMeshs.Num() > 0)
 	{
-		GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Green, "Changing mesh color now.");
+		//GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Green, "Changing mesh color now.");
 		for (UStaticMeshComponent* MeshComponent : StaticMeshs)
 		{
 			if (MeshComponent && MeshComponent->GetStaticMesh())
@@ -588,9 +591,6 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 {
 	// Called on Input from Controller
 	//Spawning Temporary Teleport Construct - This is 1/2 of the Teleport Pair
-	//Temp Values
-	ATeleportConstruct* TeleportConstructAlpha = TeleportTempPair.Key;
-	ATeleportConstruct* TeleportConstructBeta = TeleportTempPair.Value;
 	
 	if (ActiveTeleportConstructProxy)
 	{
@@ -602,29 +602,31 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 			SpawnParameters);
 
 		ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
-
-		//Makes newly Spawned Material the Yellow Holo Material - Because it is temporary. We will move this to a delegate system.
-		MakeMaterialHoloColor(TeleportConstruct, YellowHoloMaterial);
 		
 		if (TeleportConstruct)
 		{
-			//Handle Pairing
+			//Handle Pairing - BSM
+			//This is the BuildSystemManager's Memory of the Teleport Construct Pair
 			if (TeleportTempPair.Key == nullptr)
 			{
+				//Makes newly Spawned Material the Yellow Holo Material - Because it is temporary. We will move this to a delegate system.
+				MakeMaterialHoloColor(TeleportConstruct, YellowHoloMaterial);
 				//Setting the First Half of the Teleport Construct - Stored on BSM
 				TeleportTempPair.Key = TeleportConstruct;
 				//This is the first half of the Teleport Construct - storing in Memory and preparing for the second half.
 				TeleportConstruct->TeleportConstructState = ETeleportConstructState::Temporary;
 			}
-			else if (TeleportTempPair.Value == nullptr && TeleportTempPair.Key)
+			else if (TeleportTempPair.Key && TeleportTempPair.Value == nullptr)
 			{
 				//Second Half of the Teleport Construct - Setting the Pairing - Stored on BSM
 				TeleportTempPair.Value = TeleportConstruct;
+
+				/*Now there is a full Pair of teleporters -> Clean up*/
 				
 				//Resetting Local Value to new value
 				// Local Value       -     Stored on BSM
-				TeleportConstructAlpha = TeleportTempPair.Key;
-				TeleportConstructBeta = TeleportTempPair.Value;
+				ATeleportConstruct* TeleportConstructAlpha = TeleportTempPair.Key;
+				ATeleportConstruct* TeleportConstructBeta = TeleportTempPair.Value;
 				
 				//Each Teleport Item now has a reference to the other in its pair.
 				//The Teleport Pair is stored on the Teleport Actor Class - this is how the teleporters will reference each other.
@@ -635,7 +637,7 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 				TeleportConstructAlpha->TeleportConstructState = ETeleportConstructState::Final;
 				TeleportConstructBeta->TeleportConstructState = ETeleportConstructState::Final;
 
-				//TODO::Give the Teleport Construct the Final Material Color. 
+				//Applying the default materials for the Teleporter - Stored on the Teleporter after BeginPlay() 
 				TeleportConstructAlpha->ApplyDefaultMaterials();
 				TeleportConstructBeta->ApplyDefaultMaterials();
 				
@@ -643,7 +645,9 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 				TeleportTempPair.Key = nullptr;
 				TeleportTempPair.Value = nullptr;
 
-				//TODO:: Called when final spawns are done. We can Reset any Active Components here.
+				//TODO:: Potential issue here if having to replace a teleporter in a pair
+					// for example, player places 1 tele, then another incorrectly, deletes the incorrect placement
+					// then places another one.
 			}
 		}
 		
@@ -1009,7 +1013,7 @@ void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitR
 		}
 	}
 	
-	//Spawn Temporary Teleport if none spawned.
+	//Spawn Proxy Teleport if none spawned.
 	if (!ActiveTeleportConstructProxy && ClosestSnapPoint)
 	{
 		//Spawn Teleport Proxy @ Closest Snap Point
@@ -1024,15 +1028,12 @@ void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitR
 		
 		if (SpawnedActor)
 		{
-			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
-				//Set BuildableRef
+			//Set Proxy
+			ActiveTeleportConstructProxy = Cast<ATeleportConstruct>(SpawnedActor);
+			//Set BuildableRef
 			BuildableRef = Cast<ABuildableBase>(SpawnedActor);
-			
-			if (TeleportConstruct)
+			if (ActiveTeleportConstructProxy)
 			{
-				//Set Proxy
-				ActiveTeleportConstructProxy = TeleportConstruct;
-
 				//Orient the Building Component to Face the Floor Center
 				FVector ProxyForward = ActiveTeleportConstructProxy->GetActorLocation();
 				FVector FloorCenter = HitFloorComponent->CenterSnap->GetComponentLocation();

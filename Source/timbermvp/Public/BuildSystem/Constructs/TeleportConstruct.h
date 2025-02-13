@@ -65,6 +65,8 @@ protected:
 	UMaterialInterface* DefaultBaseMaterial = nullptr;
 	UPROPERTY()
 	UMaterialInterface* DefaultOrbMaterial = nullptr;
+	UPROPERTY()
+	UMaterialInterface* DefaultEffectMesh = nullptr;
 
 	/*Teleport Details*/
 	FVector StartLocation;

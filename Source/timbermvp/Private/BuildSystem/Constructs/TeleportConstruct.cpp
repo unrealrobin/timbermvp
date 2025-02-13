@@ -106,6 +106,10 @@ void ATeleportConstruct::SaveDefaultMaterials()
 		DefaultBaseMaterial = PillarLeft->GetMaterial(0);
 		DefaultOrbMaterial = PillarLeft->GetMaterial(1);
 	}
+	if (TeleportEffectMesh)
+	{
+		DefaultEffectMesh = TeleportEffectMesh->GetMaterial(0);
+	}
 }
 
 void ATeleportConstruct::ApplyDefaultMaterials()
@@ -120,6 +124,10 @@ void ATeleportConstruct::ApplyDefaultMaterials()
 	{
 		PillarRight->SetMaterial(0, DefaultBaseMaterial);
 		PillarRight->SetMaterial(1, DefaultOrbMaterial);
+	}
+	if (TeleportEffectMesh)
+	{
+		TeleportEffectMesh->SetMaterial(0, DefaultEffectMesh);
 	}
 }
 

@@ -121,7 +121,18 @@ void ATimberWeaponRangedBase::PerformStandardAttack()
 {
 }
 
-void ATimberWeaponRangedBase::ReloadRangedWeapon()
+void ATimberWeaponRangedBase::PlayReloadMontage()
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(WeaponOwner);
+	if (PlayerCharacter && PlayerCharacter->ReloadMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ranged Weapon - PlayReloadMontage() - PlayerCharacter is Owner - Reloading Weapon"));
+		//Plays the montage. Notify on Montage end handles the Reload.
+		PlayerCharacter->PlayAnimMontage(PlayerCharacter->ReloadMontage, 1.f, FName("Reload1"));
+	}
+}
+
+void ATimberWeaponRangedBase::ReloadWeapon()
 {
 	CurrentAmmo = MaxAmmo;
 }

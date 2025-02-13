@@ -634,7 +634,7 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 		&& TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
 		//TODO:: Play Reload Animation Montage - Set Notify to call the reload function at end of animation. 
-		TimberCharacter->WeaponThreeInstance->ReloadRangedWeapon();
+		TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
 	}
 	
 }

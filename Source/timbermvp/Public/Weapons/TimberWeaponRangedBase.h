@@ -64,7 +64,10 @@ public:
 	void PerformStandardAttack();
 
 	UFUNCTION()
-	void ReloadRangedWeapon();
+	void PlayReloadMontage();
+
+	UFUNCTION(BlueprintCallable, Category="Weapon")
+	void ReloadWeapon();
 
 	/*Sound*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")

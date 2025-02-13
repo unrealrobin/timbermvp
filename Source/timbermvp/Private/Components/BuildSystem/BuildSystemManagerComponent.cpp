@@ -633,6 +633,10 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 				TeleportConstructAlpha->TeleportPair = TeleportConstructBeta;
 				TeleportConstructBeta->TeleportPair = TeleportConstructAlpha;
 
+				//Linking the Destruct Delegates for the pairs.
+				TeleportConstructAlpha->LinkToPair(TeleportConstructBeta);
+				TeleportConstructBeta->LinkToPair(TeleportConstructAlpha);
+
 				//Setting Finalized State
 				TeleportConstructAlpha->TeleportConstructState = ETeleportConstructState::Final;
 				TeleportConstructBeta->TeleportConstructState = ETeleportConstructState::Final;
@@ -644,10 +648,6 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 				//Clear the Temp Pair on the BSM -  We don't need the local values if the Teleport Construct has ref to each other.
 				TeleportTempPair.Key = nullptr;
 				TeleportTempPair.Value = nullptr;
-
-				//TODO:: Potential issue here if having to replace a teleporter in a pair
-					// for example, player places 1 tele, then another incorrectly, deletes the incorrect placement
-					// then places another one.
 			}
 		}
 		

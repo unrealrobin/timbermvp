@@ -141,5 +141,40 @@ void ATeleportConstruct::CheckForPairOutsideBuildMode()
 	}
 }
 
+void ATeleportConstruct::LinkToPair(ATeleportConstruct* Pair)
+{
+	if (Pair && Pair != this)
+	{
+		// This is Pair(Pair A), Linking the other Pair(Pair B) to this pairs(Pairs A) death.
+		// When this pair is destroyed, it will call the other Pairs OnPairDestroyedFunction.
+		Pair->OnDestroyed.AddDynamic(this, &ATeleportConstruct::OnPairDestruction);
+	}
+}
+
+void ATeleportConstruct::OnPairDestruction(AActor* DestroyedActor)
+{
+	//This only gets called on the pair that isn't destroyed, but is linked to the destroyed pair.
+	if (DestroyedActor == TeleportPair)
+	{
+		//Removing this Pairs (Pair A) reference to the destroyed Pair (Pair B) - Its Already destroyed.
+		// and doesn't need a callback to its own pair (Pair b)
+		OnDestroyed.RemoveDynamic(this, &ATeleportConstruct::OnPairDestruction);
+	}
+
+	Destroy();
+}
+
+void ATeleportConstruct::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (TeleportPair)
+	{
+		//Because Pair A was linked earlier, but destroys first, we need to remove the callback to Pair B that was added to Pair A.
+		// We are unbinding from the callback that would be called if Pair B was destroyed first.
+		TeleportPair->OnDestroyed.RemoveDynamic(this, &ATeleportConstruct::OnPairDestruction);
+	}
+}
+
 
 

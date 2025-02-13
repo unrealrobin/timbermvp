@@ -25,6 +25,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo")
+	int CurrentAmmo = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int MaxAmmo = 30;
+
+	FTimerHandle TimeBetweenShotsHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	float TimeBetweenProjectiles = 0.1f;
+
+	//Default false, shot turns to true, timer turns back to false.
+	bool bIsFireOnCooldown = false;
+
+	UFUNCTION()
+	void ResetFiringCooldown();
+
 public:
 	UPROPERTY(VisibleAnywhere, Category = Owner)
 	AActor* WeaponOwner;
@@ -45,6 +62,9 @@ public:
 
 	UFUNCTION(Category="Weapon")
 	void PerformStandardAttack();
+
+	UFUNCTION()
+	void ReloadRangedWeapon();
 
 	/*Sound*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")

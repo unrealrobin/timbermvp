@@ -38,8 +38,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
 
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
-
-
+	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
@@ -48,8 +47,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
-
-
+	
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
 	UInputAction* MoveAction;
@@ -83,6 +81,8 @@ public:
 	UInputAction* ModifyCursorAction_Controller;
 	UPROPERTY(EditAnywhere)
 	UInputAction* SelectIconAction_Controller;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ReloadWeaponInputAction;
 
 	/*Player Controls*/
 	UFUNCTION()
@@ -119,6 +119,8 @@ public:
 	void ModifyCursorWithController(const FInputActionValue& Value);
 	UFUNCTION()
 	void SelectBCIcon_Controller(const FInputActionValue& Value);
+	UFUNCTION()
+	void ReloadWeapon(const FInputActionValue& Value);
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

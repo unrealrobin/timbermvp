@@ -99,6 +99,7 @@ void ATimberPlayerController::SetupInputComponent()
 		&ATimberPlayerController::DeleteBuildingComponent);
 	EnhancedInputComponent->BindAction(ModifyCursorAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
+	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
 }
 
 void ATimberPlayerController::PerformReticuleAlignment_Raycast()
@@ -140,14 +141,6 @@ void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 		}
 	}
 }
-
-/*void ATimberPlayerController::MovePlayerToStartLocation()
-{
-	if (PlayerStartLocation != FVector(0.f, 0.f, 0.f))
-	{
-		TimberCharacter->SetActorLocation(PlayerStartLocation);
-	}
-}*/
 
 void ATimberPlayerController::EnableCursor()
 {
@@ -632,5 +625,16 @@ void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& V
 			{
 				UE_LOG(LogTemp, Warning, TEXT("No data asset found on Building Component Icon Widget"));
 			}
+	
+}
+
+void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
+{
+	if (TimberCharacter->GetCurrentWeaponState() ==  EWeaponState::RangedEquipped
+		&& TimberCharacter->CharacterState == ECharacterState::Standard)
+	{
+		//TODO:: Play Reload Animation Montage - Set Notify to call the reload function at end of animation. 
+		TimberCharacter->WeaponThreeInstance->ReloadRangedWeapon();
+	}
 	
 }

@@ -25,6 +25,15 @@ void ATimberWeaponRangedBase::BeginPlay()
 
 	//Set in Spawn Params
 	WeaponOwner = GetOwner();
+
+	//Setting Ammo
+	CurrentAmmo = MaxAmmo;
+}
+
+void ATimberWeaponRangedBase::ResetFiringCooldown()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimeBetweenShotsHandle);
+	bIsFireOnCooldown = false;
 }
 
 // Called every frame
@@ -35,31 +44,47 @@ void ATimberWeaponRangedBase::Tick(float DeltaTime)
 
 void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 {
-	if (WeaponOwner && GetWorld())
+	if (bIsFireOnCooldown == false && CurrentAmmo > 0)
 	{
-		if (ProjectileType)
+		if (WeaponOwner && GetWorld())
 		{
-			FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
-			//FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
-
-			//This is the updated Rotation based on the raycast using the HitResult from the Screen Space. (More Accurate.)
-			FRotator AimRotation = (TargetLocation - ProjectileSpawnLocation).Rotation();
-
-			// Add Spawn Params for Projectile Owner and Instigator
-			FActorSpawnParameters SpawnParams;
-			// Print the owner of the weapon
-			//UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
-			SpawnParams.Owner = WeaponOwner;
-
-			ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
-				ProjectileType,
-				ProjectileSpawnLocation, AimRotation, SpawnParams);
-
-			if (Projectile)
+			if (ProjectileType)
 			{
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, ProjectileSpawnLocation);
-				Projectile->SetOwner(this);
-				GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
+				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
+				//FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
+
+				//This is the updated Rotation based on the raycast using the HitResult from the Screen Space. (More Accurate.)
+				FRotator AimRotation = (TargetLocation - ProjectileSpawnLocation).Rotation();
+
+				// Add Spawn Params for Projectile Owner and Instigator
+				FActorSpawnParameters SpawnParams;
+				// Print the owner of the weapon
+				//UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
+				SpawnParams.Owner = WeaponOwner;
+
+				ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
+					ProjectileType,
+					ProjectileSpawnLocation, AimRotation, SpawnParams);
+
+				if (Projectile)
+				{
+					//Setting Timer to next shot
+					GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, 
+					&ATimberWeaponRangedBase::ResetFiringCooldown, TimeBetweenProjectiles, false);
+
+					//Setting Firing to on Cooldown
+					bIsFireOnCooldown = true;
+
+					//Removing Ammo from Available Ammo
+					CurrentAmmo--;
+
+					//Playing firing sounds
+					UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, ProjectileSpawnLocation);
+					
+					Projectile->SetOwner(this);
+					
+					GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
+				}
 			}
 		}
 	}
@@ -94,4 +119,9 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 
 void ATimberWeaponRangedBase::PerformStandardAttack()
 {
+}
+
+void ATimberWeaponRangedBase::ReloadRangedWeapon()
+{
+	CurrentAmmo = MaxAmmo;
 }

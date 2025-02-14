@@ -86,7 +86,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(
 		StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
 	EnhancedInputComponent->BindAction(
-		ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMode);
+		ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EnterBuildMode);
 	EnhancedInputComponent->BindAction(
 		RotateBuildingComponentAction, ETriggerEvent::Triggered, this,
 		&ATimberPlayerController::RotateBuildingComponent);
@@ -100,6 +100,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ModifyCursorAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
 	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
+	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
 }
 
 void ATimberPlayerController::PerformReticuleAlignment_Raycast()
@@ -285,7 +286,7 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 	if (TimberCharacter)
 	{
 		UnEquipWeapon();
-		ExitBuildMode(ECharacterState::Standard);
+		HandleExitBuildMode();
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
 		WeaponState.Broadcast(EWeaponState::AxeEquipped);
@@ -327,7 +328,8 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	check(TimberCharacter);
 
 	UnEquipWeapon();
-	ExitBuildMode(ECharacterState::Standard);
+
+	HandleExitBuildMode();
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
 	WeaponState.Broadcast(EWeaponState::ChainsawEquipped);
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
@@ -364,7 +366,9 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	check(TimberCharacter);
 
 	UnEquipWeapon();
-	ExitBuildMode(ECharacterState::Standard);
+
+	HandleExitBuildMode();
+	
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
 	WeaponState.Broadcast(EWeaponState::RangedEquipped);
 
@@ -462,36 +466,67 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 /*
  * Build System Controls
  */
-void ATimberPlayerController::ToggleBuildMode(const FInputActionValue& Value)
-{
-	TimberCharacter->CharacterState == ECharacterState::Building
-		? TimberCharacter->CharacterState = ECharacterState::Standard
-		: TimberCharacter->CharacterState = ECharacterState::Building;
 
-	// Exiting Build Mode
-	if (TimberCharacter->CharacterState == ECharacterState::Standard)
-	{
-		//WHen leaving building Mode, we need to empty the ActiveBuildingComponent. Why tho? Maybe Unnecessary.
-		ExitBuildMode(ECharacterState::Standard);
-	}
+void ATimberPlayerController::EnterBuildMode(const FInputActionValue& Value)
+{
+	//Changing Character State to Build Mode.
+	TimberCharacter->CharacterState = ECharacterState::Building;
 
 	// Entering Build Mode
 	if (TimberCharacter->CharacterState == ECharacterState::Building)
 	{
-		OpenBuildModeSelectionMenu();
 		if (Subsystem)
 		{
+			//Adding IMC for BuildMode - OverWrites on the overwritten Standard IMC
 			Subsystem->AddMappingContext(BuildModeInputMappingContext, 2);
 		}
+		
 		UnEquipWeapon();
+		EnableCursor();
+
+		//Deletes Lingering Proxies
+		TimberCharacter->BuildSystemManager->RemoveBuildingComponentProxies_All();
+		
+		//HUD Responsibility
+		OpenBuildModeSelectionMenu();
 	}
 }
 
-void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
+void ATimberPlayerController::OpenBuildModeSelectionMenu()
 {
-	TimberCharacter->CharacterState = NewState;
+	//Broadcast to the HUD to Open the Build Menu
+	IsBuildPanelOpen.Broadcast(true);
+	
+}
 
-	CloseBuildModeSelectionMenu();
+void ATimberPlayerController::HandleExitBuildMode()
+{
+	//Exiting Build Mode
+	if (TimberCharacter->CharacterState == ECharacterState::Building)
+	{
+		//Handles changes on the Controller when Leaving Build Mode.
+		HandleControllerExitBuildMode();
+
+		//Broadcast to HUD to Hide the Build Menu - Handles Cursor Changes.
+		ShouldHideBuildMenu.Broadcast();
+
+		FlushPressedKeys();
+	}
+}
+
+void ATimberPlayerController::ExitBuildMode(const FInputActionValue& Value)
+{
+	/*This only works when the Build Mode Input Mapping Context is Active
+	 * all keymappings here won't work when the Standard Input Mapping Context is Active.
+	 */
+	
+	HandleExitBuildMode();
+}
+
+void ATimberPlayerController::HandleControllerExitBuildMode()
+{
+	TimberCharacter->CharacterState = ECharacterState::Standard;
+
 	DisableCursor();
 
 	if (Subsystem)
@@ -501,21 +536,9 @@ void ATimberPlayerController::ExitBuildMode(ECharacterState NewState)
 	}
 
 	TimberCharacter->ResetDeleteIcon();
+
+	//Deletes Lingering Proxies
 	TimberCharacter->BuildSystemManager->RemoveBuildingComponentProxies_All();
-}
-
-void ATimberPlayerController::OpenBuildModeSelectionMenu()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Opening Build Mode Selection Menu Broadcasted"));
-	IsBuildPanelOpen.Broadcast(true);
-	EnableCursor();
-}
-
-void ATimberPlayerController::CloseBuildModeSelectionMenu()
-{
-	IsBuildPanelOpen.Broadcast(false);
-	TimberCharacter->BuildSystemManager->SetSavedRotation(FRotator::ZeroRotator);
-	bShowMouseCursor = false;
 }
 
 void ATimberPlayerController::RotateBuildingComponent(const FInputActionValue& Value)
@@ -569,7 +592,6 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 		HandleDeathUI_DelegateHandle.Execute();
 	}
 }
-
 
 /* Controller Only */
 void ATimberPlayerController::ModifyCursorWithController(const FInputActionValue& Value)
@@ -638,3 +660,5 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 	}
 	
 }
+
+

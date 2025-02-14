@@ -48,7 +48,7 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 		UE_LOG(LogTemp, Warning, TEXT("HUD has Cached Timber Character Controller"));
 
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
-		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::ShouldHideBuildMenu);
+		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::CloseBuildPanelMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
 
 
@@ -90,7 +90,14 @@ void ATimberHUDBase::SeedaBinding()
 // Called by Player using the "B" Key, Listening for the Delegate on the Controller
 void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
 {
-	IsBuildPanelMenuOpen ? OpenBuildPanelMenu() : CloseBuildPanelMenu();
+	//Open Menu if it isn't Open.
+	//Controller will handle the rest.
+	if (BuildMenuWidget->IsVisible())
+	{
+		return;
+	}
+
+	OpenBuildPanelMenu();
 }
 
 void ATimberHUDBase::OpenBuildPanelMenu()
@@ -106,56 +113,30 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 		TimberPlayerController->SetFocusedUserWidget(BuildMenuWidget);
 		TimberPlayerController->SetMouseLocation(GetCenterOfScreen().X, GetCenterOfScreen().Y);
 		
-		//Broadcasts to Player - Stops Raycasting
+		//Broadcasts to Player - Controlls Bool that starts Raycasting 
 		bIsBuildMenuOpen.Broadcast(true);
 		
 	}
 }
 
-//Called from Building Component Icon in W_BuildingComponentIcon
+//Called from Building Component Icon in W_BuildingComponentIcon - Stays in Building State
 void ATimberHUDBase::CloseBuildPanelMenu()
 {
-	if (BuildMenuWidget)
+	//If the build menu is open, close it and disable the cursor (Build Mode, Raycasting)
+	if (BuildMenuWidget && BuildMenuWidget->IsVisible())
 	{
 		//Broadcasts to Player - Starts Raycasting
 		bIsBuildMenuOpen.Broadcast(false);
-		
+		//Hiding the Build Menu - NOT Destroying it.
 		BuildMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 		
-		FInputModeGameOnly InputMode;
 		//Setting the InputMode back to Game Only. Input mode is Changed in the Widget Blueprint in Event Preconstruct.
-		TimberPlayerController->SetInputMode(InputMode);
+		FInputModeGameOnly GameOnlyInputMode;
+		TimberPlayerController->SetInputMode(GameOnlyInputMode);
 		TimberPlayerController->DisableCursor();
 
 		//Only Shows delete icon when the build menu is closed.
 		HideDeleteBuildingComponentWidget();
-	}
-}
-
-//Called by Player using the "Tab" Key
-void ATimberHUDBase::ShouldHideBuildMenu()
-{
-	//If the build menu is open, close it and disable the cursor (Build Mode, Raycasting)
-	if (BuildMenuWidget->IsInViewport())
-	{
-		if(TimberPlayerController)
-		{
-			TimberPlayerController->DisableCursor();
-		}
-		CloseBuildPanelMenu();
-	}
-	else //if the build menu is closed, open it and enable the cursor (Building Menu Mode, No Raycasting)
-	{
-		if(TimberPlayerController)
-		{
-			TimberPlayerController->EnableCursor();
-		}
-		if(TimberCharacter)
-		{
-			/*When the player reopens the build menu with a component selected, I want the component to disappear.*/
-			TimberCharacter->BuildSystemManager->RemoveBuildingComponentProxies_All();
-		}
-		OpenBuildPanelMenu();
 	}
 }
 

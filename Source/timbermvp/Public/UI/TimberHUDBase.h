@@ -84,14 +84,9 @@ public:
 	UFUNCTION()
 	void HideDeleteBuildingComponentWidget();
 	UFUNCTION()
-	void ShouldHideBuildMenu();
-	UFUNCTION()
 	void ShowSeedaOverlappingToolTip(bool bShouldShowToolTip);
-
 	
 	FVector2d GetCenterOfScreen();
-
-	
 
 protected:
 	UPROPERTY()

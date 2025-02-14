@@ -40,13 +40,16 @@ public:
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
 
+	virtual void BeginPlay() override;
+	
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
 	UDataTable* WaveCompositionDataTable;
 	void PlayerIsInitialized();
-	void PathTracer_RedrawDelegateBinding();
+	
+	void PathTracer_RedrawDelegateBinding();\
+	
 	void GatherSeedaData();
-	virtual void BeginPlay() override;
 
 	//Character
 	UPROPERTY()

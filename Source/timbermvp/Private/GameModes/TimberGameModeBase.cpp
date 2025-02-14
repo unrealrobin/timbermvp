@@ -18,7 +18,11 @@
 #include "SaveSystem/TimberSaveSystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "UI/BuildingComponentPanel.h"
+#include "UI/TimberHUDBase.h"
 
+
+class UBuildingComponentPanel;
 
 void ATimberGameModeBase::BeginPlay()
 {
@@ -53,6 +57,8 @@ void ATimberGameModeBase::BeginPlay()
 		PathTracer_RedrawDelegateBinding();
 		TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
 	}
+
+	
 }
 
 void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()

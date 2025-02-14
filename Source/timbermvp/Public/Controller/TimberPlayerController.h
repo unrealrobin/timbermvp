@@ -83,6 +83,8 @@ public:
 	UInputAction* SelectIconAction_Controller;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ReloadWeaponInputAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ExitBuildModeAction;
 
 	/*Player Controls*/
 	UFUNCTION()
@@ -106,7 +108,7 @@ public:
 	UFUNCTION()
 	void StandardAttack(const FInputActionValue& Value);
 	UFUNCTION()
-	void ToggleBuildMode(const FInputActionValue& Value);
+	void EnterBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
 	void RotateBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
@@ -121,6 +123,8 @@ public:
 	void SelectBCIcon_Controller(const FInputActionValue& Value);
 	UFUNCTION()
 	void ReloadWeapon(const FInputActionValue& Value);
+	UFUNCTION()
+	void ExitBuildMode(const FInputActionValue& Value);
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;
@@ -201,11 +205,11 @@ protected:
 	bool CanAttackAgain = true;
 
 	/*Build Controls*/
-	void ExitBuildMode(ECharacterState NewState);
+	void HandleControllerExitBuildMode();
 	UFUNCTION()
 	void OpenBuildModeSelectionMenu();
-	UFUNCTION()
-	void CloseBuildModeSelectionMenu();
+	UFUNCTION(BlueprintCallable)
+	void HandleExitBuildMode();
 
 	/*Controller Specific*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="UI")

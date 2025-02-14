@@ -170,7 +170,7 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 
 	//Array can contain parts, mechanisms, Uniques, health drops, etc
 	
-	//TODO:: Add a random chance to spawn loot for each Loot Item.
+	//TODO:: Rework Loot Drop System after GDC.
 	for(TSubclassOf<AEnemyLootDropBase> LootDrop : StandardLootArray)
 	{
 		if(LootDrop->IsChildOf(ALootHealthDrop::StaticClass()))
@@ -180,6 +180,14 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 		else
 		{
 			SpawnLoot(LootDrop);
+		}
+	}
+
+	if (UniqueLootArray.Num() > 0)
+	{
+		for (TSubclassOf<AEnemyLootDropBase>LootItem : UniqueLootArray)
+		{
+			SpawnLoot(LootItem);
 		}
 	}
 }

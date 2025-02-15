@@ -135,6 +135,9 @@ public:
 	/*Damage*/
 	void PlayerTakeDamage(float DamageAmount);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
+	float DamageModifierValue = 1.f;
+
 	/*Death*/
 	UFUNCTION()
 	void HandlePlayerDeath(bool bIsPlayerDead = false);

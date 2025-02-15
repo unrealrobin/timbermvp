@@ -7,6 +7,7 @@
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "BuildSystem/BuildableBase.h"
+#include "BuildSystem/Constructs/PowerPlate.h"
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "BuildSystem/Ramps/RampBase.h"
 #include "Character/TimberPlayableCharacter.h"
@@ -495,6 +496,10 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				{
 					SpawnTemporayTeleportConstruct(SpawnParameters);
 				}
+				else if (ActiveBuildableComponentClass->IsChildOf(APowerPlate::StaticClass()))
+				{
+					SpawnFinalCenterSnapFloorOnlyBuildingComponent(SpawnParameters);
+				}
 				else
 				{
 					UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
@@ -556,6 +561,7 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 				break;
 			}
 		}
+		//TODO::Why?
 		//Needed to Replace the existing TrapComponentProxy with the new TrapComponent Proxy
 		ResetBuildableComponents(ATrapBase::StaticClass());
 	}
@@ -708,6 +714,67 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 
 		//Required so that delete functionality does delete the proxy
 		DisableBuildableProxyCollisions(ActiveTrapComponentProxy);
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnFinalCenterSnapFloorOnlyBuildingComponent(FActorSpawnParameters SpawnParameters)
+{
+	//Spawn the Final Center Snap Floor Only Building Component
+	//PowerPlate
+
+	if (CenterSnapFloorOnlyBuildingComponentProxy)
+	{
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			CenterSnapFloorOnlyBuildingComponentProxy->GetActorLocation(),
+			CenterSnapFloorOnlyBuildingComponentProxy->GetActorRotation(),
+			SpawnParameters);
+	}
+}
+
+/*Placement*/
+
+void UBuildSystemManagerComponent::HandleCenterSnapFloorOnlyPlacement(TArray<FHitResult> HitResults)
+{
+	//Check Hit Results for first Floor Hit and get Snap Location
+	ATimberHorizontalBuildingComponent* FloorComponent = nullptr;
+	FVector FloorComponentSnapLocation;
+	for (FHitResult Hit : HitResults)
+	{
+		if (Cast<ATimberHorizontalBuildingComponent>(Hit.GetActor()))
+		{
+			FloorComponent = Cast<ATimberHorizontalBuildingComponent>(Hit.GetActor());
+			FloorComponentSnapLocation = FloorComponent->CenterSnap->GetComponentLocation();
+			break;
+		}
+	}
+
+	//Spawn the Center Snap Floor Only Building Component Proxy if not Spawned or if the Class is different.
+	if (CenterSnapFloorOnlyBuildingComponentProxy == nullptr || CenterSnapFloorOnlyBuildingComponentProxy->GetClass() != GetActiveBuildableClass())
+	{
+		//Spawn the first iterations of the Ramp into the world.
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			FloorComponentSnapLocation,
+			FRotator::ZeroRotator,
+			FActorSpawnParameters());
+		
+		CenterSnapFloorOnlyBuildingComponentProxy = Cast<ABuildableBase>(SpawnedActor);
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+		
+		if (CenterSnapFloorOnlyBuildingComponentProxy)
+		{
+			DisableBuildableProxyCollisions(CenterSnapFloorOnlyBuildingComponentProxy);
+		}
+	}
+	else
+	{
+		BuildableRef = CenterSnapFloorOnlyBuildingComponentProxy;
+		//Move the Proxy to the Center Snap of the Floor Component
+		CenterSnapFloorOnlyBuildingComponentProxy->SetActorLocation(FloorComponentSnapLocation);
+		MakeMaterialHoloColor(CenterSnapFloorOnlyBuildingComponentProxy, BlueHoloMaterial);
 	}
 }
 
@@ -1052,8 +1119,9 @@ void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitR
 	}
 	else if (ActiveTeleportConstructProxy && ClosestSnapPoint)
 	{
-		//TODO:: Why do we need to set this again if it was set originally on the initial spawn?
-		BuildableRef = Cast<ABuildableBase>(ActiveTeleportConstructProxy);
+		
+		//BuildableRef = Cast<ABuildableBase>(ActiveTeleportConstructProxy);
+		BuildableRef = ActiveTeleportConstructProxy;
 		
 		//Move the Proxy to the Closest Snap Point
 		ActiveTeleportConstructProxy->SetActorLocation(ClosestSnapPoint->GetComponentLocation());
@@ -1126,6 +1194,23 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 		}
 	}
 
+	/*
+	 * Why is this one so different?
+	 * All of these are hardcoded per trap/buildable
+	 * We basically later want to change these class calls to a type on the buildable class.
+	 * The type will be closer to "CenterSnapFloorOnly" which will better describe the placement conditions.
+	 * It will require a full rewrite, but basically the powerplate's placement will run on the CenterSnapFloorOnly conditions.
+	 * And will just keep its reference in BuildableProxy
+	 */
+	if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
+	{
+		if (CenterSnapFloorOnlyBuildingComponentProxy)
+		{
+			CenterSnapFloorOnlyBuildingComponentProxy->Destroy();
+			CenterSnapFloorOnlyBuildingComponentProxy = nullptr;
+		}
+	}
+
 	BuildableRef = nullptr;
 	StaticMeshs.Empty();
 }
@@ -1136,6 +1221,7 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 	ResetBuildableComponents(ARampBase::StaticClass());
 	ResetBuildableComponents(ATeleportConstruct::StaticClass());
+	ResetBuildableComponents(APowerPlate::StaticClass());
 	
 	if (GEngine)
 	{

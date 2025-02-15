@@ -56,6 +56,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 
+	//A Reference to the Proxy that is spawned as a Buildable.
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ABuildableBase* BuildableRef = nullptr;
 
@@ -70,6 +71,14 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ATeleportConstruct* ActiveTeleportConstructProxy = nullptr;
+
+	/*
+	 *This is a new approach where we group the Building Components by their Snapping Conditions instead of Play Type.
+	 *The reason for this is that Traps and Constructs may share the exact same snapping conditions and some
+	 *traps may have more complex and unique snapping conditions +
+	 */ 
+	UPROPERTY(EditAnywhere, Category="Buildable")
+	ABuildableBase* CenterSnapFloorOnlyBuildingComponentProxy = nullptr;
 
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
@@ -118,8 +127,11 @@ public:
 	void SpawnTemporayTeleportConstruct(FActorSpawnParameters SpawnParameters);
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
+	void SpawnFinalCenterSnapFloorOnlyBuildingComponent(FActorSpawnParameters SpawnParameters);
 
 	/*Placement*/
+	UFUNCTION()
+	void HandleCenterSnapFloorOnlyPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
 	void HandleTeleportConstructPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()

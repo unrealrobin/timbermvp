@@ -3,6 +3,7 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/Constructs/PowerPlate.h"
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "BuildSystem/Ramps/RampBase.h"
 #include "BuildSystem/Traps/TrapBase.h"
@@ -169,6 +170,8 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
 
 		//TODO:: We can generalize this to any Buildable that Snaps to Edges of Floor Only.
+		//TODO:: We need to adjust all of these to have types that determine their snap conditions
+			// We can then use the type to determine the Placement Function to be called. 
 		if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
 		{
 			BuildSystemManager->HandleTeleportConstructPlacement(HitResults);
@@ -197,12 +200,18 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 
 			BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
 		}
+		
+		if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
+		{
+			BuildSystemManager->HandleCenterSnapFloorOnlyPlacement(HitResults);
+		}
 	}
 	else
 	{
 		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 		BuildSystemManager->ResetBuildableComponents(ARampBase::StaticClass());
+		BuildSystemManager->ResetBuildableComponents(ATeleportConstruct::StaticClass());
 	}
 }
 

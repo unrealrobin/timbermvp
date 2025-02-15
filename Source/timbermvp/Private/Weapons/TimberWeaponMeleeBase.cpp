@@ -80,8 +80,8 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 		if (HitCharacter) //Is the player character and doesn't need to be ignored.
 		{
 			ActorsToIgnore.Add(HitCharacter);
-			//TODO:: When damage can be buffed, first calculate damage in some function then pass here.
-			HitCharacter->PlayerTakeDamage(BaseWeaponDamage);
+			
+			HitCharacter->PlayerTakeDamage(BaseWeaponDamage * DamageModifierValue);
 			return;
 		}
 		if(Seeda)
@@ -104,10 +104,18 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 			if (DamageableEnemy)
 			{
 				DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
-			
+				ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
 				// Print the owner of the weapon
-				UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
-				DamageableEnemy->TakeDamage(BaseWeaponDamage, GetOwner());
+				//UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
+
+				if (PlayerCharacter)
+				{
+					DamageableEnemy->TakeDamage(BaseWeaponDamage * PlayerCharacter->DamageModifierValue, GetOwner());
+					UE_LOG(LogTemp, Warning, TEXT("Sword Base Damage: %f. Player Character Damage Modifier: %f. TotalDamage: %f. "),
+						BaseWeaponDamage,
+						PlayerCharacter->DamageModifierValue,
+						BaseWeaponDamage * PlayerCharacter->DamageModifierValue );
+				}
 			}
 			ActorsToIgnore.Add(HitEnemy);
 		}

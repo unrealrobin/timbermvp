@@ -3,6 +3,7 @@
 
 #include "BuildSystem/Constructs/PowerPlate.h"
 
+#include "Character/TimberPlayableCharacter.h"
 #include "Components/BoxComponent.h"
 
 
@@ -28,6 +29,7 @@ void APowerPlate::BeginPlay()
 	Super::BeginPlay();
 
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APowerPlate::HitBoxBeginOverlap);
+	CollisionBox->OnComponentEndOverlap.AddDynamic(this, &APowerPlate::HitBoxEndOverlap);
 	
 }
 
@@ -36,6 +38,26 @@ void APowerPlate::HitBoxBeginOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("PowerPlate HitBoxBeginOverlap"));
+
+	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if (TimberCharacter)
+	{
+		//Adding 50% Damage Increase
+		TimberCharacter->DamageModifierValue += .5f;
+	}
+}
+
+void APowerPlate::HitBoxEndOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PowerPlate HitBoxEndOverlap"));
+
+	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	if (TimberCharacter)
+	{
+		//Removing 50% Damage Increase
+		TimberCharacter->DamageModifierValue -= .5f;
+	}
 }
 
 // Called every frame

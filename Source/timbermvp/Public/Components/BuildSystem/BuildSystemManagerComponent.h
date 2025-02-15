@@ -56,6 +56,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 
+	//A Reference to the Proxy that is spawned as a Buildable.
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ABuildableBase* BuildableRef = nullptr;
 

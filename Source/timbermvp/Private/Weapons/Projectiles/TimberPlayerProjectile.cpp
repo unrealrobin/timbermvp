@@ -5,6 +5,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Interfaces/DamageableEnemy.h"
+#include "Weapons/TimberWeaponRangedBase.h"
 
 
 class IDamageableEnemy;
@@ -47,8 +48,13 @@ void ATimberPlayerProjectile::HandleOverlap(
 		// Print the owner of the weapon
 		UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
 		UE_LOG(LogTemp, Warning, TEXT("Projectile's Owner's Owner: %s"), *GetOwner()->GetOwner()->GetName());
+
+		ATimberPlayableCharacter* OwningCharacter = Cast<ATimberPlayableCharacter>(GetOwner()->GetOwner());
+		if (OwningCharacter)
+		{
+			HitEnemy->TakeDamage(CalculateOutputDamage(OwningCharacter), GetOwner()->GetOwner());
+		}
 		// The Projectiles Owner is the Weapon and the Weapons Owner is the Player Character. The Player Character needs to be passed to Take Damage to calculate the Aggro condition.
-		HitEnemy->TakeDamage(ProjectileBaseDamage, GetOwner()->GetOwner());
 
 		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
 		Destroy();
@@ -57,4 +63,29 @@ void ATimberPlayerProjectile::HandleOverlap(
 	{
 		Destroy();
 	}
+}
+
+float ATimberPlayerProjectile::CalculateOutputDamage(AActor* PlayerActor)
+{
+	/*Projectile Damage can be modified by the Players Modifier && The Weapons Modifier
+	 * This will allow effects to either Modify only Ranged Weapons or Player and Ranged Weapons or just the Player.
+	 */
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(PlayerActor);
+	ATimberWeaponRangedBase* ProjectileOwningRangedWeapon = Cast<ATimberWeaponRangedBase>(GetOwner());
+	if (PlayerCharacter)
+	{
+		float TotalDamage = ProjectileBaseDamage * ProjectileOwningRangedWeapon->DamageModifierValue  * 
+		PlayerCharacter->DamageModifierValue;
+		
+		UE_LOG(LogTemp, Warning, TEXT("BaseProjectileDamage: %f. WeaponModifierValue: %f. PlayerModifierValue: %f.  Total Damage: %f"),
+			ProjectileBaseDamage,
+			ProjectileOwningRangedWeapon->DamageModifierValue,
+			PlayerCharacter->DamageModifierValue,
+			TotalDamage);
+		
+
+		return TotalDamage;
+	}
+
+	return ProjectileBaseDamage;
 }

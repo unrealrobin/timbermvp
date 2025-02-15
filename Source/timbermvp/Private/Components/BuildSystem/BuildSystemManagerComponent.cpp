@@ -771,6 +771,7 @@ void UBuildSystemManagerComponent::HandleCenterSnapFloorOnlyPlacement(TArray<FHi
 	}
 	else
 	{
+		BuildableRef = CenterSnapFloorOnlyBuildingComponentProxy;
 		//Move the Proxy to the Center Snap of the Floor Component
 		CenterSnapFloorOnlyBuildingComponentProxy->SetActorLocation(FloorComponentSnapLocation);
 		MakeMaterialHoloColor(CenterSnapFloorOnlyBuildingComponentProxy, BlueHoloMaterial);
@@ -1118,8 +1119,9 @@ void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitR
 	}
 	else if (ActiveTeleportConstructProxy && ClosestSnapPoint)
 	{
-		//TODO:: Why do we need to set this again if it was set originally on the initial spawn?
-		BuildableRef = Cast<ABuildableBase>(ActiveTeleportConstructProxy);
+		
+		//BuildableRef = Cast<ABuildableBase>(ActiveTeleportConstructProxy);
+		BuildableRef = ActiveTeleportConstructProxy;
 		
 		//Move the Proxy to the Closest Snap Point
 		ActiveTeleportConstructProxy->SetActorLocation(ClosestSnapPoint->GetComponentLocation());
@@ -1192,6 +1194,23 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 		}
 	}
 
+	/*
+	 * Why is this one so different?
+	 * All of these are hardcoded per trap/buildable
+	 * We basically later want to change these class calls to a type on the buildable class.
+	 * The type will be closer to "CenterSnapFloorOnly" which will better describe the placement conditions.
+	 * It will require a full rewrite, but basically the powerplate's placement will run on the CenterSnapFloorOnly conditions.
+	 * And will just keep its reference in BuildableProxy
+	 */
+	if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
+	{
+		if (CenterSnapFloorOnlyBuildingComponentProxy)
+		{
+			CenterSnapFloorOnlyBuildingComponentProxy->Destroy();
+			CenterSnapFloorOnlyBuildingComponentProxy = nullptr;
+		}
+	}
+
 	BuildableRef = nullptr;
 	StaticMeshs.Empty();
 }
@@ -1202,6 +1221,7 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
 	ResetBuildableComponents(ARampBase::StaticClass());
 	ResetBuildableComponents(ATeleportConstruct::StaticClass());
+	ResetBuildableComponents(APowerPlate::StaticClass());
 	
 	if (GEngine)
 	{

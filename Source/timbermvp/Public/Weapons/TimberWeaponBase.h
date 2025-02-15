@@ -29,11 +29,15 @@ protected:
 	UAnimMontage* AttackMontage;
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float DamageModifierValue = 1.0f;
+	
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
 	UStaticMeshComponent* StaticMesh;
 
-	UFUNCTION()
-	virtual float GetWeaponBaseDamage() const { return BaseWeaponDamage; }
+	/*UFUNCTION()
+	virtual float GetWeaponBaseDamage() const { return BaseWeaponDamage; }*/
 
 	UPROPERTY(VisibleAnywhere, Category="Attack Info")
 	TArray<AActor*> ActorsToIgnore;

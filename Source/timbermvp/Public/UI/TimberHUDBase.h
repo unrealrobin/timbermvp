@@ -65,6 +65,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* SeedaOverlapWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> AmmoCounterWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* AmmoCounterWidget;
+
+	
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
 
@@ -85,8 +93,11 @@ public:
 	void HideDeleteBuildingComponentWidget();
 	UFUNCTION()
 	void ShowSeedaOverlappingToolTip(bool bShouldShowToolTip);
+	UFUNCTION()
+	void HandleAmmoCounterVisibility(bool bShouldShowAmmoCounter);
 	
 	FVector2d GetCenterOfScreen();
+	FVector2d GetViewportSize();
 
 protected:
 	UPROPERTY()
@@ -101,5 +112,9 @@ protected:
 	float DeleteBuildingComponentWidgetShiftY = 100.f;
 	
 };
+
+
+
+
 
 

@@ -281,6 +281,7 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 	}
 }
 
+//Sword
 void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
 	if (TimberCharacter)
@@ -361,6 +362,7 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	SpawnedActor->SetOwner(TimberCharacter);
 }
 
+//Rifle
 void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 {
 	check(TimberCharacter);
@@ -394,13 +396,19 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 		SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
 	//Attach Actor to the Socket Location
-	SpawnedActor->AttachToComponent(
-		TimberCharacter->GetMesh(),
-		FAttachmentTransformRules::SnapToTargetIncludingScale, "RangedSocket");
+	if (SpawnedActor)
+	{
+		SpawnedActor->AttachToComponent(
+			TimberCharacter->GetMesh(),
+			FAttachmentTransformRules::SnapToTargetIncludingScale, "RangedSocket");
 
-	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-	TimberCharacter->WeaponThreeInstance = SpawnedActor;
-	TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
+		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
+		TimberCharacter->WeaponThreeInstance = SpawnedActor;
+		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
+
+		//Telling HUD to Display the Ammo Counter when the Ranged Weapon is Equipped
+		ShowAmmoCounter.Broadcast(true);
+	}
 }
 
 void ATimberPlayerController::DisableAllKeyboardInput()
@@ -420,14 +428,23 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 
 void ATimberPlayerController::UnEquipWeapon() const
 {
-	//TODO:: Play Unequip Animation
 	if (TimberCharacter->GetCurrentlyEquippedWeapon())
 	{
+		HandleWeaponEquip();
 		//Removing the Currently EquippedWeapon
 		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		WeaponState.Broadcast(EWeaponState::Unequipped);
+	}
+}
+
+void ATimberPlayerController::HandleWeaponEquip() const
+{
+	//If Unequipped the Ranged Weapon, we need to Hide the Ammo Counter
+	if (Cast<ATimberWeaponRangedBase>(TimberCharacter->GetCurrentlyEquippedWeapon()))
+	{
+		ShowAmmoCounter.Broadcast(false);
 	}
 }
 

@@ -38,6 +38,8 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
 
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShouldShowAmmoCounter, bool, bShouldShowAmmoCounter);
 	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
@@ -47,6 +49,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
+	UPROPERTY(BlueprintAssignable)
+	FShouldShowAmmoCounter ShowAmmoCounter;
 	
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -149,6 +153,7 @@ public:
 	//This needs to be public because it gets called on the BP version of this class.
 	UFUNCTION(BlueprintCallable)
 	void EnableStandardKeyboardInput();
+	void HandleWeaponEquip() const;
 
 	/* Reticule Alignment*/
 	//Raycast to align the reticule to the hit location.

@@ -38,6 +38,16 @@ void ATimberHUDBase::InitializeWidgets()
 			BuildMenuWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
+	if (AmmoCounterWidgetClass)
+	{
+		AmmoCounterWidget = CreateWidget<UUserWidget>(GetWorld(), AmmoCounterWidgetClass);
+		if (AmmoCounterWidget)
+		{
+			//Positioning of Widget handles on Canvas Panel in the Widget Blueprint.
+			AmmoCounterWidget->AddToViewport(1);
+			AmmoCounterWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void ATimberHUDBase::CharacterAndControllerBindings()
@@ -50,7 +60,7 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::CloseBuildPanelMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
-
+		TimberPlayerController->ShowAmmoCounter.AddDynamic(this, &ATimberHUDBase::HandleAmmoCounterVisibility);
 
 		TimberCharacter = Cast<ATimberPlayableCharacter>(
 			TimberPlayerController->GetCharacter());
@@ -177,6 +187,14 @@ FVector2d ATimberHUDBase::GetCenterOfScreen()
 	return FVector2D(ViewportSizeX * 0.5f, ViewportSizeY * 0.5f);
 }
 
+FVector2d ATimberHUDBase::GetViewportSize()
+{
+	int32 ViewportSizeX, ViewportSizeY;
+	GetOwningPlayerController()->GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+	return FVector2d(ViewportSizeX, ViewportSizeY);
+}
+
 void ATimberHUDBase::SwitchToDeathUI()
 {
 	RootWidget->RemoveFromParent();
@@ -250,5 +268,25 @@ void ATimberHUDBase::HideDeleteBuildingComponentWidget()
 	{
 		DeleteBuildingComponentWidget->RemoveFromParent();
 		DeleteBuildingComponentWidget = nullptr;
+	}
+}
+
+void ATimberHUDBase::HandleAmmoCounterVisibility(bool bShouldShowAmmoCounter)
+{
+	if (AmmoCounterWidget)
+	{
+		if (bShouldShowAmmoCounter)
+		{
+			AmmoCounterWidget->SetVisibility(ESlateVisibility::Visible);
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Showing Ammo Counter");
+			}
+		}
+		else
+		{
+			AmmoCounterWidget->SetVisibility(ESlateVisibility::Hidden);
+			GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Hiding Ammo Counter");
+		}
 	}
 }

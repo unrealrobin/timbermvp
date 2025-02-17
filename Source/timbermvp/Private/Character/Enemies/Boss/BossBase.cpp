@@ -18,7 +18,8 @@ ABossBase::ABossBase()
 void ABossBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	OnDestroyed.AddDynamic(this, &ABossBase::BroadcastDeathDelegate);
 }
 
 // Called every frame
@@ -45,4 +46,11 @@ void ABossBase::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropC
 	//This calls the Original function which has a 5% chance for another Max Health and a 20% chance for a normal health drop.
 	Super::HandleDropHealthLoot(HealthDropClass);
 }
+
+void ABossBase::BroadcastDeathDelegate(AActor* DestroyedActor)
+{
+	OnBossDeath.Broadcast();
+	UE_LOG(LogTemp, Warning, TEXT("BossBase - Broadcasting Boss Death."));
+}
+
 

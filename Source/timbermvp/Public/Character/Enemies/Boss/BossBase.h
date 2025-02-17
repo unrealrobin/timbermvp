@@ -15,6 +15,10 @@ public:
 	// Sets default values for this character's properties
 	ABossBase();
 
+	/*Delegates*/
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeath);
+	FOnBossDeath OnBossDeath;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -27,4 +31,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass) override;
+
+	UFUNCTION()
+	void BroadcastDeathDelegate(AActor* DestroyedActor);
+
+	
+	
 };

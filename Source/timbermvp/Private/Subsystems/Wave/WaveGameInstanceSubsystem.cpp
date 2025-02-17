@@ -6,6 +6,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
+#include "Character/Enemies/Boss/BossBase.h"
 #include "Data/WaveData.h"
 #include "Environment/BossSpawnLocation.h"
 #include "Environment/GarageDoorBase.h"
@@ -142,7 +143,10 @@ void UWaveGameInstanceSubsystem::HandleBossSpawn()
 	
 	if(BossToSpawn && !BossSpawned)
 	{
-		HandleBossDoor(true);
+		//Open the Garage Door.
+		OpenBossDoor();
+		
+		//Spawn the Boss.
 		SpawnEnemy(BossToSpawn, BossSpawnPointLocation);
 		BossSpawned = true;
 	}
@@ -194,8 +198,6 @@ void UWaveGameInstanceSubsystem::EndWave()
 {
 	//Process of Closing Doors
 	CloseLabDoorHandle.Broadcast();
-	//TODO::Set Delegate from Boss to Close Lab Doors on Death
-	
 	//Resetting the wave Data.
 	ResetWaveEnemies();
 	//Increment Wave
@@ -227,6 +229,15 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 		TotalEnemiesSpawned += 1;
 		UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
 	}
+
+	//If we spawn a boss bind to its delegate.
+	if (Cast<ABossBase>(Actor))
+	{
+		BindToBossDelegate(Cast<ABossBase>(Actor));
+		UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnEnemy() - Boss Spawned - Binding to Delegate."));
+	}
+
+	
 }
 
 void UWaveGameInstanceSubsystem::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
@@ -312,17 +323,28 @@ void UWaveGameInstanceSubsystem::UpdateTimeToNextWave()
 	TimeToNextWaveSecondsHandle.Broadcast(TimeToNextWave);
 }
 
-void UWaveGameInstanceSubsystem::HandleBossDoor(bool ShouldDoorBeOpen)
+void UWaveGameInstanceSubsystem::OpenBossDoor()
 {
-	if(ShouldDoorBeOpen && BossDoor)
+	if(BossDoor)
 	{
 		BossDoor->OpenGarageDoor();
 	}
-	else
+}
+
+void UWaveGameInstanceSubsystem::CloseBossDoor()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - CloseBossDoor() - Boss Destroyed - Closing Garage Door"));
+	
+	if(BossDoor)
 	{
-		if(BossDoor)
-		{
-			BossDoor->CloseGarageDoor();
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Garage Door Closes."));
+		BossDoor->CloseGarageDoor();
 	}
 }
+
+void UWaveGameInstanceSubsystem::BindToBossDelegate(ABossBase* BossActor)
+{
+	//Delegate is Broadcasted on ABossBase when it is destroyed.
+	BossActor->OnBossDeath.AddDynamic(this, &UWaveGameInstanceSubsystem::CloseBossDoor);
+}
+

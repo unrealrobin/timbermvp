@@ -75,7 +75,7 @@ public:
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 1;
+	int CurrentWaveNumber = 3;
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
 	UPROPERTY()
@@ -119,7 +119,12 @@ public:
 	UPROPERTY()
 	AGarageDoorBase* BossDoor;
 	UFUNCTION()
-	void HandleBossDoor(bool ShouldDoorBeOpen);
+	void OpenBossDoor();
+	UFUNCTION()
+	void CloseBossDoor();
 	FTimerHandle BossSpawnDelayTimerHandle;
+	UFUNCTION()
+	void BindToBossDelegate(ABossBase* BossActor);
 };
+
 

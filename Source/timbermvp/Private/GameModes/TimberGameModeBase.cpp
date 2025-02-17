@@ -283,7 +283,7 @@ void ATimberGameModeBase::LoadGame()
 	LoadSeedaData(LoadGameInstance);
 
 	CloseAllLabDoors();
-	GetWaveGameInstanceSubsystem()->HandleBossDoor(false);
+	GetWaveGameInstanceSubsystem()->CloseBossDoor();
 	HandleRedrawPathTrace();
 	
 	SwitchToStandardUI.Execute();

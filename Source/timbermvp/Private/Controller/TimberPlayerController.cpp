@@ -430,11 +430,19 @@ void ATimberPlayerController::UnEquipWeapon() const
 {
 	if (TimberCharacter->GetCurrentlyEquippedWeapon())
 	{
+		//Broadcasts to HUD if Unequipped Weapon is the Ranged Weapon (Hides Ammo Counter)
 		HandleWeaponEquip();
-		//Removing the Currently EquippedWeapon
+		
+		//Removing the Currently EquippedWeapon\]
+		//TODO:: Can we modify this to not destroy the Weapon but HIDE it?
 		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
+
+		//Stops any reloading Montages or shooting montages from playing - May also stop death montage if we switch weapons on death.
+		TimberCharacter->StopAllAnimMontages();
+		
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
+		
 		WeaponState.Broadcast(EWeaponState::Unequipped);
 	}
 }
@@ -597,10 +605,9 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 
 void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 {
-	//TODO:: Implement Player Death
+	
 	if (bIsPlayerDead)
 	{
-		//TODO:: Play Death Animation
 		EnableCursor();
 		DisableAllKeyboardInput();
 		UnEquipWeapon();

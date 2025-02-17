@@ -61,8 +61,14 @@ public:
 	UFUNCTION(Category="Weapon")
 	void PerformStandardAttack();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Weapon")
+	bool bIsReloading = false;
+
 	UFUNCTION()
 	void PlayReloadMontage();
+
+	UFUNCTION()
+	void HandleReloadMontageInterruption(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void ReloadWeapon();

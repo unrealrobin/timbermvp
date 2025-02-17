@@ -83,6 +83,10 @@ public:
 	UAnimMontage* DeathMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* ReloadMontage;
+	UFUNCTION()
+	void StopAllAnimMontages();
+
+	
 	/*Animation Properties*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
 	bool IsNowJumping = false;

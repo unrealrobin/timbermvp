@@ -44,7 +44,7 @@ void ATimberWeaponRangedBase::Tick(float DeltaTime)
 
 void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 {
-	if (bIsFireOnCooldown == false && CurrentAmmo > 0)
+	if (bIsFireOnCooldown == false && CurrentAmmo > 0 && bIsReloading == false)
 	{
 		if (WeaponOwner && GetWorld())
 		{
@@ -83,7 +83,7 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 					
 					Projectile->SetOwner(this);
 					
-					GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
+					//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
 				}
 			}
 		}
@@ -135,13 +135,51 @@ void ATimberWeaponRangedBase::PlayReloadMontage()
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(WeaponOwner);
 	if (PlayerCharacter && PlayerCharacter->ReloadMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Ranged Weapon - PlayReloadMontage() - PlayerCharacter is Owner - Reloading Weapon"));
+
+
+		//Getting the PLayers Anim Instance so we can bind Delegates
+		UAnimInstance* PlayerAnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
+		if (!PlayerAnimInstance) return;
+
+		//Creating Delegate Call for Early Exit of Reload Montage
+		FOnMontageEnded MontageEndedDelegate;
+		MontageEndedDelegate.BindUObject(this, &ATimberWeaponRangedBase::HandleReloadMontageInterruption);
+
+		//Setting Delegate on this Exact Montage
+		PlayerAnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, PlayerCharacter->ReloadMontage);
+		
 		//Plays the montage. Notify on Montage end handles the Reload.
 		PlayerCharacter->PlayAnimMontage(PlayerCharacter->ReloadMontage, 1.f, FName("Reload1"));
+
+		//Setting the Reload Bool to True - If Animation Notify Runs, this will be reset.
+		bIsReloading = true;
 	}
+}
+
+void ATimberWeaponRangedBase::HandleReloadMontageInterruption(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (!Montage) return;
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(WeaponOwner);
+	UAnimInstance* PlayerAnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
+	if (PlayerAnimInstance)
+	{
+		//This is us basically unbinding the delegates from the Montage.
+		//We just set it to an empty delegate.
+		FOnMontageEnded EmptyDelegate;
+		PlayerAnimInstance->Montage_SetEndDelegate(EmptyDelegate, PlayerCharacter->ReloadMontage);
+	};
+
+	if (bInterrupted)
+	{
+		//Even if the Montage Plays past the Notify and gets reset there, and a Montage Interrupt is called, it's ok as long as the Reload Bool is reset to false.
+		bIsReloading = false;
+	}
+	
 }
 
 void ATimberWeaponRangedBase::ReloadWeapon()
 {
+	//Called from Anim Notify on the Anim Montage for the Reload Animation.
 	CurrentAmmo = MaxAmmo;
+	bIsReloading = false;
 }

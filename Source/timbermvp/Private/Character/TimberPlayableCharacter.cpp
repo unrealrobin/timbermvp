@@ -303,6 +303,15 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 
 /*Weapon Stuff*/
 
+void ATimberPlayableCharacter::StopAllAnimMontages()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->StopAllMontages(0.25f);
+	}
+}
+
 void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
 {
 	CurrentWeaponState = NewWeaponState;

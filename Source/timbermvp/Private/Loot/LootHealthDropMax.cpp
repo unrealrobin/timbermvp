@@ -23,7 +23,7 @@ void ALootHealthDropMax::HandlePlayerOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-	if (PlayerCharacter && PlayerCharacter->CurrentHealth >= PlayerCharacter->MaxHealth)
+	if (PlayerCharacter && PlayerCharacter->CurrentHealth <= PlayerCharacter->MaxHealth)
 	{
 		PlayerCharacter->CurrentHealth = PlayerCharacter->MaxHealth;
 		Destroy();

@@ -75,7 +75,7 @@ public:
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 3;
+	int CurrentWaveNumber = 1;
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
 	UPROPERTY()

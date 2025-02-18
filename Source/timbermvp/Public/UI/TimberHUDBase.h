@@ -108,6 +108,7 @@ protected:
 	void HandleBuildPanelMenu(bool IsBuildPanelMenuOpen);
 
 	//Vars to shift in the X & Y direction when the DeleteBuildingComponentWidget is spawned. Shifted from Center.
+	FVector2d DeleteWidgetLocation = FVector2d(0, 0);
 	float DeleteBuildingComponentWidgetShiftX = 100.f;
 	float DeleteBuildingComponentWidgetShiftY = 100.f;
 	

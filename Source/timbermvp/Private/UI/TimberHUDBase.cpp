@@ -237,12 +237,16 @@ void ATimberHUDBase::SwitchToGameUI()
 void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY)
 {
 	//If widget is up, only update the position of the widget.
+	//Parameters are the Screen location of the Impact Point
+
+	//Shifting the Widget 100 Right and 100 Down from the Impact Point. On Screen.
+	DeleteWidgetLocation.X = ViewportLocationX + DeleteBuildingComponentWidgetShiftX;
+	DeleteWidgetLocation.Y = ViewportLocationY + DeleteBuildingComponentWidgetShiftY;
+	
 	if (DeleteBuildingComponentWidget)
 	{
-		FVector2D ViewportLocation = FVector2d(
-			ViewportLocationX + DeleteBuildingComponentWidgetShiftX,
-			ViewportLocationY + DeleteBuildingComponentWidgetShiftY);
-		DeleteBuildingComponentWidget->SetPositionInViewport(ViewportLocation, false);
+		
+		DeleteBuildingComponentWidget->SetPositionInViewport(DeleteWidgetLocation);
 		return;
 	}
 
@@ -255,8 +259,10 @@ void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, 
 			DeleteBuildingComponentWidget->AddToViewport(1);
 
 			//Constructing a 2D Vector to set the position of the Widget on the Viewport. For Some reason can not use the Delegate System with FVector2d Type.
-			FVector2D ViewportLocation = FVector2d(0, 0);
-			DeleteBuildingComponentWidget->SetPositionInViewport(ViewportLocation, false);
+			if (DeleteWidgetLocation != FVector2d(0, 0))
+			{
+				DeleteBuildingComponentWidget->SetPositionInViewport(DeleteWidgetLocation);
+			}
 		}
 	}
 }

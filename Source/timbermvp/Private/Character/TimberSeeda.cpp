@@ -147,15 +147,12 @@ void ATimberSeeda::AddInteractableToPlayer(
 		if (PC)
 		{
 			PC->SetInteractableItem(this);
-
-			//Tells the HUD to show the ToolTip
-			//OnSeedaInteractOverlap.Broadcast(true);
-
+			
 			if (RepairWidget)
 			{
 				//Show the Widget when the Player is in Range.
 				RepairWidget->SetVisibility(ESlateVisibility::Visible);
-				UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget Visible."));
+				//UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget Visible."));
 			}
 		}
 	}
@@ -172,15 +169,11 @@ void ATimberSeeda::RemoveInteractableFromPlayer(
 		{
 			PC->ClearInteractableItem();
 
-			//Tells the HUD to hide the ToolTip
-			//OnSeedaInteractOverlap.Broadcast(false);
-
 			if (RepairWidget)
 			{
-				//Show the Widget when the Player is in Range.
+				//Hide the Widget when the Player is out of Range.
 				RepairWidget->SetVisibility(ESlateVisibility::Hidden);
-				UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget Not Visible."));
-
+				//UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget Not Visible."));
 			}
 		}
 	}

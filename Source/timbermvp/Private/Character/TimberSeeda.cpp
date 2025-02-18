@@ -5,10 +5,12 @@
 
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ATimberSeeda::ATimberSeeda()
 {
@@ -21,6 +23,10 @@ ATimberSeeda::ATimberSeeda()
 	StaticMeshComponent->SetupAttachment(RootComponent);
 	InteractOverlapSphere = CreateDefaultSubobject<UCapsuleComponent>("Interact Sphere");
 	InteractOverlapSphere->SetupAttachment(RootComponent);
+	
+	RepairWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Repair Widget Component");
+	RepairWidgetComponent->SetupAttachment(StaticMeshComponent);
+	RepairWidgetComponent->RegisterComponent();
 }
 
 void ATimberSeeda::BeginPlay()
@@ -48,11 +54,16 @@ void ATimberSeeda::BeginPlay()
 
 	InteractOverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ATimberSeeda::AddInteractableToPlayer);
 	InteractOverlapSphere->OnComponentEndOverlap.AddDynamic(this, &ATimberSeeda::RemoveInteractableFromPlayer);
+
+	HandleRepairWidget();
 }
 
 void ATimberSeeda::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//If widget is visible, rotate it to the player.
+	RotateWidgetToPlayer();
 }
 
 void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)
@@ -138,7 +149,14 @@ void ATimberSeeda::AddInteractableToPlayer(
 			PC->SetInteractableItem(this);
 
 			//Tells the HUD to show the ToolTip
-			OnSeedaInteractOverlap.Broadcast(true);
+			//OnSeedaInteractOverlap.Broadcast(true);
+
+			if (RepairWidget)
+			{
+				//Show the Widget when the Player is in Range.
+				RepairWidget->SetVisibility(ESlateVisibility::Visible);
+				UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget Visible."));
+			}
 		}
 	}
 }
@@ -155,8 +173,45 @@ void ATimberSeeda::RemoveInteractableFromPlayer(
 			PC->ClearInteractableItem();
 
 			//Tells the HUD to hide the ToolTip
-			OnSeedaInteractOverlap.Broadcast(false);
+			//OnSeedaInteractOverlap.Broadcast(false);
+
+			if (RepairWidget)
+			{
+				//Show the Widget when the Player is in Range.
+				RepairWidget->SetVisibility(ESlateVisibility::Hidden);
+				UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget Not Visible."));
+
+			}
 		}
+	}
+}
+
+void ATimberSeeda::HandleRepairWidget()
+{
+	if (RepairWidgetComponent)
+	{
+		RepairWidget = RepairWidgetComponent->GetUserWidgetObject();
+		if (RepairWidget)
+		{
+			RepairWidget->SetVisibility(ESlateVisibility::Hidden);
+			UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget initialized and stored. Hidden."))
+		}
+	}
+}
+
+void ATimberSeeda::RotateWidgetToPlayer()
+{
+	if (RepairWidgetComponent && RepairWidget && RepairWidget->IsVisible())
+	{
+		//Get the Camera of the Player @ Index 0 (Single Player Game)
+		APlayerCameraManager* CamManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
+		FVector CameraLoc = CamManager->GetCameraLocation();
+
+		// Calculate a look-at rotation from this actor’s location to the camera
+		FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CameraLoc);
+
+		// Apply rotation
+		RepairWidgetComponent->SetWorldRotation(LookRotation);
 	}
 }
 

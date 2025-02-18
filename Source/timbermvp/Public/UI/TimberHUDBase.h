@@ -23,7 +23,7 @@ public:
 	void InitializeWidgets();
 	void CharacterAndControllerBindings();
 	void GameModeBindings();
-	void SeedaBinding();
+	//void SeedaBinding();
 	virtual void BeginPlay() override;
 
 	/* Delegates */
@@ -91,8 +91,8 @@ public:
 	void ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY);
 	UFUNCTION()
 	void HideDeleteBuildingComponentWidget();
-	UFUNCTION()
-	void ShowSeedaOverlappingToolTip(bool bShouldShowToolTip);
+	/*UFUNCTION()
+	void ShowSeedaOverlappingToolTip(bool bShouldShowToolTip);*/
 	UFUNCTION()
 	void HandleAmmoCounterVisibility(bool bShouldShowAmmoCounter);
 	

@@ -7,6 +7,8 @@
 #include "Interfaces/Interactable.h"
 #include "TimberSeeda.generated.h"
 
+class UWidgetComponent;
+
 UCLASS()
 class TIMBERMVP_API ATimberSeeda : public AActor, public IInteractable
 {
@@ -45,6 +47,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision Sphere")
 	UCapsuleComponent* InteractOverlapSphere;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UWidgetComponent* RepairWidgetComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	UUserWidget* RepairWidget;
+
+	UFUNCTION()
+	void HandleRepairWidget();
+
+	UFUNCTION()
+	void RotateWidgetToPlayer();
+
 	UFUNCTION()
 	void TakeDamage_Seeda(float DamageAmount);
 
@@ -59,17 +73,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Repair")
 	float HealthAmountGainedOnRepair = 25;
-
-	/*Interface Functions*/
-	/*
-	 *Seedas are interactable objects that the player can repair.
-	 *Seeda will have other interactions in the future. But wont use the Interactable Interface.
-	 *Interface may be overkill for this, but we can pretty much give all actors 1 Interacts.
-	 *
-	 *
-	 * The Interact Input Action call a function on the player controller that calls the Referenced Interactable's Interact Function.
-	 * The interactable is stored on the Player Controller by overlap and removed by end overlap.
-	 */
+	
 	UFUNCTION()
 	void Interact() override;
 

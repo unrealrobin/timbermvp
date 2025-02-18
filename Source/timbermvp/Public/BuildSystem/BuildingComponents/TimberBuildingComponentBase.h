@@ -40,7 +40,7 @@ public:
 	float ComponentDurability = 100.f;
 
 	UFUNCTION()
-	void BuildingComponentTakeDamage(float AmountOfDamage);
+	void BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor);
 
 	void CreateSnapPoints();
 	void CreateQuadrantComponents();

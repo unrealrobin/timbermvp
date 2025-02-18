@@ -24,6 +24,8 @@ ATimberEnemyMeleeBase::ATimberEnemyMeleeBase()
 	LeftHandCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
 	RightFootCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
 	LeftFootCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
+
+	EnemyType = EEnemyType::BasicRobot;
 }
 
 void ATimberEnemyMeleeBase::BeginPlay()

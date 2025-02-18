@@ -18,16 +18,16 @@ public:
 	ATimberEnemyMeleeWeaponBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Info")
-	float MeleeCharacterMovementSpeed;
+	float MeleeCharacterMovementSpeed = 400.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
 	TSubclassOf<ATimberWeaponBase> MeleeWeaponClassName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Info")
-	ATimberWeaponBase* EquippedWeapon;
+	ATimberWeaponBase* EquippedWeapon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
-	UAnimMontage* WeaponAttacksMontage;
+	UAnimMontage* WeaponAttacksMontage = nullptr;
 
 protected:
 	// Called when the game starts or when spawned

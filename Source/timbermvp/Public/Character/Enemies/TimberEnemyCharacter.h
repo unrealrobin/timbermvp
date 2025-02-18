@@ -11,6 +11,7 @@ class ALootHealthDrop;
 class AEnemyLootDropBase;
 class ATimberBuildingComponentBase;
 class USoundCue;
+
 UENUM(BlueprintType)
 enum class EEnemyWeaponState : uint8
 {
@@ -18,6 +19,18 @@ enum class EEnemyWeaponState : uint8
 	MeleeWeaponEquipped UMETA(DisplayName = "MeleeWeaponEquipped"),
 	RangedWeaponEquipped UMETA(DisplayName = "RangedWeaponEquipped"),
 };
+
+UENUM(BlueprintType)
+enum class EEnemyType : uint8
+{
+	BasicRobot UMETA(DisplayName = "BasicRobot"),
+	MeleeWeaponRobot UMETA(DisplayName = "MeleeWeaponRobot"),
+	RangedWeaponRobot UMETA(DisplayName = "RangedWeaponRobot"),
+	Default UMETA(DisplayName = "Default")
+	
+};
+
+
 
 /**
  * 
@@ -38,6 +51,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
 	EEnemyWeaponState EnemyWeaponType = EEnemyWeaponState::NoWeaponEquipped;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy Type")
+	EEnemyType EnemyType = EEnemyType::Default;
+	
 	float StandardMelleAttackDamage = 50.f;
 	float CurrentWave = 0;
 

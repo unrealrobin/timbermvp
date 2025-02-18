@@ -50,11 +50,13 @@ void ATimberWeaponMeleeBase::HandleWeaponCollision(bool ShouldReadyCollision) co
 	if (ShouldReadyCollision)
 	{
 		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Sword Collision Enabled")));
+		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
 	}
 	else
 	{
+		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 	}
@@ -69,55 +71,65 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	{
 		return;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Sword Overlapped Component: %s. Sword Overlapped Actor: %s"), *OverlappedComponent->GetName(), *OtherActor->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
 	
 	{ // AI using sword - Ignoring other AI
-		ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
-		ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
-		if (ActorsToIgnore.Contains(HitCharacter) || ActorsToIgnore.Contains(Seeda))
+		if (Cast<ATimberEnemyCharacter>(GetOwner()))
 		{
-			return;
-		}
-		if (HitCharacter) //Is the player character and doesn't need to be ignored.
-		{
-			ActorsToIgnore.Add(HitCharacter);
-			
-			HitCharacter->PlayerTakeDamage(BaseWeaponDamage * DamageModifierValue);
-			return;
-		}
-		if(Seeda)
-		{
-			ActorsToIgnore.Add(Seeda);
-			Seeda->TakeDamage_Seeda(BaseWeaponDamage);
-			return;
+			ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+			ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
+			if (ActorsToIgnore.Contains(HitCharacter) || ActorsToIgnore.Contains(Seeda))
+			{
+				return;
+			}
+			if (HitCharacter) //Is the player character and doesn't need to be ignored.
+			{
+				ActorsToIgnore.Add(HitCharacter);
+				
+				HitCharacter->PlayerTakeDamage(TotalWeaponDamage);
+				return;
+			}
+			if(Seeda)
+			{
+				ActorsToIgnore.Add(Seeda);
+				Seeda->TakeDamage_Seeda(TotalWeaponDamage);
+				UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Seeda:Total Weapon Damage: %f"), TotalWeaponDamage);
+				return;
+			}
 		}
 	}
 
 	{/* Player using Sword - If Melee Hit is Against the AI Enemy Characters*/
-		ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
-		if (ActorsToIgnore.Contains(HitEnemy))
+		if (Cast<ATimberPlayableCharacter>(GetOwner()))
 		{
-			return;
-		}
-		if (HitEnemy)
-		{
-			IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(OtherActor);
-			if (DamageableEnemy)
+			ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
+			if (ActorsToIgnore.Contains(HitEnemy))
 			{
-				DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
-				ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-				// Print the owner of the weapon
-				//UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
-
-				if (PlayerCharacter)
-				{
-					DamageableEnemy->TakeDamage(BaseWeaponDamage * PlayerCharacter->DamageModifierValue, GetOwner());
-					UE_LOG(LogTemp, Warning, TEXT("Sword Base Damage: %f. Player Character Damage Modifier: %f. TotalDamage: %f. "),
-						BaseWeaponDamage,
-						PlayerCharacter->DamageModifierValue,
-						BaseWeaponDamage * PlayerCharacter->DamageModifierValue );
-				}
+				return;
 			}
-			ActorsToIgnore.Add(HitEnemy);
+			if (HitEnemy)
+			{
+				IDamageableEnemy* DamageableEnemy = Cast<IDamageableEnemy>(OtherActor);
+				if (DamageableEnemy)
+				{
+					DamageableEnemy->PlayMeleeWeaponHitSound(SweepResult);
+					ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+					// Print the owner of the weapon
+					//UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
+
+					if (PlayerCharacter)
+					{
+						DamageableEnemy->TakeDamage(BaseWeaponDamage * PlayerCharacter->DamageModifierValue, GetOwner());
+						/*UE_LOG(LogTemp, Warning, TEXT("Sword Base Damage: %f. Player Character Damage Modifier: %f. TotalDamage: %f. "),
+							BaseWeaponDamage,
+							PlayerCharacter->DamageModifierValue,
+							BaseWeaponDamage * PlayerCharacter->DamageModifierValue );*/
+					}
+				}
+				ActorsToIgnore.Add(HitEnemy);
+			}
 		}
 	}
 }
@@ -126,6 +138,9 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapEnd(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, "Overlap Ended");
+
+	//Will also be forced at the end of the attack animation through Notifies.
+	EmptyActorToIgnoreArray();
 }
 
 //Called in the Animations Montage using Notifies.

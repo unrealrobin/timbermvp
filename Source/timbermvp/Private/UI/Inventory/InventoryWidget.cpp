@@ -13,7 +13,10 @@ void UInventoryWidget::NativeConstruct()
 	ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GM)
 	{
-		GM->OnCharacterInitialization.AddDynamic(this, &UInventoryWidget::InitializeInventoryWidget);
+		if (!GM->OnCharacterInitialization.Contains(this, FName("InitializeInventoryWidget")))
+		{
+			GM->OnCharacterInitialization.AddDynamic(this, &UInventoryWidget::InitializeInventoryWidget);
+		}
 		UE_LOG(LogTemp, Warning, TEXT("Bound to GM's CharacterInitialization Delegate Call."))
 	}
 	

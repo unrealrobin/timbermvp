@@ -37,11 +37,14 @@ void ATimberBuildingComponentBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage)
+void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor)
 {
+	if (Cast<ATimberEnemyProjectile>(DamagingActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Building Component Hit by Enemy Projectile."));
+	}
+	
 	ComponentDurability = ComponentDurability - AmountOfDamage;
-
-	UE_LOG(LogTemp, Warning, TEXT("Building Component Durability: %f."), ComponentDurability);
 
 	if (ComponentDurability <= 0)
 	{
@@ -53,19 +56,11 @@ void ATimberBuildingComponentBase::HandleOverlapNotifies(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Will handle mellee attacks from the Enemy.
+	/*//Will handle mellee attacks from the Enemy.
 	if (OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
 	{
-		BuildingComponentTakeDamage(25.f);
-	}
-
-	//Handles Enemy Projectile Damage
-	if (OtherActor->IsA(ATimberEnemyProjectile::StaticClass()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Building Component Hit by Enemy Projectile."));
-		//TODO:: Use the actual projectiles damage amount.
-		BuildingComponentTakeDamage(2.f);
-	}
+		BuildingComponentTakeDamage(25.f, TODO);
+	}*/
 }
 
 void ATimberBuildingComponentBase::CreateSnapPoints()

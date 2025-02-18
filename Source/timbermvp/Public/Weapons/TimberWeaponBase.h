@@ -24,7 +24,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Details")
 	float BaseWeaponDamage = 15.0f;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
 	UAnimMontage* AttackMontage;
 
@@ -32,6 +32,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float DamageModifierValue = 1.0f;
+	
+	//TODO:: Might be adjusted later to account for Enemy Specific Modifiers aswell.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Details")
+	float TotalWeaponDamage = BaseWeaponDamage * DamageModifierValue;
 	
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
 	UStaticMeshComponent* StaticMesh;

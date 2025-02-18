@@ -19,6 +19,7 @@ ATimberPlayerProjectile::ATimberPlayerProjectile()
 	if (CapsuleComponent)
 	{
 		CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberPlayerProjectile::HandleOverlap);
+		CapsuleComponent->OnComponentHit.AddDynamic(this, &ATimberPlayerProjectile::HandleBlocked);
 	}
 }
 
@@ -34,6 +35,17 @@ void ATimberPlayerProjectile::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ATimberPlayerProjectile::HandleBlocked(
+	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+	const FHitResult& Hit)
+{
+	//if the projectile is blocked by a wall or other object, destroy the projectile. This is only for the Players 
+	// Projectile. Different collisions for enemy projectile.
+	Destroy();
+
+	UE_LOG(LogTemp, Warning, TEXT("PlayerProjectile - Player Projectile has been Blocked and Destroyed."))
+}
+
 void ATimberPlayerProjectile::HandleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
@@ -45,22 +57,14 @@ void ATimberPlayerProjectile::HandleOverlap(
 		//UE_LOG(LogTemp, Warning, TEXT("Overlapped: %ls"), *OverlappedComponent->GetFullName());
 		//Play the IDamageableEnemy's TakeDamage function. Interface.
 		HitEnemy->PlayProjectileHitSound(SweepResult);
-		// Print the owner of the weapon
-		UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
-		UE_LOG(LogTemp, Warning, TEXT("Projectile's Owner's Owner: %s"), *GetOwner()->GetOwner()->GetName());
 
 		ATimberPlayableCharacter* OwningCharacter = Cast<ATimberPlayableCharacter>(GetOwner()->GetOwner());
 		if (OwningCharacter)
 		{
 			HitEnemy->TakeDamage(CalculateOutputDamage(OwningCharacter), GetOwner()->GetOwner());
 		}
-		// The Projectiles Owner is the Weapon and the Weapons Owner is the Player Character. The Player Character needs to be passed to Take Damage to calculate the Aggro condition.
 
 		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
-		Destroy();
-	}
-	else
-	{
 		Destroy();
 	}
 }
@@ -77,11 +81,11 @@ float ATimberPlayerProjectile::CalculateOutputDamage(AActor* PlayerActor)
 		float TotalDamage = ProjectileBaseDamage * ProjectileOwningRangedWeapon->DamageModifierValue  * 
 		PlayerCharacter->DamageModifierValue;
 		
-		UE_LOG(LogTemp, Warning, TEXT("BaseProjectileDamage: %f. WeaponModifierValue: %f. PlayerModifierValue: %f.  Total Damage: %f"),
+		/*UE_LOG(LogTemp, Warning, TEXT("BaseProjectileDamage: %f. WeaponModifierValue: %f. PlayerModifierValue: %f.  Total Damage: %f"),
 			ProjectileBaseDamage,
 			ProjectileOwningRangedWeapon->DamageModifierValue,
 			PlayerCharacter->DamageModifierValue,
-			TotalDamage);
+			TotalDamage);*/
 		
 
 		return TotalDamage;

@@ -26,7 +26,7 @@ ATimberSeeda::ATimberSeeda()
 	
 	RepairWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Repair Widget Component");
 	RepairWidgetComponent->SetupAttachment(StaticMeshComponent);
-	RepairWidgetComponent->RegisterComponent();
+	//RepairWidgetComponent->RegisterComponent();
 }
 
 void ATimberSeeda::BeginPlay()

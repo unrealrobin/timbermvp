@@ -23,7 +23,7 @@ public:
 	void InitializeWidgets();
 	void CharacterAndControllerBindings();
 	void GameModeBindings();
-	void SeedaBinding();
+	//void SeedaBinding();
 	virtual void BeginPlay() override;
 
 	/* Delegates */
@@ -70,13 +70,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* AmmoCounterWidget;
-
 	
-
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
-
-
+	
 	UFUNCTION(BlueprintCallable, Category="Build Menu")
 	void OpenBuildPanelMenu();
 	UFUNCTION(BlueprintCallable, Category="Build Menu")
@@ -91,8 +88,7 @@ public:
 	void ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY);
 	UFUNCTION()
 	void HideDeleteBuildingComponentWidget();
-	UFUNCTION()
-	void ShowSeedaOverlappingToolTip(bool bShouldShowToolTip);
+
 	UFUNCTION()
 	void HandleAmmoCounterVisibility(bool bShouldShowAmmoCounter);
 	

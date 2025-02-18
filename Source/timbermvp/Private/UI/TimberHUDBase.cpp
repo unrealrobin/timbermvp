@@ -15,7 +15,7 @@ void ATimberHUDBase::BeginPlay()
 	InitializeWidgets();
 	CharacterAndControllerBindings();
 	GameModeBindings();
-	SeedaBinding();
+	//SeedaBinding();
 }
 
 void ATimberHUDBase::InitializeWidgets()
@@ -84,19 +84,6 @@ void ATimberHUDBase::GameModeBindings()
 	}
 }
 
-void ATimberHUDBase::SeedaBinding()
-{
-	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()));
-	if (Seeda)
-	{
-		Seeda->OnSeedaInteractOverlap.AddDynamic(this, &ATimberHUDBase::ShowSeedaOverlappingToolTip);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Seeda Not Found in the Level."));
-	}
-}
-
 // Called by Player using the "B" Key, Listening for the Delegate on the Controller
 void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
 {
@@ -147,35 +134,6 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 
 		//Only Shows delete icon when the build menu is closed.
 		HideDeleteBuildingComponentWidget();
-	}
-}
-
-void ATimberHUDBase::ShowSeedaOverlappingToolTip(bool bShouldShowToolTip)
-{
-	//Create and show tooltip widget if the player is overlapping with the seeda.
-	if (bShouldShowToolTip)
-	{
-		//Where to show it in the screen space.
-		
-		FVector2d CenterScreen = GetCenterOfScreen();
-		FVector2d SeedaScreenLocation;
-		SeedaScreenLocation.X = CenterScreen.X + 400;
-		SeedaScreenLocation.Y = CenterScreen.Y;
-		
-		SeedaOverlapWidget = CreateWidget<UUserWidget>(GetWorld(), SeedaOverlapWidgetClass);
-		if (SeedaOverlapWidget)
-		{
-			SeedaOverlapWidget->AddToViewport(1);
-			SeedaOverlapWidget->SetPositionInViewport(SeedaScreenLocation, false);
-			SeedaOverlapWidget->SetVisibility(ESlateVisibility::Visible);
-		}
-	}
-	else //Hide the tooltip widget if the player is not overlapping with the seeda.
-	{
-		if (SeedaOverlapWidget)
-		{
-			SeedaOverlapWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
 	}
 }
 

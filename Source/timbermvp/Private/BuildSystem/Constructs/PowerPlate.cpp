@@ -33,6 +33,33 @@ void APowerPlate::BeginPlay()
 	
 }
 
+void APowerPlate::HandlePowerPlateMaterialChange(bool bShouldGlow)
+{
+	if (!StaticMeshComponent) return; // Safety check
+
+	// Ensure we are working with a dynamic material instance
+	UMaterialInstanceDynamic* MaterialInstance = Cast<UMaterialInstanceDynamic>(StaticMeshComponent->GetMaterial(1));
+
+	if (!MaterialInstance)
+	{
+		UMaterialInterface* BaseMaterial = StaticMeshComponent->GetMaterial(1);
+		if (!BaseMaterial) return;
+
+		// Create and apply the dynamic instance
+		MaterialInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
+		StaticMeshComponent->SetMaterial(1, MaterialInstance);
+	}
+
+	// Set the emissive properties
+	FVector Color = bShouldGlow ? FVector(1.0f, 3.0f, 5.0f) : FVector(5.0f, 2.0f, 1.0f);
+	FLinearColor EmissiveColor = FLinearColor(Color.X, Color.Y, Color.Z, 1.0f);
+
+	float EmissiveIntensity = bShouldGlow ? 3.0f : 0.1f;
+
+	MaterialInstance->SetScalarParameterValue("EmissiveIntensity", EmissiveIntensity);
+	MaterialInstance->SetVectorParameterValue("EmissiveColor", EmissiveColor);
+}
+
 void APowerPlate::HitBoxBeginOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
@@ -44,6 +71,8 @@ void APowerPlate::HitBoxBeginOverlap(
 	{
 		//Adding 50% Damage Increase
 		TimberCharacter->DamageModifierValue += .5f;
+		//Glow On
+		HandlePowerPlateMaterialChange(true);
 	}
 }
 
@@ -57,6 +86,8 @@ void APowerPlate::HitBoxEndOverlap(
 	{
 		//Removing 50% Damage Increase
 		TimberCharacter->DamageModifierValue -= .5f;
+		//Glow Off
+		HandlePowerPlateMaterialChange(false);
 	}
 }
 

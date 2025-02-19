@@ -35,6 +35,9 @@ void ALootParts::HandleLootItemOverlap(
 	{
 		// Add parts to player Inventory
 		Character->InventoryManager->AddPartsToInventory(1);
+		
+		// Play the SFX
+		PlaySFX();
 
 		// Destroy the parts item
 		Destroy();

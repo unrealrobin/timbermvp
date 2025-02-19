@@ -23,6 +23,8 @@ protected:
 
 	void SetCollisionProperties();
 
+	virtual void PlaySFX();
+
 public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Component Details")

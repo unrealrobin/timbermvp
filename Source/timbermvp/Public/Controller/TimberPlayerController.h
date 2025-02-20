@@ -129,6 +129,10 @@ public:
 	void ReloadWeapon(const FInputActionValue& Value);
 	UFUNCTION()
 	void ExitBuildMode(const FInputActionValue& Value);
+
+	/*Components*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
+	UTutorialManager* TutorialManager;
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

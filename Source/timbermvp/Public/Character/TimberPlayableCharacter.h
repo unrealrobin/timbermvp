@@ -8,6 +8,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class UTutorialManager;
 class ABuildableBase;
 class UInventoryObject;
 class ATimberPlayerController;
@@ -73,7 +74,9 @@ public:
 	UBuildSystemManagerComponent* BuildSystemManager;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
 	UInventoryManagerComponent* InventoryManager;
-
+	
+	
+	
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
 	float MaxRunSpeed = 2000.f;

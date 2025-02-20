@@ -9,6 +9,7 @@
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
+#include "Components/Tutorial/TutorialManager.h"
 #include "Data/DataAssets/BuildComponentDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerStart.h"
@@ -24,15 +25,11 @@ void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	TutorialManager = NewObject<UTutorialManager>(this);
+	if (TutorialManager)
 	{
-	/*//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
-		// This is used for the Saving and Loading Process. We need a Location in space to respawn during load.
-		APlayerStart* PlayerStartObject = Cast<APlayerStart>(
-			UGameplayStatics::GetActorOfClass(
-				GetWorld(),
-				APlayerStart::StaticClass()));
-		PlayerStartLocation = PlayerStartObject->GetActorLocation();*/
+		TutorialManager->RegisterComponent();
+		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager Registered on Player Controller."));
 	}
 
 	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(

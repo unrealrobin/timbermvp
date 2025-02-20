@@ -11,6 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "Character/TimberSeeda.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Components/Tutorial/TutorialManager.h"
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
@@ -25,10 +26,11 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	Camera->SetupAttachment(CameraSpringArm);
 	CameraSpringArm->SetupAttachment(RootComponent);
-
+	
 	/* Actor Components */
 	BuildSystemManager = CreateDefaultSubobject<UBuildSystemManagerComponent>("BuildSystemManager");
 	InventoryManager = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
+
 }
 
 void ATimberPlayableCharacter::BeginPlay()

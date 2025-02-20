@@ -8,6 +8,7 @@
 #include "SaveSystem/TimberSaveSystem.h"
 #include "TimberGameModeBase.generated.h"
 
+class UTutorialManager;
 class ATimberSeeda;
 class UWaveGameInstanceSubsystem;
 class ATimberPlayableCharacter;
@@ -43,6 +44,7 @@ public:
 	virtual void BeginPlay() override;
 	
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);
+	void SetupTutorialManagerBindings();
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
 	UDataTable* WaveCompositionDataTable;
 	void PlayerIsInitialized();
@@ -110,4 +112,8 @@ protected:
 	void RedrawPathTrace();
 	UFUNCTION()
 	void HandleRedrawPathTrace();
+
+	/*Tutorial*/
+	UPROPERTY()
+	UTutorialManager* TutorialManager = nullptr;
 };

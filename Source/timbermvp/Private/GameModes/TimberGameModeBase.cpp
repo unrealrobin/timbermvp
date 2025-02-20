@@ -10,6 +10,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Components/Tutorial/TutorialManager.h"
 #include "Controller/TimberPlayerController.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -91,11 +92,27 @@ void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
 	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received DataTable and Passed to Wave Subsystem"));
 }
 
+void ATimberGameModeBase::SetupTutorialManagerBindings()
+{
+	if (TimberCharacter)
+	{
+		TutorialManager = Cast<ATimberPlayerController>(TimberCharacter->GetController())->TutorialManager;
+		if (TutorialManager)
+		{
+			//Bind to the Tutorial Manager Delegate - now we can broadcast at set intervals to show the tutorial dialogue.
+			TutorialManager->TutorialEventTriggered.Broadcast("WakeUp");
+		}
+	}
+}
+
 /* Tells all relying on systems that the character is initialized */
 void ATimberGameModeBase::PlayerIsInitialized()
 {
 	OnCharacterInitialization.Broadcast();
 
+	//Get Ref to the Tutorial Manager on the Player Component
+	SetupTutorialManagerBindings();
+	
 	
 }
 

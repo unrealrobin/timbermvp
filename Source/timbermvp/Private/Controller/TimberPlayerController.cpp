@@ -25,11 +25,17 @@ void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TutorialManager = NewObject<UTutorialManager>(this);
+	const FString TutorialManagerBPAssetPath = TEXT("/Game/Blueprints/ActorComponents/AC_TutorialManager");
+
+	//Tutorial Mananger Component Added in Editor to the Player Controller
+	TutorialManager = Cast<UTutorialManager>(GetComponentByClass(UTutorialManager::StaticClass()));
 	if (TutorialManager)
 	{
-		TutorialManager->RegisterComponent();
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager Registered on Player Controller."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager Could not be loaded."));
 	}
 
 	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(

@@ -115,6 +115,9 @@ protected:
 	/*Collision Util*/
 	void DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent);
 
+	/*SFX*/
+	void PlayBuildablePlacementSound();
+
 public:
 	/* Spawning */
 	UFUNCTION()

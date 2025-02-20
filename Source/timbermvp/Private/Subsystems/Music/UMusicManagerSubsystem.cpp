@@ -97,7 +97,7 @@ void UUMusicManagerSubsystem::PlayMusic(FName TrackName, float FadeTime)
 		//If the Music Player Audio Component is playing another song -> Crossfade the songs.
 		if (MusicPlayerAlpha->IsPlaying())
 		{
-			CrossfadeMusic(NewTrack, 2.0f);
+			CrossfadeMusic(NewTrack, 1.0f);
 			return;
 		}
 		//Stops any currently Playing Track
@@ -106,7 +106,9 @@ void UUMusicManagerSubsystem::PlayMusic(FName TrackName, float FadeTime)
 		CurrentTrack = NewTrack;
 		//Setting the Sound to the Music Player
 		MusicPlayerAlpha->SetSound(CurrentTrack);
-		//Fade In Amount for the Song / @param FadeTime / Works as Play()
+		//Fade In Amount for the Song / @param FadeTime / Works as Play()\
+		//Setting Master Volume Mulitplies - Higher is louder - Standard is 1.0f
+		MusicPlayerAlpha->SetVolumeMultiplier(0.8f);
 		MusicPlayerAlpha->FadeIn(FadeTime);
 	}
 	else
@@ -139,6 +141,7 @@ void UUMusicManagerSubsystem::CrossfadeMusic(UMetaSoundSource* NewTrack, float F
 			//Prepping the new track in the Music Player
 			CurrentTrack = NewTrack;
 			MusicPlayerAlpha->SetSound(NewTrack);
+			MusicPlayerAlpha->SetVolumeMultiplier(0.8f);
 			UE_LOG(LogTemp, Warning, TEXT("New Tracked Prepped for Fade in: %s"), *NewTrack->GetName());
 
 			// Adding a small delay to ensure the MusicPlayer is set up and Ready

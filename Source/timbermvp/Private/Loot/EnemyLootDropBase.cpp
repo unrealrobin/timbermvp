@@ -6,6 +6,7 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Subsystems/SFX/SFXManagerSubsystem.h"
 
 
 // Sets default values
@@ -45,6 +46,25 @@ void AEnemyLootDropBase::SetCollisionProperties()
 		CollisionCapsule->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Block);
 		CollisionCapsule->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 		CollisionCapsule->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	}
+}
+
+void AEnemyLootDropBase::PlaySFX()
+{
+	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->OnLootPickUp.Broadcast();
+	}
+}
+
+void AEnemyLootDropBase::HandleLootItemOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (Cast<ATimberPlayableCharacter>(OtherActor))
+	{
+		PlaySFX();
 	}
 }
 

@@ -12,6 +12,7 @@
 #include "Environment/GarageDoorBase.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/SFX/SFXManagerSubsystem.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -68,6 +69,9 @@ void UWaveGameInstanceSubsystem::GetGarageDoor()
 
 void UWaveGameInstanceSubsystem::StartWave()
 {
+	//TODO:: Lets find a way to play this for 2 seconds before the rest of the function runs.
+	PlayWaveStartSound();
+	
 	if(CurrentWaveNumber >= 30)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Its about to get wild. Endless mode. Bucket of popcorn time. Leaderboards in view."));
@@ -143,6 +147,8 @@ void UWaveGameInstanceSubsystem::HandleBossSpawn()
 	
 	if(BossToSpawn && !BossSpawned)
 	{
+		PlayBossSpawnSound();
+		
 		//Open the Garage Door.
 		OpenBossDoor();
 		
@@ -196,6 +202,8 @@ void UWaveGameInstanceSubsystem::SpawnWave()
 
 void UWaveGameInstanceSubsystem::EndWave()
 {
+	PlayWaveEndSound();
+	
 	//Process of Closing Doors
 	CloseLabDoorHandle.Broadcast();
 	//Resetting the wave Data.
@@ -346,5 +354,32 @@ void UWaveGameInstanceSubsystem::BindToBossDelegate(ABossBase* BossActor)
 {
 	//Delegate is Broadcasted on ABossBase when it is destroyed.
 	BossActor->OnBossDeath.AddDynamic(this, &UWaveGameInstanceSubsystem::CloseBossDoor);
+}
+
+void UWaveGameInstanceSubsystem::PlayWaveStartSound()
+{
+	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->OnWaveStart.Broadcast();
+	}
+}
+
+void UWaveGameInstanceSubsystem::PlayWaveEndSound()
+{
+	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->OnWaveEnd.Broadcast();
+	}
+}
+
+void UWaveGameInstanceSubsystem::PlayBossSpawnSound()
+{
+	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->OnBossSpawn.Broadcast();
+	}
 }
 

@@ -14,6 +14,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Subsystems/SFX/SFXManagerSubsystem.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
@@ -483,22 +484,27 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
 				{
 					SpawnFinalTrap(SpawnParameters);
+					PlayBuildablePlacementSound();
 				}
 				else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 				{
 					SpawnFinalBuildingComponent(SpawnParameters);
+					PlayBuildablePlacementSound();
 				}
 				else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
 				{
 					SpawnFinalRampComponent(SpawnParameters);
+					PlayBuildablePlacementSound();
 				}
 				else if (ActiveBuildableComponentClass->IsChildOf(ATeleportConstruct::StaticClass()))
 				{
 					SpawnTemporayTeleportConstruct(SpawnParameters);
+					PlayBuildablePlacementSound();
 				}
 				else if (ActiveBuildableComponentClass->IsChildOf(APowerPlate::StaticClass()))
 				{
 					SpawnFinalCenterSnapFloorOnlyBuildingComponent(SpawnParameters);
+					PlayBuildablePlacementSound();
 				}
 				else
 				{
@@ -663,6 +669,15 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent)
 {
 	BuildingComponent->SetActorEnableCollision(false);
+}
+
+void UBuildSystemManagerComponent::PlayBuildablePlacementSound()
+{
+	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->OnBuildablePlacement.Broadcast();
+	}
 }
 
 void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)

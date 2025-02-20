@@ -75,7 +75,7 @@ public:
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 1;
+	int CurrentWaveNumber = 2;
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
 	UPROPERTY()
@@ -125,6 +125,11 @@ public:
 	FTimerHandle BossSpawnDelayTimerHandle;
 	UFUNCTION()
 	void BindToBossDelegate(ABossBase* BossActor);
+
+	/*Sounds*/
+	void PlayWaveStartSound();
+	void PlayWaveEndSound();
+	void PlayBossSpawnSound();
 };
 
 

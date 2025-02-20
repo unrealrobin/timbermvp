@@ -32,7 +32,8 @@ public:
 	FOnBuildablePlacement OnBuildablePlacement;
 	FOnUISuccess OnUISuccess;
 	FOnUIFailure OnUIFailure;
-	
+
+	void BindToSFXDelegates();
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 
@@ -48,7 +49,7 @@ protected:
 	UMetaSoundSource* GetTrackName(FName TrackName);
 
 	//Creates the Audio Component and Plays the Sound - Called in each function
-	void PlaySound(UMetaSoundSource* MetaSound);
+	void PlaySound(FName TrackName);
 
 	UFUNCTION()
 	void PlayLootPickUpSound();

@@ -28,6 +28,7 @@ void ALootParts::HandleLootItemOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	Super::HandleLootItemOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 	//When overlapped, add coins to the players state inventory
 	//UE_LOG(LogTemp, Warning, TEXT("Overlapped Part"));
 	ATimberPlayableCharacter* Character = Cast<ATimberPlayableCharacter>(OtherActor);
@@ -35,9 +36,6 @@ void ALootParts::HandleLootItemOverlap(
 	{
 		// Add parts to player Inventory
 		Character->InventoryManager->AddPartsToInventory(1);
-		
-		// Play the SFX
-		PlaySFX();
 
 		// Destroy the parts item
 		Destroy();

@@ -114,10 +114,9 @@ void ATimberGameModeBase::PlayBuildMusic()
 		FTimerHandle DelayHandle;
 		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([MusicManager]()
 		{
-			MusicManager->PlayMusic("Build1", 2.0f);	
-		}), 3.0f, false);
+			MusicManager->PlayMusic("Build1", 1.0f);	
+		}), 1.0f, false);
 		
-		//MusicManager->PlayMusic("Build1", 2.0f);
 	}
 }
 
@@ -132,7 +131,7 @@ void ATimberGameModeBase::PlayAttackMusic()
 		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([MusicManager]()
 		{
 			MusicManager->PlayMusic("Attack1", 1.0f);	
-		}), 3.0f, false);
+		}), 1.0f, false);
 		
 		//MusicManager->PlayMusic("Build1", 2.0f);
 	}

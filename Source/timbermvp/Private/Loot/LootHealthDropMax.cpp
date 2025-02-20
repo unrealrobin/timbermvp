@@ -26,6 +26,7 @@ void ALootHealthDropMax::HandlePlayerOverlap(
 	if (PlayerCharacter && PlayerCharacter->CurrentHealth <= PlayerCharacter->MaxHealth)
 	{
 		PlayerCharacter->CurrentHealth = PlayerCharacter->MaxHealth;
+		PlaySFX();
 		Destroy();
 	}
 }

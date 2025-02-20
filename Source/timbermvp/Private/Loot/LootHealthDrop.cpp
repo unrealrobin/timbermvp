@@ -59,6 +59,7 @@ void ALootHealthDrop::HandlePlayerOverlap(
 			PlayerCharacter->CurrentHealth += HealthGainAmount;
 			HandleDestroy();
 		}
+			PlaySFX();
 	}
 }
 

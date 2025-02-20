@@ -25,6 +25,11 @@ protected:
 
 	virtual void PlaySFX();
 
+	UFUNCTION()
+	virtual void HandleLootItemOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+
 public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Component Details")

@@ -7,6 +7,7 @@
 #include "Components/AudioComponent.h"
 #include "Data/DialogueSingle.h"
 #include "Data/NarrativeDialogueLibrary.h"
+#include "States/DieRobotGameStateBase.h"
 
 
 void UDialogueManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -17,7 +18,6 @@ void UDialogueManager::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UDialogueManager::LoadNarrativeDialogueLibrary);
 	}
-	
 }
 
 void UDialogueManager::LoadNarrativeDialogueLibrary()
@@ -40,17 +40,10 @@ UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
 		{
 			return DialogueData->DialogueVoiceOver;
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Dialogue Data not found."))
-			return nullptr;
-		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Narrative Dialogue Library not found."))
-		return nullptr;
-	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - GetDialogueVoiceover() -  Dialogue Voiceover Not Found: %s"), *DialogueName.ToString());
+	return nullptr;
 }
 
 void UDialogueManager::PlayVoiceover(FName VoiceoverName)
@@ -71,6 +64,34 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 		DialoguePlayer->Play();
 	UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Playing Voiceover: %s"), *VoiceoverName.ToString());
 	}
-	
+
+	HandlePlayedDialogue(VoiceoverName);
+}
+
+void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
+{
+	if (VoiceoverName == FName("Molly_Wake_1"))
+	{
+		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleWake1Finish);
+	}else if (VoiceoverName == FName("Molly_Wake_2"))
+	{
+		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake1Finish);
+	}
 	
 }
+
+
+/*Tutorial Dialogue Handling*/
+void UDialogueManager::HandleWake1Finish()
+{
+	ADieRobotGameStateBase* DieRobotGameState = GetWorld()->GetGameState<ADieRobotGameStateBase>();
+	if (DieRobotGameState)
+	{
+		//State Change initiates Broadcast to Listeners
+		DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake2);
+
+		//Playing the Next Voiceover
+		PlayVoiceover(FName("Molly_Wake_2"));
+	}
+}
+

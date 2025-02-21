@@ -1,0 +1,11 @@
+﻿// Property of Paracosm Industries. Dont use my shit.
+
+
+#include "States/DieRobotGameStateBase.h"
+
+void ADieRobotGameStateBase::ChangeTutorialGameState(ETutorialState NewState)
+{
+	TutorialState = NewState;
+	
+	OnTutorialStateChange.Broadcast(NewState);
+}

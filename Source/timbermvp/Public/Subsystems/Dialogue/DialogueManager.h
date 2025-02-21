@@ -41,7 +41,16 @@ public:
 	UFUNCTION()
 	UMetaSoundSource* GetDialogueVoiceover(FName DialogueName);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void PlayVoiceover(FName VoiceoverName);
 
+	UFUNCTION()
+	void HandlePlayedDialogue(FName VoiceoverName);
+
+	/*Tutorial Dialogue Handling*/
+
+	UFUNCTION()
+	void HandleWake1Finish();
+
 };
+

@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "EnhancedInputComponent.h"
+#include "States/DieRobotGameStateBase.h"
 #include "UI/BuildingComponent.h"
 #include "TimberPlayerController.generated.h"
 
@@ -224,6 +225,9 @@ protected:
 	UFUNCTION()
 	void HandlePlayerDeath(bool bIsPlayerDead);
 
+	/*Tutorial*/
+	ETutorialState GetTutorialState() const;
+
 private:
 	/*Enhanced Input Subsystem*/
 	UPROPERTY()
@@ -239,4 +243,12 @@ private:
 
 	UFUNCTION()
 	void UnEquipWeapon() const;
+
+	UFUNCTION()
+	void InitializeTutorialStateBinding();
+
+	UFUNCTION()
+	void HandleTutorialStateChanges(ETutorialState NewState);
 };
+
+

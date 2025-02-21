@@ -6,8 +6,10 @@
 #include "GameFramework/GameModeBase.h"
 #include "TimerManager.h"
 #include "SaveSystem/TimberSaveSystem.h"
+#include "States/DieRobotGameStateBase.h"
 #include "TimberGameModeBase.generated.h"
 
+enum class ETutorialState : uint8;
 class ATimberSeeda;
 class UWaveGameInstanceSubsystem;
 class ATimberPlayableCharacter;
@@ -40,18 +42,30 @@ public:
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
 
+	void InitializeGameState();
 	virtual void BeginPlay() override;
 	
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
 	UDataTable* WaveCompositionDataTable;
+	
 	void PlayerIsInitialized();
 	
 	void PathTracer_RedrawDelegateBinding();\
 	
 	void GatherSeedaData();
 
-	//Character
+	/* Game State */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Game State")
+	ETutorialState TutorialState = ETutorialState::Default;
+	
+	void GetGameState();
+	
+	UFUNCTION()
+	void UpdateGameState(ETutorialState NewState);
+
+	/*Character*/
 	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter = nullptr;
 	

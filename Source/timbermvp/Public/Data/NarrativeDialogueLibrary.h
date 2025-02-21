@@ -18,6 +18,6 @@ class TIMBERMVP_API UNarrativeDialogueLibrary : public UDataAsset
 public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Identifier")
-	TMap<FName, UDialogueSingle*> NarrativeDialogueLibrary;
+	TMap<FName, UDialogueSingle*> NarrativeDialogueList;
 	
 };

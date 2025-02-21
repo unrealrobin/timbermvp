@@ -15,10 +15,13 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/Dialogue/DialogueManager.h"
 #include "UI/TimberHUDBase.h"
 
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
+
+class UDialogueManager;
 
 void ATimberPlayerController::BeginPlay()
 {
@@ -320,6 +323,12 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
 		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
 	}
+
+	//Testing
+
+	/*Test*/
+	UDialogueManager* DialogueManager = GetGameInstance()->GetSubsystem<UDialogueManager>();
+	DialogueManager->PlayVoiceover("Molly_Wake_1");
 }
 
 void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)

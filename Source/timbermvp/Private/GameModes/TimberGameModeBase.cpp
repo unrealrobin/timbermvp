@@ -7,21 +7,18 @@
 #include "AI/TimberAiControllerBase.h"
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
-#include "Components/AudioComponent.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
-#include "Environment/TimberEnemySpawnLocations.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
-#include "UI/BuildingComponentPanel.h"
-#include "UI/TimberHUDBase.h"
 
 
+class UDialogueManager;
 class UBuildingComponentPanel;
 
 void ATimberGameModeBase::BeginPlay()
@@ -57,7 +54,6 @@ void ATimberGameModeBase::BeginPlay()
 		PathTracer_RedrawDelegateBinding();
 		TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
 	}
-
 	
 }
 

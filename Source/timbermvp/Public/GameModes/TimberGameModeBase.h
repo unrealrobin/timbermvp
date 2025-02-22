@@ -9,6 +9,7 @@
 #include "States/DieRobotGameStateBase.h"
 #include "TimberGameModeBase.generated.h"
 
+class ALocationMarkerBase;
 enum class ETutorialState : uint8;
 class ATimberSeeda;
 class UWaveGameInstanceSubsystem;
@@ -42,6 +43,8 @@ public:
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
 
+	UFUNCTION()
+	void HandleGameStateChange(ETutorialState NewState);
 	void InitializeGameState();
 	virtual void BeginPlay() override;
 	
@@ -99,6 +102,10 @@ public:
 	UFUNCTION()
 	void FreezeAllAICharacters(bool bIsPlayerDead);
 
+	/* Location Marker */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
+	TSubclassOf<ALocationMarkerBase> LocationMarker;
+
 protected:
 
 	UWaveGameInstanceSubsystem* GetWaveGameInstanceSubsystem();
@@ -124,4 +131,9 @@ protected:
 	void RedrawPathTrace();
 	UFUNCTION()
 	void HandleRedrawPathTrace();
+
+	/*Spawn*/
+
+	UFUNCTION()
+	void SpawnLocationMarker();
 };

@@ -70,6 +70,18 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* AmmoCounterWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> KBM_MovementControlsWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_MovementControlsWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> KBM_CombatControlsWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_CombatControlsWidget;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
@@ -107,8 +119,38 @@ protected:
 	FVector2d DeleteWidgetLocation = FVector2d(0, 0);
 	float DeleteBuildingComponentWidgetShiftX = 100.f;
 	float DeleteBuildingComponentWidgetShiftY = 100.f;
+
+private:
+	/* Tutorial State Handling*/
+	UFUNCTION()
+	void InitializeTutorialStateBinding();
+
+	UFUNCTION()
+	ETutorialState GetTutorialState();
+
+	UFUNCTION()
+	void HandleTutorialStateChanges(ETutorialState NewState);
+
+	UPROPERTY()
+	TArray<UUserWidget*> RootWidgetChildrenWidgets;
+
+	void GetRootWidgetChildrenWidgets();
+
+	UUserWidget* GetWidgetByClassName(FString ClassName);
+
+	void HideWidget(UUserWidget* Widget);
+
+	void ShowWidget(UUserWidget* Widget);
+
+	void HideAllChildWidgets(TArray<UUserWidget*> Widgets);
+
+	void ShowCrossHairWidget();
+	void ShowInventoryPanelWidget();
+	void ShowPlayerHealthWidget();
+	void ShowSeedaHealthWidget();
 	
 };
+
 
 
 

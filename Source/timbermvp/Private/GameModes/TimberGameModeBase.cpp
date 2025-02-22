@@ -12,6 +12,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Environment/LabDoorBase.h"
+#include "Environment/LocationMarkerBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
@@ -92,6 +93,7 @@ void ATimberGameModeBase::InitializeGameState()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Game State."))
 		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateGameState);
+		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleGameStateChange);
 		GetGameState();
 	}
 
@@ -103,6 +105,8 @@ void ATimberGameModeBase::InitializeGameState()
 			DialogueManager->PlayVoiceover("Wake1");
 		}
 	}
+
+	
 }
 
 void ATimberGameModeBase::GetGameState()
@@ -117,6 +121,22 @@ void ATimberGameModeBase::GetGameState()
 void ATimberGameModeBase::UpdateGameState(ETutorialState NewState)
 {
 	TutorialState = NewState;
+}
+
+void ATimberGameModeBase::HandleGameStateChange(ETutorialState NewState)
+{
+	if (NewState == ETutorialState::Wake2)
+	{
+		SpawnLocationMarker();
+	}
+	if (NewState == ETutorialState::Wake3)
+	{
+		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
+		if (DialogueManager)
+		{
+			DialogueManager->PlayVoiceover("Molly_Wake_3");
+		}
+	}
 }
 
 void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
@@ -177,6 +197,20 @@ void ATimberGameModeBase::GatherAllLabDoors()
 void ATimberGameModeBase::HandleRedrawPathTrace()
 {
 	RedrawPathTrace();
+}
+
+void ATimberGameModeBase::SpawnLocationMarker()
+{
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
+	if (Seeda)
+	{
+		SeedaLocation = Seeda->GetActorLocation();
+		SeedaLocation.Z -= 100.0f;
+
+		FActorSpawnParameters SpawnParams;
+
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(LocationMarker, SeedaLocation, FRotator(0, 0, 0), SpawnParams);
+	}
 }
 
 //Used to Freeze all AI Characters when the Player Dies.

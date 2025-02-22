@@ -12,6 +12,14 @@ enum class ETutorialState : uint8
 	Wake1 UMETA(DisplayName = "Wake1"),
 	Wake2 UMETA(DisplayName = "Wake2"),
 	Wake3 UMETA(DisplayName = "Wake3"),
+	Combat1 UMETA(DisplayName = "Combat1"),
+	Combat2 UMETA(DisplayName = "Combat2"),
+	Parts1 UMETA(DisplayName = "Building1"),
+	Building1 UMETA(DisplayName = "Building1"),
+	Building2 UMETA(DisplayName = "Building2"),
+	Building3 UMETA(DisplayName = "Building3"),
+	WaveStart UMETA(DisplayName = "WaveStart"),
+	WaveComplete UMETA(DisplayName = "WaveComplete"),
 	Default UMETA(DisplayName = "Default")
 };
 

@@ -68,6 +68,8 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 	HandlePlayedDialogue(VoiceoverName);
 }
 
+
+
 void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
 {
 	if (VoiceoverName == FName("Molly_Wake_1"))
@@ -76,6 +78,9 @@ void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
 	}else if (VoiceoverName == FName("Molly_Wake_2"))
 	{
 		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake1Finish);
+	}else if (VoiceoverName == FName("Molly_Wake_3"))
+	{
+		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleWake3Finish);
 	}
 	
 }
@@ -92,6 +97,22 @@ void UDialogueManager::HandleWake1Finish()
 
 		//Playing the Next Voiceover
 		PlayVoiceover(FName("Molly_Wake_2"));
+	}
+}
+
+void UDialogueManager::HandleWake3Finish()
+{
+	ADieRobotGameStateBase* DieRobotGameState = GetWorld()->GetGameState<ADieRobotGameStateBase>();
+	if (DieRobotGameState)
+	{
+		//State Change initiates Broadcast to Listeners
+		DieRobotGameState->ChangeTutorialGameState(ETutorialState::Combat1);
+
+		//Initiating Combat Training
+		PlayVoiceover("Molly_Combat_1");
+
+		//Removing the Binding.
+		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake3Finish);
 	}
 }
 

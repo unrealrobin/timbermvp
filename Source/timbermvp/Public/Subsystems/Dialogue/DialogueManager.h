@@ -45,6 +45,8 @@ public:
 	void PlayVoiceover(FName VoiceoverName);
 
 	UFUNCTION()
+	void HandleWake3Finish();
+	UFUNCTION()
 	void HandlePlayedDialogue(FName VoiceoverName);
 
 	/*Tutorial Dialogue Handling*/

@@ -44,6 +44,17 @@ void ATimberGameModeBase::BeginPlay()
 	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 	
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
+
+	{
+		/*
+		 * Ensures that the Dialogue Manager is bound to the Game State once the Game State and Dialogue Manager are both Initialized.
+		 */
+		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
+		if (DialogueManager)
+		{
+			DialogueManager->BindToGameState();
+		}
+	}
 	
 	GatherSeedaData();
 	GatherAllLabDoors();

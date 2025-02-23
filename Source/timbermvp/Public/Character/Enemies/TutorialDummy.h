@@ -6,6 +6,8 @@
 #include "TimberEnemyCharacter.h"
 #include "TutorialDummy.generated.h"
 
+class ADieRobotGameStateBase;
+
 UCLASS()
 class TIMBERMVP_API ATutorialDummy : public ATimberEnemyCharacter
 {
@@ -21,7 +23,15 @@ protected:
 
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision")
+	UCapsuleComponent* CollisionCapsule = nullptr;
+
+	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+
 	UFUNCTION()
-	void HandleDummyDestroy();
+	void HandleDeath(AActor* DeadActor);
+
+	UPROPERTY()
+	ADieRobotGameStateBase* DieRobotGameStateBase;
 	
 };

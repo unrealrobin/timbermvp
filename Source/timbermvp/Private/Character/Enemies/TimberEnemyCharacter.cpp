@@ -66,7 +66,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 		//Stops all AI Behavior
 		StopAiControllerBehaviorTree();
 
-		//Handles Collisions so the enemy can be attacked more or block navigation
+		//Handles Collisions so the enemy cant be attacked more or block navigation
 		OnDeath_HandleCollision();
 
 		//Plays Death Animation
@@ -78,7 +78,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	else
 	{
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamageInstigator, DamageAmount, DamageAccumulatedDuringWindow);
-		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 }
 
@@ -196,12 +196,27 @@ void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropCl
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	
+	FVector ActorLocation = GetActorLocation();
+	FVector AdjustedLocation = FVector(FMath::RandRange(ActorLocation.X - 50, ActorLocation.X + 50), FMath::RandRange
+	(ActorLocation.Y - 50, ActorLocation.Y + 50), ActorLocation.Z);
 
 	AActor* LootItem = GetWorld()->SpawnActor<AEnemyLootDropBase>(LootDropClass,
-		GetActorLocation(),
+		AdjustedLocation,
 		GetActorRotation(), 
 		SpawnParams);
+
+	//CHeck here for Tutorial State , if Tutorial State = Combat1 - Handle Special Collisions
+	ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameStateBase && DieRobotGameStateBase->TutorialState == ETutorialState::Combat1)
+	{
+		AEnemyLootDropBase* LootDropBase = Cast<AEnemyLootDropBase>(LootItem);
+		if (LootDropBase)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Spawning Loot Item During Combat1 Tutorial Stage."))
+		}
+	}
 }
 
 void ATimberEnemyCharacter::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass)

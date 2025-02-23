@@ -2,12 +2,12 @@
 
 
 #include "Subsystems/Dialogue/DialogueManager.h"
-
 #include "MetasoundSource.h"
 #include "Components/AudioComponent.h"
 #include "Data/DialogueSingle.h"
 #include "Data/NarrativeDialogueLibrary.h"
 #include "States/DieRobotGameStateBase.h"
+
 
 
 void UDialogueManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -18,6 +18,7 @@ void UDialogueManager::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UDialogueManager::LoadNarrativeDialogueLibrary);
 	}
+	
 }
 
 void UDialogueManager::LoadNarrativeDialogueLibrary()
@@ -30,6 +31,16 @@ void UDialogueManager::LoadNarrativeDialogueLibrary()
 		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Library."))
 	}
 }
+
+void UDialogueManager::BindToGameState()
+{
+	ADieRobotGameStateBase* DieRobotGameState =  Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameState)
+	{
+		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &UDialogueManager::HandleTutorialStateChanges);
+	}
+}
+
 
 UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
 {
@@ -85,6 +96,38 @@ void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
 	
 }
 
+void UDialogueManager::HandleTutorialStateChanges(ETutorialState NewState)
+{
+	switch (NewState)
+	{
+	case ETutorialState::Wake1:
+		break;
+	case ETutorialState::Wake2:
+		break;
+	case ETutorialState::Wake3:
+		break;
+	case ETutorialState::Combat1:
+		break;
+	case ETutorialState::Combat2:
+		//PlayVoiceover("Molly_Combat_Quip_1");
+		break;
+	case ETutorialState::Parts1:
+		PlayVoiceover("Molly_Parts_1");
+		break;
+	case ETutorialState::Building1:
+		break;
+	case ETutorialState::Building2:
+		break;
+	case ETutorialState::Building3:
+		break;
+	case ETutorialState::WaveStart:
+		break;
+	case ETutorialState::WaveComplete:
+		break;
+	case ETutorialState::Default:
+		break;
+	}
+}
 
 /*Tutorial Dialogue Handling*/
 void UDialogueManager::HandleWake1Finish()

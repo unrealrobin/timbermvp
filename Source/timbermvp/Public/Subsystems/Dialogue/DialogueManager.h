@@ -6,6 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "DialogueManager.generated.h"
 
+enum class ETutorialState : uint8;
 class UMetaSoundSource;
 class UNarrativeDialogueLibrary;
 /**
@@ -48,11 +49,14 @@ public:
 	void HandleWake3Finish();
 	UFUNCTION()
 	void HandlePlayedDialogue(FName VoiceoverName);
+	UFUNCTION()
+	void HandleTutorialStateChanges(ETutorialState NewState);
 
 	/*Tutorial Dialogue Handling*/
-
 	UFUNCTION()
 	void HandleWake1Finish();
 
-};
+	UFUNCTION()
+	void BindToGameState();
 
+};

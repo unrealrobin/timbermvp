@@ -5,10 +5,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Character/TimberSeeda.h"
-#include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "GameModes/TimberGameModeBase.h"
-#include "Kismet/GameplayStatics.h"
-#include "UI/BuildingComponentPanel.h"
+
 
 void ATimberHUDBase::BeginPlay()
 {
@@ -164,10 +162,11 @@ void ATimberHUDBase::HandleTutorialStateChanges(ETutorialState NewState)
 		ShowCrossHairWidget();
 		break;
 	case ETutorialState::Combat2:
-		HideWidget(KBM_CombatControlsWidget);
-		ShowInventoryPanelWidget();
 		break;
 	case ETutorialState::Parts1:
+		UE_LOG(LogTemp, Warning, TEXT("Showing HUD."));
+		HideWidget(KBM_CombatControlsWidget);
+		ShowInventoryPanelWidget();
 		break;
 	case ETutorialState::Building1:
 		break;
@@ -272,7 +271,7 @@ void ATimberHUDBase::ShowSeedaHealthWidget()
 void ATimberHUDBase::ShowInventoryPanelWidget()
 {
 	FString InventoryWidgetClassName = "W_TopInventoryBar_C";
-	//UE_LOG(LogTemp, Warning, TEXT("Player Health Widget Class Name: %s"), *PlayerHealthWidgetClassName);
+	UE_LOG(LogTemp, Warning, TEXT("Player Inventory Widget Class Name: %s"), *InventoryWidgetClassName);
 	UUserWidget* Widget = GetWidgetByClassName(InventoryWidgetClassName);
 	ShowWidget(Widget);
 }

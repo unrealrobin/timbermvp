@@ -52,6 +52,11 @@ protected:
 	void PlaySound(FName TrackName);
 
 	UFUNCTION()
+	void HandleAudioComponentCleanUp(UAudioComponent* AudioComponent, FName TrackName);
+	UFUNCTION()
+	void HandleTrackSubmixCleanup(FName TrackName);
+
+	UFUNCTION()
 	void PlayLootPickUpSound();
 	UFUNCTION()
 	void PlayWaveStartSound();

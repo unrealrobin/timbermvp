@@ -31,7 +31,7 @@ void ATimberGameModeBase::BeginPlay()
 
 	InitializeGameState();
 
-	//PlayBuildMusic();
+	PlayBuildMusic();
 
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);

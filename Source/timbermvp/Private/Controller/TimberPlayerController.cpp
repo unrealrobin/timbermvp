@@ -5,36 +5,23 @@
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
 #include "UI/BuildingComponent.h"
-#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Data/DataAssets/BuildComponentDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PlayerStart.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
-#include "Kismet/GameplayStatics.h"
 #include "UI/TimberHUDBase.h"
-
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
+
+class UDialogueManager;
 
 void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	{
-	/*//TODO:: How can I make this better? Seems rigid. This can change mid game based on colliding objects, build locations, etc.
-		// This is used for the Saving and Loading Process. We need a Location in space to respawn during load.
-		APlayerStart* PlayerStartObject = Cast<APlayerStart>(
-			UGameplayStatics::GetActorOfClass(
-				GetWorld(),
-				APlayerStart::StaticClass()));
-		PlayerStartLocation = PlayerStartObject->GetActorLocation();*/
-	}
-
+	
 	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 		GetLocalPlayer());
 
@@ -58,6 +45,14 @@ void ATimberPlayerController::BeginPlay()
 	{
 		GameMode->EnableStandardInputMappingContext.BindUFunction(this, FName("EnableStandardKeyboardInput"));
 	}
+
+	//Binds to Tutorial State Changes
+	InitializeTutorialStateBinding();
+	if (GetTutorialState() == ETutorialState::Wake1)
+	{
+		DisableAllKeyboardInput();
+	}
+	
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -281,7 +276,7 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 	}
 }
 
-//Sword
+/*Sword*/
 void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
 	if (TimberCharacter)
@@ -362,7 +357,7 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	SpawnedActor->SetOwner(TimberCharacter);
 }
 
-//Rifle
+/*Rifle*/
 void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 {
 	check(TimberCharacter);
@@ -488,9 +483,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 	}
 }
 
-/*
- * Build System Controls
- */
+/*Build System Controls*/
 
 void ATimberPlayerController::EnterBuildMode(const FInputActionValue& Value)
 {
@@ -617,6 +610,17 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 	}
 }
 
+void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
+{
+	if (TimberCharacter->GetCurrentWeaponState() ==  EWeaponState::RangedEquipped
+		&& TimberCharacter->CharacterState == ECharacterState::Standard)
+	{
+		//TODO:: Play Reload Animation Montage - Set Notify to call the reload function at end of animation. 
+		TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
+	}
+	
+}
+
 /* Controller Only */
 void ATimberPlayerController::ModifyCursorWithController(const FInputActionValue& Value)
 {
@@ -674,15 +678,44 @@ void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& V
 	
 }
 
-void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
+/* Tutorial Handling */
+
+void ATimberPlayerController::InitializeTutorialStateBinding()
 {
-	if (TimberCharacter->GetCurrentWeaponState() ==  EWeaponState::RangedEquipped
-		&& TimberCharacter->CharacterState == ECharacterState::Standard)
+	ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameStateBase)
 	{
-		//TODO:: Play Reload Animation Montage - Set Notify to call the reload function at end of animation. 
-		TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
+		DieRobotGameStateBase->OnTutorialStateChange.AddDynamic(this, &ATimberPlayerController::HandleTutorialStateChanges);
+	}
+}
+
+void ATimberPlayerController::HandleTutorialStateChanges(ETutorialState NewState)
+{
+	switch (NewState)
+	{
+		case ETutorialState::Wake1:
+			DisableAllKeyboardInput();
+			break;
+		case ETutorialState::Wake2:
+			EnableStandardKeyboardInput();
+			break;
+		case ETutorialState::Wake3:
+			break;
+		case ETutorialState::Default:
+			break;
+		
+	}
+}
+
+ETutorialState ATimberPlayerController::GetTutorialState() const
+{
+	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameState)
+	{
+		return DieRobotGameState->TutorialState;
 	}
 	
+	return ETutorialState::Default;
 }
 
 

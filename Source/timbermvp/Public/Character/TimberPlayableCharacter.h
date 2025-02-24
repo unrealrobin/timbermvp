@@ -8,6 +8,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+enum class ETutorialState : uint8;
 class ABuildableBase;
 class UInventoryObject;
 class ATimberPlayerController;
@@ -63,6 +64,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")
 	ECharacterState CharacterState = ECharacterState::Standard;
 
+	/* Get Game State */
+	ETutorialState GetTutorialState();
+	
 	/*Components*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	UCameraComponent* Camera;
@@ -85,6 +89,8 @@ public:
 	UAnimMontage* ReloadMontage;
 	UFUNCTION()
 	void StopAllAnimMontages();
+	UFUNCTION()
+	void PlayWakeAnimationMontage();
 
 	
 	/*Animation Properties*/

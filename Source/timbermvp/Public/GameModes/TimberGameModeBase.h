@@ -6,8 +6,11 @@
 #include "GameFramework/GameModeBase.h"
 #include "TimerManager.h"
 #include "SaveSystem/TimberSaveSystem.h"
+#include "States/DieRobotGameStateBase.h"
 #include "TimberGameModeBase.generated.h"
 
+class ALocationMarkerBase;
+enum class ETutorialState : uint8;
 class ATimberSeeda;
 class UWaveGameInstanceSubsystem;
 class ATimberPlayableCharacter;
@@ -39,19 +42,34 @@ public:
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
-
+	
 	virtual void BeginPlay() override;
 	
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
 	UDataTable* WaveCompositionDataTable;
+	
 	void PlayerIsInitialized();
 	
 	void PathTracer_RedrawDelegateBinding();\
 	
 	void GatherSeedaData();
 
-	//Character
+	/* Game State */
+	UFUNCTION()
+	void HandleGameStateChange(ETutorialState NewState);
+	
+	void InitializeGameState();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Game State")
+	ETutorialState TutorialState = ETutorialState::Default;
+	
+	void GetGameState();
+	
+	UFUNCTION()
+	void UpdateGameState(ETutorialState NewState);
+
+	/*Character*/
 	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter = nullptr;
 	
@@ -78,12 +96,19 @@ public:
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
 	void LoadPlayerState(UTimberSaveSystem* LoadGameInstance);
 	void LoadSeedaData(UTimberSaveSystem* LoadGameInstance);
+
+	UFUNCTION()
+	void HandleWaveComplete(int CompletedWave);
 	
 	void OpenAllLabDoors();
 
 	/*Character Freeze*/
 	UFUNCTION()
 	void FreezeAllAICharacters(bool bIsPlayerDead);
+
+	/* Location Marker */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
+	TSubclassOf<ALocationMarkerBase> LocationMarker;
 
 protected:
 
@@ -110,4 +135,9 @@ protected:
 	void RedrawPathTrace();
 	UFUNCTION()
 	void HandleRedrawPathTrace();
+
+	/*Spawn*/
+
+	UFUNCTION()
+	void SpawnLocationMarker();
 };

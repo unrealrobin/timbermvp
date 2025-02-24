@@ -7,33 +7,37 @@
 #include "AI/TimberAiControllerBase.h"
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
-#include "Components/AudioComponent.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
-#include "Environment/TimberEnemySpawnLocations.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Environment/LabDoorBase.h"
+#include "Environment/LocationMarkerBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
+#include "Subsystems/Dialogue/DialogueManager.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
-#include "UI/BuildingComponentPanel.h"
-#include "UI/TimberHUDBase.h"
 
 
+class UDialogueManager;
 class UBuildingComponentPanel;
+
+
 
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayBuildMusic();
+	InitializeGameState();
+
+	//PlayBuildMusic();
 
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
 		GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
+		GetWaveGameInstanceSubsystem()->HandleWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
 		/*Subscribing to Player Death Delegate Signature*/
 	}
 
@@ -41,6 +45,18 @@ void ATimberGameModeBase::BeginPlay()
 	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 	
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
+
+	{
+		/*
+		 * Ensures that the Dialogue Manager is bound to the Game State once the Game State and Dialogue Manager are both Initialized.
+		 */
+		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
+		if (DialogueManager)
+		{
+			DialogueManager->BindToGameState();
+		}
+		
+	}
 	
 	GatherSeedaData();
 	GatherAllLabDoors();
@@ -57,8 +73,6 @@ void ATimberGameModeBase::BeginPlay()
 		PathTracer_RedrawDelegateBinding();
 		TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
 	}
-
-	
 }
 
 void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
@@ -76,13 +90,75 @@ void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
 				&ATimberGameModeBase::HandleRedrawPathTrace);
 		}
 	}
-	
 }
 
 void ATimberGameModeBase::GatherSeedaData()
 {
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
 	SeedaLocation = Seeda->GetActorLocation();
+}
+
+/*Game State*/
+void ATimberGameModeBase::InitializeGameState()
+{
+	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Game State."))
+		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateGameState);
+		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleGameStateChange);
+		GetGameState();
+	}
+
+	if (TutorialState == ETutorialState::Wake1)
+	{
+		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
+		if (DialogueManager)
+		{
+			DialogueManager->PlayVoiceover("Wake1");
+		}
+	}
+
+	
+}
+
+void ATimberGameModeBase::GetGameState()
+{
+	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameState)
+	{
+		TutorialState = DieRobotGameState->TutorialState;
+	}
+}
+
+void ATimberGameModeBase::UpdateGameState(ETutorialState NewState)
+{
+	TutorialState = NewState;
+}
+
+void ATimberGameModeBase::HandleGameStateChange(ETutorialState NewState)
+{
+	if (NewState == ETutorialState::Wake2)
+	{
+		SpawnLocationMarker();
+	}
+	if (NewState == ETutorialState::Wake3)
+	{
+		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
+		if (DialogueManager)
+		{
+			DialogueManager->PlayVoiceover("Molly_Wake_3");
+		}
+	}
+	if (NewState == ETutorialState::WaveStart)
+	{
+		UWaveGameInstanceSubsystem* WaveSubsystem = GetWaveGameInstanceSubsystem();
+		if (WaveSubsystem)
+		{
+			//Starting wave 1 (Tutorial Wave)
+			WaveSubsystem->StartWave();
+		}
+	}
 }
 
 void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
@@ -95,8 +171,6 @@ void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
 void ATimberGameModeBase::PlayerIsInitialized()
 {
 	OnCharacterInitialization.Broadcast();
-
-	
 }
 
 UWaveGameInstanceSubsystem* ATimberGameModeBase::GetWaveGameInstanceSubsystem()
@@ -147,6 +221,20 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 	RedrawPathTrace();
 }
 
+void ATimberGameModeBase::SpawnLocationMarker()
+{
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
+	if (Seeda)
+	{
+		SeedaLocation = Seeda->GetActorLocation();
+		SeedaLocation.Z -= 100.0f;
+
+		FActorSpawnParameters SpawnParams;
+
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(LocationMarker, SeedaLocation, FRotator(0, 0, 0), SpawnParams);
+	}
+}
+
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 {
@@ -179,7 +267,7 @@ void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 	}
 }
 
-/* Save System*/
+/*Save System*/
 void ATimberGameModeBase::SaveCurrentGame()
 {
 	//Creating an instance of the Save Game Object
@@ -268,7 +356,7 @@ void ATimberGameModeBase::SaveSeedaData(UTimberSaveSystem* SaveGameInstance)
 	}
 }
 
-/* Load System*/
+/* Load System */
 void ATimberGameModeBase::LoadGame()
 {
 	GetWaveGameInstanceSubsystem()->ResetWaveEnemies();
@@ -415,4 +503,18 @@ void ATimberGameModeBase::CloseLabDoors()
 		CloseAllLabDoors();
 	}
 }
+
+void ATimberGameModeBase::HandleWaveComplete(int CompletedWave)
+{
+	if (CompletedWave == 1)
+	{
+		ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+		if (DieRobotGameState)
+		{
+			//Wave 1 Completed, progress to finished Tutorial.
+			DieRobotGameState->ChangeTutorialGameState(ETutorialState::WaveComplete);
+		}
+	}
+}
+
 

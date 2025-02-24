@@ -74,6 +74,12 @@ void ATimberPlayableCharacter::BeginPlay()
 			GM->PlayerIsInitialized();
 		}
 	}
+
+	//Tutorial is just starting play the wake animation.
+	if (GetTutorialState() == ETutorialState::Wake1)
+	{
+		PlayWakeAnimationMontage();
+	}
 }
 
 /*Delegate Stuff*/
@@ -303,12 +309,34 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 
 /*Weapon Stuff*/
 
+ETutorialState ATimberPlayableCharacter::GetTutorialState()
+{
+	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameState)
+	{
+		return DieRobotGameState->TutorialState;
+	}
+
+	return ETutorialState::Default;
+	
+}
+
 void ATimberPlayableCharacter::StopAllAnimMontages()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
 		AnimInstance->StopAllMontages(0.25f);
+	}
+}
+
+void ATimberPlayableCharacter::PlayWakeAnimationMontage()
+{
+	const FString WakeMontageAssetPath = TEXT("/Game/Characters/Farmer_Adult/Animations/Montages/AM_StandingUp");
+	UAnimMontage* WakeMontage = LoadObject<UAnimMontage>(this, *WakeMontageAssetPath);
+	if (WakeMontage)
+	{
+		PlayAnimMontage(WakeMontage, 1.f, FName("default"));
 	}
 }
 

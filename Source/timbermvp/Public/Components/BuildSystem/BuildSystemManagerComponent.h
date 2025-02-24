@@ -202,5 +202,11 @@ public:
 	/*Teleport Utils*/
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Teleport")
 	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
+
+private:
+
+	/*Tutorial*/
+	UPROPERTY()
+	float TutorialBuildsPlaced = 0;
 };
 

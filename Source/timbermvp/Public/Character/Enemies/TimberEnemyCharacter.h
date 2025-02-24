@@ -44,7 +44,9 @@ public:
 	ATimberEnemyCharacter();
 
 	virtual void BeginPlay() override;
+	
 	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+	
 	virtual void PlayProjectileHitSound(FHitResult HitResult) override;
 	virtual void PlayMeleeWeaponHitSound(FHitResult HitResult) override;
 

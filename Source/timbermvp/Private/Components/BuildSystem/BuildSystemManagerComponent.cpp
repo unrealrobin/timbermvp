@@ -14,6 +14,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "States/DieRobotGameStateBase.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
@@ -509,6 +510,23 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				else
 				{
 					UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
+				}
+
+				//Broadcast to Tutorial Game State to Increment State.
+				ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+				if (DieRobotGameStateBase)
+				{
+					ETutorialState CurrentState = DieRobotGameStateBase->TutorialState;
+					if (CurrentState == ETutorialState::Building1)
+					{
+						TutorialBuildsPlaced += 1;
+						if (TutorialBuildsPlaced == 2)
+						{
+							//Wave Ready to begin.
+							DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
+						}
+					}
+					
 				}
 			}
 		}

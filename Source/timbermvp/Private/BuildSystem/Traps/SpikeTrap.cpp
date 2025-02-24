@@ -73,14 +73,18 @@ void ASpikeTrap::HandleSpikeOutAttack()
 
 void ASpikeTrap::ApplyDamageToActorsInHitBox()
 {
-	for (AActor* Actors : InsideHitBoxArray)
+	if (InsideHitBoxArray.Num() > 0)
 	{
-		if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(Actors))
+		TArray<AActor*> InsideHitBoxArrayCopy = InsideHitBoxArray;
+		for (AActor* Actors : InsideHitBoxArrayCopy)
 		{
-			
-			EnemyCharacter->TakeDamage(SpikeDamage, this);
-			GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
-			UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
+			if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(Actors))
+			{
+				
+				EnemyCharacter->TakeDamage(SpikeDamage, this);
+				GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
+				UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
+			}
 		}
 	}
 }

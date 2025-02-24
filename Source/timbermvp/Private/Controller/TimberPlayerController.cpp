@@ -48,6 +48,9 @@ void ATimberPlayerController::BeginPlay()
 
 	//Binds to Tutorial State Changes
 	InitializeTutorialStateBinding();
+
+	//We force call this because binding may take place after broadcast from GameState.
+	//Initial Broadcast should be ok since it's called from the GameMode on Begin play. This is just a redundant safety measure.
 	if (GetTutorialState() == ETutorialState::Wake1)
 	{
 		DisableAllKeyboardInput();
@@ -703,7 +706,25 @@ void ATimberPlayerController::HandleTutorialStateChanges(ETutorialState NewState
 			break;
 		case ETutorialState::Default:
 			break;
-		
+		case ETutorialState::Combat1:
+			break;
+		case ETutorialState::Combat2:
+			break;
+		case ETutorialState::Parts1:
+			break;
+		case ETutorialState::Building1:
+			break;
+		case ETutorialState::Building2:
+			break;
+		case ETutorialState::Building3:
+			break;
+		case ETutorialState::WaveStart:
+			break;
+		case ETutorialState::WaveComplete:
+			break;
+		case ETutorialState::TutorialComplete:
+			EnableStandardKeyboardInput();
+			break;
 	}
 }
 

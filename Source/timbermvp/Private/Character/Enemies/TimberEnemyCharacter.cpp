@@ -48,6 +48,9 @@ void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 
 void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 {
+	//Glows the Enemy Character briefly when hit.
+	AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f);
+	
 	//Adding new damage to the accumulated damage during window
 	DamageAccumulatedDuringWindow += DamageAmount;
 	//Applying damage to Characters Health

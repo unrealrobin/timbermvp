@@ -71,8 +71,11 @@ void APowerPlate::HitBoxBeginOverlap(
 	{
 		//Adding 50% Damage Increase
 		TimberCharacter->DamageModifierValue += .5f;
-		//Glow On
+		//Power Plate Glow On
 		HandlePowerPlateMaterialChange(true);
+
+		//Gives the Character the PowerUp Overlay Material
+		TimberCharacter->AddOverlayMaterialToCharacter(TimberCharacter->PowerUpOverlayMaterial, 0.0f);
 	}
 }
 
@@ -88,6 +91,8 @@ void APowerPlate::HitBoxEndOverlap(
 		TimberCharacter->DamageModifierValue -= .5f;
 		//Glow Off
 		HandlePowerPlateMaterialChange(false);
+		//Removes the PowerUp Overlay Material
+		TimberCharacter->RemoveOverlayMaterialFromCharacter();
 	}
 }
 

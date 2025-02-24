@@ -62,9 +62,14 @@ void AFloaterDrones::HandleBaseMaterialColorChange(EDroneState State)
 	if (State == EDroneState::Damageable)
 	{
 		GetMesh()->SetMaterial(0, DamageableMaterial);
+		//Remove Shield Overlay Material to Signify, Damageable.
+		RemoveOverlayMaterialFromCharacter();
 	}
 	else
 	{
+		//Add Shield Overlay Material to Signify, not Damageable.
+		AddOverlayMaterialToCharacter(ShieldOverlayMaterial, 0.0f);
+		
 		GetMesh()->SetMaterial(0, NotDamageableMaterial);
 	}
 }
@@ -76,6 +81,8 @@ void AFloaterDrones::SetActorUnDamageable()
 
 void AFloaterDrones::SetActorDamageable()
 {
+
+	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 

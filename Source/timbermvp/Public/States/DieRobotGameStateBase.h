@@ -20,6 +20,7 @@ enum class ETutorialState : uint8
 	Building3 UMETA(DisplayName = "Building3"),
 	WaveStart UMETA(DisplayName = "WaveStart"),
 	WaveComplete UMETA(DisplayName = "WaveComplete"),
+	TutorialComplete UMETA(DisplayName = "TutorialCompleted"),
 	Default UMETA(DisplayName = "Default")
 };
 
@@ -40,8 +41,12 @@ public:
 	 */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTutorialStateChange, ETutorialState, NewState);
 	FOnTutorialStateChange OnTutorialStateChange;
-	
-	ETutorialState TutorialState = ETutorialState::Wake1;
+
+	//Tutorial State when Starting Game With Tutorial
+	//ETutorialState TutorialState = ETutorialState::Wake1;
+
+	//Tutorial state when starting Game outside of Tutorial
+	ETutorialState TutorialState = ETutorialState::TutorialComplete;
 
 	void ChangeTutorialGameState(ETutorialState NewState);
 	

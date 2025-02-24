@@ -379,6 +379,14 @@ void ATimberHUDBase::HandleTutorialStateChanges(ETutorialState NewState)
 		break;
 	case ETutorialState::WaveComplete:
 		break;
+	case ETutorialState::TutorialComplete:
+		//Enabling all of these for testing purposes. We start the game outside of the tutorial with all of these widgets.
+		ShowCrossHairWidget();
+		ShowInventoryPanelWidget();
+		ShowPlayerHealthWidget();
+		ShowSeedaHealthWidget();
+		ShowWaveDataWidget();
+		break;
 	case ETutorialState::Default:
 		break;
 	}

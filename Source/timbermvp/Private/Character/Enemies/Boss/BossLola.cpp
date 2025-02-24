@@ -63,6 +63,9 @@ void ABossLola::SetLolaNotDamageable()
 	if (GetMesh())
 	{
 		GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+		//Adding Shield Overlay Material VFX.
+		AddOverlayMaterialToCharacter(ShieldOverlayMaterial, 0.0f);
 	}
 }
 
@@ -73,6 +76,8 @@ void ABossLola::SetLolaToDamageable()
 		//Projectile and Melee Weapons handle damage on Overlap NOT Block (Tho projectiles could.)
 		for (UPrimitiveComponent* LolaCapsuleComponent : CapsuleComponentsArray)
 		{
+			//Removing Shield Overlay Material VFX
+			RemoveOverlayMaterialFromCharacter();
 			
 			//Overlapping Melee Weapons
 			LolaCapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);

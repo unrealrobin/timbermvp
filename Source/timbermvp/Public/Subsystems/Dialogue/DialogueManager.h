@@ -7,6 +7,7 @@
 #include "DialogueManager.generated.h"
 
 enum class ETutorialState : uint8;
+class USoundMix;
 class UMetaSoundSource;
 class UNarrativeDialogueLibrary;
 /**
@@ -31,13 +32,22 @@ public:
 	void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY()
-	UNarrativeDialogueLibrary* NarrativeDialogueLibrary = nullptr;
+	UAudioComponent* DialoguePlayer = nullptr;
 	
 	UPROPERTY()
-	UAudioComponent* DialoguePlayer = nullptr;
-
+	UNarrativeDialogueLibrary* NarrativeDialogueLibrary = nullptr;
+	
 	UFUNCTION()
 	void LoadNarrativeDialogueLibrary();
+	
+	UPROPERTY()
+	USoundMix* NarrativeDialogueSoundMix = nullptr;
+	
+	void LoadNarrativeDialogueSoundMix();
+
+	UFUNCTION()
+	void RemoveNarrativeSoundMix();
+
 
 	UFUNCTION()
 	UMetaSoundSource* GetDialogueVoiceover(FName DialogueName);

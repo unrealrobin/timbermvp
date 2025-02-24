@@ -7,6 +7,8 @@
 #include "Components/AudioComponent.h"
 #include "Data/MusicLibraryDataAsset.h"
 #include "Data/MusicTrackDataAsset.h"
+#include "Sound/SoundMix.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void USFXManagerSubsystem::BindToSFXDelegates()
@@ -35,7 +37,7 @@ void USFXManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void USFXManagerSubsystem::GetSFXLibrary()
 {
-	static const FString SFXLibaryAssetPath = TEXT("/Game/Sounds/01SFX/DataAssets/Library/DA_SFX_Library");
+	static const FString SFXLibaryAssetPath = TEXT("/Game/Sounds/01_SFX/DataAssets/Library/DA_SFX_Library");
 	
 	SFXLibrary = LoadObject<UMusicLibraryDataAsset>(nullptr, *SFXLibaryAssetPath);
 	if (SFXLibrary)
@@ -66,12 +68,42 @@ void USFXManagerSubsystem::PlaySound(FName TrackName)
 	if (!GetWorld()) return;
 	
 	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
-	AudioComponent->RegisterComponentWithWorld(GetWorld());
-	AudioComponent->SetSound(MetaSound);
+	if (AudioComponent)
+	{
+		AudioComponent->RegisterComponentWithWorld(GetWorld());
+		AudioComponent->SetSound(MetaSound);
 
-	//TODO::Add some way of cleaning up this AudioComponent reference after each time we finish the audio.
+		//TODO::Add some way of cleaning up this AudioComponent reference after each time we finish the audio.
+		
+		AudioComponent->OnAudioFinishedNative.AddLambda([this, TrackName](UAudioComponent* AudioComponent)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SFX Manager - Audio Finished Playing: %s. Lambda function Call."), *TrackName.ToString());
+			HandleAudioComponentCleanUp(AudioComponent, TrackName);
+		});
+		
+		AudioComponent->Play();
+	}
+}
+
+void USFXManagerSubsystem::HandleAudioComponentCleanUp(UAudioComponent* AudioComponent, FName TrackName)
+{
+	//Used to clean up Sub mixes on Specific Track Play Calls.
+	HandleTrackSubmixCleanup(TrackName);
 	
-	AudioComponent->Play();
+	AudioComponent->DestroyComponent();
+}
+
+void USFXManagerSubsystem::HandleTrackSubmixCleanup(FName TrackName)
+{
+	//TODO:: Not such an elegant solution - but it works for now.
+	if (TrackName == "BossEntry_1" )
+	{
+		const FString BossSoundMixAssetPath = TEXT("/Game/Sounds/02_SoundMix/SCM_DieRobot_BossSpawnMix");
+		USoundMix* BossSoundMix = LoadObject<USoundMix>(nullptr, *BossSoundMixAssetPath);
+		UGameplayStatics::PopSoundMixModifier(this, BossSoundMix);
+
+		UE_LOG(LogTemp, Warning, TEXT("SFX Manager - Removed Boss Sound Mix"));
+	}
 }
 
 void USFXManagerSubsystem::PlayLootPickUpSound()
@@ -92,7 +124,21 @@ void USFXManagerSubsystem::PlayWaveEndSound()
 
 void USFXManagerSubsystem::PlayBossSpawnSound()
 {
+	//Enable Boss Spawn Sound Mix.
+	//Load Sound Mix
+	const FString BossSoundMixAssetPath = TEXT("/Game/Sounds/02_SoundMix/SCM_DieRobot_BossSpawnMix");
+	USoundMix* BossSoundMix = LoadObject<USoundMix>(nullptr, *BossSoundMixAssetPath);
+	if (BossSoundMix)
+	{
+		UGameplayStatics::PushSoundMixModifier(this, BossSoundMix);
+		UE_LOG(LogTemp, Warning, TEXT("SFX Manager - Added Boss Sound Mix"));
+
+	}
+	
 	PlaySound("BossEntry_1");
+
+	//How would we remove the mix after the sound is finished?
+	//UGameplayStatics::PopSoundMixModifier(this, BossSoundMix);
 }
 
 void USFXManagerSubsystem::PlayBuildablePlacementSound()

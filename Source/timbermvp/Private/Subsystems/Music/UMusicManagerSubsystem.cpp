@@ -14,7 +14,7 @@ void UUMusicManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UUMusicManagerSubsystem::HandleInitialization);
 
-	BlankTrack = LoadObject<UMetaSoundSource>(nullptr, TEXT("/Game/Music/MetaSounds/MS_Blank.MS_Blank"));
+	BlankTrack = LoadObject<UMetaSoundSource>(nullptr, TEXT("/Game/Sounds/04_Music/MetaSounds/MS_Blank"));
 	
 }
 
@@ -34,7 +34,7 @@ void UUMusicManagerSubsystem::HandleInitialization()
 		WorldContext = GetWorld();
 	}
 	
-	static const FString MusicLibaryAssetPath = TEXT("/Game/Music/DataAssets/DA_MusicLibrary");
+	static const FString MusicLibaryAssetPath = TEXT("/Game/Sounds/04_Music/DataAssets/DA_MusicLibrary");
 
 	//Getting the Music Library Data Asset
 	MusicLibrary = LoadObject<UMusicLibraryDataAsset>(nullptr, *MusicLibaryAssetPath);

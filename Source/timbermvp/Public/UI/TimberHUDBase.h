@@ -82,6 +82,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* KBM_CombatControlsWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> KBM_BuildControlWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_BuildControlsWidget;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
@@ -148,6 +154,7 @@ private:
 	void ShowInventoryPanelWidget();
 	void ShowPlayerHealthWidget();
 	void ShowSeedaHealthWidget();
+	void ShowWaveDataWidget();
 	
 };
 

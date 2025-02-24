@@ -34,6 +34,7 @@ class TIMBERMVP_API ADieRobotGameStateBase : public AGameStateBase
 public:
 
 	/*
+	/*
 	 * Bound Classes
 	 * TimberGameModeBase
 	 * 

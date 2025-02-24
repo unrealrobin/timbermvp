@@ -48,6 +48,8 @@ public:
 	UFUNCTION()
 	void HandleWake3Finish();
 	UFUNCTION()
+	void HandleParts1Finish();
+	UFUNCTION()
 	void HandlePlayedDialogue(FName VoiceoverName);
 	UFUNCTION()
 	void HandleTutorialStateChanges(ETutorialState NewState);

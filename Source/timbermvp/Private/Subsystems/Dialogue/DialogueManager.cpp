@@ -92,6 +92,9 @@ void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
 	}else if (VoiceoverName == FName("Molly_Wake_3"))
 	{
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleWake3Finish);
+	}else if (VoiceoverName == FName("Molly_Parts_1"))
+	{
+		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleParts1Finish);
 	}
 	
 }
@@ -115,12 +118,15 @@ void UDialogueManager::HandleTutorialStateChanges(ETutorialState NewState)
 		PlayVoiceover("Molly_Parts_1");
 		break;
 	case ETutorialState::Building1:
+		PlayVoiceover("Molly_Build_1");
 		break;
 	case ETutorialState::Building2:
 		break;
 	case ETutorialState::Building3:
 		break;
 	case ETutorialState::WaveStart:
+		//Play some dialogue here about combat.
+			// "You're Rifle is good for long range shots but does less damage, your sword is great for big damage up close."
 		break;
 	case ETutorialState::WaveComplete:
 		break;
@@ -156,6 +162,19 @@ void UDialogueManager::HandleWake3Finish()
 
 		//Removing the Binding.
 		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake3Finish);
+	}
+}
+
+void UDialogueManager::HandleParts1Finish()
+{
+	ADieRobotGameStateBase* DieRobotGameState = GetWorld()->GetGameState<ADieRobotGameStateBase>();
+	if (DieRobotGameState)
+	{
+		//State Change initiates Broadcast to Listeners
+		DieRobotGameState->ChangeTutorialGameState(ETutorialState::Building1);
+
+		//Removing the Binding.
+		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleParts1Finish);
 	}
 }
 

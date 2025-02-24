@@ -523,7 +523,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 						if (TutorialBuildsPlaced == 2)
 						{
 							//Wave Ready to begin.
-							DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::WaveStart);
+							DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
 						}
 					}
 					

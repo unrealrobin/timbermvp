@@ -203,15 +203,21 @@ void UWaveGameInstanceSubsystem::SpawnWave()
 void UWaveGameInstanceSubsystem::EndWave()
 {
 	PlayWaveEndSound();
+
+	//Broadcasts the Completed Wave Number
+	HandleWaveComplete.Broadcast(CurrentWaveNumber);
 	
 	//Process of Closing Doors
 	CloseLabDoorHandle.Broadcast();
 	//Resetting the wave Data.
 	ResetWaveEnemies();
+	
 	//Increment Wave
 	IncrementWave();
+	
 	//Save Game - Game Mode will handle the saving of the game.
 	SaveCurrentGameHandle.Broadcast();
+	
 	//Start Timer for Next Wave
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
 	TimeBetweenWaves, false);

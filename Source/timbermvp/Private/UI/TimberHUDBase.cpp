@@ -370,12 +370,12 @@ void ATimberHUDBase::HandleTutorialStateChanges(ETutorialState NewState)
 		ShowWidget(KBM_BuildControlsWidget);
 		break;
 	case ETutorialState::Building2:
+		HideWidget(KBM_BuildControlsWidget);
 		break;
 	case ETutorialState::Building3:
 		break;
 	case ETutorialState::WaveStart:
-		HideWidget(KBM_BuildControlsWidget);
-		//Show Wave Data
+		ShowWaveDataWidget();
 		break;
 	case ETutorialState::WaveComplete:
 		break;

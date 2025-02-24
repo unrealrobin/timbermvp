@@ -37,6 +37,7 @@ void ATimberGameModeBase::BeginPlay()
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
 		GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
+		GetWaveGameInstanceSubsystem()->HandleWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
 		/*Subscribing to Player Death Delegate Signature*/
 	}
 
@@ -54,6 +55,7 @@ void ATimberGameModeBase::BeginPlay()
 		{
 			DialogueManager->BindToGameState();
 		}
+		
 	}
 	
 	GatherSeedaData();
@@ -146,6 +148,15 @@ void ATimberGameModeBase::HandleGameStateChange(ETutorialState NewState)
 		if (DialogueManager)
 		{
 			DialogueManager->PlayVoiceover("Molly_Wake_3");
+		}
+	}
+	if (NewState == ETutorialState::WaveStart)
+	{
+		UWaveGameInstanceSubsystem* WaveSubsystem = GetWaveGameInstanceSubsystem();
+		if (WaveSubsystem)
+		{
+			//Starting wave 1 (Tutorial Wave)
+			WaveSubsystem->StartWave();
 		}
 	}
 }
@@ -492,4 +503,18 @@ void ATimberGameModeBase::CloseLabDoors()
 		CloseAllLabDoors();
 	}
 }
+
+void ATimberGameModeBase::HandleWaveComplete(int CompletedWave)
+{
+	if (CompletedWave == 1)
+	{
+		ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+		if (DieRobotGameState)
+		{
+			//Wave 1 Completed, progress to finished Tutorial.
+			DieRobotGameState->ChangeTutorialGameState(ETutorialState::WaveComplete);
+		}
+	}
+}
+
 

@@ -42,10 +42,7 @@ public:
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
-
-	UFUNCTION()
-	void HandleGameStateChange(ETutorialState NewState);
-	void InitializeGameState();
+	
 	virtual void BeginPlay() override;
 	
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);
@@ -60,6 +57,10 @@ public:
 	void GatherSeedaData();
 
 	/* Game State */
+	UFUNCTION()
+	void HandleGameStateChange(ETutorialState NewState);
+	
+	void InitializeGameState();
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Game State")
 	ETutorialState TutorialState = ETutorialState::Default;
 	
@@ -95,6 +96,9 @@ public:
 	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
 	void LoadPlayerState(UTimberSaveSystem* LoadGameInstance);
 	void LoadSeedaData(UTimberSaveSystem* LoadGameInstance);
+
+	UFUNCTION()
+	void HandleWaveComplete(int CompletedWave);
 	
 	void OpenAllLabDoors();
 

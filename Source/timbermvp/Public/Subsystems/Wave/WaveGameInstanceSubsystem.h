@@ -30,6 +30,8 @@ public:
 	FSaveCurrentGameHandle SaveCurrentGameHandle;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTimeToNextWaveSecondsHandle, int, TimeToNextWaveSeconds);
 	FTimeToNextWaveSecondsHandle TimeToNextWaveSecondsHandle;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandleWaveComplete, int, CompletedWaveNumber);
+	FHandleWaveComplete HandleWaveComplete;
 
 	/* Data Table */
 	UFUNCTION()
@@ -75,7 +77,7 @@ public:
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 2;
+	int CurrentWaveNumber = 1;
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
 	UPROPERTY()

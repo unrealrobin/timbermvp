@@ -34,7 +34,6 @@ class TIMBERMVP_API ADieRobotGameStateBase : public AGameStateBase
 public:
 
 	/*
-	/*
 	 * Bound Classes
 	 * TimberGameModeBase
 	 * 
@@ -45,4 +44,5 @@ public:
 	ETutorialState TutorialState = ETutorialState::Wake1;
 
 	void ChangeTutorialGameState(ETutorialState NewState);
+	
 };

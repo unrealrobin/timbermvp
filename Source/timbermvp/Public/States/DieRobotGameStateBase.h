@@ -43,10 +43,10 @@ public:
 	FOnTutorialStateChange OnTutorialStateChange;
 
 	//Tutorial State when Starting Game With Tutorial
-	//ETutorialState TutorialState = ETutorialState::Wake1;
+	ETutorialState TutorialState = ETutorialState::Wake1;
 
 	//Tutorial state when starting Game outside of Tutorial
-	ETutorialState TutorialState = ETutorialState::TutorialComplete;
+	//ETutorialState TutorialState = ETutorialState::TutorialComplete;
 
 	void ChangeTutorialGameState(ETutorialState NewState);
 	

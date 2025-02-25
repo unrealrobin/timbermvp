@@ -962,7 +962,35 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(TArray<FHitR
 	FHitResult QuadrantHitResult;
 	UBoxComponent* QuadrantHitComponent = nullptr;
 
-	/* If the multicast has Multiple hits that could be both a building component and Building Quadrant get Both components*/
+	
+	if(HitResults.Num() > 0)
+	{
+		for (FHitResult HitResult : HitResults)
+		{
+			if (Cast<UBoxComponent>(HitResult.GetComponent()))
+			{
+				//Hit Quadrant Hit
+				QuadrantHitResult = HitResult;
+				QuadrantHitComponent = Cast<UBoxComponent>(HitResult.GetComponent());
+				if (Cast<ATimberBuildingComponentBase>(HitResult.GetActor()))
+				{
+					//Hit Building Component Hit
+					FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(HitResult.GetActor());
+					BuildingComponentImpactPoint = HitResult.ImpactPoint;
+					BuildingComponentHitResult = HitResult;
+
+					if (FirstHitBuildingComponent && QuadrantHitComponent)
+					{
+						//Exiting the loop when we have what we need.
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+
+	/*/* If the multicast has Multiple hits that could be both a building component and Building Quadrant get Both components#1#
 	if(HitResults.Num() >= 2)
 	{
 		for (const FHitResult& Hits : HitResults)
@@ -986,21 +1014,17 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(TArray<FHitR
 				
 				}
 			}
-			/* Exit Loop if both needed components are found*/
+			/* Exit Loop if both needed components are found#1#
 			if(FirstHitBuildingComponent && QuadrantHitComponent)
 			{
 				break;
 			}
-		}
-
-		
+		}*/
+	
 		if(FirstHitBuildingComponent && QuadrantHitComponent)
 		{
 			HandleBuildingComponentSnapping(QuadrantHitResult, BuildingComponentHitResult);
 		}
-		
-		
-	}
 	else
 	{
 		/*If there is An Active Building Component Move the Proxy to the new location.*/
@@ -1011,48 +1035,6 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(TArray<FHitR
 		}
 	}
 	
-
-
-
-
-	//IF NOT ISSUES WITH PLACEMENT OF BUILDING COMPONENTS (Walls and Floors you can safely remove this)
-	/*
-	//Handle Building Component Placement
-	//Hit Result is Stored in Global Scope of the Player Character
-	if (HitResults.Num() >= 2)
-	{
-		//If the second hit is a building component, snap to that building component utilizing the quadrant system.
-		// Using the 2nd Hit because the first visible hit is the Quadrant Box Component.
-		/* Hit a Building Component Condition #1#
-		if (Cast<ATimberBuildingComponentBase>(HitResults[1].GetActor()))
-		{
-			BuildSystemManager->HandleBuildingComponentSnapping(HitResults[0], HitResults[1]);
-		}
-
-		//HUD Stuff - Delete Widget
-		//Needs to be able to get to the actor component during the multicast.
-		if (HandleShowDeleteWidget(HitResults[1]))
-		{
-			return true;
-		}
-	}
-	else //Handles the Case where there is no overlap with a Building Component and Moves the Building Component Around
-	{
-		//HUD Stuff - Delete Widget
-		if (HandleShowDeleteWidget(HitResults[0]))
-		{
-			return true;
-		}
-
-		/*If there is An Active Building Component Move the Proxy to the new location.#1#
-		if (BuildSystemManager->GetActiveBuildingComponent())
-		{
-			/*Simple Move to Location#1#
-			BuildSystemManager->MoveBuildingComponent(
-				HitResults[0].ImpactPoint, BuildSystemManager->GetActiveBuildingComponent());
-		}
-	}
-	return false;*/
 }
 
 void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitResult> HitResults)

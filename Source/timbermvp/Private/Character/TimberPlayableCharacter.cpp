@@ -349,9 +349,13 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 	UAnimMontage* WakeMontage = LoadObject<UAnimMontage>(this, *WakeMontageAssetPath);
 	if (WakeMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Playing Wake Animation Montage."));
+		UE_LOG(LogTemp, Warning, TEXT("Player Character - Playing Wake Animation Montage."));
 		
 		PlayAnimMontage(WakeMontage, 1.f, FName("WakingUp"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player Character - Wake Animation Montage Not Found."));
 	}
 }
 

@@ -284,39 +284,43 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
 	if (TimberCharacter)
 	{
-		UnEquipWeapon();
 		HandleExitBuildMode();
-		//Setting WeaponState on Character
-		TimberCharacter->SetCurrentWeaponState(EWeaponState::AxeEquipped);
-		WeaponState.Broadcast(EWeaponState::AxeEquipped);
 
+		//Clear the slate
+		//Check this, lets try not to destroy the weapon on weapon switching
+		UnEquipWeapon();
+
+		//Setting New WeaponState on Character
+		TimberCharacter->SetCurrentWeaponState(EWeaponState::MeleeWeaponEquipped);
+		WeaponState.Broadcast(EWeaponState::MeleeWeaponEquipped);
+
+		//Notify Will call the actual Equip Weapon function that Moves the weapons to each socket in the ABP
+		TimberCharacter->PlayEquipWeaponMontage("EquipSword");
+		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponOneInstance);
+		/*//Hand Equip Location Variables
+		FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("AxeSocket", RTS_World);
+		FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
+		FRotator SocketWorldRotation = SocketWorldTransform.Rotator();*/
+
+		/*
 		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = Cast<ATimberPlayableCharacter>(GetPawn());
 		SpawnParams.Instigator = GetPawn();
-
-		//Socket Rotation and Location
-		const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("AxeSocket");
-		const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("AxeSocket");
-
-		FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("AxeSocket", RTS_World);
-		FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
-		FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
-
-
 		//Spawn the Weapon
 		ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>
 		(
 			TimberCharacter->WeaponOne,
 			SocketWorldLocation, SocketWorldRotation, SpawnParams);
 
-		//Attach Actor to the Socket Location
-		SpawnedActor->AttachToComponent(
-			TimberCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "AxeSocket");
-
 		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
 		TimberCharacter->WeaponOneInstance = SpawnedActor;
-		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
+		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);*/
+		
+		//Attach Weapon to the Hand Socket for the Weapon
+		/*TimberCharacter->WeaponOneInstance->AttachToComponent(
+			TimberCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "MeleeSocket");*/
+
 	}
 }
 
@@ -371,42 +375,9 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 	
 	TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
 	WeaponState.Broadcast(EWeaponState::RangedEquipped);
-
-	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = Cast<ATimberPlayableCharacter>(GetPawn());
-	SpawnParams.Instigator = GetPawn();
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-	//Socket Rotation and Location
-	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("RangedSocket");
-	const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("RangedSocket");
-
-	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("RangedSocket", RTS_World);
-	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
-	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
-
-	//Spawn the Actor
-	ATimberWeaponRangedBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponRangedBase>
-	(
-		TimberCharacter->WeaponThree,
-		SocketWorldLocation, SocketWorldRotation, SpawnParams);
-
-	//Attach Actor to the Socket Location
-	if (SpawnedActor)
-	{
-		SpawnedActor->AttachToComponent(
-			TimberCharacter->GetMesh(),
-			FAttachmentTransformRules::SnapToTargetIncludingScale, "RangedSocket");
-
-		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-		TimberCharacter->WeaponThreeInstance = SpawnedActor;
-		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
-
-		//Telling HUD to Display the Ammo Counter when the Ranged Weapon is Equipped
-		ShowAmmoCounter.Broadcast(true);
-	}
+	TimberCharacter->PlayEquipWeaponMontage("EquipGun");
+	TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponThreeInstance);
+	ShowAmmoCounter.Broadcast(true);
 }
 
 void ATimberPlayerController::DisableAllKeyboardInput()
@@ -430,17 +401,14 @@ void ATimberPlayerController::UnEquipWeapon() const
 	{
 		//Broadcasts to HUD if Unequipped Weapon is the Ranged Weapon (Hides Ammo Counter)
 		HandleWeaponEquip();
-		
-		//Removing the Currently EquippedWeapon\]
-		//TODO:: Can we modify this to not destroy the Weapon but HIDE it?
-		TimberCharacter->GetCurrentlyEquippedWeapon()->Destroy();
 
 		//Stops any reloading Montages or shooting montages from playing - May also stop death montage if we switch weapons on death.
 		TimberCharacter->StopAllAnimMontages();
 		
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
-		
+
+		//TODO:: What is listening to this?
 		WeaponState.Broadcast(EWeaponState::Unequipped);
 	}
 }
@@ -460,8 +428,10 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 	{
 		switch (TimberCharacter->GetCurrentWeaponState())
 		{
-		case EWeaponState::AxeEquipped:
+		case EWeaponState::MeleeWeaponEquipped:
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Sword Attack Montage"));
+				
 				TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
 				CanAttackAgain = false;
 			}
@@ -473,6 +443,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::RangedEquipped:
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Rifle Attack Montage"));
 				TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticuleHitLocation);
 			}
 			break;

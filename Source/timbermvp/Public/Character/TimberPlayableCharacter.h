@@ -24,7 +24,7 @@ UENUM(BlueprintType)
 enum class EWeaponState : uint8
 {
 	Unequipped UMETA(DisplayName = "None"),
-	AxeEquipped UMETA(DisplayName = "AxeEquipped"),
+	MeleeWeaponEquipped UMETA(DisplayName = "MeleeWeaponEquipped"),
 	ChainsawEquipped UMETA(DisplayName = "ChainsawEquipped"),
 	RangedEquipped UMETA(DisplayName = "RangedEquipped"),
 };
@@ -87,6 +87,10 @@ public:
 	UAnimMontage* DeathMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* ReloadMontage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* EquipWeaponMontage;
+	UFUNCTION()
+	void PlayEquipWeaponMontage(FName SectionName);
 	UFUNCTION()
 	void StopAllAnimMontages();
 	UFUNCTION()
@@ -110,6 +114,18 @@ public:
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
 	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
 	ATimberWeaponRangedBase* WeaponThreeInstance;
+
+	/* Weapon Spawning*/
+	UFUNCTION()
+	void SpawnMeleeWeapon();
+	UFUNCTION()
+	void SpawnRangedWeapon();
+	UFUNCTION(BlueprintCallable)
+	void EquipWeapon(FName EquipSocketName, ATimberWeaponBase* WeaponToEquip);
+	UFUNCTION(BlueprintCallable)
+	void UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip);
+	UFUNCTION(BlueprintCallable)
+	void UnEquipBothWeapons();
 
 	/*Getters & Setters*/
 	EWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
@@ -186,3 +202,4 @@ protected:
 	void PlayDeathAnimation();
 	
 };
+

@@ -154,7 +154,7 @@ void ATimberWeaponMeleeBase::EmptyActorToIgnoreArray()
 
 void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const
 {
-	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(WeaponInstigator);
+	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(GetOwner());
 	const int32 NumberOfMontageSections = AttackMontage->GetNumSections();
 
 	const int32 RandomSection = UKismetMathLibrary::RandomIntegerInRange(1, NumberOfMontageSections);

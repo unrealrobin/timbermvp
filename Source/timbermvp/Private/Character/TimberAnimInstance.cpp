@@ -42,7 +42,7 @@ void UTimberAnimInstance::OnWeaponStateChange(EWeaponState WeaponState)
 	case EWeaponState::RangedEquipped:
 		isRangedEquipped = true;
 		break;
-	case EWeaponState::AxeEquipped:
+	case EWeaponState::MeleeWeaponEquipped:
 		isRangedEquipped = false;
 		break;
 	case EWeaponState::ChainsawEquipped:

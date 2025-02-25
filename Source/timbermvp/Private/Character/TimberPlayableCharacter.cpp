@@ -2,16 +2,18 @@
 
 
 #include "Character/TimberPlayableCharacter.h"
-#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "Character/TimberSeeda.h"
+#include "Controller/TimberPlayerController.h"
 #include "BuildSystem/Constructs/PowerPlate.h"
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "BuildSystem/Ramps/RampBase.h"
 #include "BuildSystem/Traps/TrapBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
-#include "Camera/CameraComponent.h"
-#include "Character/TimberSeeda.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
-#include "Controller/TimberPlayerController.h"
+#include "Camera/CameraComponent.h"
+#include "Weapons/TimberWeaponRangedBase.h"
+#include "Weapons/TimberWeaponMeleeBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -73,6 +75,12 @@ void ATimberPlayableCharacter::BeginPlay()
 		{
 			GM->PlayerIsInitialized();
 		}
+	}
+
+	{
+		//Handle Weapon Initialization
+		SpawnMeleeWeapon();
+		SpawnRangedWeapon();
 	}
 
 	//Tutorial is just starting play the wake animation.
@@ -321,6 +329,11 @@ ETutorialState ATimberPlayableCharacter::GetTutorialState()
 	
 }
 
+void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
+{
+	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
+}
+
 void ATimberPlayableCharacter::StopAllAnimMontages()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -336,7 +349,9 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 	UAnimMontage* WakeMontage = LoadObject<UAnimMontage>(this, *WakeMontageAssetPath);
 	if (WakeMontage)
 	{
-		PlayAnimMontage(WakeMontage, 1.f, FName("default"));
+		UE_LOG(LogTemp, Warning, TEXT("Playing Wake Animation Montage."));
+		
+		PlayAnimMontage(WakeMontage, 1.f, FName("WakingUp"));
 	}
 }
 
@@ -349,4 +364,77 @@ void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Wea
 {
 	CurrentlyEquippedWeapon = Weapon;
 }
+
+void ATimberPlayableCharacter::SpawnMeleeWeapon()
+{
+	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+
+	//Back UnEquipped Location
+	FTransform SocketWorldTransform = GetMesh()->GetSocketTransform("UnEquippedSwordSocket", RTS_World);
+	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
+	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
+	
+	//Spawn the Weapon
+	ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>
+	(
+		WeaponOne,
+		SocketWorldLocation,
+		SocketWorldRotation,
+		SpawnParams);
+	
+	if (SpawnedActor)
+	{
+		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
+		WeaponOneInstance = SpawnedActor;
+		UnEquipWeapon("UnEquippedSwordSocket", WeaponOneInstance);
+		UE_LOG(LogTemp, Warning, TEXT("Player Character - Spawned the sword and Attached it to the Socket."))
+	}
+}
+
+void ATimberPlayableCharacter::SpawnRangedWeapon()
+{
+	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+
+	//Back UnEquipped Location
+	FTransform SocketWorldTransform = GetMesh()->GetSocketTransform("UnEquippedRifleSocket", RTS_World);
+	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
+	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
+	
+	//Spawn the Weapon
+	ATimberWeaponRangedBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponRangedBase>
+	(
+		WeaponThree,
+		SocketWorldLocation,
+		SocketWorldRotation,
+		SpawnParams);
+	
+	if (SpawnedActor)
+	{
+		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
+		WeaponThreeInstance = SpawnedActor;
+		UnEquipWeapon("UnEquippedRifleSocket", WeaponThreeInstance);
+		UE_LOG(LogTemp, Warning, TEXT("Player Character - Spawned the sword and Attached it to the Socket."))
+	}
+}
+
+void ATimberPlayableCharacter::EquipWeapon(FName EquipSocketName, ATimberWeaponBase* WeaponToEquip)
+{
+	WeaponToEquip->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, EquipSocketName);
+}
+
+void ATimberPlayableCharacter::UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip)
+{
+	WeaponToUnEquip->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, UnEquipSocketName);
+}
+
+void ATimberPlayableCharacter::UnEquipBothWeapons()
+{
+	UnEquipWeapon("UnEquippedSwordSocket", WeaponOneInstance);
+	UnEquipWeapon("UnEquippedRifleSocket", Cast<ATimberWeaponBase>(WeaponThreeInstance));
+}
+
 

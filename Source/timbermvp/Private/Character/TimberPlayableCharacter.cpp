@@ -203,15 +203,6 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 
 		if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 		{
-			// Spawning ActiveBuildingComponent if it doesn't exist or if its different then the ActiveBuildingComponentClass
-			ATimberBuildingComponentBase* ActiveBuildingComponentProxy = BuildSystemManager->
-				GetActiveBuildingComponent();
-			if (ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() !=
-				BuildSystemManager->GetActiveBuildableClass())
-			{
-				BuildSystemManager->SpawnBuildingComponentProxy(HitResults[0].ImpactPoint, GetActorRotation());
-			}
-
 			BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
 		}
 		

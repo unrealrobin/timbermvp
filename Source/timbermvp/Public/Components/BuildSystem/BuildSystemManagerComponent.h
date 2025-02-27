@@ -170,17 +170,13 @@ public:
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() { return ActiveBuildableComponentClass; } ;
 	UFUNCTION()
-	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponent() const
-	{
-		return ActiveBuildingComponentProxy;
-	};
-	UFUNCTION()
 	FORCEINLINE ATrapBase* GetActiveRampComponent() const { return ActiveTrapComponentProxy; };
 	UFUNCTION()
 	FORCEINLINE ATrapBase* GetActiveTrapComponent() const { return ActiveTrapComponentProxy; };
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass);
 	FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
+	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponentProxy() const { return ActiveBuildingComponentProxy; };
 	FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };

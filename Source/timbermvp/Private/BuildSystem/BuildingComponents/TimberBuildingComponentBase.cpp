@@ -3,9 +3,10 @@
 
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 
-#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
+
+
 
 // Sets default values
 ATimberBuildingComponentBase::ATimberBuildingComponentBase()
@@ -15,9 +16,11 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMesh;
-	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1); // Building Component
+
+	//these settings get overwritten in bp it seems.
+	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1); 
 	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
-	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ATimberBuildingComponentBase::HandleOverlapNotifies);
+
 	NavCollisionBox = CreateDefaultSubobject<UBoxComponent>("NavCollisionBox");
 	NavCollisionBox->SetupAttachment(StaticMesh);
 	NavCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -31,10 +34,50 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	CreateQuadrantComponents();
 }
 
+
+
+
 // Called when the game starts or when spawned
 void ATimberBuildingComponentBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("Begin Play on Proxy Building Component."));
+	SetupProxyCollisionHandling();
+}
+
+void ATimberBuildingComponentBase::SetupProxyCollisionHandling()
+{
+	if (bIsProxy == true)
+	{
+		//Will check if overlapping another Buildings Components Overlap Box, if it does, Do Not Allow Finalization.
+		//Is only necessary if Proxy
+		//Using New Object because Runtime Creation.
+		UBoxComponent* CheckBuildingComponentOverlapCollisionBox = NewObject<UBoxComponent>(this, "CheckBuildingComponentOverlapCollisionBox");
+		if (CheckBuildingComponentOverlapCollisionBox)
+		{
+			CheckBuildingComponentOverlapCollisionBox->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			CheckBuildingComponentOverlapCollisionBox->RegisterComponent();
+			
+			/*CheckBuildingComponentOverlapCollisionBox->OnComponentBeginOverlap.AddDynamic(this, 
+				&ATimberBuildingComponentBase::HandleOverlappedBuildingComponent);*/
+			CheckBuildingComponentOverlapCollisionBox->OnComponentHit.AddDynamic(this, 
+				&ATimberBuildingComponentBase::HandleHitBuildingComponent);
+			/*CheckBuildingComponentOverlapCollisionBox->OnComponentEndOverlap.AddDynamic(this, 
+				&ATimberBuildingComponentBase::HandleEndOverlappedBuildingComponent);*/
+
+			CheckBuildingComponentOverlapCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			CheckBuildingComponentOverlapCollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+			//Checks if this Box Component is Overlapping with another Building Component (Walls/Floor).
+			//Setting the Object type to Building Component object type.
+			CheckBuildingComponentOverlapCollisionBox->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+
+			//Makes it visible in the Editor.
+			AddInstanceComponent(CheckBuildingComponentOverlapCollisionBox);
+			UE_LOG(LogTemp, Warning, TEXT("Check Building Component Overlap Collision Box Created."));
+		}
+		
+	}
 }
 
 void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor)
@@ -50,17 +93,6 @@ void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDam
 	{
 		Destroy();
 	}
-}
-
-void ATimberBuildingComponentBase::HandleOverlapNotifies(
-	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
-{
-	/*//Will handle mellee attacks from the Enemy.
-	if (OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
-	{
-		BuildingComponentTakeDamage(25.f, TODO);
-	}*/
 }
 
 void ATimberBuildingComponentBase::CreateSnapPoints()
@@ -93,4 +125,54 @@ void ATimberBuildingComponentBase::CreateQuadrantComponents()
 	RightQuadrant->SetupAttachment(RootComponent);
 	CenterQuadrant = CreateDefaultSubobject<UBoxComponent>("CenterQuadrant");
 	CenterQuadrant->SetupAttachment(RootComponent);
+}
+
+void ATimberBuildingComponentBase::HandleOverlappedBuildingComponent(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberBuildingComponentBase* OtherOverlappedBuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
+	if (OtherOverlappedBuildingComponent && OtherOverlappedBuildingComponent != this)
+	{
+		//This will let us know the Other Actor that we are overlapping
+		UE_LOG(LogTemp, Warning, TEXT("Proxy: %s Overlap Check Box Overlapping with Building Component Actor: %s."), *GetClass()->GetName(), *OtherOverlappedBuildingComponent->GetName());
+		
+		if (OtherOverlappedBuildingComponent)
+		{
+			//Make sure that the Final Spawning of the Building Component Cant Be Finalized.
+			bCanBuildableBeFinalized = false;
+			UE_LOG(LogTemp, Warning, TEXT("Proxy is overlapping another Building Component. Cant be Finalized."));
+		}
+	}
+}
+
+void ATimberBuildingComponentBase::HandleHitBuildingComponent(
+	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+	const FHitResult& Hit)
+{
+	ATimberBuildingComponentBase* OtherOverlappedBuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
+	if (OtherOverlappedBuildingComponent && OtherOverlappedBuildingComponent != this)
+	{
+		//This will let us know the Other Actor that we are overlapping
+		UE_LOG(LogTemp, Warning, TEXT("Proxy: %s Overlap Check Box Overlapping with Building Component Actor: %s."), *GetClass()->GetName(), *OtherOverlappedBuildingComponent->GetName());
+		
+		if (OtherOverlappedBuildingComponent)
+		{
+			//Make sure that the Final Spawning of the Building Component Cant Be Finalized.
+			bCanBuildableBeFinalized = false;
+			UE_LOG(LogTemp, Warning, TEXT("Proxy is overlapping another Building Component. Cant be Finalized."));
+		}
+	}
+}
+
+void ATimberBuildingComponentBase::HandleEndOverlappedBuildingComponent(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ATimberBuildingComponentBase* OverlappedBuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
+	if (OverlappedBuildingComponent)
+	{
+		//Make sure that the Final Spawning of the Building Component Cant Be Finalized.
+		bCanBuildableBeFinalized = true;
+		UE_LOG(LogTemp, Warning, TEXT("Proxy is no longer overlapping another Building Component. Can be Finalized."));
+	}
 }

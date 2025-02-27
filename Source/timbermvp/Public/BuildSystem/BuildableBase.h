@@ -39,6 +39,10 @@ class TIMBERMVP_API ABuildableBase : public AActor
 public:
 	// Sets default values for this actor's properties
 	ABuildableBase();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
+	bool bCanBuildableBeFinalized = true;
+	
 	EBuildableType BuildableType = EBuildableType::Default;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")

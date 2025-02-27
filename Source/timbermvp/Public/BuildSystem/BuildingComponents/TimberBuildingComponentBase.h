@@ -34,14 +34,24 @@ class TIMBERMVP_API ATimberBuildingComponentBase : public ABuildableBase
 	GENERATED_BODY()
 
 public:
+	
 	ATimberBuildingComponentBase();
 
+	UFUNCTION()
+	void HandleHitBuildingComponent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void SetupProxyCollisionHandling();
+
+	// Used to check overlap with other building component.
+	UFUNCTION()
+	void HandleOverlappedBuildingComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void HandleEndOverlappedBuildingComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Attributes")
 	float ComponentDurability = 100.f;
 
 	UFUNCTION()
 	void BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor);
-
 	void CreateSnapPoints();
 	void CreateQuadrantComponents();
 
@@ -50,6 +60,10 @@ public:
 	EBuildingComponentOrientation BuildingOrientation = EBuildingComponentOrientation::Default;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
+
+	/*Proxy*/
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Building Component")
+	bool bIsProxy = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -60,7 +74,6 @@ public:
 	UStaticMeshComponent* StaticMesh;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UBoxComponent* NavCollisionBox;
-
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* TopSnap;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
@@ -92,17 +105,11 @@ public:
 	UBoxComponent* LeftQuadrant;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
 	UBoxComponent* CenterQuadrant;
-
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool IsUnlocked = true;
 	
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;
-
-	UFUNCTION()
-	void HandleOverlapNotifies(
-		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 };

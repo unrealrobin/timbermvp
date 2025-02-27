@@ -35,7 +35,7 @@ public:
 	void HandleSpikeOutAttack();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
-	float SpikeDamage = 10.f;
+	float SpikeDamage = 35.f;
 
 	void ApplyDamageToActorsInHitBox();
 

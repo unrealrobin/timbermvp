@@ -64,13 +64,19 @@ void UDialogueManager::RemoveNarrativeSoundMix()
 
 UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
 {
-	if (NarrativeDialogueLibrary)
+	if (NarrativeDialogueLibrary && NarrativeDialogueLibrary->NarrativeDialogueList.Num() > 0)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - Narrative Dialogue Library and List Exists"));
 		UDialogueSingle* DialogueData = *NarrativeDialogueLibrary->NarrativeDialogueList.Find(DialogueName);
+		
 		if (DialogueData)
 		{
 			return DialogueData->DialogueVoiceOver;
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Issue Loading the NarrativeDialogueList"));
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - GetDialogueVoiceover() -  Dialogue Voiceover Not Found: %s"), *DialogueName.ToString());
@@ -96,7 +102,7 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::RemoveNarrativeSoundMix);
 	}
 
-	if (DialoguePlayer)
+	if (DialoguePlayer && VoiceoverSound)
 	{
 		DialoguePlayer->Stop();
 		DialoguePlayer->SetSound(VoiceoverSound);
@@ -139,6 +145,7 @@ void UDialogueManager::HandleTutorialStateChanges(ETutorialState NewState)
 	switch (NewState)
 	{
 	case ETutorialState::Wake1:
+		PlayVoiceover("Molly_Wake_1");
 		break;
 	case ETutorialState::Wake2:
 		break;

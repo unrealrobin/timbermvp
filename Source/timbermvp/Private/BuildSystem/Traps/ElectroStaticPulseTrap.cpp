@@ -41,7 +41,7 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 	PulseHitBox = NewObject<UBoxComponent>(this);
 	if (PulseHitBox)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Created"));
+		//UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Created"));
 		//Spawn the Box at the BoxExtentRayCast Start
 		PulseHitBox->SetRelativeLocation(BoxExtentRaycastStart->GetComponentLocation());
 		PulseHitBox->SetRelativeRotation(BoxExtentRaycastStart->GetComponentRotation());
@@ -109,7 +109,7 @@ void AElectroStaticPulseTrap::MovePulseHitBox(float DeltaTime)
 			GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  
 			&AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
 			
-			UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Destroyed"));
+			//UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Destroyed"));
 		}
 	}
 }
@@ -128,7 +128,7 @@ void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
 		Enemy->TakeDamage(InitialHitDamage, this);
 	}
 
-	//Apply DOT on Enemy that last 10 Seconds doing 2 damage every other second.
+	//TODO::Apply DOT on Enemy that last 10 Seconds doing 2 damage every other second.
 	
 }
 

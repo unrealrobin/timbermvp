@@ -108,16 +108,14 @@ void ATimberGameModeBase::InitializeGameState()
 		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateGameState);
 		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleGameStateChange);
 		GetGameState();
-	}
 
-	if (TutorialState == ETutorialState::Wake1)
-	{
-		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
-		if (DialogueManager)
+		//Just initiating the Broadcast
+		if (TutorialState == ETutorialState::Wake1)
 		{
-			DialogueManager->PlayVoiceover("Wake1");
+			DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake1);
 		}
 	}
+
 
 	
 }

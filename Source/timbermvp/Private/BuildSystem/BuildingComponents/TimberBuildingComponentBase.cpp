@@ -42,7 +42,7 @@ void ATimberBuildingComponentBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Begin Play on Proxy Building Component."));
+	//UE_LOG(LogTemp, Warning, TEXT("Begin Play on Proxy Building Component."));
 	SetupProxyCollisionHandling();
 }
 

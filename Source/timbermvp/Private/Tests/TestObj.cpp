@@ -47,9 +47,8 @@ void ATestObj::Interact()
 	}
 
 	{
-		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->StartWave();
+		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->EarlyStartWave();
 		UE_LOG(LogTemp, Warning, TEXT("Game Instance Should Spawn Wave."))
-		
 	}
 }
 

@@ -89,6 +89,24 @@ void UWaveGameInstanceSubsystem::StartWave()
 	
 }
 
+void UWaveGameInstanceSubsystem::EarlyStartWave()
+{
+	//If the Timer is active, but player wants to start the wave early...
+	//Ensures we don't Start a wave, then the timer goes off and starts the same wave.
+	if (GetWorld()->GetTimerManager().IsTimerActive(TimeToNextWaveHandle))
+	{
+		//Clears the Timer
+		GetWorld()->GetTimerManager().ClearTimer(TimeToNextWaveHandle);
+		GetWorld()->GetTimerManager().ClearTimer(UpdatedTimeToNextWaveTimerHandle);
+
+		//Handles Broadcasting Necessary Information
+		UpdateTimeToNextWave();
+		
+		//Starts the Wave
+		StartWave();
+	}
+}
+
 void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 {
 	//Searches the data tables for the current wave number and then spawns the enemies
@@ -212,7 +230,7 @@ void UWaveGameInstanceSubsystem::EndWave()
 	//Resetting the wave Data.
 	ResetWaveEnemies();
 	
-	//Increment Wave
+	//Increment Wave - HUD Will always show UPCOMING wave.
 	IncrementWave();
 	
 	//Save Game - Game Mode will handle the saving of the game.
@@ -253,6 +271,8 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 
 	
 }
+
+
 
 void UWaveGameInstanceSubsystem::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 {
@@ -320,20 +340,29 @@ void UWaveGameInstanceSubsystem::CheckEnemiesForWeapons(ATimberEnemyCharacter* E
 
 void UWaveGameInstanceSubsystem::UpdateTimeToNextWave()
 {
+
+	/*
+	 * TimeToNextWaveHandle - Timer counting down @param: TimeBetweenWaves
+	 * UpdatedTimeToNextWaveTimerHandle - Timer that Broadcast every second the time remaining.
+	 */
+
+	//If there is a timer active, get the time remaining.
 	if(GetWorld()->GetTimerManager().IsTimerActive(TimeToNextWaveHandle))
 	{
+		
 		TimeToNextWave = FMath::FloorToInt32(GetWorld()->GetTimerManager().GetTimerRemaining(TimeToNextWaveHandle));
 		if(TimeToNextWave == 0 )
 		{
+			//If timer is empty, we don't need to broadcast the time every second.
 			GetWorld()->GetTimerManager().ClearTimer(UpdatedTimeToNextWaveTimerHandle);
 		}
-		
 	}
 	else
 	{
 		TimeToNextWave = 0;
 	}
 
+	//Updates the Wave Data on the HUD
 	TimeToNextWaveSecondsHandle.Broadcast(TimeToNextWave);
 }
 

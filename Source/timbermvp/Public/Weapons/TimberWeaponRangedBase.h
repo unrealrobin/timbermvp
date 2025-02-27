@@ -29,7 +29,7 @@ protected:
 	int CurrentAmmo = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int MaxAmmo = 30;
+	int MaxAmmo = 27;
 
 	FTimerHandle TimeBetweenShotsHandle;
 

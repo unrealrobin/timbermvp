@@ -76,6 +76,8 @@ public:
 	void IncrementWave();
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
+	UFUNCTION()
+	void EarlyStartWave();
 	UPROPERTY(BlueprintReadOnly)
 	int CurrentWaveNumber = 1;
 	UPROPERTY()
@@ -90,8 +92,9 @@ public:
 	int TotalEnemiesKilled = 0;
 	UPROPERTY()
 	bool bAllEnemiesSpawned = false;
+	
 	FTimerHandle SpawnPartOfWaveTimerHandle;
-	UPROPERTY()
+	
 	float TimeBetweenEnemySpawns = 5.f;
 	
 	/*Enemies*/
@@ -108,7 +111,9 @@ public:
 
 	/*Wave Iteration*/
 	UPROPERTY()
-	int TimeBetweenWaves = 20;
+	int TimeBetweenWaves = 120; //2 minutes
+
+	//Time Remaining to start of next wave.
 	UPROPERTY(BlueprintReadOnly)
 	int TimeToNextWave = 0;
 	FTimerHandle TimeToNextWaveHandle;

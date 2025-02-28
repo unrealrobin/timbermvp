@@ -3,6 +3,7 @@
 
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 
+#include "Character/Enemies/TimberEnemyMeleeBase.h"
 #include "Components/BoxComponent.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
 
@@ -82,10 +83,8 @@ void ATimberBuildingComponentBase::SetupProxyCollisionHandling()
 
 void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor)
 {
-	if (Cast<ATimberEnemyProjectile>(DamagingActor))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Building Component Hit by Enemy Projectile."));
-	}
+	//Who hit what for how much?
+	UE_LOG(LogTemp, Warning, TEXT("%lS took %f damage from %s."), *GetName(), AmountOfDamage, *DamagingActor->GetName());
 	
 	ComponentDurability = ComponentDurability - AmountOfDamage;
 

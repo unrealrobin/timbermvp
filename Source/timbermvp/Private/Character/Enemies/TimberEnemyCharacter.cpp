@@ -40,6 +40,9 @@ void ATimberEnemyCharacter::BeginPlay()
 	{
 		GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
 	}
+
+	//Enemies can walk up slopes of 56 degrees.
+	GetCharacterMovement()->SetWalkableFloorAngle(56.0f);
 }
 
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)

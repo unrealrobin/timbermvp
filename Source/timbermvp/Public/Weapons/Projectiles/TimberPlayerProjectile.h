@@ -32,6 +32,17 @@ public:
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	float CalculateOutputDamage(AActor* PlayerActor);
+	float CalculateOutputDamage(ATimberWeaponRangedBase* Weapon);
+
+	//Set in Deferred spawn on Weapon.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ownership")
+	ATimberPlayableCharacter* PlayerProjectileOwner;
+	
+private:
+	
+	UFUNCTION()
+	void HandleDestroy();
 };
+
+
 

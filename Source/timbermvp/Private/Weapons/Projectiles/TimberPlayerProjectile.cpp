@@ -27,6 +27,7 @@ ATimberPlayerProjectile::ATimberPlayerProjectile()
 void ATimberPlayerProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("Projectile Spawned."));
 }
 
 // Called every frame
@@ -50,46 +51,61 @@ void ATimberPlayerProjectile::HandleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
 	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
 
 	if (HitEnemy)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Overlapped: %ls"), *OverlappedComponent->GetFullName());
+		UE_LOG(LogTemp, Warning, TEXT("HitEnemy Valid."));
 		//Play the IDamageableEnemy's TakeDamage function. Interface.
 		HitEnemy->PlayProjectileHitSound(SweepResult);
 
-		ATimberPlayableCharacter* OwningCharacter = Cast<ATimberPlayableCharacter>(GetOwner()->GetOwner());
-		if (OwningCharacter)
+		//Weapon Owns Projectile, Player Owns Weapon.
+		if (PlayerProjectileOwner)
 		{
-			HitEnemy->TakeDamage(CalculateOutputDamage(OwningCharacter), GetOwner()->GetOwner());
+			UE_LOG(LogTemp, Warning, TEXT("Owning Weapon is Valid."));
+			HitEnemy->TakeDamage(CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner())), PlayerProjectileOwner);
 		}
-
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Owning Weapon Not Valid."));
+		}
+		
 		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
-		Destroy();
+		UE_LOG(LogTemp, Warning, TEXT("Timer Started to Handle Destruction."));
+		FTimerHandle OnHandleDestroy;
+		//GetWorld()->GetTimerManager().SetTimer(OnHandleDestroy, this, &ATimberPlayerProjectile::HandleDestroy, 0.2f, false);
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATimberPlayerProjectile::HandleDestroy);
 	}
+	
+	
 }
 
-float ATimberPlayerProjectile::CalculateOutputDamage(AActor* PlayerActor)
+float ATimberPlayerProjectile::CalculateOutputDamage(ATimberWeaponRangedBase* Weapon)
 {
 	/*Projectile Damage can be modified by the Players Modifier && The Weapons Modifier
 	 * This will allow effects to either Modify only Ranged Weapons or Player and Ranged Weapons or just the Player.
 	 */
-	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(PlayerActor);
-	ATimberWeaponRangedBase* ProjectileOwningRangedWeapon = Cast<ATimberWeaponRangedBase>(GetOwner());
-	if (PlayerCharacter)
+	
+	if (PlayerProjectileOwner)
 	{
-		float TotalDamage = ProjectileBaseDamage * ProjectileOwningRangedWeapon->DamageModifierValue  * 
-		PlayerCharacter->DamageModifierValue;
+		float TotalDamage = ProjectileBaseDamage * (Weapon->DamageModifierValue) * (PlayerProjectileOwner->DamageModifierValue);
 		
-		/*UE_LOG(LogTemp, Warning, TEXT("BaseProjectileDamage: %f. WeaponModifierValue: %f. PlayerModifierValue: %f.  Total Damage: %f"),
+		UE_LOG(LogTemp, Warning, TEXT("BaseProjectileDamage: %f. WeaponModifierValue: %f. PlayerModifierValue: %f.  Total Damage: %f"),
 			ProjectileBaseDamage,
-			ProjectileOwningRangedWeapon->DamageModifierValue,
-			PlayerCharacter->DamageModifierValue,
-			TotalDamage);*/
+			Weapon->DamageModifierValue,
+			PlayerProjectileOwner->DamageModifierValue,
+			TotalDamage);
 		
 
 		return TotalDamage;
 	}
 
 	return ProjectileBaseDamage;
+}
+
+void ATimberPlayerProjectile::HandleDestroy()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Projectile Destroyed!"));
+	Destroy();
 }

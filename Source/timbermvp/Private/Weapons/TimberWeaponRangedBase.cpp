@@ -63,7 +63,7 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 				//UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
 				SpawnParams.Owner = WeaponOwner;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				UE_LOG(LogTemp, Warning, TEXT("Attempting to Spawn Projectile."));
+				//UE_LOG(LogTemp, Warning, TEXT("Attempting to Spawn Projectile."));
 
 		
 				//Deffering spawn to set all ownership first.		
@@ -112,10 +112,14 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 
 				//Get Player Character
-				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->
-					GetControlRotation();
+				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 				FRotator RandomAimOffset = FRotator(
 					FMath::RandRange(-1, 1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1));
+
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this; //Weapon is owner of the projectile.
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				
 				ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
 					ProjectileType, ProjectileSpawnLocation, ControllerDirection + RandomAimOffset);
 
@@ -136,17 +140,12 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 	}
 }
 
-void ATimberWeaponRangedBase::PerformStandardAttack()
-{
-}
-
 void ATimberWeaponRangedBase::PlayReloadMontage()
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(WeaponOwner);
 	if (PlayerCharacter && PlayerCharacter->ReloadMontage)
 	{
-
-
+		
 		//Getting the PLayers Anim Instance so we can bind Delegates
 		UAnimInstance* PlayerAnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
 		if (!PlayerAnimInstance) return;

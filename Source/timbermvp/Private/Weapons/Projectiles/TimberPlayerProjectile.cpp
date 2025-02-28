@@ -43,36 +43,35 @@ void ATimberPlayerProjectile::HandleBlocked(
 	//if the projectile is blocked by a wall or other object, destroy the projectile. This is only for the Players 
 	// Projectile. Different collisions for enemy projectile.
 	Destroy();
-
-	UE_LOG(LogTemp, Warning, TEXT("PlayerProjectile - Player Projectile has been Blocked and Destroyed."))
+	//UE_LOG(LogTemp, Warning, TEXT("PlayerProjectile - Player Projectile has been Blocked and Destroyed."))
 }
 
 void ATimberPlayerProjectile::HandleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
 	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
 
 	if (HitEnemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HitEnemy Valid."));
+		//UE_LOG(LogTemp, Warning, TEXT("HitEnemy Valid."));
 		//Play the IDamageableEnemy's TakeDamage function. Interface.
 		HitEnemy->PlayProjectileHitSound(SweepResult);
 
 		//Weapon Owns Projectile, Player Owns Weapon.
 		if (PlayerProjectileOwner)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Owning Weapon is Valid."));
+			//UE_LOG(LogTemp, Warning, TEXT("Owning Weapon is Valid."));
 			HitEnemy->TakeDamage(CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner())), PlayerProjectileOwner);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Owning Weapon Not Valid."));
+			//UE_LOG(LogTemp, Warning, TEXT("Owning Weapon Not Valid."));
 		}
 		
 		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
-		UE_LOG(LogTemp, Warning, TEXT("Timer Started to Handle Destruction."));
+		//UE_LOG(LogTemp, Warning, TEXT("Timer Started to Handle Destruction."));
 		FTimerHandle OnHandleDestroy;
 		//GetWorld()->GetTimerManager().SetTimer(OnHandleDestroy, this, &ATimberPlayerProjectile::HandleDestroy, 0.2f, false);
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATimberPlayerProjectile::HandleDestroy);
@@ -86,26 +85,23 @@ float ATimberPlayerProjectile::CalculateOutputDamage(ATimberWeaponRangedBase* We
 	/*Projectile Damage can be modified by the Players Modifier && The Weapons Modifier
 	 * This will allow effects to either Modify only Ranged Weapons or Player and Ranged Weapons or just the Player.
 	 */
-	
 	if (PlayerProjectileOwner)
 	{
 		float TotalDamage = ProjectileBaseDamage * (Weapon->DamageModifierValue) * (PlayerProjectileOwner->DamageModifierValue);
 		
-		UE_LOG(LogTemp, Warning, TEXT("BaseProjectileDamage: %f. WeaponModifierValue: %f. PlayerModifierValue: %f.  Total Damage: %f"),
+		/*UE_LOG(LogTemp, Warning, TEXT("BaseProjectileDamage: %f. WeaponModifierValue: %f. PlayerModifierValue: %f.  Total Damage: %f"),
 			ProjectileBaseDamage,
 			Weapon->DamageModifierValue,
 			PlayerProjectileOwner->DamageModifierValue,
-			TotalDamage);
+			TotalDamage);*/
 		
-
 		return TotalDamage;
 	}
-
 	return ProjectileBaseDamage;
 }
 
 void ATimberPlayerProjectile::HandleDestroy()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Projectile Destroyed!"));
+	//UE_LOG(LogTemp, Warning, TEXT("Projectile Destroyed!"));
 	Destroy();
 }

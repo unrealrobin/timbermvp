@@ -26,6 +26,8 @@ ATimberEnemyProjectile::ATimberEnemyProjectile()
 void ATimberEnemyProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy Projectile Spawned."));
 }
 
 // Called every frame
@@ -44,13 +46,14 @@ void ATimberEnemyProjectile::HandleBlocked(
 		//If the projectile is blocked by a BuildingComponentBase (Wall, Floor, Ramp), damage the BuildingComponent.
 		//Traps and constructs don't take damage from enemy projectiles yet.
 		BuildingComponent->BuildingComponentTakeDamage(ProjectileBaseDamage, this);
+		//UE_LOG(LogTemp, Warning, TEXT("EnemyProjectile - Enemy Projectile has been Blocked and Damaged Building Component."))
 		Destroy();
 	}
 	else
 	{
 		//Blocked by a non-damageable object. Destroy the projectile.
 		Destroy();
-		UE_LOG(LogTemp, Warning, TEXT("EnemyProjectile - Enemy Projectile has been Blocked and Destroyed - No Damage."))
+		//UE_LOG(LogTemp, Warning, TEXT("EnemyProjectile - Enemy Projectile has been Blocked and Destroyed - No Damage."))
 	}
 }
 
@@ -63,6 +66,8 @@ void ATimberEnemyProjectile::HandleOverlap(
 
 	//Enemy Projectile Damage is Output to the Player Character or Seeda's Take damage functions -
 	//Enemy Damage Reduction Principles are applied in their own functions.
+
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy Projectile Overlap Detected. Overlapped: %s"), *OtherComp->GetName());
 	
 	if (PlayerCharacter)
 	{
@@ -75,5 +80,7 @@ void ATimberEnemyProjectile::HandleOverlap(
 		Seeda->TakeDamage_Seeda(ProjectileBaseDamage);
 		Destroy();
 	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy Projectile Destroyed on Overlap."))
 	
 }

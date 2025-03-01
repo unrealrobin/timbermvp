@@ -5,6 +5,7 @@
 
 #include "AudioDevice.h"
 #include "Character/TimberPlayableCharacter.h"
+#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -123,6 +124,9 @@ void ABossBruiser::SetupCapsuleComponents()
 		//Used for HeadShotCollisions
 		HeadCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("HeadCapsuleComponent");
 		HeadCapsuleComponent->SetupAttachment(GetMesh(), FName("headSocket"));
+
+		BodyCollisionComponent = CreateDefaultSubobject<UBoxComponent>("BodyCollisionComponent");
+		BodyCollisionComponent->SetupAttachment(RootComponent);
 
 		//Used only for attack animation collision
 		RightArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("RightArmCapsuleComponent");

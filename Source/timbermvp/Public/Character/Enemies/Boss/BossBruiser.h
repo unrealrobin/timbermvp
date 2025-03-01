@@ -7,6 +7,8 @@
 //#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "BossBruiser.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class TIMBERMVP_API ABossBruiser : public ABossBase
 {
@@ -28,6 +30,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
 	UCapsuleComponent* HeadCapsuleComponent;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
+	UBoxComponent* BodyCollisionComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
 	UCapsuleComponent* RightArmCapsuleComponent;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")

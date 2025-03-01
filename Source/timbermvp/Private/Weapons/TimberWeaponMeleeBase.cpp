@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/TimberSeeda.h"
@@ -78,6 +79,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	{ // AI using sword - Ignoring other AI
 		if (Cast<ATimberEnemyCharacter>(GetOwner()))
 		{
+			ATimberBuildingComponentBase* HitBuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
 			ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 			ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
 			if (ActorsToIgnore.Contains(HitCharacter) || ActorsToIgnore.Contains(Seeda))
@@ -97,6 +99,11 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 				Seeda->TakeDamage_Seeda(TotalWeaponDamage);
 				UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Seeda:Total Weapon Damage: %f"), TotalWeaponDamage);
 				return;
+			}
+			if (HitBuildingComponent && HitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment)
+			{
+				HitBuildingComponent->BuildingComponentTakeDamage(BaseWeaponDamage, GetOwner());
+				UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Building Component: Base Weapon Damage: %f"), BaseWeaponDamage);
 			}
 		}
 	}
@@ -157,6 +164,7 @@ void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const
 	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(GetOwner());
 	const int32 NumberOfMontageSections = AttackMontage->GetNumSections();
 
+	//Getting Random Section of Montage
 	const int32 RandomSection = UKismetMathLibrary::RandomIntegerInRange(1, NumberOfMontageSections);
 	if (Character)
 	{

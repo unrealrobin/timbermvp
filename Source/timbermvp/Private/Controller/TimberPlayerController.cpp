@@ -125,18 +125,29 @@ void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 		if (CameraDirection.Normalize())
 		{
 			FHitResult HitResult;
-			FVector End = CameraLocation + (CameraDirection * 10000.f);
+			FVector End = CameraLocation + (CameraDirection * 3000.f);
 			FCollisionQueryParams QueryParams;
 			QueryParams.AddIgnoredActor(GetPawn());
 			QueryParams.AddIgnoredActor(TimberCharacter->GetCurrentlyEquippedWeapon());
 			if (GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, End, ECC_Visibility))
 			{
-				ReticuleHitLocation = HitResult.ImpactPoint;
+				//If the Target Object is closer than 500 Units.
+				if (FVector::Dist(HitResult.ImpactPoint, CameraLocation) < 500.f)
+                {
+                    ReticuleHitLocation = End;
+                }
+                else
+                {
+					ReticuleHitLocation = End;
+                }
 			}
 			else
 			{
+				//Not Hit - Target is the End of the Line Trace.
 				ReticuleHitLocation = End;
 			}
+
+			DrawDebugSphere(GetWorld(), ReticuleHitLocation, 10.f, 12, FColor::Green, false, 0.1f);
 		}
 	}
 }
@@ -443,7 +454,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::RangedEquipped:
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Rifle Attack Montage"));
+				//UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Rifle Attack Montage"));
 				TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticuleHitLocation);
 			}
 			break;

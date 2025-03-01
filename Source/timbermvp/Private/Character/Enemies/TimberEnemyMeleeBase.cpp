@@ -3,6 +3,8 @@
 
 #include "Character/Enemies/TimberEnemyMeleeBase.h"
 
+#include "BuildSystem/BuildableBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/TimberSeeda.h"
 #include "Components/CapsuleComponent.h"
@@ -59,6 +61,8 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	
+	
 	if(ActorsToIgnore.Contains(OtherActor))
 	{
 		return;
@@ -75,6 +79,16 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 	if(Seeda && Seeda->CurrentHealth > 0)
 	{
 		Seeda->TakeDamage_Seeda(BaseMeleeAttackDamage);
+		ActorsToIgnore.Add(OtherActor);
+	}
+
+	ATimberBuildingComponentBase* Building = Cast<ATimberBuildingComponentBase>(OtherActor);
+	if(Building)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Timber Enemy Melee Base Capsule Overlap. Other Actor: %s"), *OtherActor->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Overlapped Component: %s"), *OtherComp->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Melee Robot hit a Building Component and dealt damage"));
+		Building->BuildingComponentTakeDamage(BaseMeleeAttackDamage, this);
 		ActorsToIgnore.Add(OtherActor);
 	}
 }

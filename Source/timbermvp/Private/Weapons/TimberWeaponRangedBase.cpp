@@ -6,6 +6,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Weapons/Projectiles/TimberPlayerProjectile.h"
 #include "Weapons/Projectiles/TimberProjectileBase.h"
 
 // Sets default values
@@ -61,14 +62,24 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 				// Print the owner of the weapon
 				//UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
 				SpawnParams.Owner = WeaponOwner;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+				//UE_LOG(LogTemp, Warning, TEXT("Attempting to Spawn Projectile."));
 
-				ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
+		
+				//Deffering spawn to set all ownership first.		
+				FTransform ProjectileSpawnTransform = FTransform(AimRotation, ProjectileSpawnLocation);
+				ATimberPlayerProjectile* Projectile = GetWorld()->SpawnActorDeferred<ATimberPlayerProjectile>(
 					ProjectileType,
-					ProjectileSpawnLocation, AimRotation, SpawnParams);
+					ProjectileSpawnTransform, this);
+
+				Projectile->PlayerProjectileOwner = Cast<ATimberPlayableCharacter>(WeaponOwner);
+
+				Projectile->FinishSpawning(ProjectileSpawnTransform);
 
 				if (Projectile)
 				{
 					//Setting Timer to next shot
+					
 					GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, 
 					&ATimberWeaponRangedBase::ResetFiringCooldown, TimeBetweenProjectiles, false);
 
@@ -83,7 +94,6 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 					
 					Projectile->SetOwner(this);
 					
-					//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
 				}
 			}
 		}
@@ -102,10 +112,14 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 
 				//Get Player Character
-				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->
-					GetControlRotation();
+				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 				FRotator RandomAimOffset = FRotator(
 					FMath::RandRange(-1, 1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1));
+
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this; //Weapon is owner of the projectile.
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				
 				ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
 					ProjectileType, ProjectileSpawnLocation, ControllerDirection + RandomAimOffset);
 
@@ -126,17 +140,12 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 	}
 }
 
-void ATimberWeaponRangedBase::PerformStandardAttack()
-{
-}
-
 void ATimberWeaponRangedBase::PlayReloadMontage()
 {
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(WeaponOwner);
 	if (PlayerCharacter && PlayerCharacter->ReloadMontage)
 	{
-
-
+		
 		//Getting the PLayers Anim Instance so we can bind Delegates
 		UAnimInstance* PlayerAnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
 		if (!PlayerAnimInstance) return;

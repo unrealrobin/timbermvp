@@ -100,7 +100,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 				UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Seeda:Total Weapon Damage: %f"), TotalWeaponDamage);
 				return;
 			}
-			if (HitBuildingComponent)
+			if (HitBuildingComponent && HitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment)
 			{
 				HitBuildingComponent->BuildingComponentTakeDamage(BaseWeaponDamage, GetOwner());
 				UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Building Component: Base Weapon Damage: %f"), BaseWeaponDamage);

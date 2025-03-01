@@ -2,8 +2,6 @@
 
 
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
-
-#include "BuildSystem/BuildableBase.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberSeeda.h"
 #include "Components/CapsuleComponent.h"
@@ -40,9 +38,9 @@ void ATimberEnemyProjectile::HandleBlocked(
 	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 	const FHitResult& Hit)
 {
-	if (Cast<ATimberBuildingComponentBase>(OtherActor))
+	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
+	if (BuildingComponent && BuildingComponent->BuildingComponentType != EBuildingComponentType::Environment)
 	{
-		ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
 		//If the projectile is blocked by a BuildingComponentBase (Wall, Floor, Ramp), damage the BuildingComponent.
 		//Traps and constructs don't take damage from enemy projectiles yet.
 		BuildingComponent->BuildingComponentTakeDamage(ProjectileBaseDamage, this);

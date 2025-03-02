@@ -45,4 +45,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void InitializeDelegates();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Info")
+	bool bIsReloading = false;
 };

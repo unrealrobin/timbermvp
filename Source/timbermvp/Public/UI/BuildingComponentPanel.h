@@ -30,6 +30,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateBuildableIconsInMenu();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Build Menu")
+	UDataAsset* BuildMenuHoveredIconDataAsset;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Build Menu")
+	bool bIsIconFocusedOrHovered = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Buildables")
 	TArray<UDataAsset*> AllBuildablesArray;
 

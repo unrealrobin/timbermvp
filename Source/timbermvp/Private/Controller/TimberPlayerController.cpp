@@ -4,6 +4,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
+#include "Character/TimberAnimInstance.h"
 #include "UI/BuildingComponent.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
@@ -602,6 +603,11 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 	{
 		//TODO:: Play Reload Animation Montage - Set Notify to call the reload function at end of animation. 
 		TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
+		UTimberAnimInstance* AnimInstance = Cast<UTimberAnimInstance>(TimberCharacter->GetMesh()->GetAnimInstance());
+		if (AnimInstance)
+		{
+			AnimInstance->bIsReloading = true;
+		}
 	}
 	
 }

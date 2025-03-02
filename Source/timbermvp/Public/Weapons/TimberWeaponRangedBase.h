@@ -21,15 +21,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo")
 	int CurrentAmmo = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	int MaxAmmo = 27;
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 
 	FTimerHandle TimeBetweenShotsHandle;
 

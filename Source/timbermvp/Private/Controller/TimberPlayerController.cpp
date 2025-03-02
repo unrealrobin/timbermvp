@@ -411,11 +411,14 @@ void ATimberPlayerController::UnEquipWeapon() const
 {
 	if (TimberCharacter->GetCurrentlyEquippedWeapon())
 	{
+		//Stops any reloading Montages or shooting montages from playing.
+		TimberCharacter->StopAllAnimMontages();
+		
 		//Broadcasts to HUD if Unequipped Weapon is the Ranged Weapon (Hides Ammo Counter)
 		HandleWeaponEquip();
 
-		//Stops any reloading Montages or shooting montages from playing - May also stop death montage if we switch weapons on death.
-		TimberCharacter->StopAllAnimMontages();
+		//TODO:: Play Animation montage, set Notify to place weapon in weapon socket location. "Unequip Socket"
+		TimberCharacter->UnEquipBothWeapons(); // See how this looks when opening the build Menu.
 		
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
@@ -601,7 +604,13 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 	if (TimberCharacter->GetCurrentWeaponState() ==  EWeaponState::RangedEquipped
 		&& TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
-		//TODO:: Play Reload Animation Montage - Set Notify to call the reload function at end of animation. 
+		if (TimberCharacter->WeaponThreeInstance && TimberCharacter->WeaponThreeInstance->CurrentAmmo == 
+		TimberCharacter->WeaponThreeInstance->MaxAmmo)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
+			return;
+		}
+		
 		TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
 		UTimberAnimInstance* AnimInstance = Cast<UTimberAnimInstance>(TimberCharacter->GetMesh()->GetAnimInstance());
 		if (AnimInstance)

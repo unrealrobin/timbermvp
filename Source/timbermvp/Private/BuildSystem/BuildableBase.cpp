@@ -13,6 +13,12 @@ ABuildableBase::ABuildableBase()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
+
+void ABuildableBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
+{
+	TagContainer = GameplayTagContainer;
+}
+
 // Called when the game starts or when spawned
 void ABuildableBase::BeginPlay()
 {

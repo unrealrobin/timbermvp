@@ -15,7 +15,6 @@ enum class ELolaState : uint8
 {
 	Stunned UMETA(DisplayName = "Stunned"),
 	NotStunned UMETA(DisplayName = "Not Stunned")
-	
 };
 
 
@@ -25,6 +24,10 @@ class TIMBERMVP_API ABossLola : public ABossBase
 	GENERATED_BODY()
 
 public:
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLolaStunChange, bool, bIsLolaStunned);
+	FOnLolaStunChange OnLolaStunChange;
+	
 	// Sets default values for this character's properties
 	ABossLola();
 	void BindToDroneDeathDelegates();
@@ -59,10 +62,10 @@ protected:
 	FTimerHandle LolaStunnedTimer_Handle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
-	float LolaStunTime = 5.0f;
+	float LolaStunTime = 10.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
-	float RandomizationTime = 5.0f;
+	float RandomizationTime = 8.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	ABossAIControllerBase* LolaController = nullptr;

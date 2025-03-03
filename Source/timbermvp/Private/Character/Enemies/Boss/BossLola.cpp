@@ -157,6 +157,15 @@ void ABossLola::PopulateDronesArray()
 		FloaterDronesArray.Add(Drone2);
 		FloaterDronesArray.Add(Drone3);
 	}
+
+	//Binding the Drones to the Stun Status changes on Lola.
+	if (FloaterDronesArray.Num() == 3)
+	{
+		for (AFloaterDrones* Drone : FloaterDronesArray)
+		{
+			Drone->BindToLolaStun(this);
+		}
+	}
 }
 
 void ABossLola::RandomizeDroneVulnerability()
@@ -247,6 +256,10 @@ void ABossLola::SetLolaToStunned(AFloaterDrones* Drone)
 	{
 		LolaController->BlackboardComponent->SetValueAsBool("bIsLolaStunned", true);
 	}
+
+	//Broadcast to Drones that Lola is Stunned. Sets bool on Drones to not shoot, used in Custom Behavior Task C++
+	OnLolaStunChange.Broadcast(true);
+	
 }
 
 void ABossLola::DemolishBuildable()
@@ -268,6 +281,7 @@ void ABossLola::DemolishBuildable()
 
 void ABossLola::SetLolaToNotStunned()
 {
+	//This function is called at the end of the Stun Animation, making the length of the Stun the Length of the Animation.
 	if (FloaterDronesArray.Num() == 0)
 	{
 		SetLolaToDamageable();	
@@ -277,6 +291,9 @@ void ABossLola::SetLolaToNotStunned()
 	}
 	
 	LolaState = ELolaState::NotStunned;
+	
+	//Broadcast to Drones that Lola is not Stunned. Sets bool on Drones to shoot, used in Custom Behavior Task C++
+	OnLolaStunChange.Broadcast(false);
 	
 	if (LolaController->BlackboardComponent)
 	{

@@ -9,6 +9,7 @@
 
 
 class ATimberEnemyProjectile;
+class ABossLola;
 
 UENUM(BlueprintType)
 enum class EDroneState : uint8
@@ -32,13 +33,13 @@ public:
 
 protected:
 
+	virtual void BeginPlay() override;
+
 	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
 
 	UFUNCTION()
 	void HandleDroneDeath();
-
-	virtual void BeginPlay() override;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "State")
 	EDroneState DroneState = EDroneState::NotDamageable;
 
@@ -47,12 +48,23 @@ protected:
 
 	UFUNCTION()
 	void SetActorUnDamageable();
+	
 	UFUNCTION()
 	void SetActorDamageable();
 	
 public:
 
 	virtual void Tick(float DeltaTime) override;
+
+	/*Lola Stun Changes*/
+	UFUNCTION()
+	void BindToLolaStun(ABossLola* LolaRef);
+
+	UFUNCTION()
+	void HandleLolaStunChange(bool bIsLolaStunned);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lola")
+	bool bIsLolaStunnedLocal = false;
 
 	UFUNCTION()
 	void HandleChangeDamageState(EDroneState NewState);
@@ -64,15 +76,13 @@ public:
 	UMaterialInterface* NotDamageableMaterial = nullptr;
 
 	/* Projectile */
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	TSubclassOf<ATimberProjectileBase> ProjectileClass;
+
 	
 	UFUNCTION()
 	void FireProjectile();
-
-	FTimerHandle FireProjectileTimerHandle;
-
+	/*FTimerHandle FireProjectileTimerHandle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
-	float TimeBetweenShots = 2.f;
+	float TimeBetweenShots = 2.f;*/
 };

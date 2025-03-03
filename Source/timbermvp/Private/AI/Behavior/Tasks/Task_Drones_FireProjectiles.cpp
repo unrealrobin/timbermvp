@@ -27,7 +27,13 @@ EBTNodeResult::Type UTask_Drones_FireProjectiles::ExecuteTask(UBehaviorTreeCompo
 		return EBTNodeResult::Failed;
 	}
 
-
+	//Potentially move this to Editor through BlackBoard for Readability.
+	if (DroneCharacter->bIsLolaStunnedLocal)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Task - Drones Fire Projectiles - Lola is Stunned. Drones will not fire."));
+		return EBTNodeResult::Failed;
+	}
+	
 	//Time Between Shots must be handled with the Wait Node in the Behavior tree.
 	DroneCharacter->FireProjectile();
 

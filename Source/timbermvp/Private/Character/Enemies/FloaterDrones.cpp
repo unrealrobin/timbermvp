@@ -3,6 +3,7 @@
 
 #include "Character/Enemies/FloaterDrones.h"
 
+#include "Character/Enemies/Boss/BossLola.h"
 #include "Components/CapsuleComponent.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
 
@@ -17,15 +18,24 @@ AFloaterDrones::AFloaterDrones()
 void AFloaterDrones::BeginPlay()
 {
 	Super::BeginPlay();
-
-	/*GetWorld()->GetTimerManager().SetTimer(FireProjectileTimerHandle, this, &AFloaterDrones::FireProjectile, 
-	TimeBetweenShots, true);*/
-	
 }
 
 void AFloaterDrones::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AFloaterDrones::BindToLolaStun(ABossLola* LolaRef)
+{
+	if (LolaRef)
+	{
+		LolaRef->OnLolaStunChange.AddDynamic(this, &AFloaterDrones::HandleLolaStunChange);
+	}
+}
+
+void AFloaterDrones::HandleLolaStunChange(bool bIsLolaStunned)
+{
+	bIsLolaStunnedLocal = bIsLolaStunned;
 }
 
 void AFloaterDrones::TakeDamage(float DamageAmount, AActor* DamageInstigator)

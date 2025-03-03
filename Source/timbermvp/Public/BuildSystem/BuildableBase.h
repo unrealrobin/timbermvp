@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "GameplayTagAssetInterface.h"
 #include "GameFramework/Actor.h"
 #include "Loot/EnemyLootDropBase.h"
 #include "BuildableBase.generated.h"
@@ -28,11 +30,12 @@ enum class EBuildableType : uint8
 	Trap UMETA(DisplayName = "Trap"),
 	BuildingComponent UMETA(DisplayName = "BuildingComponent"),
 	Ramp UMETA(DisplayName = "Ramp"),
+	Construct UMETA(DisplayName = "Construct"),
 	Default UMETA(DisplayName = "Default"),
 };
 
 UCLASS()
-class TIMBERMVP_API ABuildableBase : public AActor
+class TIMBERMVP_API ABuildableBase : public AActor, public IGameplayTagAssetInterface
 {
 	GENERATED_BODY()
 
@@ -47,6 +50,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
 	FBuildableCost BuildableCost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Tags")
+	FGameplayTagContainer GameplayTagContainer;
+
+	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 
 protected:
 	// Called when the game starts or when spawned

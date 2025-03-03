@@ -14,10 +14,10 @@ ATutorialDummy::ATutorialDummy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CollisionCapsule = GetCapsuleComponent();
-	if (CollisionCapsule)
+	/*if (CollisionCapsule)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Dummy Collision Capsule Initialized."));
-	}
+	}*/
 	
 }
 
@@ -30,17 +30,11 @@ void ATutorialDummy::BeginPlay()
 	if (SkeletalMesh)
 	{
 		SkeletalMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		
 	}
 	
 	if (CollisionCapsule)
 	{
 		CollisionCapsule->SetCollisionResponseToAllChannels(ECR_Ignore);
-		
-		//Block By BuildingComponents / Buildables - Ensure it doesnt fall through the map.
-		/*CollisionCapsule->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
-		CollisionCapsule->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
-		CollisionCapsule->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);*/
 		//Projectile
 		CollisionCapsule->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
 		//Sword
@@ -60,8 +54,7 @@ void ATutorialDummy::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 	
 	if (CurrentHealth <= 0.f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Tutorial Dummy is Destroyed."));
-
+		//UE_LOG(LogTemp, Warning, TEXT("Tutorial Dummy is Destroyed."));
 		Destroy();
 	}
 	
@@ -72,7 +65,7 @@ void ATutorialDummy::HandleDeath(AActor* DeadActor)
 	//Tutorial State Increment to TutorialState::Parts
 	if (DieRobotGameStateBase)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Switching to Parts Tutorial State."));
+		//UE_LOG(LogTemp, Warning, TEXT("Switching to Parts Tutorial State."));
 		DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Parts1);
 	}
 }

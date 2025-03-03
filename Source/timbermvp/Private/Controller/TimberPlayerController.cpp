@@ -416,14 +416,13 @@ void ATimberPlayerController::UnEquipWeapon() const
 		
 		//Broadcasts to HUD if Unequipped Weapon is the Ranged Weapon (Hides Ammo Counter)
 		HandleWeaponEquip();
-
-		//TODO:: Play Animation montage, set Notify to place weapon in weapon socket location. "Unequip Socket"
-		TimberCharacter->UnEquipBothWeapons(); // See how this looks when opening the build Menu.
+		
+		//Visually unequips the weapons from the character when opening build menu.
+		TimberCharacter->UnEquipBothWeapons(); 
 		
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
-
-		//TODO:: What is listening to this?
+		
 		WeaponState.Broadcast(EWeaponState::Unequipped);
 	}
 }

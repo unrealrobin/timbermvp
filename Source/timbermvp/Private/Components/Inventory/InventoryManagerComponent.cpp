@@ -54,7 +54,7 @@ void UInventoryManagerComponent::AddPartsToInventory(int PartsToAdd)
 	{
 		
 		PS->MainInventory->NumberOfParts += PartsToAdd;
-		UE_LOG(LogTemp, Warning, TEXT("Part Added to Inventory. Parts In Inventory = %d"), PS->MainInventory->NumberOfParts);
+		//UE_LOG(LogTemp, Warning, TEXT("Part Added to Inventory. Parts In Inventory = %d"), PS->MainInventory->NumberOfParts);
 
 		UpdateInventoryHandle.Broadcast();
 	}

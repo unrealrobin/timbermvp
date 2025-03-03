@@ -3,6 +3,9 @@
 
 #include "States/DieRobotGameStateBase.h"
 
+#include "AI/NavigationSystemBase.h"
+#include "NavMesh/RecastNavMesh.h"
+
 void ADieRobotGameStateBase::ChangeTutorialGameState(ETutorialState NewState)
 {
 	TutorialState = NewState;

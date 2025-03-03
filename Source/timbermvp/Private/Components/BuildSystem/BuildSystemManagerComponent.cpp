@@ -322,13 +322,13 @@ void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLoca
 	
 	if (bWillOverlap)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
+		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, RedHoloMaterial);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Building Component Will Not Overlap."));
+		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Not Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = true;
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, BlueHoloMaterial);
 	}

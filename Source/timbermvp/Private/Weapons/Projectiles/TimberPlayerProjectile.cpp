@@ -1,12 +1,9 @@
 ﻿// Property of Paracosm Industries. Dont use my shit.
-
-
 #include "Weapons/Projectiles/TimberPlayerProjectile.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Interfaces/DamageableEnemy.h"
 #include "Weapons/TimberWeaponRangedBase.h"
-
 
 class IDamageableEnemy;
 // Sets default values
@@ -27,7 +24,7 @@ ATimberPlayerProjectile::ATimberPlayerProjectile()
 void ATimberPlayerProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Projectile Spawned."));
+	//UE_LOG(LogTemp, Warning, TEXT("Projectile Spawned."));
 }
 
 // Called every frame

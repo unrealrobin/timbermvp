@@ -94,18 +94,19 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Build Menu")
 	void OpenBuildPanelMenu();
+	
 	UFUNCTION(BlueprintCallable, Category = "Build Menu")
 	void CloseBuildPanelMenu();
 	
 	UFUNCTION(BlueprintCallable, Category="Death UI")
 	void SwitchToDeathUI();
-
-	
 	
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameUI();
+	
 	UFUNCTION(Category="Action UI")
 	void ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY);
+	
 	UFUNCTION()
 	void HideDeleteBuildingComponentWidget();
 

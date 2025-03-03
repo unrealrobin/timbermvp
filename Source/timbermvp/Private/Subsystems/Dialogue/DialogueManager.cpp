@@ -133,6 +133,10 @@ void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
 	{
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleParts1Finish);
 	}
+	else if (VoiceoverName == FName("Molly_Combat_1"))
+	{
+		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake3Finish);
+	}
 	else if (VoiceoverName == FName("Molly_WaveStart"))
 	{
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleWaveStartDialogueFinish);
@@ -148,10 +152,13 @@ void UDialogueManager::HandleTutorialStateChanges(ETutorialState NewState)
 		PlayVoiceover("Molly_Wake_1");
 		break;
 	case ETutorialState::Wake2:
+		PlayVoiceover("Molly_Wake_2");
 		break;
 	case ETutorialState::Wake3:
+		PlayVoiceover("Molly_Wake_3");
 		break;
 	case ETutorialState::Combat1:
+		PlayVoiceover("Molly_Combat_1");
 		break;
 	case ETutorialState::Combat2:
 		//PlayVoiceover("Molly_Combat_Quip_1");
@@ -181,7 +188,7 @@ void UDialogueManager::HandleTutorialStateChanges(ETutorialState NewState)
 	}
 }
 
-/*Tutorial Dialogue Handling*/
+/*Tutorial Dialogue Delegates*/
 void UDialogueManager::HandleWake1Finish()
 {
 	ADieRobotGameStateBase* DieRobotGameState = GetWorld()->GetGameState<ADieRobotGameStateBase>();
@@ -191,23 +198,26 @@ void UDialogueManager::HandleWake1Finish()
 		DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake2);
 
 		//Playing the Next Voiceover
-		PlayVoiceover(FName("Molly_Wake_2"));
+		//PlayVoiceover(FName("Molly_Wake_2"));
 	}
 }
 
 void UDialogueManager::HandleWake3Finish()
 {
 	ADieRobotGameStateBase* DieRobotGameState = GetWorld()->GetGameState<ADieRobotGameStateBase>();
-	if (DieRobotGameState)
+	//We check for Wake3 Current State because if player kills the dummy before the dialogue finishes, we dont want 
+	// to change the state backwards, we just continue from the supposed current state, Skipping any unfinished 
+	// tutorial dialogue, HUD displays etc.
+	if (DieRobotGameState && DieRobotGameState->TutorialState == ETutorialState::Wake3)
 	{
 		//State Change initiates Broadcast to Listeners
 		DieRobotGameState->ChangeTutorialGameState(ETutorialState::Combat1);
 
 		//Initiating Combat Training
-		PlayVoiceover("Molly_Combat_1");
+		//PlayVoiceover("Molly_Combat_1");
 
 		//Removing the Binding.
-		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake3Finish);
+		//DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake3Finish);
 	}
 }
 

@@ -35,9 +35,6 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	CreateQuadrantComponents();
 }
 
-
-
-
 // Called when the game starts or when spawned
 void ATimberBuildingComponentBase::BeginPlay()
 {

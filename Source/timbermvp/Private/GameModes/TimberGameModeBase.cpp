@@ -140,14 +140,14 @@ void ATimberGameModeBase::HandleGameStateChange(ETutorialState NewState)
 	{
 		SpawnLocationMarker();
 	}
-	if (NewState == ETutorialState::Wake3)
+	/*if (NewState == ETutorialState::Wake3)
 	{
 		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
 		if (DialogueManager)
 		{
 			DialogueManager->PlayVoiceover("Molly_Wake_3");
 		}
-	}
+	}*/
 	if (NewState == ETutorialState::WaveStart)
 	{
 		UWaveGameInstanceSubsystem* WaveSubsystem = GetWaveGameInstanceSubsystem();

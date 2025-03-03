@@ -408,7 +408,7 @@ void ATimberHUDBase::GetRootWidgetChildrenWidgets()
 				if (ChildWidget)
 				{
 					RootWidgetChildrenWidgets.Add(ChildWidget);
-					UE_LOG(LogTemp, Warning, TEXT("Added Child Widget: %s"), *ChildWidget->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Added Child Widget: %s"), *ChildWidget->GetName());
 				}
 			}
 		}
@@ -421,7 +421,7 @@ UUserWidget* ATimberHUDBase::GetWidgetByClassName(FString ClassName)
 	{
 		for (UUserWidget* Widget : RootWidgetChildrenWidgets)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Widget Class Name: %s"), *Widget->GetClass()->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Widget Class Name: %s"), *Widget->GetClass()->GetName());
 			if (Widget->GetClass()->GetName() == ClassName)
 			{
 				return Widget;

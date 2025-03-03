@@ -6,6 +6,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "DieRobotGameStateBase.generated.h"
 
+class ARecastNavMesh;
+
 UENUM(BlueprintType)
 enum class ETutorialState : uint8
 {
@@ -37,7 +39,8 @@ public:
 	/*
 	 * Bound Classes
 	 * TimberGameModeBase
-	 * 
+	 * Controller
+	 * HUD
 	 */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTutorialStateChange, ETutorialState, NewState);
 	FOnTutorialStateChange OnTutorialStateChange;

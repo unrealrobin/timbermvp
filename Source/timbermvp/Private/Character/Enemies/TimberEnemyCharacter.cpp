@@ -85,7 +85,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	else
 	{
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamageInstigator, DamageAmount, DamageAccumulatedDuringWindow);
-		UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
+		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 }
 
@@ -221,7 +221,7 @@ void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropCl
 		AEnemyLootDropBase* LootDropBase = Cast<AEnemyLootDropBase>(LootItem);
 		if (LootDropBase)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Spawning Loot Item During Combat1 Tutorial Stage."))
+			//UE_LOG(LogTemp, Warning, TEXT("Spawning Loot Item During Combat1 Tutorial Stage."))
 		}
 	}
 }

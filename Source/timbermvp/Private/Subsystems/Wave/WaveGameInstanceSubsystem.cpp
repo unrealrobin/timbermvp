@@ -101,10 +101,10 @@ void UWaveGameInstanceSubsystem::EarlyStartWave()
 
 		//Handles Broadcasting Necessary Information
 		UpdateTimeToNextWave();
-		
-		//Starts the Wave
-		StartWave();
 	}
+
+	//Starts the Wave
+	StartWave();
 }
 
 void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()

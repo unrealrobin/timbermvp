@@ -297,44 +297,38 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 {
 	if (TimberCharacter)
 	{
-		HandleExitBuildMode();
-
-		//Clear the slate
-		//Check this, lets try not to destroy the weapon on weapon switching
 		UnEquipWeapon();
+		
+		//Equipping a Weapon takes the player out of Build Mode.
+		HandleExitBuildMode();
+		
+		//Notify Will call the actual Equip Weapon function that Moves the weapons to each socket in the ABP
+		TimberCharacter->PlayEquipWeaponMontage("EquipSword");
+		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponOneInstance);
 
 		//Setting New WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::MeleeWeaponEquipped);
 		WeaponState.Broadcast(EWeaponState::MeleeWeaponEquipped);
 
-		//Notify Will call the actual Equip Weapon function that Moves the weapons to each socket in the ABP
-		TimberCharacter->PlayEquipWeaponMontage("EquipSword");
-		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponOneInstance);
-		/*//Hand Equip Location Variables
-		FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("AxeSocket", RTS_World);
-		FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
-		FRotator SocketWorldRotation = SocketWorldTransform.Rotator();*/
-
-		/*
-		// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = Cast<ATimberPlayableCharacter>(GetPawn());
-		SpawnParams.Instigator = GetPawn();
-		//Spawn the Weapon
-		ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>
-		(
-			TimberCharacter->WeaponOne,
-			SocketWorldLocation, SocketWorldRotation, SpawnParams);
-
-		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-		TimberCharacter->WeaponOneInstance = SpawnedActor;
-		TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);*/
-		
-		//Attach Weapon to the Hand Socket for the Weapon
-		/*TimberCharacter->WeaponOneInstance->AttachToComponent(
-			TimberCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "MeleeSocket");*/
-
 	}
+}
+
+/*Rifle*/
+void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
+{
+	if (TimberCharacter)
+	{
+		UnEquipWeapon();
+
+		HandleExitBuildMode();
+		
+		TimberCharacter->PlayEquipWeaponMontage("EquipGun");
+		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponThreeInstance);
+		TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
+		WeaponState.Broadcast(EWeaponState::RangedEquipped);
+		ShowAmmoCounter.Broadcast(true);
+	}
+
 }
 
 void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
@@ -377,22 +371,6 @@ void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
 	SpawnedActor->SetOwner(TimberCharacter);
 }
 
-/*Rifle*/
-void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
-{
-	check(TimberCharacter);
-
-	UnEquipWeapon();
-
-	HandleExitBuildMode();
-	
-	TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
-	WeaponState.Broadcast(EWeaponState::RangedEquipped);
-	TimberCharacter->PlayEquipWeaponMontage("EquipGun");
-	TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponThreeInstance);
-	ShowAmmoCounter.Broadcast(true);
-}
-
 void ATimberPlayerController::DisableAllKeyboardInput()
 {
 	Subsystem->RemoveMappingContext(StandardInputMappingContext);
@@ -410,6 +388,7 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 
 void ATimberPlayerController::UnEquipWeapon() const
 {
+	//If a weapon is equipped, we need to un-equip it.
 	if (TimberCharacter->GetCurrentlyEquippedWeapon())
 	{
 		//Stops any reloading Montages or shooting montages from playing.
@@ -418,19 +397,18 @@ void ATimberPlayerController::UnEquipWeapon() const
 		//Broadcasts to HUD if Unequipped Weapon is the Ranged Weapon (Hides Ammo Counter)
 		HandleWeaponEquip();
 		
-		//Visually unequips the weapons from the character when opening build menu.
+		//Visually unequipped the weapons from the character when opening build menu.
 		TimberCharacter->UnEquipBothWeapons(); 
 		
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
-		
 		WeaponState.Broadcast(EWeaponState::Unequipped);
 	}
 }
 
 void ATimberPlayerController::HandleWeaponEquip() const
 {
-	//If Unequipped the Ranged Weapon, we need to Hide the Ammo Counter
+	//If we un-equipped the Ranged Weapon, we need to Hide the Ammo Counter.
 	if (Cast<ATimberWeaponRangedBase>(TimberCharacter->GetCurrentlyEquippedWeapon()))
 	{
 		ShowAmmoCounter.Broadcast(false);
@@ -445,9 +423,9 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 		{
 		case EWeaponState::MeleeWeaponEquipped:
 			{
-				if (CanAttackAgain)
+				if (CanAttackAgain && TimberCharacter->bIsSwordFullyEquipped)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Sword Attack Montage"));
+					//UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Sword Attack Montage"));
 					TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
 					CanAttackAgain = false;
 				}
@@ -461,8 +439,11 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		case EWeaponState::RangedEquipped:
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Rifle Attack Montage"));
-				TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticuleHitLocation);
+				if (TimberCharacter && TimberCharacter->bIsRifleFullyEquipped)
+				{
+					//UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Rifle Attack Montage"));
+					TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticuleHitLocation);
+				}
 			}
 			break;
 		case EWeaponState::Unequipped:

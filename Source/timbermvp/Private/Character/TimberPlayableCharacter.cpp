@@ -320,11 +320,6 @@ ETutorialState ATimberPlayableCharacter::GetTutorialState()
 	
 }
 
-void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
-{
-	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
-}
-
 void ATimberPlayableCharacter::StopAllAnimMontages()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -353,11 +348,6 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
 {
 	CurrentWeaponState = NewWeaponState;
-}
-
-void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon)
-{
-	CurrentlyEquippedWeapon = Weapon;
 }
 
 void ATimberPlayableCharacter::SpawnMeleeWeapon()
@@ -416,14 +406,34 @@ void ATimberPlayableCharacter::SpawnRangedWeapon()
 	}
 }
 
+void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon)
+{
+	CurrentlyEquippedWeapon = Weapon;
+}
+
+void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
+{
+	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
+}
+
 void ATimberPlayableCharacter::EquipWeapon(FName EquipSocketName, ATimberWeaponBase* WeaponToEquip)
 {
+	//Handles Actual Placement of Weapon into Hand Socket.
 	WeaponToEquip->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, EquipSocketName);
 }
 
 void ATimberPlayableCharacter::UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip)
 {
+	//Handles Actual Placement of Weapon into back socket.
 	WeaponToUnEquip->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, UnEquipSocketName);
+	if (Cast<ATimberWeaponRangedBase>(WeaponToUnEquip))
+	{
+		bIsRifleFullyEquipped = false;
+	}
+	else if (Cast<ATimberWeaponMeleeBase>(WeaponToUnEquip))
+	{
+		bIsSwordFullyEquipped = false;
+	}
 }
 
 void ATimberPlayableCharacter::UnEquipBothWeapons()

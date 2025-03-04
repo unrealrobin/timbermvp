@@ -126,7 +126,11 @@ public:
 	void UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip);
 	UFUNCTION(BlueprintCallable)
 	void UnEquipBothWeapons();
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
+	bool bIsSwordFullyEquipped = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
+	bool bIsRifleFullyEquipped = false;
+	
 	/*Getters & Setters*/
 	EWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);

@@ -11,6 +11,7 @@
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default value
@@ -159,7 +160,21 @@ void ATimberWeaponMeleeBase::EmptyActorToIgnoreArray()
 	ActorsToIgnore.Empty();
 }
 
-void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const
+void ATimberWeaponMeleeBase::HandleAttackMontageInterrupted(UAnimMontage* AnimMontage, bool bArg, bool bCond)
+{
+	//Get the Controller and Flip the bCanAttackAgain Bool to True.
+	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(Cast<ATimberPlayableCharacter>(GetOwner())->GetController());
+	if (PlayerController)
+	{
+		PlayerController->CanAttackAgain = true;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - HandleAttackMontageInterrupted() - Player Controller is NULL"));
+	}
+}
+
+void ATimberWeaponMeleeBase::HandlePlayAttackMontage()
 {
 	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(GetOwner());
 	const int32 NumberOfMontageSections = AttackMontage->GetNumSections();
@@ -172,6 +187,13 @@ void ATimberWeaponMeleeBase::HandlePlayAttackMontage() const
 		if (CharacterAnimInstance)
 		{
 			FName RandomSectionName = AttackMontage->GetSectionName(RandomSection - 1);
+
+			//Checking binding so we dont double bind the delegate on subsequence attacks.
+			if (!BlendingOutDelegate.IsBound())
+			{
+				BlendingOutDelegate.BindUObject(this, &ATimberWeaponMeleeBase::HandleAttackMontageInterrupted, false);
+				CharacterAnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, AttackMontage);
+			}
 			CharacterAnimInstance->Montage_Play(AttackMontage, 1.f);
 			CharacterAnimInstance->Montage_JumpToSection(RandomSectionName);
 		}

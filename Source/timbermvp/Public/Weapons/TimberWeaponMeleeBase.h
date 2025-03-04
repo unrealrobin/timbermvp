@@ -54,11 +54,18 @@ public:
 
 	/* Attack */
 	UFUNCTION()
-	void HandlePlayAttackMontage() const;
+	void HandlePlayAttackMontage();
 	UFUNCTION(BlueprintCallable, Category="Weapons")
 	virtual void PerformStandardAttack();
 
 	/* Sounds */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
 	USoundCue* AttackSwooshSound;
+
+	/*Montage Delegate*/
+	//Used to make sure that attack animations that are interrupted reset the CanAttackAgain bool on the Controller.
+	FOnMontageBlendingOutStarted BlendingOutDelegate;
+	
+	UFUNCTION()
+	void HandleAttackMontageInterrupted(UAnimMontage* AnimMontage, bool bArg, bool bCond);
 };

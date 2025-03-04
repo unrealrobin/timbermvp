@@ -168,6 +168,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Data")
 	UBuildComponentDataAsset* HoveredIconDataAsset;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attack")
+	bool CanAttackAgain = true;
 	
 protected:
 	virtual void SetupInputComponent() override;
@@ -207,8 +210,7 @@ protected:
 	IInteractable* InteractableItem;
 
 	/*Attack Data*/
-	UPROPERTY(BlueprintReadWrite)
-	bool CanAttackAgain = true;
+	
 
 	/*Build Controls*/
 	void HandleControllerExitBuildMode();

@@ -438,20 +438,23 @@ void ATimberPlayerController::HandleWeaponEquip() const
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 {
-	if (TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped && CanAttackAgain)
+	if (TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
 	{
 		switch (TimberCharacter->GetCurrentWeaponState())
 		{
 		case EWeaponState::MeleeWeaponEquipped:
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Sword Attack Montage"));
-				
-				TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
-				CanAttackAgain = false;
+				if (CanAttackAgain)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Sword Attack Montage"));
+					TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
+					CanAttackAgain = false;
+				}
 			}
 			break;
 		case EWeaponState::ChainsawEquipped:
 			{
+				//TODO::No Chainsaw Weapon Class Yet
 				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Chainsaw");
 			}
 			break;

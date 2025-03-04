@@ -315,13 +315,13 @@ void ATimberHUDBase::HandleAmmoCounterVisibility(bool bShouldShowAmmoCounter)
 			AmmoCounterWidget->SetVisibility(ESlateVisibility::Visible);
 			if (GEngine)
 			{
-				GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Showing Ammo Counter");
+				//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Showing Ammo Counter");
 			}
 		}
 		else
 		{
 			AmmoCounterWidget->SetVisibility(ESlateVisibility::Hidden);
-			GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Hiding Ammo Counter");
+			//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Hiding Ammo Counter");
 		}
 	}
 }

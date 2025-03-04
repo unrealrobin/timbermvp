@@ -181,7 +181,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 	if (bHits && ActiveBuildableClass)
 	{
 		/* Hit Something/Anything */
-		DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
+		//DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
 
 		//TODO:: We can generalize this to any Buildable that Snaps to Edges of Floor Only.
 		//TODO:: We need to adjust all of these to have types that determine their snap conditions

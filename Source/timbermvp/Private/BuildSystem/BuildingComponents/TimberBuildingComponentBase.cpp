@@ -59,8 +59,7 @@ void ATimberBuildingComponentBase::SetupProxyCollisionHandling()
 			
 			/*CheckBuildingComponentOverlapCollisionBox->OnComponentBeginOverlap.AddDynamic(this, 
 				&ATimberBuildingComponentBase::HandleOverlappedBuildingComponent);*/
-			CheckBuildingComponentOverlapCollisionBox->OnComponentHit.AddDynamic(this, 
-				&ATimberBuildingComponentBase::HandleHitBuildingComponent);
+			CheckBuildingComponentOverlapCollisionBox->OnComponentHit.AddDynamic(this, &ATimberBuildingComponentBase::HandleHitBuildingComponent);
 			/*CheckBuildingComponentOverlapCollisionBox->OnComponentEndOverlap.AddDynamic(this, 
 				&ATimberBuildingComponentBase::HandleEndOverlappedBuildingComponent);*/
 

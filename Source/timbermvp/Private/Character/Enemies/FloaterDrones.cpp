@@ -51,10 +51,10 @@ void AFloaterDrones::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 	}
 	else
 	{
-		if (GEngine)
+		/*if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Red, "Drone is not Damageable.");
-		}
+		}*/
 	}
 }
 

@@ -79,7 +79,7 @@ public:
 	UFUNCTION()
 	void EarlyStartWave();
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 6;
+	int CurrentWaveNumber = 1;
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
 	UPROPERTY()

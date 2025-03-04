@@ -80,7 +80,7 @@ void ALabDoorBase::HandleTimelineFinished()
 
 void ALabDoorBase::OpenLabDoor(float DeltaTime)
 {
-	GEngine->AddOnScreenDebugMessage(4, 3.0, FColor::Black, "Opening Lab Door");
+	//GEngine->AddOnScreenDebugMessage(4, 3.0, FColor::Black, "Opening Lab Door");
 	DoorOpenTimeline->PlayFromStart();
 }
 

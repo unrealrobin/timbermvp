@@ -51,7 +51,7 @@ void ATimberWeaponMeleeBase::HandleWeaponCollision(bool ShouldReadyCollision) co
 {
 	if (ShouldReadyCollision)
 	{
-		GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Sword Collision Enabled")));
+		//GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Sword Collision Enabled")));
 		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
@@ -145,7 +145,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 void ATimberWeaponMeleeBase::OnWeaponOverlapEnd(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, "Overlap Ended");
+	//GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, "Overlap Ended");
 
 	//Will also be forced at the end of the attack animation through Notifies.
 	EmptyActorToIgnoreArray();

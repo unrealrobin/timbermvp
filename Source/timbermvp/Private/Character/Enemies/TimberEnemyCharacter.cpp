@@ -134,12 +134,12 @@ void ATimberEnemyCharacter::PlayProjectileHitSound(FHitResult HitResult)
 
 void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 {
-	GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "PlayMeleeHitSoundCalled.");
+	//GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "PlayMeleeHitSoundCalled.");
 
 	FVector HitLocation = HitResult.ImpactPoint;
 	if (MeleeHitSound)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "Playing Hit Sound.");
+		//GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "Playing Hit Sound.");
 		UGameplayStatics::PlaySoundAtLocation(this, MeleeHitSound, HitLocation);
 	}
 }

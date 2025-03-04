@@ -148,7 +148,8 @@ void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 				ReticuleHitLocation = End;
 			}
 
-			DrawDebugSphere(GetWorld(), ReticuleHitLocation, 10.f, 12, FColor::Green, false, 0.1f);
+			//Reticule Location
+			//DrawDebugSphere(GetWorld(), ReticuleHitLocation, 10.f, 12, FColor::Green, false, 0.1f);
 		}
 	}
 }
@@ -455,7 +456,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 		case EWeaponState::ChainsawEquipped:
 			{
 				//TODO::No Chainsaw Weapon Class Yet
-				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Chainsaw");
+				//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Chainsaw");
 			}
 			break;
 		case EWeaponState::RangedEquipped:
@@ -467,7 +468,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 		case EWeaponState::Unequipped:
 			{
 				//TODO:: Add a punch attack or something here maybe
-				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "No Weapon Equipped");
+				//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "No Weapon Equipped");
 			}
 			break;
 		}

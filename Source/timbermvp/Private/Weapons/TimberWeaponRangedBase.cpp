@@ -108,7 +108,7 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 		{
 			if (ProjectileType)
 			{
-				GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile All Variables Loaded");
+				//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile All Variables Loaded");
 				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 
 				//Get Player Character
@@ -133,7 +133,7 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 					
 					Projectile->SetOwner(this);
 					
-					GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
+					//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
 				}
 			}
 		}

@@ -311,13 +311,14 @@ void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLoca
 	{
 		WorldLocation.Z += 200.0f;
 	}
-	
+
+	//Checks if there is a Building Component already at the Snapped Location by Using an Overlap box as a test.
 	TArray<FOverlapResult> Overlaps;
 	bool bWillOverlap = GetWorld()->OverlapMultiByChannel(Overlaps, WorldLocation, FQuat::Identity, 
 	ECC_GameTraceChannel1, 
 	FCollisionShape::MakeBox(FVector(40, 40, 40)));
 
-	DrawDebugBox(GetWorld(), WorldLocation, FVector(40, 40, 40), FColor::Green, false, -1);
+	//DrawDebugBox(GetWorld(), WorldLocation, FVector(40, 40, 40), FColor::Green, false, -1);
 	//UE_LOG(LogTemp, Warning, TEXT("Moving Building Component."));
 	
 	if (bWillOverlap)
@@ -445,7 +446,7 @@ FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
 			{
 				TrapComponent->SetCanTrapBeFinalized(false);
 				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
+				//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
 			}
 		}
 		else
@@ -462,7 +463,7 @@ FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
 			{
 				TrapComponent->SetCanTrapBeFinalized(false);
 				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap Taken.");
+				//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap Taken.");
 			}
 		}
 	}
@@ -479,12 +480,12 @@ void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinal
 {
 	if (bCanTrapBeFinalized)
 	{
-		GEngine->AddOnScreenDebugMessage(3, 4.0, FColor::Red, "Trap Can Be Finalized. Setting Color to Blue.");
+		//GEngine->AddOnScreenDebugMessage(3, 4.0, FColor::Red, "Trap Can Be Finalized. Setting Color to Blue.");
 		MakeMaterialHoloColor(ActiveTrapComponentProxy, BlueHoloMaterial);
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(3, 4.0, FColor::Red, "Trap Cant Be Finalized. Setting Color to Red.");
+		//GEngine->AddOnScreenDebugMessage(3, 4.0, FColor::Red, "Trap Cant Be Finalized. Setting Color to Red.");
 		MakeMaterialHoloColor(ActiveTrapComponentProxy, RedHoloMaterial);
 	}
 }
@@ -585,7 +586,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
+		//GEngine->AddOnScreenDebugMessage(4, 3.0f, FColor::Magenta, "No Active Buildable Class.");
 	}
 	
 }
@@ -613,7 +614,7 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 	if (ActiveTrapComponentProxy && ActiveTrapComponentProxy->GetCanTrapBeFinalized())
 	{
 		//Spawn Final Trap
-		GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
+		//GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(
 			ActiveBuildableComponentClass,
@@ -633,7 +634,7 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 				ActiveTrapComponentProxy->HoveredBuildingComponent->BackTrap = Cast<ATrapBase>(SpawnedActor);
 				break;
 			case EBuildingComponentTrapDirection::Default:
-				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
+				//GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
 				break;
 			}
 		}
@@ -643,8 +644,7 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(
-			8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
+		//GEngine->AddOnScreenDebugMessage(8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
 	}
 
 }
@@ -669,7 +669,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 	}
 	else if (!ActiveBuildingComponentProxy->bCanBuildableBeFinalized)
 	{
-		GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Red, TEXT("Building Component Cannot Be Finalized. Overlapping other building Component."));
+		//GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Red, TEXT("Building Component Cannot Be Finalized. Overlapping other building Component."));
 	}
 }
 
@@ -1188,7 +1188,7 @@ void UBuildSystemManagerComponent::MoveBuildingComponent(
 		//OnHits we will pass in the Rotation of the HitActor so the Components Match its Rotation
 		if (Rotation != FRotator::ZeroRotator)
 		{
-			GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Rotated Trap to match Building Component.");
+			//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Rotated Trap to match Building Component.");
 			BuildingComponent->SetActorRotation(Rotation);
 		}
 		
@@ -1267,8 +1267,7 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(
-			3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
+		//GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
 	}
 }
 
@@ -1314,7 +1313,7 @@ void UBuildSystemManagerComponent::SetActiveBuildingComponentClass(TSubclassOf<A
 	ActiveBuildableComponentClass = BuildingComponentClass;
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Active Building Component Class Set.");
+		//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Active Building Component Class Set.");
 	}
 }
 

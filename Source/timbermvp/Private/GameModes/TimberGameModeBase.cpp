@@ -284,7 +284,7 @@ void ATimberGameModeBase::SaveCurrentGame()
 
 	if(GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Red, "ATimberGameModeBase::SaveCurrentGame() -> Game Saved");
+		//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Red, "ATimberGameModeBase::SaveCurrentGame() -> Game Saved");
 	}
 }
 
@@ -455,7 +455,7 @@ void ATimberGameModeBase::OpenAllLabDoors()
 		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
 		if (LabDoor)
 		{
-			GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
+			//GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
 
 			LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
 		}

@@ -82,7 +82,7 @@ void ASpikeTrap::ApplyDamageToActorsInHitBox()
 			{
 				
 				EnemyCharacter->TakeDamage(SpikeDamage, this);
-				GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
+				//GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
 				UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
 			}
 		}

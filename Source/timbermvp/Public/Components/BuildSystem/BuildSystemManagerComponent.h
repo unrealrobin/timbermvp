@@ -105,6 +105,7 @@ protected:
 	void GetStaticMeshComponents(AActor* BuildingComponentActor);
 	UFUNCTION()
 	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
+	void AddToBuildableAttachments(ABuildableBase* AttachingBuildable);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
 	UMaterial* RedHoloMaterial = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")

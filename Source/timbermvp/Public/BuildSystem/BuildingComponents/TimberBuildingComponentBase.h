@@ -66,6 +66,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Building Component")
 	bool bIsProxy = false;
 
+	/*Attached Traps/Constructs*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attached Building Components")
+	TArray<ABuildableBase*> AttachedBuildingComponents;
+
+	UFUNCTION()
+	void DestroyAllAttachments();
+
+	virtual void Destroyed() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

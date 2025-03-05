@@ -35,6 +35,24 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	CreateQuadrantComponents();
 }
 
+void ATimberBuildingComponentBase::DestroyAllAttachments()
+{
+	for (ABuildableBase* AttachedBuildingComponent : AttachedBuildingComponents)
+	{
+		if (AttachedBuildingComponent)
+		{
+			AttachedBuildingComponent->Destroy();
+		}
+	}
+}
+
+void ATimberBuildingComponentBase::Destroyed()
+{
+	Super::Destroyed();
+
+	DestroyAllAttachments();
+}
+
 // Called when the game starts or when spawned
 void ATimberBuildingComponentBase::BeginPlay()
 {

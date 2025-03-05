@@ -26,7 +26,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision")
 	UCapsuleComponent* CollisionCapsule = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* LootDropLocation;
+
 	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+
+	virtual void OnDeath_DropLoot() override;
 
 	UFUNCTION()
 	void HandleDeath(AActor* DeadActor);

@@ -3,7 +3,7 @@
 
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 
-#include "LandscapeGizmoActiveActor.h"
+
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildSystem/BuildingComponents/TimberHorizontalBuildingComponent.h"
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
@@ -15,7 +15,6 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "States/DieRobotGameStateBase.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
@@ -521,65 +520,71 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 	}
 }
 
+void UBuildSystemManagerComponent::AddToBuildableAttachments(ABuildableBase* AttachingBuildable)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+	if (PlayerCharacter && PlayerCharacter->HoveredBuildingComponent && AttachingBuildable)
+	{
+		ATimberBuildingComponentBase* BuildingComponentBase = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent);
+		if (BuildingComponentBase)
+		{
+			BuildingComponentBase->AttachedBuildingComponents.Add(AttachingBuildable);
+		}
+	}
+}
+
 /* Spawn */
 void UBuildSystemManagerComponent::SpawnFinalBuildable()
 {
-	
 	if(ActiveBuildableComponentClass && BuildableRef)
 	{
 		// If player can afford the transaction, apply the transaction and spawn the final building component.
 		if(Cast<ATimberPlayableCharacter>(GetOwner()))
 		{
-
-			//TODO:: Remove the Actual Transaction from happening and move it into the FInal Spawn function to ensure the spawn is possible.
-			if(Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost))
+			FActorSpawnParameters SpawnParameters;
+			if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
 			{
-				FActorSpawnParameters SpawnParameters;
-				if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
-				{
-					SpawnFinalTrap(SpawnParameters);
-					PlayBuildablePlacementSound();
-				}
-				else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-				{
-					SpawnFinalBuildingComponent(SpawnParameters);
-					PlayBuildablePlacementSound();
-				}
-				else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
-				{
-					SpawnFinalRampComponent(SpawnParameters);
-					PlayBuildablePlacementSound();
-				}
-				else if (ActiveBuildableComponentClass->IsChildOf(ATeleportConstruct::StaticClass()))
-				{
-					SpawnTemporayTeleportConstruct(SpawnParameters);
-					PlayBuildablePlacementSound();
-				}
-				else if (ActiveBuildableComponentClass->IsChildOf(APowerPlate::StaticClass()))
-				{
-					SpawnFinalCenterSnapFloorOnlyBuildingComponent(SpawnParameters);
-					PlayBuildablePlacementSound();
-				}
-				else
-				{
-					UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
-				}
+				SpawnFinalTrap(SpawnParameters);
+				PlayBuildablePlacementSound();
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+			{
+				SpawnFinalBuildingComponent(SpawnParameters);
+				PlayBuildablePlacementSound();
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
+			{
+				SpawnFinalRampComponent(SpawnParameters);
+				PlayBuildablePlacementSound();
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(ATeleportConstruct::StaticClass()))
+			{
+				SpawnTemporayTeleportConstruct(SpawnParameters);
+				PlayBuildablePlacementSound();
+			}
+			else if (ActiveBuildableComponentClass->IsChildOf(APowerPlate::StaticClass()))
+			{
+				SpawnFinalCenterSnapFloorOnlyBuildingComponent(SpawnParameters);
+				PlayBuildablePlacementSound();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Player Can Not Afford this Buildable"));
+			}
 
-				//Broadcast to Tutorial Game State to Increment State.
-				ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-				if (DieRobotGameStateBase)
+			//Broadcast to Tutorial Game State to Increment State.
+			ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+			if (DieRobotGameStateBase)
+			{
+				ETutorialState CurrentState = DieRobotGameStateBase->TutorialState;
+				if (CurrentState == ETutorialState::Building1)
 				{
-					ETutorialState CurrentState = DieRobotGameStateBase->TutorialState;
-					if (CurrentState == ETutorialState::Building1)
+					TutorialBuildsPlaced += 1;
+					if (TutorialBuildsPlaced == 2)
 					{
-						TutorialBuildsPlaced += 1;
-						if (TutorialBuildsPlaced == 2)
-						{
-							//Wave Ready to begin.
-							DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
-						}
+						//Wave Ready to begin.
+						DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
 					}
-					
 				}
 			}
 		}
@@ -605,6 +610,11 @@ void UBuildSystemManagerComponent::SpawnFinalRampComponent(FActorSpawnParameters
 		if(SpawnedActor)
 		{
 			RedrawPathTraceHandle.Broadcast();
+
+			//Adding Ramp to Hovered Building Components Attachment Array, on Deletion or Destruction, Ramp will also be deleted.
+			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
+
 		}
 	}
 }
@@ -638,9 +648,15 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 				break;
 			}
 		}
+
+		//Adding this trap to the Hovered Building Components Attachment Array, on Deletion or Destruction, Trap will also be deleted.
+		AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+		
 		//TODO::Why?
 		//Needed to Replace the existing TrapComponentProxy with the new TrapComponent Proxy
 		ResetBuildableComponents(ATrapBase::StaticClass());
+
+		Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
 	}
 	else
 	{
@@ -665,6 +681,8 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 		{
 			SpawnedActor->SetActorEnableCollision(true);
 			RedrawPathTraceHandle.Broadcast();
+
+			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
 		}
 	}
 	else if (!ActiveBuildingComponentProxy->bCanBuildableBeFinalized)
@@ -688,9 +706,15 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 			SpawnParameters);
 
 		ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
+
+		//Attaching Teleporter to the Hovered Building Component, when Destroyed, Teleporter handles destruction of its own pair.
+		AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
 		
 		if (TeleportConstruct)
 		{
+			//TODO:: This may need to be moved to refund costs unless both pairs are placed and successfull
+			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
+
 			//Handle Pairing - BSM
 			//This is the BuildSystemManager's Memory of the Teleport Construct Pair
 			if (TeleportTempPair.Key == nullptr)
@@ -815,6 +839,10 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapFloorOnlyBuildingComponen
 			CenterSnapFloorOnlyBuildingComponentProxy->GetActorLocation(),
 			CenterSnapFloorOnlyBuildingComponentProxy->GetActorRotation(),
 			SpawnParameters);
+
+		AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+		Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
+
 	}
 }
 
@@ -973,6 +1001,12 @@ void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitRes
 	//HIT A BUILDING COMPONENT
 	if (FirstHitBuildingComponent)
 	{
+		if (FirstHitBuildingComponent->BuildingComponentType == EBuildingComponentType::Environment || 
+		FirstHitBuildingComponent->BuildableType == EBuildableType::Environment )
+		{
+			//Traps should not be added to Environment Building Components. Option to change this in the future.
+			return;
+		}
 		// Pairing the trap with the wall its Hovering over.
 		if (ActiveTrapComponentProxy)
 		{

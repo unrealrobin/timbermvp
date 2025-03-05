@@ -331,13 +331,11 @@ void ATimberPlayableCharacter::StopAllAnimMontages()
 
 void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 {
-	const FString WakeMontageAssetPath = TEXT("/Game/Characters/Farmer_Adult/Animations/Montages/AM_StandingUp");
-	UAnimMontage* WakeMontage = LoadObject<UAnimMontage>(this, *WakeMontageAssetPath);
-	if (WakeMontage)
+	if (TutorialWakeMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Character - Playing Wake Animation Montage."));
 		
-		PlayAnimMontage(WakeMontage, 1.f, FName("WakingUp"));
+		PlayAnimMontage(TutorialWakeMontage, 1.f, FName("WakingUp"));
 	}
 	else
 	{

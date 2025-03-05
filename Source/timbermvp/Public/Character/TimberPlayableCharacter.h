@@ -89,6 +89,9 @@ public:
 	UAnimMontage* ReloadMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* EquipWeaponMontage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* TutorialWakeMontage;
+	
 	UFUNCTION()
 	void PlayEquipWeaponMontage(FName SectionName);
 	UFUNCTION()

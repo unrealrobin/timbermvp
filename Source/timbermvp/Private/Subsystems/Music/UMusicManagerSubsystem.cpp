@@ -34,7 +34,7 @@ void UUMusicManagerSubsystem::HandleInitialization()
 		WorldContext = GetWorld();
 	}
 	
-	static const FString MusicLibaryAssetPath = TEXT("/Game/Sounds/04_Music/DataAssets/DA_MusicLibrary");
+	static const FString MusicLibaryAssetPath = TEXT("/Game/Sounds/04_Music/DataAssets/DA_MusicLibrary.DA_MusicLibrary");
 
 	//Getting the Music Library Data Asset
 	MusicLibrary = LoadObject<UMusicLibraryDataAsset>(nullptr, *MusicLibaryAssetPath);
@@ -54,12 +54,15 @@ void UUMusicManagerSubsystem::HandleInitialization()
 			false
 			);
 		
-		MusicPlayerAlpha->bAutoActivate = true;
-		MusicPlayerAlpha->bIsUISound = true;
-
 		if (MusicPlayerAlpha)
 		{
+			MusicPlayerAlpha->bAutoActivate = true;
+			MusicPlayerAlpha->bIsUISound = true;
 			UE_LOG(LogTemp, Warning, TEXT("Audio Object - Music Player - Created"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Audio Object - Music Player - Not Created"));
 		}
 	}
 }

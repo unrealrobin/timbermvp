@@ -61,7 +61,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void BeginDestroy() override;
+	
 	void SpawnLootInRange(int NumberOfParts = 0, int NumberOfMechanisms = 0, int NumberOfUniques = 0);
 
 	/*Potential Loot on Destruction / Gaurunteed on Deletion */

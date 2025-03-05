@@ -4,6 +4,7 @@
 #include "Character/Enemies/TutorialDummy.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Loot/LootHealthDrop.h"
 #include "States/DieRobotGameStateBase.h"
 
 
@@ -14,10 +15,9 @@ ATutorialDummy::ATutorialDummy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CollisionCapsule = GetCapsuleComponent();
-	/*if (CollisionCapsule)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Tutorial Dummy Collision Capsule Initialized."));
-	}*/
+
+	LootDropLocation = CreateDefaultSubobject<USceneComponent>("LootDropSceneComponent");
+	LootDropLocation->SetupAttachment(RootComponent);
 	
 }
 
@@ -58,6 +58,29 @@ void ATutorialDummy::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 		Destroy();
 	}
 	
+}
+
+void ATutorialDummy::OnDeath_DropLoot()
+{
+	//TODO:: Rework Loot Drop System after GDC.
+	for(TSubclassOf<AEnemyLootDropBase> LootDrop : StandardLootArray)
+	{
+		if (LootDropLocation)
+		{
+			//Randomizing exact Spawn Location every iteration
+			FVector Base = LootDropLocation->GetComponentLocation();
+			float AdjustAmount = 100.f;
+			FVector AdjustedLocation = FVector(FMath::RandRange(Base.X - AdjustAmount, Base.X + AdjustAmount), FMath::RandRange(Base.Y - AdjustAmount, Base.Y + AdjustAmount), Base.Z);
+			
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			//Spawn at our around the Loot Drop Location
+			AActor* LootItem = GetWorld()->SpawnActor<AActor>(LootDrop, AdjustedLocation, FRotator::ZeroRotator, SpawnParams);
+
+			//UE_LOG(LogTemp, Warning, TEXT("Spawned: %s at: %s"), *LootDrop->GetName(), *AdjustedLocation.ToString());
+		}
+	}
 }
 
 void ATutorialDummy::HandleDeath(AActor* DeadActor)

@@ -25,12 +25,6 @@ void ABuildableBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ABuildableBase::BeginDestroy()
-{
-	Super::BeginDestroy();
-	//UE_LOG(LogTemp, Warning, TEXT("Buildable - OnDestroy - Buildable is Being Destroyed."))
-}
-
 void ABuildableBase::HandleDeletionOfBuildable()
 {
 	//TODO:: Play Deletion Sound
@@ -42,6 +36,7 @@ void ABuildableBase::SpawnLootInRange(int NumberOfParts, int NumberOfMechanisms,
 {
 	FActorSpawnParameters SpawnParameters;
 	FVector ActorLocation = GetActorLocation();
+	ActorLocation.Z += 100.0f;
 	for(int i = 0; i < NumberOfParts; i++)
 	{
 		FVector SpawnLocation;

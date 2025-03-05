@@ -27,10 +27,11 @@ public:
 UENUM(BlueprintType)
 enum class EBuildableType : uint8
 {
-	Trap UMETA(DisplayName = "Trap"),
 	BuildingComponent UMETA(DisplayName = "BuildingComponent"),
 	Ramp UMETA(DisplayName = "Ramp"),
+	Trap UMETA(DisplayName = "Trap"),
 	Construct UMETA(DisplayName = "Construct"),
+	Environment UMETA(DisplayName = "Environment"),
 	Default UMETA(DisplayName = "Default"),
 };
 
@@ -45,7 +46,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
 	bool bCanBuildableBeFinalized = true;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
 	EBuildableType BuildableType = EBuildableType::Default;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")

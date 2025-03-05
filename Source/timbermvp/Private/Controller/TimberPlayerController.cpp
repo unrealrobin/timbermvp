@@ -558,12 +558,18 @@ void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
 void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& Value)
 {
 	//During Raycast, if we raycast over an existing BC, a UI Widget Will Appear around that Component.
+	
+	//TODO:: Add Progress like system where Pressing the E button will Delete if Held for 1 Full second. Show Progress Swirl.
 
-	//Pressing the E button will Delete if Held for 1 Full second.
-
+	if (TimberCharacter->HoveredBuildingComponent->BuildableType == EBuildableType::Environment)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
+		return;
+	}
+	
 	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 	{
-		//When the Buildable is Deleted by the Player, it will redrop the cost of the buildable.
+		//When the Buildable is Deleted by the Player, it will drop the cost of the buildable.
 		TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
 		TimberCharacter->HoveredBuildingComponent = nullptr;
 	}

@@ -38,6 +38,19 @@ void ATestObj::Tick(float DeltaTime)
 
 void ATestObj::Interact()
 {
+	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	if (DieRobotGameState)
+	{
+		if (DieRobotGameState->TutorialState != ETutorialState::TutorialComplete)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Test obj. - Can not early start wave during Tutorial."))
+			return;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Test Obj - Could not load Die Robot Game State."))
+	}
 	//Purely Visual
 	//Rotates the Lever to Show it is being interacted with
 	if (InitialLeverRotation == StaticMeshAttachment->GetRelativeRotation())

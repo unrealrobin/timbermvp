@@ -27,7 +27,7 @@ void ABuildableBase::BeginPlay()
 
 void ABuildableBase::HandleDeletionOfBuildable()
 {
-	//TODO:: Play Deletion Sound
+	//Handles Loot and Destruction
 	SpawnLootInRange(BuildableCost.CostOfParts, BuildableCost.CostOfMechanisms, BuildableCost.CostOfUniques);
 	Destroy();
 }

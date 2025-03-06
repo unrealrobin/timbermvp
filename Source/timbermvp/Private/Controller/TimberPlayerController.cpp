@@ -570,7 +570,9 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 	{
 		//When the Buildable is Deleted by the Player, it will drop the cost of the buildable.
+		UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
 		TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
+		
 		TimberCharacter->HoveredBuildingComponent = nullptr;
 	}
 }

@@ -177,6 +177,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 
 void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 {
+	//Active Buildable class set from UI Click in Build Panel Menu
 	TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
 	if (bHits && ActiveBuildableClass)
 	{

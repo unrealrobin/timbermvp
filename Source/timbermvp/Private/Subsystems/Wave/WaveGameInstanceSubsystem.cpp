@@ -86,7 +86,64 @@ void UWaveGameInstanceSubsystem::StartWave()
 		//Spawning Enemies from Data Tables
 		SpawnWave();
 	}
-	
+}
+
+void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
+{
+	//Searches the data tables for the current wave number and then spawns the enemies
+	if(!WaveCompositionTable)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No Wave Composition Data Table Found"));
+		return;
+	}
+
+	//Used for Debugging/Find Row Error Context
+	static const FString ContextString(TEXT("Wave Composition"));
+
+	/* Our Row object is of type FWaveCompositionRow
+	 * THe Current wave # is converted to a string used to search the Name of the Row
+	 */
+	FWaveCompositionRow* WaveCompositionRow = WaveCompositionTable->FindRow<FWaveCompositionRow>(
+		*FString::FromInt(CurrentWaveNumber), ContextString, true);
+	/*
+	 *WaveCompostionRow is a struct that contains the following:
+	 *@Params
+	* int32 WaveNumber;
+	* TArray<FEnemyData> EnemiesToSpawnArray;
+	* TSubclassOf<AActor> BossEnemy;
+	 */
+	if(WaveCompositionRow)
+	{
+		if(WaveCompositionRow->BossEnemy)
+		{
+			BossToSpawn = WaveCompositionRow->BossEnemy;
+			UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Boss Enemy Found"));
+			TotalEnemiesToSpawn += 1;
+		}
+
+		//Enemies to SpawnArray is the Array in the Data Table of Data Assets containing which enemy to spawn and how many of that enemy to spawn
+		//If there is an Array there with atleast 1 entry, we compose the table.
+		if(WaveCompositionRow->EnemiesToSpawnArray.Num() > 0)
+		{
+			//For Every Data Asset ...
+			//Ex: Basic Robot -  10
+			for(FEnemyData EnemyData: WaveCompositionRow->EnemiesToSpawnArray)
+			{
+				//For Every Quantity of Enemy to Spawn
+				//Que up the enemies that need to be spawned this Wave
+				//Looping through the number of enemies to spawn.
+				for(int i = 0 ; i < EnemyData.NumberOfEnemiesToSpawn; i++)
+				{
+					//Adds to the EnemiesToSpawn Array the Class to spawn
+					EnemiesToSpawn.Add(EnemyData.EnemyDataAsset->EnemyClassReference);
+					//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Enemy Added to SpawnList"));
+					TotalEnemiesToSpawn += 1;
+				}
+				
+			}
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
+	}
 }
 
 void UWaveGameInstanceSubsystem::EarlyStartWave()
@@ -107,105 +164,6 @@ void UWaveGameInstanceSubsystem::EarlyStartWave()
 	StartWave();
 }
 
-void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
-{
-	//Searches the data tables for the current wave number and then spawns the enemies
-	if(!WaveCompositionTable)
-	{
-		UE_LOG(LogTemp, Error, TEXT("No Wave Composition Data Table Found"));
-		return;
-	}
-
-	//Used for Debugging/Find Row Error Context
-	static const FString ContextString(TEXT("Wave Composition"));
-
-	/* Our Row object is of type FWaveCompositionRow
-	 * THe Current wave # is converted to a string used to search the Name of the Row
-	 * 
-	 */
-	FWaveCompositionRow* WaveCompositionRow = WaveCompositionTable->FindRow<FWaveCompositionRow>(
-		*FString::FromInt(CurrentWaveNumber), ContextString, true);
-	/*
-	 *WaveCompostionRow is a struct that contains the following:
-	 *@Params
-	* int32 WaveNumber;
-	* TArray<FEnemyData> EnemiesToSpawnArray;
-	* TSubclassOf<AActor> BossEnemy;
-	 */
-	if(WaveCompositionRow)
-	{
-		if(WaveCompositionRow->BossEnemy)
-		{
-			BossToSpawn = WaveCompositionRow->BossEnemy;
-			UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Boss Enemy Found"));
-		}
-
-		if(WaveCompositionRow->EnemiesToSpawnArray.Num() > 0)
-		{
-			//For Every Data Asset ...
-			for(FEnemyData EnemyData: WaveCompositionRow->EnemiesToSpawnArray)
-			{
-				//For Every Quantity of Enemy to Spawn
-				//Que up the enemies that need to be spawned this Wave
-				for(int i = 0 ; i < EnemyData.NumberOfEnemiesToSpawn; i++)
-				{
-					EnemiesToSpawn.Add(EnemyData.EnemyDataAsset->EnemyClassReference);
-					UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Enemy Added to SpawnList"));
-					TotalEnemiesToSpawn += 1;
-				}
-				
-			}
-			
-		}
-	}
-}
-
-void UWaveGameInstanceSubsystem::HandleBossSpawn()
-{
-	
-	if(BossToSpawn && !BossSpawned)
-	{
-		PlayBossSpawnSound();
-		
-		//Open the Garage Door.
-		OpenBossDoor();
-		
-		//Spawn the Boss.
-		SpawnEnemy(BossToSpawn, BossSpawnPointLocation);
-		BossSpawned = true;
-	}
-}
-
-void UWaveGameInstanceSubsystem::SpawnPartOfWave()
-{
-	HandleBossSpawn();
-	
-	UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnPartOfWave() - Spawning Part of Wave"));
-	//1-3 enemies can spawn at once - this will help with spreading out the enemies.
-	int RandomNumberOfEnemiesToSpawnAtOnce = FMath::RandRange(1, 3);
-
-	// If random num = 2, i = 0, i = 1 for loop
-	for(int i = 0; i < RandomNumberOfEnemiesToSpawnAtOnce; i++)
-	{          
-		if(TotalEnemiesSpawned < EnemiesToSpawn.Num())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SpawnedEnemies.Num(): %d. EnemiesToSpawn.Num(): %d"), SpawnedEnemies.Num(), EnemiesToSpawn.Num());
-		//TODO:: Randomize this later.
-		    //Doesn't use random spawn. Spawned enemies in order of Data Table - Basics, Melee Weapons, Ranged
-			UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy at Index: %d"), TotalEnemiesSpawned);
-			SpawnEnemy(EnemiesToSpawn[TotalEnemiesSpawned], GetRandomStandardSpawnPointLocation());
-		}
-		else
-		{
-			
-			GetWorld()->GetTimerManager().ClearTimer(SpawnPartOfWaveTimerHandle);
-			bAllEnemiesSpawned = true;
-			UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnPartOfWave() - All Enemies Spawned of Part."));
-			return;
-		}
-	}
-}
-
 void UWaveGameInstanceSubsystem::SpawnWave()
 {
 	//Sets a looping timer to spawn random parts of the wave with a delay between each spawn
@@ -218,35 +176,60 @@ void UWaveGameInstanceSubsystem::SpawnWave()
 	}
 }
 
-void UWaveGameInstanceSubsystem::EndWave()
+void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 {
-	PlayWaveEndSound();
-
-	//Broadcasts the Completed Wave Number
-	HandleWaveComplete.Broadcast(CurrentWaveNumber);
+	HandleBossSpawn();
 	
-	//Process of Closing Doors
-	CloseLabDoorHandle.Broadcast();
-	//Resetting the wave Data.
-	ResetWaveEnemies();
+	//1-3 enemies can spawn at once - this will help with spreading out the enemies.
+	int RandomNumberOfEnemiesToSpawnAtOnce = FMath::RandRange(1, 3);
 	
-	//Increment Wave - HUD Will always show UPCOMING wave.
-	IncrementWave();
+	//We need to adjust the Index used based on whether a boss is or isn't spawned. If we dont, then Total Enemies To Spawn will overflow the EnemiesToSpawn Array which
+	//doesn't include the boss. So if Enemies to Spawn = 20 and Boss = 1, it can try to find EnemiesToSpawn[21] which would overflow, so we adjust that index whether the boss has been spawned.
+	int ArrayIndex;
+	if (BossSpawned)
+	{
+		ArrayIndex = TotalEnemiesSpawned -1;
+	}
+	else
+	{
+		ArrayIndex = TotalEnemiesSpawned;
+		UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
+	}
 	
-	//Save Game - Game Mode will handle the saving of the game.
-	SaveCurrentGameHandle.Broadcast();
-	
-	//Start Timer for Next Wave
-	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
-	TimeBetweenWaves, false);
-	GetWorld()->GetTimerManager().SetTimer(UpdatedTimeToNextWaveTimerHandle, this, &UWaveGameInstanceSubsystem::UpdateTimeToNextWave, 1.f, true);
+	for(int i = 0; i < RandomNumberOfEnemiesToSpawnAtOnce; i++)
+	{
+		/*
+		 * TotalEnemiesToSpawn - Decided in Composition, takes Boss into Account.
+		 * TotalEnemiesSpawned - Incremented in SpawnEnemy()
+		 */
+		if(TotalEnemiesSpawned < TotalEnemiesToSpawn)
+		{
+			SpawnEnemy(EnemiesToSpawn[ArrayIndex], GetRandomStandardSpawnPointLocation());
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().ClearTimer(SpawnPartOfWaveTimerHandle);
+			//Does not Include is the Boss - this is checking if all basic enemies have been spawned.
+			bAllEnemiesSpawned = true;
+			//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnPartOfWave() - All Enemies Spawned of Part."));
+			return;
+		}
+	}
 }
 
-void UWaveGameInstanceSubsystem::IncrementWave()
+void UWaveGameInstanceSubsystem::HandleBossSpawn()
 {
-	CurrentWaveNumber++;
-
-	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
+	if(BossToSpawn && !BossSpawned)
+	{
+		PlayBossSpawnSound();
+		
+		//Open the Garage Door.
+		OpenBossDoor();
+		
+		//Spawn the Boss.
+		SpawnEnemy(BossToSpawn, BossSpawnPointLocation);
+		
+	}
 }
 
 void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location)
@@ -265,29 +248,53 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 	//If we spawn a boss bind to its delegate.
 	if (Cast<ABossBase>(Actor))
 	{
+		//Handles Garage Door Closing on Death
 		BindToBossDelegate(Cast<ABossBase>(Actor));
-		UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnEnemy() - Boss Spawned - Binding to Delegate."));
+		BossSpawned = true;
 	}
-
-	
 }
-
-
 
 void UWaveGameInstanceSubsystem::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy)
 {
 	//Called when enemy is Destroyed - ATimberEnemyCharacter::TakeDamage()
 	if(SpawnedEnemies.Contains(Enemy))
 	{
-		SpawnedEnemies.Remove(Enemy);
+		//SpawnedEnemies.Remove(Enemy);
 		TotalEnemiesKilled += 1;
-		UE_LOG(LogTemp, Warning, TEXT("Enemies remaining to Kill: %d"), TotalEnemiesToSpawn - TotalEnemiesKilled);
 		
-		if(SpawnedEnemies.Num() == 0 && bAllEnemiesSpawned)
+		UE_LOG(LogTemp, Warning, TEXT("Enemies remaining to Kill: %d"), TotalEnemiesToSpawn - TotalEnemiesKilled);
+
+		//Only counting Basic Enemies
+		if(TotalEnemiesKilled == TotalEnemiesToSpawn && bAllEnemiesSpawned)
 		{
 			EndWave();
 		}
 	}
+}
+
+void UWaveGameInstanceSubsystem::EndWave()
+{
+	PlayWaveEndSound();
+
+	//Broadcasts the Completed Wave Number
+	HandleWaveComplete.Broadcast(CurrentWaveNumber);
+	
+	//Process of Closing Doors
+	CloseLabDoorHandle.Broadcast();
+	
+	//Resetting the wave Data.
+	ResetWaveEnemies();
+	
+	//Increment Wave - HUD Will always show UPCOMING wave.
+	IncrementWave();
+	
+	//Save Game - Game Mode will handle the saving of the game.
+	SaveCurrentGameHandle.Broadcast();
+	
+	//Start Timer for Next Wave
+	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
+	TimeBetweenWaves, false);
+	GetWorld()->GetTimerManager().SetTimer(UpdatedTimeToNextWaveTimerHandle, this, &UWaveGameInstanceSubsystem::UpdateTimeToNextWave, 1.f, true);
 }
 
 void UWaveGameInstanceSubsystem::ResetWaveEnemies()
@@ -296,8 +303,9 @@ void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 	bAllEnemiesSpawned = false;
 
 	//Reset Wave Data
-	TotalEnemiesSpawned = 0;
 	TotalEnemiesToSpawn = 0;
+	TotalEnemiesSpawned = 0;
+	TotalEnemiesKilled = 0;
 
 	//Boss Reset
 	BossToSpawn = nullptr;
@@ -320,6 +328,13 @@ void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 
 	//Empty's any reference to the enemies in the SpawnedEnemies Array
 	SpawnedEnemies.Empty();
+}
+
+void UWaveGameInstanceSubsystem::IncrementWave()
+{
+	CurrentWaveNumber++;
+
+	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
 }
 
 void UWaveGameInstanceSubsystem::CheckEnemiesForWeapons(ATimberEnemyCharacter* Enemy)

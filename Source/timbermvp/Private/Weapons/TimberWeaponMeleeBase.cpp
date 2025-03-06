@@ -74,8 +74,8 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Sword Overlapped Component: %s. Sword Overlapped Actor: %s"), *OverlappedComponent->GetName(), *OtherActor->GetName());
-	UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Sword Overlapped Component: %s. Sword Overlapped Actor: %s"), *OverlappedComponent->GetName(), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Sword Weapon Owner: %s"), *GetOwner()->GetName());
 	
 	{ // AI using sword - Ignoring other AI
 		if (Cast<ATimberEnemyCharacter>(GetOwner()))
@@ -98,13 +98,13 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 			{
 				ActorsToIgnore.Add(Seeda);
 				Seeda->TakeDamage_Seeda(TotalWeaponDamage);
-				UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Seeda:Total Weapon Damage: %f"), TotalWeaponDamage);
+				//UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Seeda:Total Weapon Damage: %f"), TotalWeaponDamage);
 				return;
 			}
 			if (HitBuildingComponent && HitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment)
 			{
 				HitBuildingComponent->BuildingComponentTakeDamage(BaseWeaponDamage, GetOwner());
-				UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Building Component: Base Weapon Damage: %f"), BaseWeaponDamage);
+				//UE_LOG(LogTemp, Warning, TEXT("Melee Weapon - Building Component: Base Weapon Damage: %f"), BaseWeaponDamage);
 			}
 		}
 	}
@@ -170,7 +170,7 @@ void ATimberWeaponMeleeBase::HandleAttackMontageInterrupted(UAnimMontage* AnimMo
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - HandleAttackMontageInterrupted() - Player Controller is NULL"));
+		//UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - HandleAttackMontageInterrupted() - Player Controller is NULL"));
 	}
 }
 

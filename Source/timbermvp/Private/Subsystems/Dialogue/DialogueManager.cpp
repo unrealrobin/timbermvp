@@ -31,7 +31,7 @@ void UDialogueManager::LoadNarrativeDialogueLibrary()
 	NarrativeDialogueLibrary = LoadObject<UNarrativeDialogueLibrary>(nullptr, *NarrativeDialogueLibraryAssetPath);
 	if (NarrativeDialogueLibrary)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Library."))
+		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Library."))
 	}
 }
 
@@ -53,7 +53,7 @@ void UDialogueManager::LoadNarrativeDialogueSoundMix()
 
 	if (NarrativeDialogueSoundMix)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Sound Mix."));
+		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Sound Mix."));
 	}
 }
 
@@ -66,7 +66,7 @@ UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
 {
 	if (NarrativeDialogueLibrary && NarrativeDialogueLibrary->NarrativeDialogueList.Num() > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - Narrative Dialogue Library and List Exists"));
+		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - Narrative Dialogue Library and List Exists"));
 		UDialogueSingle* DialogueData = *NarrativeDialogueLibrary->NarrativeDialogueList.Find(DialogueName);
 		
 		if (DialogueData)

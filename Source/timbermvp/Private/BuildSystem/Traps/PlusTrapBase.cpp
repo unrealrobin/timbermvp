@@ -48,7 +48,7 @@ void APlusTrapBase::RaycastForHitBoxLength()
 			// If Hit is a Buildable && It's not Itself 
 			 if (Cast<ABuildableBase>(Hit.GetActor()) && Cast<ATimberBuildingComponentBase>(Hit.GetActor()) != HoveredBuildingComponent && Hit.GetActor() != this) 
 			 {
-			 	UE_LOG(LogTemp, Warning, TEXT("Hit a Building Component"));
+			 	//UE_LOG(LogTemp, Warning, TEXT("Hit a Building Component"));
 				HitLocation = Hit.ImpactPoint;
 			 	//Debug the Hit Point
 			 	/*DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
@@ -56,10 +56,6 @@ void APlusTrapBase::RaycastForHitBoxLength()
 			 	DrawDebugSphere(GetWorld(), StartPoint, 10.f, 12, FColor::Green, false, -1.f);
 			 	DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);*/
 			 	break;
-			 }
-			 else
-			 {
-				 UE_LOG(LogTemp, Warning, TEXT("Hit a Non Building Component : %p"), *Hit.GetActor()->GetName());
 			 }
 		}
 	}
@@ -101,7 +97,8 @@ void APlusTrapBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//Need a way to stop this after the trap is placed.
+	//TODO:: We can call this after every buildable is place once, just to recalculate it if necessary. Every tick is
+	// excessive.
 	RaycastForHitBoxLength();
 	
 }

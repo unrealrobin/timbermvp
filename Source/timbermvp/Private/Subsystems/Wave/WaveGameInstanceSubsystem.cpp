@@ -120,7 +120,6 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 			UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Boss Enemy Found"));
 			TotalEnemiesToSpawn += 1;
 		}
-
 		//Enemies to SpawnArray is the Array in the Data Table of Data Assets containing which enemy to spawn and how many of that enemy to spawn
 		//If there is an Array there with atleast 1 entry, we compose the table.
 		if(WaveCompositionRow->EnemiesToSpawnArray.Num() > 0)
@@ -141,8 +140,8 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 				}
 				
 			}
+			UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
 	}
 }
 
@@ -159,7 +158,8 @@ void UWaveGameInstanceSubsystem::EarlyStartWave()
 		//Handles Broadcasting Necessary Information
 		UpdateTimeToNextWave();
 	}
-
+	
+	ResetWaveEnemies();
 	//Starts the Wave
 	StartWave();
 }
@@ -315,19 +315,22 @@ void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 	EnemiesToSpawn.Empty();
 
 	//Clears any enemies that are still alive, redundant but safe.
-	for(ATimberEnemyCharacter* Enemy : SpawnedEnemies)
+	if (SpawnedEnemies.Num() > 0)
 	{
-		if(Enemy)
+		for(ATimberEnemyCharacter* Enemy : SpawnedEnemies)
 		{
-			//Destroys any weapons the enemies carry.
-			CheckEnemiesForWeapons(Enemy);
-			//Destroys the Enemy
-			Enemy->Destroy();
+			if(Enemy)
+			{
+				//Destroys any weapons the enemies carry.
+				CheckEnemiesForWeapons(Enemy);
+				//Destroys the Enemy
+				Enemy->Destroy();
+			}
 		}
+		//Empty's any reference to the enemies in the SpawnedEnemies Array
+		SpawnedEnemies.Empty();
 	}
 
-	//Empty's any reference to the enemies in the SpawnedEnemies Array
-	SpawnedEnemies.Empty();
 }
 
 void UWaveGameInstanceSubsystem::IncrementWave()

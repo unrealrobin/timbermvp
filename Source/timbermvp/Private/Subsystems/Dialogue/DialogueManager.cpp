@@ -141,6 +141,14 @@ void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
 	{
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleWaveStartDialogueFinish);
 	}
+	else if (VoiceoverName == FName("Molly_WaveComplete"))
+	{
+		ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+		if (DieRobotGameStateBase)
+		{
+			DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::TutorialComplete);
+		}
+	}
 	
 }
 

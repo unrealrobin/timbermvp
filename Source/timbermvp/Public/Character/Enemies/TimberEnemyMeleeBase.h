@@ -43,7 +43,7 @@ public:
 
 	/* Attack Information*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float BaseMeleeAttackDamage = 10.0f;
+	float BaseMeleeAttackDamage = 20.0f;
 	UFUNCTION()
 	virtual float CalculateOutputDamage(float Damage) override;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack Information")

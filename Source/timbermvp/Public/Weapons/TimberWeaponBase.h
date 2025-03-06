@@ -23,7 +23,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Details")
-	float BaseWeaponDamage = 15.0f;
+	float BaseWeaponDamage = 25.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
 	UAnimMontage* AttackMontage;

@@ -539,7 +539,8 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 	if(ActiveBuildableComponentClass && BuildableRef)
 	{
 		// If player can afford the transaction, apply the transaction and spawn the final building component.
-		if(Cast<ATimberPlayableCharacter>(GetOwner()))
+		if(Cast<ATimberPlayableCharacter>(GetOwner()) && Cast<ATimberPlayableCharacter>(GetOwner())
+		->InventoryManager->bCanAffordCost(BuildableRef->BuildableCost))
 		{
 			FActorSpawnParameters SpawnParameters;
 			if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
@@ -717,7 +718,8 @@ void UBuildSystemManagerComponent::SpawnTemporaryTeleportConstruct(FActorSpawnPa
 			ActiveTeleportConstructProxy->GetActorLocation(),
 			ActiveTeleportConstructProxy->GetActorRotation(),
 			SpawnParameters);
-
+		
+		BuildableRef = Cast<ABuildableBase>(SpawnedActor);
 		ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
 
 		//Attaching Teleporter to the Hovered Building Component, when Destroyed, Teleporter handles destruction of its own pair.

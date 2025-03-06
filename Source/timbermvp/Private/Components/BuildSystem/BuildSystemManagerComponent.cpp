@@ -613,6 +613,7 @@ void UBuildSystemManagerComponent::SpawnFinalRampComponent(FActorSpawnParameters
 
 			//Adding Ramp to Hovered Building Components Attachment Array, on Deletion or Destruction, Ramp will also be deleted.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
 
 		}
@@ -632,35 +633,71 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 			ActiveTrapComponentProxy->GetActorRotation(),
 			SpawnParameters);
 		
-		if (SpawnedActor && ActiveTrapComponentProxy && ActiveTrapComponentProxy->HoveredBuildingComponent)
+		
+		if (SpawnedActor)
+		{
+			BuildableRef = Cast<ABuildableBase>(SpawnedActor);
+			UE_LOG(LogTemp, Warning, TEXT("Buildable Ref Name: %s"), *BuildableRef->GetName());	
+		}
+		else
+		{
+			return;
+		}
+		
+		if (SpawnedActor && ActiveTrapComponentProxy->HoveredBuildingComponent)
 		{
 			EBuildingComponentTrapDirection TrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
 			switch (TrapDirection)
 			{
 			case EBuildingComponentTrapDirection::Front:
 				ActiveTrapComponentProxy->HoveredBuildingComponent->FrontTrap = Cast<ATrapBase>(SpawnedActor);
+				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Front Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Back:
 				ActiveTrapComponentProxy->HoveredBuildingComponent->BackTrap = Cast<ATrapBase>(SpawnedActor);
+				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Back Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Default:
 				//GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
 				break;
 			}
+
 		}
 
 		//Adding this trap to the Hovered Building Components Attachment Array, on Deletion or Destruction, Trap will also be deleted.
 		AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-		
-		//TODO::Why?
-		//Needed to Replace the existing TrapComponentProxy with the new TrapComponent Proxy
-		ResetBuildableComponents(ATrapBase::StaticClass());
 
 		Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
+		
+		if (Cast<ATimberPlayableCharacter>(GetOwner()))
+		{
+			if (Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager)
+			{
+				if (BuildableRef)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Buildable Ref Name: %s"), *BuildableRef->GetName());
+					
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Could not get Buildable Ref."));
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Could not get Inventory Manager."));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Couldn't Get Owner."));
+		}
+		
+		ResetBuildableComponents(ATrapBase::StaticClass());
 	}
 	else
 	{
-		//GEngine->AddOnScreenDebugMessage(8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
+		GEngine->AddOnScreenDebugMessage(8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
 	}
 
 }
@@ -712,7 +749,7 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 		
 		if (TeleportConstruct)
 		{
-			//TODO:: This may need to be moved to refund costs unless both pairs are placed and successfull
+			BuildableRef = Cast<ABuildableBase>(SpawnedActor);
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
 
 			//Handle Pairing - BSM
@@ -764,9 +801,24 @@ void UBuildSystemManagerComponent::SpawnTemporayTeleportConstruct(FActorSpawnPar
 	}
 }
 
-void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent)
+void UBuildSystemManagerComponent::SpawnFinalCenterSnapFloorOnlyBuildingComponent(FActorSpawnParameters SpawnParameters)
 {
-	BuildingComponent->SetActorEnableCollision(false);
+	//Spawn the Final Center Snap Floor Only Building Component
+	//PowerPlate
+
+	if (CenterSnapFloorOnlyBuildingComponentProxy)
+	{
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			CenterSnapFloorOnlyBuildingComponentProxy->GetActorLocation(),
+			CenterSnapFloorOnlyBuildingComponentProxy->GetActorRotation(),
+			SpawnParameters);
+
+		AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+		Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
+
+	}
 }
 
 void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
@@ -826,24 +878,9 @@ void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize L
 	}
 }
 
-void UBuildSystemManagerComponent::SpawnFinalCenterSnapFloorOnlyBuildingComponent(FActorSpawnParameters SpawnParameters)
+void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent)
 {
-	//Spawn the Final Center Snap Floor Only Building Component
-	//PowerPlate
-
-	if (CenterSnapFloorOnlyBuildingComponentProxy)
-	{
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			CenterSnapFloorOnlyBuildingComponentProxy->GetActorLocation(),
-			CenterSnapFloorOnlyBuildingComponentProxy->GetActorRotation(),
-			SpawnParameters);
-
-		AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-		Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
-
-	}
+	BuildingComponent->SetActorEnableCollision(false);
 }
 
 /*Placement*/
@@ -1288,6 +1325,7 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 	}
 
 	BuildableRef = nullptr;
+	
 	StaticMeshs.Empty();
 }
 

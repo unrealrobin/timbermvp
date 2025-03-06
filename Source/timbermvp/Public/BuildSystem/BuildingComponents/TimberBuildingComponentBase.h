@@ -95,15 +95,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* CenterSnap;
 
-	/* Trap Snap Locations & Slots */
+	/* Trap/Construct Snap Locations & Slots */
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* FrontTrapSnap;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* BackTrapSnap;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
-	ATrapBase* FrontTrap = nullptr;
+	ABuildableBase* FrontTrap = nullptr;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
-	ATrapBase* BackTrap = nullptr;
+	ABuildableBase* BackTrap = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
 	UBoxComponent* TopQuadrant;

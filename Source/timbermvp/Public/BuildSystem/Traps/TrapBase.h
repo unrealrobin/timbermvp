@@ -72,6 +72,8 @@ public:
 	/* ENUMS */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	ETrapType TrapType;
+
+	
 	EBuildingComponentTrapDirection BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 
 	/* Getters / Setters */

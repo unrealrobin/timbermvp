@@ -56,7 +56,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 
-	//A Reference to the Proxy that is spawned as a Buildable.
+	//A Reference to the Proxy as a buildable
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ABuildableBase* BuildableRef = nullptr;
 
@@ -128,7 +128,7 @@ public:
 	void SpawnFinalRampComponent(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalTrap(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
-	void SpawnTemporayTeleportConstruct(FActorSpawnParameters SpawnParameters);
+	void SpawnTemporaryTeleportConstruct(FActorSpawnParameters SpawnParameters);
 	UFUNCTION()
 	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);
 	void SpawnFinalCenterSnapFloorOnlyBuildingComponent(FActorSpawnParameters SpawnParameters);

@@ -19,6 +19,9 @@ class TIMBERMVP_API UWaveGameInstanceSubsystem : public UGameInstanceSubsystem
 
 public:
 
+	UPROPERTY(BlueprintReadOnly)
+	int CurrentWaveNumber = 1;
+
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCurrentWaveHandle, int, CurrentWaveNumber);
 	FCurrentWaveHandle CurrentWaveHandle;
@@ -78,8 +81,7 @@ public:
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UFUNCTION()
 	void EarlyStartWave();
-	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 6;
+	
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
 	UPROPERTY()

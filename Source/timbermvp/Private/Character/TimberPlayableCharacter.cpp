@@ -46,9 +46,12 @@ void ATimberPlayableCharacter::BeginPlay()
 	RaycastController = Cast<ATimberPlayerController>(GetController());
 
 	/*Delegate Binding*/
-	Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD())->bIsBuildMenuOpen.AddDynamic(
-		this,
-		&ATimberPlayableCharacter::HandleBuildMenuOpen);
+	if (Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD()))
+	{
+		Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD())->bIsBuildMenuOpen.AddDynamic(
+			this,
+			&ATimberPlayableCharacter::HandleBuildMenuOpen);
+	}
 
 
 	{

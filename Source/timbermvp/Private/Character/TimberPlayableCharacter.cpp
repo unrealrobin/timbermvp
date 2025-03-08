@@ -235,8 +235,8 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 		if(Cast<ABuildableBase>(Hits.GetActor()))
 		{
 			HoveredBuildingComponent = Cast<ABuildableBase>(Hits.GetActor());
-			UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component Actor: %s"), *HoveredBuildingComponent->GetName());
-			UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component: %s"), *Hits.GetComponent()->GetName());
+			/*UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component Actor: %s"), *HoveredBuildingComponent->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component: %s"), *Hits.GetComponent()->GetName());*/
 			FVector2d ScreenLocationOfImpactPoint;
 
 			/*Setting Impact Point at Location to show Delete Widget in Screen Space*/

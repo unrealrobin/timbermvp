@@ -69,11 +69,14 @@ public:
 	/*Attached Traps/Constructs*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attached Building Components")
 	TArray<ABuildableBase*> AttachedBuildingComponents;
+	
+	virtual void HandleDeletionOfBuildable() override;
 
 	UFUNCTION()
+	void DeleteAllAttachments();
+	
+	UFUNCTION()
 	void DestroyAllAttachments();
-
-	virtual void Destroyed() override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -100,6 +103,8 @@ public:
 	USceneComponent* FrontTrapSnap;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* BackTrapSnap;
+
+	//Tracks the Attached Traps Placed on the Walls/Floors
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
 	ABuildableBase* FrontTrap = nullptr;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")

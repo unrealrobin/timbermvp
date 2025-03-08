@@ -172,12 +172,10 @@ public:
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() { return ActiveBuildableComponentClass; } ;
 	UFUNCTION()
 	FORCEINLINE ATrapBase* GetActiveRampComponent() const { return ActiveTrapComponentProxy; };
-	UFUNCTION()
-	FORCEINLINE ATrapBase* GetActiveTrapComponent() const { return ActiveTrapComponentProxy; };
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass);
-	FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
 	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponentProxy() const { return ActiveBuildingComponentProxy; };
+	FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };
@@ -190,7 +188,7 @@ public:
 	/*Buildable Placement Functions*/
 	FTrapSnapData GetTrapSnapTransform(
 		FVector ImpactPoint, ATimberBuildingComponentBase*
-		BuildingComponent, ATrapBase* TrapComponent);
+		BuildingComponent, ATrapBase* TrapComponentProxy);
 	
 	/*Component Snapping */
 	UFUNCTION(BlueprintCallable, Category="Building")

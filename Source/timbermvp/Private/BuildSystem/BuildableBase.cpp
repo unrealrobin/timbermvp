@@ -27,8 +27,22 @@ void ABuildableBase::BeginPlay()
 
 void ABuildableBase::HandleDeletionOfBuildable()
 {
+
+	/*Case 1
+	 * BuildingComponent ->Wall or floor
+	 * Needs to Account for any traps or Constructs built on this Building Component
+	 * Needs to also "delete" those components and call SpawnLoot for each of them.
+	 */
+
+	/*Case 2
+	 * Trap or Construct
+	 * Needs to free up the slot on the Building Component they were attached to, to allow a new placement.
+	 * 
+	 */
+	
 	//Handles Loot and Destruction
 	SpawnLootInRange(BuildableCost.CostOfParts, BuildableCost.CostOfMechanisms, BuildableCost.CostOfUniques);
+	
 	Destroy();
 }
 
@@ -37,6 +51,7 @@ void ABuildableBase::SpawnLootInRange(int NumberOfParts, int NumberOfMechanisms,
 	FActorSpawnParameters SpawnParameters;
 	FVector ActorLocation = GetActorLocation();
 	ActorLocation.Z += 100.0f;
+	
 	for(int i = 0; i < NumberOfParts; i++)
 	{
 		FVector SpawnLocation;
@@ -46,6 +61,7 @@ void ABuildableBase::SpawnLootInRange(int NumberOfParts, int NumberOfMechanisms,
 		GetWorld()->SpawnActor<AEnemyLootDropBase>(PartsClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
 		
 	}
+	
 
 	for(int i = 0; i < NumberOfMechanisms; i++)
 	{

@@ -3,6 +3,7 @@
 
 #include "BuildSystem/Traps/TrapBase.h"
 
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
@@ -11,9 +12,6 @@
 ATrapBase::ATrapBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	BuildableType = EBuildableType::Trap;
-	TrapType = ETrapType::Default;
 
 	TrapBaseStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("TrapBaseStaticMesh");
 	RootComponent = TrapBaseStaticMesh;
@@ -41,6 +39,52 @@ void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
 void ATrapBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ATrapBase::FreeUpTrapSlotOnBuildingComponent()
+{
+	if (ParentBuildingComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Parent Building Component Name: %s"), *ParentBuildingComponent->GetName());
+		switch (BuildingComponentTrapDirection)
+		{
+		case EBuildingComponentTrapDirection::Back :
+			ParentBuildingComponent->BackTrap = nullptr;
+			UE_LOG(LogTemp, Warning, TEXT("Trap Base - Parent Building Component Back Trap Set to Nullptr."));
+			break;
+		case EBuildingComponentTrapDirection::Front :
+			ParentBuildingComponent->FrontTrap = nullptr;
+			UE_LOG(LogTemp, Warning, TEXT("Trap Base - Parent Building Component Front Trap Set to Nullptr."));
+			break;
+		case EBuildingComponentTrapDirection::Default:
+			UE_LOG(LogTemp, Warning, TEXT("Trap Base - Trap Direction not set on this Trap. Can not Free up Slot on Parent Building Component."))
+			break;
+		}
+
+		//We need to also remove the trap from the attachments array when deleting. Important.
+		if (ParentBuildingComponent->AttachedBuildingComponents.Contains(this))
+		{
+			ParentBuildingComponent->AttachedBuildingComponents.Remove(this);
+		}
+	}
+}
+
+void ATrapBase::HandleDeletionOfBuildable()
+{
+	//Free up the slot on the Parent Building Component
+	FreeUpTrapSlotOnBuildingComponent();
+	UE_LOG(LogTemp, Warning, TEXT("Freed Up Slot on Parent Building Component."));
+	
+	//Spawns Loot Value -> Destroy()
+	Super::HandleDeletionOfBuildable();
+	UE_LOG(LogTemp, Warning, TEXT("Spawned Loot and Destroyed the Actor."));
+}
+
+void ATrapBase::HandleDeletionByBuildingComponent()
+{
+	SpawnLootInRange(BuildableCost.CostOfParts, BuildableCost.CostOfMechanisms, BuildableCost.CostOfUniques);
+
+	Destroy();
 }
 
 void ATrapBase::SetCanTrapBeFinalized(bool bCanTrapBeFinalized)

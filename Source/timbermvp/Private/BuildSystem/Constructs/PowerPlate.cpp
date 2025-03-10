@@ -47,7 +47,7 @@ void APowerPlate::FreeUpTrapSlotOnBuildingComponent()
 
 void APowerPlate::HandleDeletionOfBuildable()
 {
-	
+	FreeUpTrapSlotOnBuildingComponent();
 	
 	Super::HandleDeletionOfBuildable();
 }

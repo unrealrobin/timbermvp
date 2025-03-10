@@ -3,6 +3,7 @@
 
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 
+#include "BuildSystem/Constructs/ConstructBase.h"
 #include "Character/Enemies/TimberEnemyMeleeBase.h"
 #include "Components/BoxComponent.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
@@ -54,6 +55,11 @@ void ATimberBuildingComponentBase::DeleteAllAttachments()
 			if (AttachedTrap)
 			{
 				AttachedTrap->HandleDeletionByBuildingComponent();
+			}
+			AConstructBase* AttachedConstruct = Cast<AConstructBase>(AttachedBuildable);
+			if (AttachedConstruct)
+			{
+				AttachedConstruct->HandleDeletionOfBuildable();
 			}
 		}
 

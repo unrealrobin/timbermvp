@@ -2,7 +2,7 @@
 
 
 #include "BuildSystem/Constructs/PowerPlate.h"
-
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BoxComponent.h"
 
@@ -31,6 +31,25 @@ void APowerPlate::BeginPlay()
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APowerPlate::HitBoxBeginOverlap);
 	CollisionBox->OnComponentEndOverlap.AddDynamic(this, &APowerPlate::HitBoxEndOverlap);
 	
+}
+
+void APowerPlate::FreeUpTrapSlotOnBuildingComponent()
+{
+	if (ParentBuildingComponent)
+	{
+		ParentBuildingComponent->FrontTrap = nullptr;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Could not find a stored Parent Building Component on PowerPlate. Trap Slot not freed."));
+	}
+}
+
+void APowerPlate::HandleDeletionOfBuildable()
+{
+	
+	
+	Super::HandleDeletionOfBuildable();
 }
 
 void APowerPlate::HandlePowerPlateMaterialChange(bool bShouldGlow)

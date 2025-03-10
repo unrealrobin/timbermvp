@@ -52,6 +52,7 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	
 	void FreeUpTrapSlotOnBuildingComponent();
 
 	//Used for Independent Deletion. When player deletes a specific Trap.

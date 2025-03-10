@@ -526,7 +526,6 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 		}
 		else
 		{
-			//TODO:: Play Can not Afford Sound.
 			PlayBuildDeniedSound();
 		}
 	}
@@ -556,8 +555,11 @@ void UBuildSystemManagerComponent::SpawnFinalRampComponent(FActorSpawnParameters
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
 			
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
-
 		}
+	}
+	else
+	{
+		PlayBuildDeniedSound();
 	}
 }
 
@@ -615,6 +617,7 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 	}
 	else
 	{
+		PlayBuildDeniedSound();
 		GEngine->AddOnScreenDebugMessage(8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
 	}
 
@@ -642,6 +645,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 	}
 	else if (!ActiveBuildingComponentProxy->bCanBuildableBeFinalized)
 	{
+		PlayBuildDeniedSound();
 		//GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Red, TEXT("Building Component Cannot Be Finalized. Overlapping other building Component."));
 	}
 }
@@ -764,9 +768,8 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapFloorOnlyBuildingComponen
 	}
 	else
 	{
+		PlayBuildDeniedSound();
 	    UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
-
-		//TODO:: Play Negative Placement Sound. 
 	}
 }
 
@@ -1005,14 +1008,28 @@ void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitRes
 	}
 
 	//HIT A BUILDING COMPONENT
-	if (FirstHitBuildingComponent)
+	if (FirstHitBuildingComponent && FirstHitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment && 
+		FirstHitBuildingComponent->BuildableType != EBuildableType::Environment )
 	{
-		//Traps should not be added to Environment Building Components. Option to change this in the future.
+		/*//Traps should not be added to Environment Building Components. Option to change this in the future.
 		if (FirstHitBuildingComponent->BuildingComponentType == EBuildingComponentType::Environment || 
 		FirstHitBuildingComponent->BuildableType == EBuildableType::Environment )
 		{
+			if (ActiveTrapComponentProxy)
+			{
+				ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
+				ActiveTrapComponentProxy->TrapHoveredBuildingComponent = nullptr;
+				if (HitResults[0].ImpactPoint != FVector::ZeroVector)
+				{
+					FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
+					PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
+					MoveBuildingComponent(
+						HitResults[0].ImpactPoint, ActiveTrapComponentProxy,
+						PlayerRotation);
+				}
+			}
 			return;
-		}
+		}*/
 		
 		// Pairing the trap with the wall its Hovering over.
 		if (ActiveTrapComponentProxy)

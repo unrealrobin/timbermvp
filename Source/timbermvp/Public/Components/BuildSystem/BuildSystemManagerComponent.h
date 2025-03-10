@@ -118,6 +118,7 @@ protected:
 
 	/*SFX*/
 	void PlayBuildablePlacementSound();
+	void PlayBuildDeniedSound();
 
 public:
 	/* Spawning */

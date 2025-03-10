@@ -561,22 +561,26 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 	
 	//TODO:: Add Progress like system where Pressing the E button will Delete if Held for 1 Full second. Show Progress Swirl.
 
-	if (TimberCharacter->HoveredBuildingComponent->BuildableType == EBuildableType::Environment)
+	if (TimberCharacter && TimberCharacter->HoveredBuildingComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
-		return;
-	}
-	
-	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
-	{
-		//When the Buildable is Deleted by the Player, it will drop the cost of the buildable.
-		UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
+		if (TimberCharacter->HoveredBuildingComponent->BuildableType == EBuildableType::Environment)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
+			return;
+		}
 		
-		TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
+		if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
+		{
+			//When the Buildable is Deleted by the Player, it will drop the cost of the buildable.
+			UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
+			
+			TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
 
-		//Reset the value of HoveredBuildingComponent after deletion.
-		TimberCharacter->HoveredBuildingComponent = nullptr;
+			//Reset the value of HoveredBuildingComponent after deletion.
+			TimberCharacter->HoveredBuildingComponent = nullptr;
+		}
 	}
+
 }
 
 void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)

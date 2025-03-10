@@ -524,6 +524,11 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				}
 			}
 		}
+		else
+		{
+			//TODO:: Play Can not Afford Sound.
+			PlayBuildDeniedSound();
+		}
 	}
 	else
 	{
@@ -1428,5 +1433,14 @@ void UBuildSystemManagerComponent::PlayBuildablePlacementSound()
 	if (SFXManager)
 	{
 		SFXManager->OnBuildablePlacement.Broadcast();
+	}
+}
+
+void UBuildSystemManagerComponent::PlayBuildDeniedSound()
+{
+	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->PlaySound("BuildDenied_1");
 	}
 }

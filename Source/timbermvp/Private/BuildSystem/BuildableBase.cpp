@@ -4,6 +4,7 @@
 #include "BuildSystem/BuildableBase.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "Subsystems/SFX/SFXManagerSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 
 
@@ -42,6 +43,12 @@ void ABuildableBase::HandleDeletionOfBuildable()
 	
 	//Handles Loot and Destruction
 	SpawnLootInRange(BuildableCost.CostOfParts, BuildableCost.CostOfMechanisms, BuildableCost.CostOfUniques);
+
+	USFXManagerSubsystem* SFXManager = GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->PlaySound("BuildDestroyedRandom");
+	}
 	
 	Destroy();
 }

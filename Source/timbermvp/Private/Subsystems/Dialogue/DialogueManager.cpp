@@ -44,7 +44,6 @@ void UDialogueManager::BindToGameState()
 	}
 }
 
-
 void UDialogueManager::LoadNarrativeDialogueSoundMix()
 {
 	const FString SoundMixAssetPath = TEXT("/Game/Sounds/02_SoundMix/SCM_DieRobot_NarrativeDialogueMix");
@@ -53,13 +52,14 @@ void UDialogueManager::LoadNarrativeDialogueSoundMix()
 
 	if (NarrativeDialogueSoundMix)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Sound Mix."));
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Sound Mix."));
 	}
 }
 
 void UDialogueManager::RemoveNarrativeSoundMix()
 {
 	UGameplayStatics::PopSoundMixModifier(this, NarrativeDialogueSoundMix);
+	UE_LOG(LogTemp, Warning, TEXT("Removed Narrative Dialogue Sound Mix."));
 }
 
 UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
@@ -86,11 +86,10 @@ UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
 void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 {
 	/*
-		 * Adding the Mix before the Audio Dialogue is played.
-		 * Theoretically should decrease the volume of the Music and SFX and Increase the volume of the Dialogue.
-		 */
+	 * Adding the Mix before the Audio Dialogue is played.
+	 * Theoretically should decrease the volume of the Music and SFX and Increase the volume of the Dialogue.
+	 */
 	UGameplayStatics::PushSoundMixModifier(this, NarrativeDialogueSoundMix);
-
 	
 	UMetaSoundSource* VoiceoverSound = GetDialogueVoiceover(VoiceoverName);
 	
@@ -98,8 +97,9 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 	{
 		DialoguePlayer = NewObject<UAudioComponent>(this);
 		DialoguePlayer->RegisterComponentWithWorld(GetWorld());
-		//Only want to add this binding once. And because its used for all Dialogue it doesnt need to be removed.
+		
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::RemoveNarrativeSoundMix);
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - PlayVoiceover - Added Binding to Audio Component to Remove Sound Mix on end Voiceover."));
 	}
 
 	if (DialoguePlayer && VoiceoverSound)
@@ -107,7 +107,7 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 		DialoguePlayer->Stop();
 		DialoguePlayer->SetSound(VoiceoverSound);
 		DialoguePlayer->Play();
-
+		
 		/*
 		 * Removing the Mix after the Audio Dialogue is finished playing.
 		 * Theoretically should then Increase the Music and SFX Volume back to standard.

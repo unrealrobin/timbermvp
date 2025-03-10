@@ -138,13 +138,13 @@ public:
 	EWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
 	void SetCurrentWeaponState(EWeaponState NewWeaponState);
 	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
-	bool HandleShowDeleteWidget();
 	void HandleRaycastHitConditions(bool bHits);
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
 
+	bool HandleShowDeleteWidget();
 	UFUNCTION()
 	void ResetDeleteIcon();
 	

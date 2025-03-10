@@ -45,16 +45,20 @@ void APlusTrapBase::RaycastForHitBoxLength()
 	{
 		for (FHitResult Hit : HitResults)
 		{
-			// If Hit is a Buildable && It's not Itself 
-			 if (Cast<ABuildableBase>(Hit.GetActor()) && Cast<ATimberBuildingComponentBase>(Hit.GetActor()) != HoveredBuildingComponent && Hit.GetActor() != this) 
+			/*
+			 * 1. Raycast Until we hit a BuildableBase
+			 * 2. Ensuring Hit Actor is NOT the TrapHoveredBuildingComponent (this is this First Hit Buildable in the Player Raycast Hit Results)
+			 * 3. Ignore Self
+			 */
+			 if (Cast<ABuildableBase>(Hit.GetActor()) && Cast<ATimberBuildingComponentBase>(Hit.GetActor()) != TrapHoveredBuildingComponent && Hit.GetActor() != this) 
 			 {
 			 	//UE_LOG(LogTemp, Warning, TEXT("Hit a Building Component"));
 				HitLocation = Hit.ImpactPoint;
 			 	//Debug the Hit Point
-			 	/*DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
+			 	DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
 			 	DrawDebugSphere(GetWorld(), EndPoint, 10.f, 12, FColor::Red, false, -1.f);
 			 	DrawDebugSphere(GetWorld(), StartPoint, 10.f, 12, FColor::Green, false, -1.f);
-			 	DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);*/
+			 	DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);
 			 	break;
 			 }
 		}

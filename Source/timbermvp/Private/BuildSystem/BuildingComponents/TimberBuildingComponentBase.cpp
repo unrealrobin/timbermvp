@@ -3,6 +3,7 @@
 
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 
+#include "BuildSystem/Constructs/ConstructBase.h"
 #include "Character/Enemies/TimberEnemyMeleeBase.h"
 #include "Components/BoxComponent.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
@@ -35,22 +36,53 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	CreateQuadrantComponents();
 }
 
-void ATimberBuildingComponentBase::DestroyAllAttachments()
+void ATimberBuildingComponentBase::HandleDeletionOfBuildable()
 {
-	for (ABuildableBase* AttachedBuildingComponent : AttachedBuildingComponents)
+	
+	DeleteAllAttachments();
+	
+	Super::HandleDeletionOfBuildable();
+}
+
+void ATimberBuildingComponentBase::DeleteAllAttachments()
+{
+	if (AttachedBuildingComponents.Num() > 0)
 	{
-		if (AttachedBuildingComponent)
+		for (ABuildableBase* AttachedBuildable : AttachedBuildingComponents)
 		{
-			AttachedBuildingComponent->Destroy();
+			//Handle Trap, Handle Construct or other Seperately.
+			ATrapBase* AttachedTrap = Cast<ATrapBase>(AttachedBuildable);
+			if (AttachedTrap)
+			{
+				AttachedTrap->HandleDeletionByBuildingComponent();
+			}
+			AConstructBase* AttachedConstruct = Cast<AConstructBase>(AttachedBuildable);
+			if (AttachedConstruct)
+			{
+				AttachedConstruct->HandleDeletionOfBuildable();
+			}
 		}
+
+
+
+		
+		//Empty the Array
+		AttachedBuildingComponents.Empty();
 	}
 }
 
-void ATimberBuildingComponentBase::Destroyed()
+void ATimberBuildingComponentBase::DestroyAllAttachments()
 {
-	Super::Destroyed();
-
-	DestroyAllAttachments();
+	if (AttachedBuildingComponents.Num() > 0)
+	{
+		for (ABuildableBase* AttachedBuildingComponent : AttachedBuildingComponents)
+		{
+			if (AttachedBuildingComponent)
+			{
+				AttachedBuildingComponent->Destroy();
+			}
+		}
+	}
 }
 
 // Called when the game starts or when spawned
@@ -104,6 +136,7 @@ void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDam
 
 	if (ComponentDurability <= 0)
 	{
+		DestroyAllAttachments();
 		Destroy();
 	}
 }

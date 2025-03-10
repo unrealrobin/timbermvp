@@ -18,7 +18,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* FrostTrapVentMesh;
 
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

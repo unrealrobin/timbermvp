@@ -409,71 +409,6 @@ FRotator UBuildSystemManagerComponent::SnapToRotation(FRotator CharactersRotatio
 	return SavedRotation;
 }
 
-// Returns the closest snap location based on the impact point of the raycast for the building component.
-FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
-	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponent)
-{
-	// Default Snap Data is facing the player at the impact point
-	FTrapSnapData TrapSnapData;
-	TrapSnapData.TrapLocation = ImpactPoint;
-	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
-	TrapSnapData.TrapRotation.Yaw += 90;
-
-	if (BuildingComponent->FrontTrapSnap && BuildingComponent->BackTrapSnap)
-	{
-		/* Getting Distance from impact point to the closest scene component
-		 * that would always give the side of the wall/floor/ceiling's Snap location
-		 */
-
-		FVector FrontTrapSnapLocation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetLocation();
-		FVector BackTrapSnapLocation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetLocation();
-		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
-		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
-
-		if (LengthToFrontTrapSnap < LengthToBackTrapSnap)
-		{
-			//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
-			if (BuildingComponent->FrontTrap == nullptr)
-			{
-				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetRotation().
-				                                               Rotator();
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
-				TrapComponent->SetCanTrapBeFinalized(true);
-			}
-			else
-			{
-				TrapComponent->SetCanTrapBeFinalized(false);
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
-			}
-		}
-		else
-		{
-			if (BuildingComponent->BackTrap == nullptr)
-			{
-				TrapSnapData.TrapLocation = BackTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetRotation().
-				                                               Rotator();
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
-				TrapComponent->SetCanTrapBeFinalized(true);
-			}
-			else
-			{
-				TrapComponent->SetCanTrapBeFinalized(false);
-				TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap Taken.");
-			}
-		}
-	}
-	else
-	{
-		TrapComponent->SetCanTrapBeFinalized(false);
-		TrapComponent->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-	}
-	return TrapSnapData;
-}
-
 /* Material Shading */
 void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinalized)
 {
@@ -589,6 +524,10 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				}
 			}
 		}
+		else
+		{
+			PlayBuildDeniedSound();
+		}
 	}
 	else
 	{
@@ -616,8 +555,11 @@ void UBuildSystemManagerComponent::SpawnFinalRampComponent(FActorSpawnParameters
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
 			
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
-
 		}
+	}
+	else
+	{
+		PlayBuildDeniedSound();
 	}
 }
 
@@ -633,47 +575,49 @@ void UBuildSystemManagerComponent::SpawnFinalTrap(FActorSpawnParameters SpawnPar
 			ActiveTrapComponentProxy->GetActorLocation(),
 			ActiveTrapComponentProxy->GetActorRotation(),
 			SpawnParameters);
-		
-		
-		if (SpawnedActor)
+
+		ATrapBase* FinalizedTrap = Cast<ATrapBase>(SpawnedActor);
+		if (FinalizedTrap &&  ActiveTrapComponentProxy->TrapHoveredBuildingComponent)
 		{
-			BuildableRef = Cast<ABuildableBase>(SpawnedActor);
-			UE_LOG(LogTemp, Warning, TEXT("Buildable Ref Name: %s"), *BuildableRef->GetName());	
-		}
-		else
-		{
-			return;
-		}
-		
-		if (SpawnedActor && ActiveTrapComponentProxy->HoveredBuildingComponent)
-		{
-			EBuildingComponentTrapDirection TrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
+			//Passing the Trap Direction from the Proxy to the Final Trap.
+			FinalizedTrap->BuildingComponentTrapDirection = ActiveTrapComponentProxy->BuildingComponentTrapDirection;
+			
+			//Setting Parent-BC-Ref on Trap.
+			FinalizedTrap->ParentBuildingComponent = ActiveTrapComponentProxy->TrapHoveredBuildingComponent;
+
+			//Resetting the Trap Direction back to default for further usage of the trap component.
+			ActiveTrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+
+			BuildableRef = Cast<ABuildableBase>(FinalizedTrap);
+			
+			//Uses the solved Trap Direction to know which snap points to occupy on the Building Component (Wall/Floor)
+			EBuildingComponentTrapDirection TrapDirection = FinalizedTrap->BuildingComponentTrapDirection;
 			switch (TrapDirection)
 			{
 			case EBuildingComponentTrapDirection::Front:
-				ActiveTrapComponentProxy->HoveredBuildingComponent->FrontTrap = Cast<ATrapBase>(SpawnedActor);
+				ActiveTrapComponentProxy->TrapHoveredBuildingComponent->FrontTrap = FinalizedTrap;
 				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Front Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Back:
-				ActiveTrapComponentProxy->HoveredBuildingComponent->BackTrap = Cast<ATrapBase>(SpawnedActor);
+				ActiveTrapComponentProxy->TrapHoveredBuildingComponent->BackTrap = FinalizedTrap;
 				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Back Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Default:
-				//GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
+				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
 				break;
 			}
-
 		}
-
-		//Adding this trap to the Hovered Building Components Attachment Array, on Deletion or Destruction, Trap will also be deleted.
-		AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-        //Handle Inventory Transaction
+		//Uses hovered building component from player as the Parent Building Component to attach to.
+		AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedTrap));
+		
+        //Handle Inventory Transaction if Spawn is Successfull. We check if player can afford in the SpawnFinalBuildable()
 		Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
 		
 		ResetBuildableComponents(ATrapBase::StaticClass());
 	}
 	else
 	{
+		PlayBuildDeniedSound();
 		GEngine->AddOnScreenDebugMessage(8, 5.0f, FColor::Red, "Trap Cannot Be Finalized. BuildSystemManager-SpawnFinalBuildingComponent");
 	}
 
@@ -701,6 +645,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 	}
 	else if (!ActiveBuildingComponentProxy->bCanBuildableBeFinalized)
 	{
+		PlayBuildDeniedSound();
 		//GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Red, TEXT("Building Component Cannot Be Finalized. Overlapping other building Component."));
 	}
 }
@@ -802,25 +747,28 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapFloorOnlyBuildingComponen
 			ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
 			if (PlayerCharacter && PlayerCharacter->HoveredBuildingComponent)
 			{
-				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>
-				(PlayerCharacter->HoveredBuildingComponent))
+				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
 				{
 					BuildingComponent->FrontTrap = Cast<ABuildableBase>(SpawnedActor);
 					UE_LOG(LogTemp, Warning, TEXT("Construct set on FrontTrapSnap Slot."))
+					APowerPlate* PowerPlate = Cast<APowerPlate>(SpawnedActor);
+
+					//Setting the parent floor component on this actor, so we can free up slot during deletion.
+					if (PowerPlate && Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
+					{
+						PowerPlate->ParentBuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent);
+					}
 				}
 			}
-			
 			//Sets up BC to be destroyed when the Snapped to Buildable is destroyed.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableRef->BuildableCost);
-			
 		}
-
-		
-
 	}
 	else
 	{
+		PlayBuildDeniedSound();
 	    UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
 	}
 }
@@ -1060,20 +1008,37 @@ void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitRes
 	}
 
 	//HIT A BUILDING COMPONENT
-	if (FirstHitBuildingComponent)
+	if (FirstHitBuildingComponent && FirstHitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment && 
+		FirstHitBuildingComponent->BuildableType != EBuildableType::Environment )
 	{
+		/*//Traps should not be added to Environment Building Components. Option to change this in the future.
 		if (FirstHitBuildingComponent->BuildingComponentType == EBuildingComponentType::Environment || 
 		FirstHitBuildingComponent->BuildableType == EBuildableType::Environment )
 		{
-			//Traps should not be added to Environment Building Components. Option to change this in the future.
+			if (ActiveTrapComponentProxy)
+			{
+				ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
+				ActiveTrapComponentProxy->TrapHoveredBuildingComponent = nullptr;
+				if (HitResults[0].ImpactPoint != FVector::ZeroVector)
+				{
+					FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
+					PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
+					MoveBuildingComponent(
+						HitResults[0].ImpactPoint, ActiveTrapComponentProxy,
+						PlayerRotation);
+				}
+			}
 			return;
-		}
+		}*/
+		
 		// Pairing the trap with the wall its Hovering over.
 		if (ActiveTrapComponentProxy)
 		{
-			ActiveTrapComponentProxy->HoveredBuildingComponent = FirstHitBuildingComponent;
+		
+			ActiveTrapComponentProxy->TrapHoveredBuildingComponent = FirstHitBuildingComponent;
 
-			FTrapSnapData TrapSnapData = GetTrapSnapTransform(BuildingComponentImpactPoint,FirstHitBuildingComponent, GetActiveTrapComponent());
+			FTrapSnapData TrapSnapData = GetTrapSnapTransform(BuildingComponentImpactPoint, 
+			FirstHitBuildingComponent, ActiveTrapComponentProxy);
 			MoveBuildingComponent
 			(
 				FVector_NetQuantize(TrapSnapData.TrapLocation),
@@ -1086,7 +1051,7 @@ void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitRes
 		if (ActiveTrapComponentProxy)
 		{
 			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
-			ActiveTrapComponentProxy->HoveredBuildingComponent = nullptr;
+			ActiveTrapComponentProxy->TrapHoveredBuildingComponent = nullptr;
 			if (HitResults[0].ImpactPoint != FVector::ZeroVector)
 			{
 				FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
@@ -1097,6 +1062,71 @@ void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitRes
 			}
 		}
 	}
+}
+
+// Returns the closest snap location based on the impact point of the raycast for the building component.
+FTrapSnapData UBuildSystemManagerComponent::GetTrapSnapTransform(
+	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponentProxy)
+{
+	// Default Snap Data is facing the player at the impact point
+	FTrapSnapData TrapSnapData;
+	TrapSnapData.TrapLocation = ImpactPoint;
+	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
+	TrapSnapData.TrapRotation.Yaw += 90;
+
+	if (BuildingComponent->FrontTrapSnap && BuildingComponent->BackTrapSnap)
+	{
+		/* Getting Distance from impact point to the closest scene component
+		 * that would always give the side of the wall/floor/ceiling's Snap location
+		 */
+
+		FVector FrontTrapSnapLocation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetLocation();
+		FVector BackTrapSnapLocation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetLocation();
+		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
+		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
+
+		if (LengthToFrontTrapSnap < LengthToBackTrapSnap)
+		{
+			//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
+			if (BuildingComponent->FrontTrap == nullptr)
+			{
+				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->FrontTrapSnap->GetComponentTransform().GetRotation().
+				                                               Rotator();
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
+				TrapComponentProxy->SetCanTrapBeFinalized(true);
+			}
+			else
+			{
+				TrapComponentProxy->SetCanTrapBeFinalized(false);
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+				//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
+			}
+		}
+		else
+		{
+			if (BuildingComponent->BackTrap == nullptr)
+			{
+				TrapSnapData.TrapLocation = BackTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->BackTrapSnap->GetComponentTransform().GetRotation().
+				                                               Rotator();
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
+				TrapComponentProxy->SetCanTrapBeFinalized(true);
+			}
+			else
+			{
+				TrapComponentProxy->SetCanTrapBeFinalized(false);
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+				//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "BackSnap Taken.");
+			}
+		}
+	}
+	else
+	{
+		TrapComponentProxy->SetCanTrapBeFinalized(false);
+		TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+	}
+	return TrapSnapData;
 }
 
 void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(TArray<FHitResult> HitResults)
@@ -1420,5 +1450,14 @@ void UBuildSystemManagerComponent::PlayBuildablePlacementSound()
 	if (SFXManager)
 	{
 		SFXManager->OnBuildablePlacement.Broadcast();
+	}
+}
+
+void UBuildSystemManagerComponent::PlayBuildDeniedSound()
+{
+	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
+	if (SFXManager)
+	{
+		SFXManager->PlaySound("BuildDenied_1");
 	}
 }

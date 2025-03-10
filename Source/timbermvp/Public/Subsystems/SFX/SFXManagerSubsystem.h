@@ -36,7 +36,9 @@ public:
 	void BindToSFXDelegates();
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
-
+	//Creates the Audio Component and Plays the Sound - Called in each function
+	void PlaySound(FName TrackName);
+	
 protected:
 	//Holds all the SFX We need
 	UPROPERTY()
@@ -48,8 +50,6 @@ protected:
 	//this - Will get a track based on the delegate broadcast - events don't declare which sound to play, this subsystem does.
 	UMetaSoundSource* GetTrackName(FName TrackName);
 
-	//Creates the Audio Component and Plays the Sound - Called in each function
-	void PlaySound(FName TrackName);
 
 	UFUNCTION()
 	void HandleAudioComponentCleanUp(UAudioComponent* AudioComponent, FName TrackName);

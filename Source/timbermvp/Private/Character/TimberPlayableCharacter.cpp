@@ -173,6 +173,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 				CollisionParams);
 
 			HandleShowDeleteWidget();
+			
 			HandleRaycastHitConditions(bHits);
 		}
 	}
@@ -234,7 +235,8 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 		if(Cast<ABuildableBase>(Hits.GetActor()))
 		{
 			HoveredBuildingComponent = Cast<ABuildableBase>(Hits.GetActor());
-			//UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component: %s"), *HoveredBuildingComponent->GetName());
+			/*UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component Actor: %s"), *HoveredBuildingComponent->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("TimberPlayableCharacter.cpp - Hovered Building Component: %s"), *Hits.GetComponent()->GetName());*/
 			FVector2d ScreenLocationOfImpactPoint;
 
 			/*Setting Impact Point at Location to show Delete Widget in Screen Space*/
@@ -249,6 +251,8 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 		}
 		break;
 	}
+
+	//TODO:: Change this to check that if there are no Hits, to Reset the Delete Icon.
 	if(HoveredBuildingComponent == nullptr)
 	{
 		ResetDeleteIcon();

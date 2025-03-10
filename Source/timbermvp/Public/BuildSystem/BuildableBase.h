@@ -64,7 +64,7 @@ protected:
 	
 	void SpawnLootInRange(int NumberOfParts = 0, int NumberOfMechanisms = 0, int NumberOfUniques = 0);
 
-	/*Potential Loot on Destruction / Gaurunteed on Deletion */
+	/*Potential Loot on Destruction / Guaranteed on Deletion */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
 	TSubclassOf<AEnemyLootDropBase> PartsClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
@@ -73,7 +73,10 @@ protected:
 	TSubclassOf<AEnemyLootDropBase> UniquesClass;
 
 public:
-	void HandleDeletionOfBuildable();
+	
+	UFUNCTION()
+	virtual void HandleDeletionOfBuildable();
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 };

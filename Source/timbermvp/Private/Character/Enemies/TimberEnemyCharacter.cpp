@@ -43,7 +43,7 @@ void ATimberEnemyCharacter::BeginPlay()
 
 	//Enemies can walk up slopes of 56 degrees.
 	GetCharacterMovement()->SetWalkableFloorAngle(56.0f);
-	GetCharacterMovement()->MaxWalkSpeed = 200.f;
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 }
 
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)

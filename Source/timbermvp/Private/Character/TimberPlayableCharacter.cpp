@@ -310,6 +310,7 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 	}
 	else
 	{
+		AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f );
 		//UE_LOG(LogTemp, Warning, TEXT("Player Hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 }

@@ -101,6 +101,7 @@ public:
 
 	
 	/*Animation Properties*/
+	//TODO:: Tentatively not needed. Was used in Anim BP
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
 	bool IsNowJumping = false;
 

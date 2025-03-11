@@ -69,6 +69,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* StandardAttackMontage;
 
+	/*
+	 * Sections:
+	 * @param:Front
+	 * @param:Back
+	 * @param:Left
+	 * @param:Right
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* HitReactMontage;
+
 	//Called from Animation Montage when montage ends.
 	UFUNCTION(BlueprintCallable)
 	void HandleEnemyDeath();

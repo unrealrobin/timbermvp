@@ -53,6 +53,9 @@ void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 
 void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 {
+	//TODO::PlayHitReact Montage
+	PlayAnimMontage(HitReactMontage, 1, FName("Back"));
+	
 	//Glows the Enemy Character briefly when hit.
 	AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f);
 	

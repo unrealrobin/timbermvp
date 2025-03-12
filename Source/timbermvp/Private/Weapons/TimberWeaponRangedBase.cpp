@@ -89,6 +89,16 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 					//Removing Ammo from Available Ammo
 					CurrentAmmo--;
 
+					if (CurrentAmmo == 0)
+					{
+						ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(Cast<ATimberPlayableCharacter>(GetOwner())->GetController());
+						if (PlayerController)
+						{
+							//Automatic Reload at 0 Ammo.
+							PlayerController->ReloadWeapon(true);
+						}
+					}
+
 					//Playing firing sounds
 					UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, ProjectileSpawnLocation);
 					

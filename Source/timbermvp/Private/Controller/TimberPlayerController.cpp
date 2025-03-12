@@ -602,19 +602,24 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 	if (TimberCharacter->GetCurrentWeaponState() ==  EWeaponState::RangedEquipped
 		&& TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
-		if (TimberCharacter->WeaponThreeInstance && TimberCharacter->WeaponThreeInstance->CurrentAmmo == 
-		TimberCharacter->WeaponThreeInstance->MaxAmmo)
+		UTimberAnimInstance* AnimInstance = Cast<UTimberAnimInstance>(TimberCharacter->GetMesh()->GetAnimInstance());
+
+		//If not already reloading
+		if (AnimInstance && AnimInstance->bIsReloading == false)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
-			return;
+			//If not at MaxAmmo
+			if (TimberCharacter->WeaponThreeInstance && TimberCharacter->WeaponThreeInstance->CurrentAmmo == 
+			TimberCharacter->WeaponThreeInstance->MaxAmmo)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
+				return;
+			}
+			
+			AnimInstance->bIsReloading = true;
+			TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
 		}
 		
-		TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
-		UTimberAnimInstance* AnimInstance = Cast<UTimberAnimInstance>(TimberCharacter->GetMesh()->GetAnimInstance());
-		if (AnimInstance)
-		{
-			AnimInstance->bIsReloading = true;
-		}
+		
 	}
 	
 }

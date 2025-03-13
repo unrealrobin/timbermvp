@@ -28,6 +28,13 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	RaycastStartPoint->SetupAttachment(RootComponent);
 
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
+
+	if (GetCapsuleComponent())
+	{
+		//Should Ignore the invisible wall in the lab doors.
+		GetCapsuleComponent()->SetCollisionResponseToChannel(UCollisionProfile::Get()->ConvertToCollisionChannel
+		(false, *"InvisWall"), ECR_Ignore);
+	}
 }
 
 void ATimberEnemyCharacter::BeginPlay()

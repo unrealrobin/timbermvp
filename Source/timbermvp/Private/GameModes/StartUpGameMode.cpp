@@ -6,16 +6,17 @@
 #include "Data/MusicLibraryDataAsset.h"
 #include "Kismet/GameplayStatics.h"
 #include "States/DieRobotGameStateBase.h"
+#include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 
 void AStartUpGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-	if (DieRobotGameState)
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	if (DieRobotGameConfig)
 	{
-		DieRobotGameState->CurrentGameState = EGameState::MainMenu;
+		DieRobotGameConfig->GameConfig = EDieRobotGameConfigType::MainMenu;
 	}
 
 	if (!StartUpMenu )
@@ -42,12 +43,13 @@ void AStartUpGameMode::BeginPlay()
 	
 }
 
-void AStartUpGameMode::SetGameState(EGameState InGameState)
+void AStartUpGameMode::SetGameConfig(EDieRobotGameConfigType InGameState)
 {
-	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-	if (DieRobotGameState)
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	
+	if (DieRobotGameConfig)
 	{
-		DieRobotGameState->CurrentGameState = InGameState;
+		DieRobotGameConfig->GameConfig = InGameState;
 	}
 }
 
@@ -59,8 +61,8 @@ void AStartUpGameMode::SwitchToGameLevel()
 		StartUpMenu = nullptr;
 
 		//Runs Tutorial Etc. Standard GamePlay
-		SetGameState(EGameState::Standard);
-		UE_LOG(LogTemp, Warning, TEXT("Startup Game Mode - Setting Game State."))
+		SetGameConfig(EDieRobotGameConfigType::Standard);
+
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}
 }
@@ -72,15 +74,7 @@ void AStartUpGameMode::SwitchToMidgameDemo()
 		StartUpMenu->RemoveFromParent();
 		StartUpMenu = nullptr;
 
-		UE_LOG(LogTemp, Warning, TEXT("Startup Game Mode - Setting Game State."))
-		SetGameState(EGameState::MidGameDemo);
-
-		//Used for HUD Initialization - Lets HUD now to show all the widgets and not play them gradually like in the Tutorial.
-		ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-		if (DieRobotGameStateBase)
-		{
-			DieRobotGameStateBase->TutorialState = ETutorialState::TutorialComplete;
-		}
+		SetGameConfig(EDieRobotGameConfigType::MidGameDemo);
 		
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}

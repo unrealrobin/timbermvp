@@ -11,6 +11,7 @@
 
 class ALocationMarkerBase;
 enum class ETutorialState : uint8;
+enum class EDieRobotGameConfigType : uint8;
 class ATimberSeeda;
 class UWaveGameInstanceSubsystem;
 class ATimberPlayableCharacter;

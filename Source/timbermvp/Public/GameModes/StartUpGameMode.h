@@ -26,7 +26,7 @@ protected:
 	UUserWidget* StartUpMenu;
 
 	UFUNCTION()
-	void SetGameState(EGameState InGameState);
+	void SetGameConfig(EDieRobotGameConfigType InGameState);
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameLevel();

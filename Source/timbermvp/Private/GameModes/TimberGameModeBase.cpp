@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
+#include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
@@ -99,11 +100,13 @@ void ATimberGameModeBase::GatherSeedaData()
 void ATimberGameModeBase::InitializeGameState()
 {
 	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-	if (DieRobotGameState)
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	
+	if (DieRobotGameState && DieRobotGameConfig)
 	{
-		if (DieRobotGameState->CurrentGameState == EGameState::Standard)
+		if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::Standard)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Game State."))
+			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Standard Game State."))
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateTutorialState);
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleTutorialStateChange);
 			
@@ -115,15 +118,17 @@ void ATimberGameModeBase::InitializeGameState()
 				DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake1);
 			}
 		}
-		else if (DieRobotGameState->CurrentGameState == EGameState::MidGameDemo)
+		else if (DieRobotGameConfig && DieRobotGameState && DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
 		{
-			//TODO:: What are things that need to be set up for Loading the Game at Wave 9
+			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Mid Game Demo Game State."))
 
+			//Set to Tutorial Complete / Ensures HUD Knows to Display all Widgets
+			DieRobotGameState->ChangeTutorialGameState(ETutorialState::TutorialComplete);
+			
 			//Setting Wave Number for GDC Mid Game Demo
 			GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(9);
 			
-			//Ensure HUD displays everything we need correctly.
-			// Initial Wave Broadcast - FOR UI Wave System Widget I think
+			// Ensures the Wave Widget is displaying Properly the set wave.
 			CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 			
 			//Load all Game Assets
@@ -148,6 +153,7 @@ void ATimberGameModeBase::GetTutorialState()
 
 void ATimberGameModeBase::UpdateTutorialState(ETutorialState NewState)
 {
+	//Updates Locally on the Game Mode
 	TutorialState = NewState;
 }
 

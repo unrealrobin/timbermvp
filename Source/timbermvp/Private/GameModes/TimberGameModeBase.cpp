@@ -116,9 +116,10 @@ void ATimberGameModeBase::InitializeGameState()
 			if (TutorialState == ETutorialState::Wake1)
 			{
 				DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake1);
+				SpawnDummyForTutorial();
 			}
 		}
-		else if (DieRobotGameConfig && DieRobotGameState && DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
+		else if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Mid Game Demo Game State."))
 
@@ -155,6 +156,27 @@ void ATimberGameModeBase::UpdateTutorialState(ETutorialState NewState)
 {
 	//Updates Locally on the Game Mode
 	TutorialState = NewState;
+}
+
+void ATimberGameModeBase::SpawnDummyForTutorial()
+{
+	FString DummyAssetLocationString = "/Game/Blueprints/Character/TutorialDummy/BP_TutorialDummy.BP_TutorialDummy_C";
+
+	// Load Blueprint asset
+	UClass* DummyBPClass = LoadObject<UClass>(nullptr, *DummyAssetLocationString);
+    
+	const FVector SpawnLocation = FVector(-2493.0f, 504.0f, 230.0f);
+	const FRotator SpawnRotation = FRotator(180.f, 0.f, -180.f);
+    
+	if (DummyBPClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		ATimberEnemyCharacter* DummyActor = GetWorld()->SpawnActor<ATimberEnemyCharacter>(DummyBPClass, SpawnLocation, SpawnRotation, SpawnParams);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load Dummy Blueprint Class."));
+	}
 }
 
 void ATimberGameModeBase::HandleTutorialStateChange(ETutorialState NewState)

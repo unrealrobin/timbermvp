@@ -57,7 +57,7 @@ public:
 	
 	void GatherSeedaData();
 
-	/* Game State */
+	/* Game State / Tutorial */
 	void InitializeGameState();
 
 	UFUNCTION()
@@ -70,6 +70,9 @@ public:
 	
 	UFUNCTION()
 	void UpdateTutorialState(ETutorialState NewState);
+
+	UFUNCTION()
+	void SpawnDummyForTutorial();
 
 	/*Character*/
 	UPROPERTY()

@@ -40,9 +40,6 @@ void ATimberGameModeBase::BeginPlay()
 		GetWaveGameInstanceSubsystem()->HandleWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
 		/*Subscribing to Player Death Delegate Signature*/
 	}
-
-	// Initial Wave Broadcast - FOR UI Wave System Widget I think
-	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 	
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
 
@@ -104,23 +101,43 @@ void ATimberGameModeBase::InitializeGameState()
 	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
 	if (DieRobotGameState)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Game State."))
-		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateGameState);
-		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleGameStateChange);
-		GetGameState();
-
-		//Just initiating the Broadcast
-		if (TutorialState == ETutorialState::Wake1)
+		if (DieRobotGameState->CurrentGameState == EGameState::Standard)
 		{
-			DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake1);
+			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Game State."))
+			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateTutorialState);
+			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleTutorialStateChange);
+			
+			GetTutorialState();
+			
+			//Just initiating the Broadcast
+			if (TutorialState == ETutorialState::Wake1)
+			{
+				DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake1);
+			}
+		}
+		else if (DieRobotGameState->CurrentGameState == EGameState::MidGameDemo)
+		{
+			//TODO:: What are things that need to be set up for Loading the Game at Wave 9
+
+			//Setting Wave Number for GDC Mid Game Demo
+			GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(9);
+			
+			//Ensure HUD displays everything we need correctly.
+			// Initial Wave Broadcast - FOR UI Wave System Widget I think
+			CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+			
+			//Load all Game Assets
+			//Set Inventory to a reasonable rate
+			//Set the Wave to the correct Wave
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GameModeBase - No GameState Set."))
 		}
 	}
-
-
-	
 }
 
-void ATimberGameModeBase::GetGameState()
+void ATimberGameModeBase::GetTutorialState()
 {
 	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
 	if (DieRobotGameState)
@@ -129,12 +146,12 @@ void ATimberGameModeBase::GetGameState()
 	}
 }
 
-void ATimberGameModeBase::UpdateGameState(ETutorialState NewState)
+void ATimberGameModeBase::UpdateTutorialState(ETutorialState NewState)
 {
 	TutorialState = NewState;
 }
 
-void ATimberGameModeBase::HandleGameStateChange(ETutorialState NewState)
+void ATimberGameModeBase::HandleTutorialStateChange(ETutorialState NewState)
 {
 	if (NewState == ETutorialState::Wake2)
 	{

@@ -20,7 +20,9 @@ class TIMBERMVP_API UWaveGameInstanceSubsystem : public UGameInstanceSubsystem
 public:
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 6;
+	int CurrentWaveNumber = 1;
+	
+	void SetCurrentWaveNumber(int InWaveNumber);
 
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCurrentWaveHandle, int, CurrentWaveNumber);
@@ -39,6 +41,7 @@ public:
 	/* Data Table */
 	UFUNCTION()
 	void SetWaveCompositionDataTable(UDataTable* DataTable);
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Wave Data")
 	UDataTable* WaveCompositionTable;
 

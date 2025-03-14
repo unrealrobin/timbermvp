@@ -57,17 +57,18 @@ public:
 	void GatherSeedaData();
 
 	/* Game State */
-	UFUNCTION()
-	void HandleGameStateChange(ETutorialState NewState);
-	
 	void InitializeGameState();
+
+	UFUNCTION()
+	void HandleTutorialStateChange(ETutorialState NewState);
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Game State")
 	ETutorialState TutorialState = ETutorialState::Default;
 	
-	void GetGameState();
+	void GetTutorialState();
 	
 	UFUNCTION()
-	void UpdateGameState(ETutorialState NewState);
+	void UpdateTutorialState(ETutorialState NewState);
 
 	/*Character*/
 	UPROPERTY()

@@ -17,6 +17,11 @@
 #include "Weapons/TimberWeaponRangedBase.h"
 
 
+void UWaveGameInstanceSubsystem::SetCurrentWaveNumber(int InWaveNumber)
+{
+	CurrentWaveNumber = InWaveNumber;
+}
+
 void UWaveGameInstanceSubsystem::SetWaveCompositionDataTable(UDataTable* DataTable)
 {
 	WaveCompositionTable = DataTable;

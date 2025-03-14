@@ -18,6 +18,7 @@ void ATimberHUDBase::BeginPlay()
 
 	//Binding to Tutorial States
 	InitializeTutorialStateBinding();
+	
 	HandleTutorialStateChanges(GetTutorialState());
 
 }
@@ -83,7 +84,6 @@ void ATimberHUDBase::InitializeWidgets()
 		}
 	}			
 }		
-
 
 void ATimberHUDBase::CharacterAndControllerBindings()
 {
@@ -222,6 +222,15 @@ FVector2d ATimberHUDBase::GetViewportSize()
 	GetOwningPlayerController()->GetViewportSize(ViewportSizeX, ViewportSizeY);
 
 	return FVector2d(ViewportSizeX, ViewportSizeY);
+}
+
+void ATimberHUDBase::ShowAllGameWidgets()
+{
+	ShowCrossHairWidget();
+	ShowInventoryPanelWidget();
+	ShowPlayerHealthWidget();
+	ShowSeedaHealthWidget();
+	ShowWaveDataWidget();
 }
 
 void ATimberHUDBase::SwitchToDeathUI()
@@ -380,12 +389,7 @@ void ATimberHUDBase::HandleTutorialStateChanges(ETutorialState NewState)
 	case ETutorialState::WaveComplete:
 		break;
 	case ETutorialState::TutorialComplete:
-		//Enabling all of these for testing purposes. We start the game outside of the tutorial with all of these widgets.
-		ShowCrossHairWidget();
-		ShowInventoryPanelWidget();
-		ShowPlayerHealthWidget();
-		ShowSeedaHealthWidget();
-		ShowWaveDataWidget();
+		ShowAllGameWidgets();
 		break;
 	case ETutorialState::Default:
 		break;

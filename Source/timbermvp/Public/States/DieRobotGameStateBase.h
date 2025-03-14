@@ -9,6 +9,16 @@
 class ARecastNavMesh;
 
 UENUM(BlueprintType)
+enum class EGameState : uint8
+{
+	MainMenu UMETA(DisplayName = "MainMenu"),
+	MidGameDemo UMETA(DisplayName = "MidGameDemo"),
+	Standard UMETA(DisplayName = "MidGameDemo"),
+	Default UMETA(DisplayName = "Default"),
+	
+};
+
+UENUM(BlueprintType)
 enum class ETutorialState : uint8
 {
 	Wake1 UMETA(DisplayName = "Wake1"),
@@ -45,11 +55,15 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTutorialStateChange, ETutorialState, NewState);
 	FOnTutorialStateChange OnTutorialStateChange;
 
+	UPROPERTY(VisibleAnywhere, Category = "State")
+	EGameState CurrentGameState = EGameState::Default;
+
+	UPROPERTY(VisibleAnywhere, Category = "State")
 	//Tutorial State when Starting Game With Tutorial
-	//ETutorialState TutorialState = ETutorialState::Wake1;
+	ETutorialState TutorialState = ETutorialState::Wake1;
 
 	//Tutorial state when starting Game outside of Tutorial
-	ETutorialState TutorialState = ETutorialState::TutorialComplete;
+	//ETutorialState TutorialState = ETutorialState::TutorialComplete;
 
 	void ChangeTutorialGameState(ETutorialState NewState);
 	

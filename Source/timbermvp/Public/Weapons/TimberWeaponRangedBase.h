@@ -25,7 +25,7 @@ public:
 	int CurrentAmmo = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int MaxAmmo = 27;
+	int MaxAmmo = 20;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

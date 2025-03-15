@@ -35,7 +35,6 @@ class TIMBERMVP_API ADieRobotGameStateBase : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-
 	/*
 	 * Bound Classes
 	 * TimberGameModeBase

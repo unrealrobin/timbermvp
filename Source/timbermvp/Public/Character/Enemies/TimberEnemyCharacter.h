@@ -44,7 +44,7 @@ public:
 	ATimberEnemyCharacter();
 
 	virtual void BeginPlay() override;
-	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
 	
 	virtual void PlayProjectileHitSound(FHitResult HitResult) override;

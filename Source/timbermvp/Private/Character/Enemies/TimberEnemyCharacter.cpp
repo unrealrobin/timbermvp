@@ -53,6 +53,13 @@ void ATimberEnemyCharacter::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 }
 
+void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	//Cast<ATimberAiControllerBase>(GetController())->BrainComponent->StopLogic("EndPlay");
+}
+
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

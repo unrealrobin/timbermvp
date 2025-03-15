@@ -22,8 +22,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//Used for Sword Only. Ranged Damage based on Projectile + Modifiers
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Details")
-	float BaseWeaponDamage = 25.0f;
+	float BaseWeaponDamage = 35.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
 	UAnimMontage* AttackMontage;

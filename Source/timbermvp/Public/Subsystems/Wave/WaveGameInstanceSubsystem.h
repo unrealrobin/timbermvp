@@ -142,6 +142,9 @@ public:
 	void PlayWaveStartSound();
 	void PlayWaveEndSound();
 	void PlayBossSpawnSound();
+
+	/*Level Switching*/
+	void FullStop();
 };
 
 

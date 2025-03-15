@@ -86,6 +86,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> ArrayOfSpawnedSeedas;
 
+	/*Save/Load Slots*/
+	FString DEVELOPER_SAVE_BASE_MIDGAME = TEXT("DEVELOPER_BASE_SAVE");
+	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");
+	FString StandardSaveSlot = TEXT("StandardSaveSlot");
+
+	UFUNCTION()
+	FString GetSaveSlot();
+	
 	/* Save System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
@@ -114,6 +122,9 @@ public:
 	/* Location Marker */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
 	TSubclassOf<ALocationMarkerBase> LocationMarker;
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToMainMenu();
 
 protected:
 

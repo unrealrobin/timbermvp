@@ -327,6 +327,17 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
 		WeaponState.Broadcast(EWeaponState::RangedEquipped);
 		ShowAmmoCounter.Broadcast(true);
+
+		if (TimberCharacter->WeaponThreeInstance)
+		{
+			TimberCharacter->WeaponThreeInstance->bIsReloading = false;
+			UTimberAnimInstance* AnimInstance = Cast<UTimberAnimInstance>(TimberCharacter->GetMesh()->GetAnimInstance());
+			if (AnimInstance)
+			{
+				AnimInstance->bIsReloading = false;
+			}
+			UE_LOG(LogTemp, Warning, TEXT("Controller - Equip Weapon Three - BIsReloading Set to False"));
+		}
 	}
 
 }

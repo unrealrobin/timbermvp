@@ -441,3 +441,13 @@ void UWaveGameInstanceSubsystem::PlayBossSpawnSound()
 	}
 }
 
+void UWaveGameInstanceSubsystem::FullStop()
+{
+	//This acts as a full stop for all Wave Spawning things.
+	
+	//This ends the wave and handles some other cleanup but also starts new timers for next wave.
+	EndWave();
+	//Stops all ongoing timers for spawning enemies and incrementing waves.
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+

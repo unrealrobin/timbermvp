@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SaveSystem/TimberSaveSystem.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
+#include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
@@ -40,9 +41,6 @@ void ATimberGameModeBase::BeginPlay()
 		GetWaveGameInstanceSubsystem()->HandleWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
 		/*Subscribing to Player Death Delegate Signature*/
 	}
-
-	// Initial Wave Broadcast - FOR UI Wave System Widget I think
-	CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
 	
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
 
@@ -102,25 +100,53 @@ void ATimberGameModeBase::GatherSeedaData()
 void ATimberGameModeBase::InitializeGameState()
 {
 	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-	if (DieRobotGameState)
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	
+	if (DieRobotGameState && DieRobotGameConfig)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Game State."))
-		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateGameState);
-		DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleGameStateChange);
-		GetGameState();
-
-		//Just initiating the Broadcast
-		if (TutorialState == ETutorialState::Wake1)
+		if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::Standard)
 		{
-			DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake1);
+			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Standard Game State."))
+			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateTutorialState);
+			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleTutorialStateChange);
+			
+			GetTutorialState();
+			
+			//Just initiating the Broadcast
+			if (TutorialState == ETutorialState::Wake1)
+			{
+				DieRobotGameState->ChangeTutorialGameState(ETutorialState::Wake1);
+				SpawnDummyForTutorial();
+			}
+		}
+		else if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Mid Game Demo Game State."))
+
+			//Loading the Game with Wave 9 Builds
+			LoadGame();
+
+			//Set to Tutorial Complete / Ensures HUD Knows to Display all Widgets
+			DieRobotGameState->ChangeTutorialGameState(ETutorialState::TutorialComplete);
+			
+			//Setting Wave Number for GDC Mid Game Demo
+			GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(9);
+			
+			// Ensures the Wave Widget is displaying Properly the set wave.
+			CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+			
+			//Load all Game Assets
+			//Set Inventory to a reasonable rate
+			//Set the Wave to the correct Wave
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GameModeBase - No GameState Set."))
 		}
 	}
-
-
-	
 }
 
-void ATimberGameModeBase::GetGameState()
+void ATimberGameModeBase::GetTutorialState()
 {
 	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
 	if (DieRobotGameState)
@@ -129,12 +155,34 @@ void ATimberGameModeBase::GetGameState()
 	}
 }
 
-void ATimberGameModeBase::UpdateGameState(ETutorialState NewState)
+void ATimberGameModeBase::UpdateTutorialState(ETutorialState NewState)
 {
+	//Updates Locally on the Game Mode
 	TutorialState = NewState;
 }
 
-void ATimberGameModeBase::HandleGameStateChange(ETutorialState NewState)
+void ATimberGameModeBase::SpawnDummyForTutorial()
+{
+	FString DummyAssetLocationString = "/Game/Blueprints/Character/TutorialDummy/BP_TutorialDummy.BP_TutorialDummy_C";
+
+	// Load Blueprint asset
+	UClass* DummyBPClass = LoadObject<UClass>(nullptr, *DummyAssetLocationString);
+    
+	const FVector SpawnLocation = FVector(-2493.0f, 504.0f, 230.0f);
+	const FRotator SpawnRotation = FRotator(180.f, 0.f, -180.f);
+    
+	if (DummyBPClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		ATimberEnemyCharacter* DummyActor = GetWorld()->SpawnActor<ATimberEnemyCharacter>(DummyBPClass, SpawnLocation, SpawnRotation, SpawnParams);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load Dummy Blueprint Class."));
+	}
+}
+
+void ATimberGameModeBase::HandleTutorialStateChange(ETutorialState NewState)
 {
 	if (NewState == ETutorialState::Wake2)
 	{
@@ -169,6 +217,32 @@ void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
 void ATimberGameModeBase::PlayerIsInitialized()
 {
 	OnCharacterInitialization.Broadcast();
+	
+	//If we are in mid Game Demo add some currency to player inventory.
+	UDieRobotGameConfigSubsystem* DRCS = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	if (DRCS && DRCS->GameConfig == EDieRobotGameConfigType::MidGameDemo)
+	{
+		if (TimberCharacter && TimberCharacter->InventoryManager)
+		{
+			TimberCharacter->InventoryManager->AddPartsToInventory(10);
+			TimberCharacter->InventoryManager->AddMechanismsToInventory(4);
+		}
+	}
+}
+
+void ATimberGameModeBase::SwitchToMainMenu()
+{
+	//Stopping the Subsystem from continuing to spawn enemies.
+	UWaveGameInstanceSubsystem* WaveGameInstanceSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+	if (WaveGameInstanceSubsystem)
+	{
+		WaveGameInstanceSubsystem->FullStop();
+	}
+	
+	//Handles Switching Levels.
+	UGameplayStatics::OpenLevel(GetWorld(), FName("StartUp"));
+	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Switching to Main Menu."));
+	
 }
 
 UWaveGameInstanceSubsystem* ATimberGameModeBase::GetWaveGameInstanceSubsystem()
@@ -265,9 +339,25 @@ void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 	}
 }
 
+FString ATimberGameModeBase::GetSaveSlot()
+{
+	UDieRobotGameConfigSubsystem* GameConfigSubsystem = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	if (GameConfigSubsystem)
+	{
+		
+		 return GameConfigSubsystem->GameConfig == EDieRobotGameConfigType::MidGameDemo ? MidGameDemoSaveSlot : StandardSaveSlot;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Using Standard Save Slot."))
+	return StandardSaveSlot;
+}
+
 /*Save System*/
 void ATimberGameModeBase::SaveCurrentGame()
 {
+	//TODO:: IF GameConfig = MidGameDemo Return. No Saving for MidGame At the moment.
+	
+	FString SaveSlot = GetSaveSlot();
+	
 	//Creating an instance of the Save Game Object
 	UTimberSaveSystem* SaveGameInstance = Cast<UTimberSaveSystem>(
 		UGameplayStatics::CreateSaveGameObject
@@ -280,7 +370,7 @@ void ATimberGameModeBase::SaveCurrentGame()
 
 
 	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Demo Timber Save 1"), 0);
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlot, 0);
 
 	if(GEngine)
 	{
@@ -358,9 +448,12 @@ void ATimberGameModeBase::SaveSeedaData(UTimberSaveSystem* SaveGameInstance)
 void ATimberGameModeBase::LoadGame()
 {
 	GetWaveGameInstanceSubsystem()->ResetWaveEnemies();
-	//Needs the Slot Name and the User Index
+
+	//Returns the correct Slot to use based on Game Config
+	FString LoadSlot = GetSaveSlot();
+	
 	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(
-		UGameplayStatics::LoadGameFromSlot(TEXT("Demo Timber Save 1"), 0));
+		UGameplayStatics::LoadGameFromSlot(LoadSlot, 0));
 	
 	LoadBuildingComponents(LoadGameInstance);
 	LoadWaveData(LoadGameInstance);
@@ -370,9 +463,19 @@ void ATimberGameModeBase::LoadGame()
 	CloseAllLabDoors();
 	GetWaveGameInstanceSubsystem()->CloseBossDoor();
 	HandleRedrawPathTrace();
-	
-	SwitchToStandardUI.Execute();
-	EnableStandardInputMappingContext.Execute();
+
+
+	if (SwitchToStandardUI.IsBound())
+	{
+		SwitchToStandardUI.Execute();
+	}
+
+	//Potential to be called before player controller is bound to this.
+	//Needs at least 1 listener to not error.
+	if (EnableStandardInputMappingContext.IsBound())
+	{
+		EnableStandardInputMappingContext.Execute();
+	}
 }
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
@@ -383,10 +486,12 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 		{
 			if (BuildingComponentData.BuildingComponentClass)
 			{
-				GetWorld()->SpawnActor<ABuildableBase>(
+				AActor* SpawnedActor = GetWorld()->SpawnActor<ABuildableBase>(
 					BuildingComponentData.BuildingComponentClass,
 					BuildingComponentData.BuildingComponentTransform.GetLocation(),
 					BuildingComponentData.BuildingComponentTransform.GetRotation().Rotator());
+
+				UE_LOG(LogTemp, Warning, TEXT("Loaded Buildable: %s"), *SpawnedActor->GetName());
 			}
 		}
 	}
@@ -439,9 +544,11 @@ void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
 	{
 		Seeda->Destroy();
 	}
+
+	FVector HardCodeSeedaLocation = FVector(-2310.000000,-634.000000,130.000000);
 	
 	FActorSpawnParameters SpawnParams;
-	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass, LoadGameInstance->SeedaData.SeedaLocation, 
+	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass, HardCodeSeedaLocation, 
 	LoadGameInstance->SeedaData
 	.SeedaRotation, SpawnParams);
 }

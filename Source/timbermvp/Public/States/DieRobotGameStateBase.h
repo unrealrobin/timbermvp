@@ -35,7 +35,6 @@ class TIMBERMVP_API ADieRobotGameStateBase : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-
 	/*
 	 * Bound Classes
 	 * TimberGameModeBase
@@ -45,11 +44,12 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTutorialStateChange, ETutorialState, NewState);
 	FOnTutorialStateChange OnTutorialStateChange;
 
+	UPROPERTY(VisibleAnywhere, Category = "State")
 	//Tutorial State when Starting Game With Tutorial
-	//ETutorialState TutorialState = ETutorialState::Wake1;
+	ETutorialState TutorialState = ETutorialState::Wake1;
 
 	//Tutorial state when starting Game outside of Tutorial
-	ETutorialState TutorialState = ETutorialState::TutorialComplete;
+	//ETutorialState TutorialState = ETutorialState::TutorialComplete;
 
 	void ChangeTutorialGameState(ETutorialState NewState);
 	

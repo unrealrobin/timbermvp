@@ -25,7 +25,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UUserWidget* StartUpMenu;
 
+	UFUNCTION()
+	void SetGameConfig(EDieRobotGameConfigType InGameState);
+
 	UFUNCTION(BlueprintCallable)
 	void SwitchToGameLevel();
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToMidgameDemo();
 	
 };

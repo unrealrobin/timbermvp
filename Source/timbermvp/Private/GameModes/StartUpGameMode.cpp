@@ -5,11 +5,19 @@
 
 #include "Data/MusicLibraryDataAsset.h"
 #include "Kismet/GameplayStatics.h"
+#include "States/DieRobotGameStateBase.h"
+#include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 
 void AStartUpGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	if (DieRobotGameConfig)
+	{
+		DieRobotGameConfig->GameConfig = EDieRobotGameConfigType::MainMenu;
+	}
 
 	if (!StartUpMenu )
 	{
@@ -35,6 +43,16 @@ void AStartUpGameMode::BeginPlay()
 	
 }
 
+void AStartUpGameMode::SetGameConfig(EDieRobotGameConfigType InGameState)
+{
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	
+	if (DieRobotGameConfig)
+	{
+		DieRobotGameConfig->GameConfig = InGameState;
+	}
+}
+
 void AStartUpGameMode::SwitchToGameLevel()
 {
 	if (StartUpMenu)
@@ -42,6 +60,22 @@ void AStartUpGameMode::SwitchToGameLevel()
 		StartUpMenu->RemoveFromParent();
 		StartUpMenu = nullptr;
 
+		//Runs Tutorial Etc. Standard GamePlay
+		SetGameConfig(EDieRobotGameConfigType::Standard);
+
+		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
+	}
+}
+
+void AStartUpGameMode::SwitchToMidgameDemo()
+{
+	if (StartUpMenu)
+	{
+		StartUpMenu->RemoveFromParent();
+		StartUpMenu = nullptr;
+
+		SetGameConfig(EDieRobotGameConfigType::MidGameDemo);
+		
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}
 }

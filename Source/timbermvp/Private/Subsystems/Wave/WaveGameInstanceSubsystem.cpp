@@ -17,6 +17,11 @@
 #include "Weapons/TimberWeaponRangedBase.h"
 
 
+void UWaveGameInstanceSubsystem::SetCurrentWaveNumber(int InWaveNumber)
+{
+	CurrentWaveNumber = InWaveNumber;
+}
+
 void UWaveGameInstanceSubsystem::SetWaveCompositionDataTable(UDataTable* DataTable)
 {
 	WaveCompositionTable = DataTable;
@@ -289,7 +294,7 @@ void UWaveGameInstanceSubsystem::EndWave()
 	IncrementWave();
 	
 	//Save Game - Game Mode will handle the saving of the game.
-	SaveCurrentGameHandle.Broadcast();
+	//SaveCurrentGameHandle.Broadcast();
 	
 	//Start Timer for Next Wave
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
@@ -434,5 +439,15 @@ void UWaveGameInstanceSubsystem::PlayBossSpawnSound()
 	{
 		SFXManager->OnBossSpawn.Broadcast();
 	}
+}
+
+void UWaveGameInstanceSubsystem::FullStop()
+{
+	//This acts as a full stop for all Wave Spawning things.
+	
+	//This ends the wave and handles some other cleanup but also starts new timers for next wave.
+	EndWave();
+	//Stops all ongoing timers for spawning enemies and incrementing waves.
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 

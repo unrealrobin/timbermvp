@@ -116,6 +116,9 @@ public:
 	FVector2d GetCenterOfScreen();
 	FVector2d GetViewportSize();
 
+	UFUNCTION()
+	void ShowAllGameWidgets();
+
 protected:
 	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter;

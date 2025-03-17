@@ -11,6 +11,7 @@
 
 class ALocationMarkerBase;
 enum class ETutorialState : uint8;
+enum class EDieRobotGameConfigType : uint8;
 class ATimberSeeda;
 class UWaveGameInstanceSubsystem;
 class ATimberPlayableCharacter;
@@ -56,18 +57,22 @@ public:
 	
 	void GatherSeedaData();
 
-	/* Game State */
-	UFUNCTION()
-	void HandleGameStateChange(ETutorialState NewState);
-	
+	/* Game State / Tutorial */
 	void InitializeGameState();
+
+	UFUNCTION()
+	void HandleTutorialStateChange(ETutorialState NewState);
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Game State")
 	ETutorialState TutorialState = ETutorialState::Default;
 	
-	void GetGameState();
+	void GetTutorialState();
 	
 	UFUNCTION()
-	void UpdateGameState(ETutorialState NewState);
+	void UpdateTutorialState(ETutorialState NewState);
+
+	UFUNCTION()
+	void SpawnDummyForTutorial();
 
 	/*Character*/
 	UPROPERTY()
@@ -81,6 +86,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> ArrayOfSpawnedSeedas;
 
+	/*Save/Load Slots*/
+	FString DEVELOPER_SAVE_BASE_MIDGAME = TEXT("DEVELOPER_BASE_SAVE");
+	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");
+	FString StandardSaveSlot = TEXT("StandardSaveSlot");
+
+	UFUNCTION()
+	FString GetSaveSlot();
+	
 	/* Save System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
@@ -109,6 +122,9 @@ public:
 	/* Location Marker */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
 	TSubclassOf<ALocationMarkerBase> LocationMarker;
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToMainMenu();
 
 protected:
 

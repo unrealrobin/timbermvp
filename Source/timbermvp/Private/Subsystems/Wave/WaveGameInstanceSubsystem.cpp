@@ -294,7 +294,7 @@ void UWaveGameInstanceSubsystem::EndWave()
 	IncrementWave();
 	
 	//Save Game - Game Mode will handle the saving of the game.
-	SaveCurrentGameHandle.Broadcast();
+	//SaveCurrentGameHandle.Broadcast();
 	
 	//Start Timer for Next Wave
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 

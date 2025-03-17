@@ -544,9 +544,11 @@ void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
 	{
 		Seeda->Destroy();
 	}
+
+	FVector HardCodeSeedaLocation = FVector(-2310.000000,-634.000000,130.000000);
 	
 	FActorSpawnParameters SpawnParams;
-	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass, LoadGameInstance->SeedaData.SeedaLocation, 
+	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass, HardCodeSeedaLocation, 
 	LoadGameInstance->SeedaData
 	.SeedaRotation, SpawnParams);
 }

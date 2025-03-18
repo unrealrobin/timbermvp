@@ -463,28 +463,36 @@ void ATimberGameModeBase::LoadGame()
 	
 	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(
 		UGameplayStatics::LoadGameFromSlot(LoadSlot, 0));
+
+	if (LoadGameInstance)
+	{
+		LoadBuildingComponents(LoadGameInstance);
+		LoadWaveData(LoadGameInstance);
+		LoadPlayerState(LoadGameInstance);
+		LoadSeedaData(LoadGameInstance);
+
+		CloseAllLabDoors();
+		GetWaveGameInstanceSubsystem()->CloseBossDoor();
+		HandleRedrawPathTrace();
+
+
+		if (SwitchToStandardUI.IsBound())
+		{
+			SwitchToStandardUI.Execute();
+		}
+
+		//Potential to be called before player controller is bound to this.
+		//Needs at least 1 listener to not error.
+		if (EnableStandardInputMappingContext.IsBound())
+		{
+			EnableStandardInputMappingContext.Execute();
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to load Game - No Save/Load Slot."));
+	}
 	
-	LoadBuildingComponents(LoadGameInstance);
-	LoadWaveData(LoadGameInstance);
-	LoadPlayerState(LoadGameInstance);
-	LoadSeedaData(LoadGameInstance);
-
-	CloseAllLabDoors();
-	GetWaveGameInstanceSubsystem()->CloseBossDoor();
-	HandleRedrawPathTrace();
-
-
-	if (SwitchToStandardUI.IsBound())
-	{
-		SwitchToStandardUI.Execute();
-	}
-
-	//Potential to be called before player controller is bound to this.
-	//Needs at least 1 listener to not error.
-	if (EnableStandardInputMappingContext.IsBound())
-	{
-		EnableStandardInputMappingContext.Execute();
-	}
 }
 
 void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)

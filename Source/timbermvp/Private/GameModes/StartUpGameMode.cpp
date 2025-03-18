@@ -8,6 +8,7 @@
 #include "States/DieRobotGameStateBase.h"
 #include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 void AStartUpGameMode::BeginPlay()
 {
@@ -62,6 +63,8 @@ void AStartUpGameMode::SwitchToGameLevel()
 
 		//Runs Tutorial Etc. Standard GamePlay
 		SetGameConfig(EDieRobotGameConfigType::Standard);
+		
+		UE_LOG(LogTemp, Warning, TEXT("Startup Game Mode - Set Game Config to Standard"));
 
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}
@@ -74,7 +77,15 @@ void AStartUpGameMode::SwitchToMidgameDemo()
 		StartUpMenu->RemoveFromParent();
 		StartUpMenu = nullptr;
 
+		UWaveGameInstanceSubsystem* WaveSubsystem  = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+		if (WaveSubsystem)
+		{
+			WaveSubsystem->CurrentWaveNumber = 9;
+		}
+		
 		SetGameConfig(EDieRobotGameConfigType::MidGameDemo);
+		UE_LOG(LogTemp, Warning, TEXT("Startup Game Mode - Set Game Config to MidGameDemo"));
+
 		
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}

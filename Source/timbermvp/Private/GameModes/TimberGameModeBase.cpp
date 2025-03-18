@@ -104,8 +104,14 @@ void ATimberGameModeBase::InitializeGameState()
 	
 	if (DieRobotGameState && DieRobotGameConfig)
 	{
+		//Standard Game with Tutorial
 		if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::Standard)
 		{
+			//Setting Normal Game Mode to Wave Number 1
+			//TODO:: This will have to be changed to ensure we dont always overwrite this game mode to start on Wave 1 if a current save is available.
+			//INFO:: This is here for Demo Purposes only at the moment.
+			GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(1);
+
 			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Standard Game State."))
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateTutorialState);
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleTutorialStateChange);
@@ -119,6 +125,7 @@ void ATimberGameModeBase::InitializeGameState()
 				SpawnDummyForTutorial();
 			}
 		}
+		//Game Demo starting at Mid Game
 		else if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Mid Game Demo Game State."))
@@ -131,9 +138,11 @@ void ATimberGameModeBase::InitializeGameState()
 			
 			//Setting Wave Number for GDC Mid Game Demo
 			GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(9);
-			
-			// Ensures the Wave Widget is displaying Properly the set wave.
+
+			//TODO:: Currently Unused, But we can use this later to increase enemy health based on wave #.
+			//This broadcasts to Enemy Characters the current Wave Number.
 			CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+			UE_LOG(LogTemp, Warning, TEXT("Broadcasted Current Wave Number: %d. "), GetWaveGameInstanceSubsystem()->CurrentWaveNumber)
 			
 			//Load all Game Assets
 			//Set Inventory to a reasonable rate
@@ -548,9 +557,10 @@ void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
 	FVector HardCodeSeedaLocation = FVector(-2310.000000,-634.000000,130.000000);
 	
 	FActorSpawnParameters SpawnParams;
-	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass, HardCodeSeedaLocation, 
-	LoadGameInstance->SeedaData
-	.SeedaRotation, SpawnParams);
+	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass,
+		HardCodeSeedaLocation,
+		LoadGameInstance->SeedaData.SeedaRotation,
+		SpawnParams);
 }
 
 void ATimberGameModeBase::OpenAllLabDoors()

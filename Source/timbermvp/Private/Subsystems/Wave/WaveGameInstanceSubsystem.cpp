@@ -20,6 +20,8 @@
 void UWaveGameInstanceSubsystem::SetCurrentWaveNumber(int InWaveNumber)
 {
 	CurrentWaveNumber = InWaveNumber;
+	CurrentWaveHandle.Broadcast(InWaveNumber);
+	UE_LOG(LogTemp, Warning, TEXT("Set Wave Number to: %d"), InWaveNumber);
 }
 
 void UWaveGameInstanceSubsystem::SetWaveCompositionDataTable(UDataTable* DataTable)

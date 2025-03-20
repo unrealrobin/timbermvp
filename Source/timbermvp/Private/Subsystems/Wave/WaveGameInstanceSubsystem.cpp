@@ -2,7 +2,6 @@
 
 
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
-
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
@@ -147,7 +146,25 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 				}
 				
 			}
+			//Shuffle the array.
+			ShuffleEnemiesToSpawn();
+			
 			UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
+		}
+	}
+}
+
+void UWaveGameInstanceSubsystem::ShuffleEnemiesToSpawn()
+{
+	if (EnemiesToSpawn.Num() > 0)
+	{
+		int NumberOfEnemies = EnemiesToSpawn.Num();
+		for (int i = 0; i < NumberOfEnemies; i++)
+		{
+			int RandomIndex = FMath::RandRange(0, EnemiesToSpawn.Num() - 1);
+			//We are switching the location of each member in the array with a random location in the array.
+			//Effectively Randomizing its location.
+			Swap(EnemiesToSpawn[i], EnemiesToSpawn[RandomIndex]);
 		}
 	}
 }
@@ -199,6 +216,7 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 	}
 	else
 	{
+		//This keeps the ArrayIndex Incremented and not starting over.
 		ArrayIndex = TotalEnemiesSpawned;
 		UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
 	}

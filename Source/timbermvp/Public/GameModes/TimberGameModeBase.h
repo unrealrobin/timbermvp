@@ -147,6 +147,7 @@ protected:
 	TArray<AActor*> ArrayOfLabDoors;
 
 	/* Path Tracing */
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void RedrawPathTrace();
 	UFUNCTION()

@@ -133,6 +133,9 @@ void ATimberGameModeBase::InitializeGameState()
 			//Loading the Game with Wave 9 Builds
 			LoadGame();
 
+			//Calling to Redraw the Path Trace next tick, after all the building components are built.
+			
+
 			//Set to Tutorial Complete / Ensures HUD Knows to Display all Widgets
 			DieRobotGameState->ChangeTutorialGameState(ETutorialState::TutorialComplete);
 			
@@ -511,6 +514,12 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 				UE_LOG(LogTemp, Warning, TEXT("Loaded Buildable: %s"), *SpawnedActor->GetName());
 			}
 		}
+
+		//TODO:: This is not working. Why Not.
+		GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this]()
+				{
+					HandleRedrawPathTrace();  // Call it next tick
+				}));
 	}
 }
 

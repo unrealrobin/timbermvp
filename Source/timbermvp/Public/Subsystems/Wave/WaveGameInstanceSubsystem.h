@@ -87,6 +87,8 @@ public:
 	
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
+	UFUNCTION()
+	void ShuffleEnemiesToSpawn();
 	UPROPERTY()
 	TSubclassOf<AActor> BossToSpawn = nullptr;
 	UPROPERTY()

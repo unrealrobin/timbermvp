@@ -14,12 +14,12 @@ ATrapBase::ATrapBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	TrapBaseStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("TrapBaseStaticMesh");
-	RootComponent = TrapBaseStaticMesh;
+	TrapBaseStaticMesh->SetupAttachment(RootComponent);
 
 	DisableAllStaticMeshCollisions(TrapBaseStaticMesh);
 
 	HitBoxComponent = CreateDefaultSubobject<UBoxComponent>("DamageArea");
-	HitBoxComponent->SetupAttachment(RootComponent);
+	HitBoxComponent->SetupAttachment(TrapBaseStaticMesh);
 }
 
 void ATrapBase::BeginPlay()

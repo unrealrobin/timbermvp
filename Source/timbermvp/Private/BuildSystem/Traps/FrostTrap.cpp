@@ -16,7 +16,7 @@ AFrostTrap::AFrostTrap()
 	PrimaryActorTick.bCanEverTick = true;
 
 	FrostTrapVentMesh = CreateDefaultSubobject<UStaticMeshComponent>("Frost Trap Vent");
-	FrostTrapVentMesh->SetupAttachment(RootComponent);
+	FrostTrapVentMesh->SetupAttachment(TrapBaseStaticMesh);
 
 	TrapType = ETrapType::FrostTrap;
 

@@ -1007,30 +1007,10 @@ void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitRes
 		}
 	}
 
-	//HIT A BUILDING COMPONENT
+	//HIT A BUILDING COMPONENT - Excluding Environment Buildable
 	if (FirstHitBuildingComponent && FirstHitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment && 
 		FirstHitBuildingComponent->BuildableType != EBuildableType::Environment )
 	{
-		/*//Traps should not be added to Environment Building Components. Option to change this in the future.
-		if (FirstHitBuildingComponent->BuildingComponentType == EBuildingComponentType::Environment || 
-		FirstHitBuildingComponent->BuildableType == EBuildableType::Environment )
-		{
-			if (ActiveTrapComponentProxy)
-			{
-				ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
-				ActiveTrapComponentProxy->TrapHoveredBuildingComponent = nullptr;
-				if (HitResults[0].ImpactPoint != FVector::ZeroVector)
-				{
-					FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
-					PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
-					MoveBuildingComponent(
-						HitResults[0].ImpactPoint, ActiveTrapComponentProxy,
-						PlayerRotation);
-				}
-			}
-			return;
-		}*/
-		
 		// Pairing the trap with the wall its Hovering over.
 		if (ActiveTrapComponentProxy)
 		{

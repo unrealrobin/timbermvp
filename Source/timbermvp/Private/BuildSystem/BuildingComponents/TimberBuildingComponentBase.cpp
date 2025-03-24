@@ -17,12 +17,13 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
-	RootComponent = StaticMesh;
+	StaticMesh->SetupAttachment(RootComponent);
 
 	//these settings get overwritten in bp it seems.
 	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1); 
 	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 
+	//TODO:: Can we figure out collision with static meshes so that we dont have this fuckin issues. This is unenecessary.
 	NavCollisionBox = CreateDefaultSubobject<UBoxComponent>("NavCollisionBox");
 	NavCollisionBox->SetupAttachment(StaticMesh);
 	NavCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -62,9 +63,6 @@ void ATimberBuildingComponentBase::DeleteAllAttachments()
 				AttachedConstruct->HandleDeletionOfBuildable();
 			}
 		}
-
-
-
 		
 		//Empty the Array
 		AttachedBuildingComponents.Empty();
@@ -143,34 +141,40 @@ void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDam
 
 void ATimberBuildingComponentBase::CreateSnapPoints()
 {
-	TopSnap = CreateDefaultSubobject<USceneComponent>("TopSnap");
-	TopSnap->SetupAttachment(RootComponent);
-	BottomSnap = CreateDefaultSubobject<USceneComponent>("BottomSnap");
-	BottomSnap->SetupAttachment(RootComponent);
-	LeftSnap = CreateDefaultSubobject<USceneComponent>("LeftSnap");
-	LeftSnap->SetupAttachment(RootComponent);
-	RightSnap = CreateDefaultSubobject<USceneComponent>("RightSnap");
-	RightSnap->SetupAttachment(RootComponent);
-	CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
-	CenterSnap->SetupAttachment(RootComponent);
-	FrontTrapSnap = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
-	FrontTrapSnap->SetupAttachment(RootComponent);
-	BackTrapSnap = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
-	BackTrapSnap->SetupAttachment(RootComponent);
+	if (StaticMesh)
+	{
+		TopSnap = CreateDefaultSubobject<USceneComponent>("TopSnap");
+		TopSnap->SetupAttachment(StaticMesh);
+		BottomSnap = CreateDefaultSubobject<USceneComponent>("BottomSnap");
+		BottomSnap->SetupAttachment(StaticMesh);
+		LeftSnap = CreateDefaultSubobject<USceneComponent>("LeftSnap");
+		LeftSnap->SetupAttachment(StaticMesh);
+		RightSnap = CreateDefaultSubobject<USceneComponent>("RightSnap");
+		RightSnap->SetupAttachment(StaticMesh);
+		CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
+		CenterSnap->SetupAttachment(StaticMesh);
+		FrontTrapSnap = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
+		FrontTrapSnap->SetupAttachment(StaticMesh);
+		BackTrapSnap = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
+		BackTrapSnap->SetupAttachment(StaticMesh);
+	}
 }
 
 void ATimberBuildingComponentBase::CreateQuadrantComponents()
 {
-	TopQuadrant = CreateDefaultSubobject<UBoxComponent>("TopQuadrant");
-	TopQuadrant->SetupAttachment(RootComponent);
-	BottomQuadrant = CreateDefaultSubobject<UBoxComponent>("BottomQuadrant");
-	BottomQuadrant->SetupAttachment(RootComponent);
-	LeftQuadrant = CreateDefaultSubobject<UBoxComponent>("LeftQuadrant");
-	LeftQuadrant->SetupAttachment(RootComponent);
-	RightQuadrant = CreateDefaultSubobject<UBoxComponent>("RightQuadrant");
-	RightQuadrant->SetupAttachment(RootComponent);
-	CenterQuadrant = CreateDefaultSubobject<UBoxComponent>("CenterQuadrant");
-	CenterQuadrant->SetupAttachment(RootComponent);
+	if (StaticMesh)
+	{
+		TopQuadrant = CreateDefaultSubobject<UBoxComponent>("TopQuadrant");
+		TopQuadrant->SetupAttachment(StaticMesh);
+		BottomQuadrant = CreateDefaultSubobject<UBoxComponent>("BottomQuadrant");
+		BottomQuadrant->SetupAttachment(StaticMesh);
+		LeftQuadrant = CreateDefaultSubobject<UBoxComponent>("LeftQuadrant");
+		LeftQuadrant->SetupAttachment(StaticMesh);
+		RightQuadrant = CreateDefaultSubobject<UBoxComponent>("RightQuadrant");
+		RightQuadrant->SetupAttachment(StaticMesh);
+		CenterQuadrant = CreateDefaultSubobject<UBoxComponent>("CenterQuadrant");
+		CenterQuadrant->SetupAttachment(StaticMesh);
+	}
 }
 
 void ATimberBuildingComponentBase::HandleOverlappedBuildingComponent(

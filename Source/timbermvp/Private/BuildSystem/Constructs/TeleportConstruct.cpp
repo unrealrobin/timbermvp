@@ -40,8 +40,6 @@ void ATeleportConstruct::Tick(float DeltaTime)
 
 void ATeleportConstruct::SetupComponents()
 {
-	ComponentRoot =  CreateDefaultSubobject<USceneComponent>("ComponentRoot");
-	RootComponent = ComponentRoot;
 	TeleportOverlapBox = CreateDefaultSubobject<UBoxComponent>("TeleportOverlapBox");
 	TeleportOverlapBox -> SetupAttachment(RootComponent);
 	PillarLeft = CreateDefaultSubobject<UStaticMeshComponent>("PillarLeftStaticMesh");

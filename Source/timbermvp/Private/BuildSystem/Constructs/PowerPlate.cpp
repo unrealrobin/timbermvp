@@ -12,9 +12,7 @@ APowerPlate::APowerPlate()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	RootSceneComponent = CreateDefaultSubobject<USceneComponent>("RootSceneComponent");
-	RootComponent = RootSceneComponent;
+	
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMeshComponent->SetupAttachment(RootComponent);
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("CollisionBox");

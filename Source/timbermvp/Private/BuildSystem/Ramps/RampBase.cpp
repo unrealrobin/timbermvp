@@ -14,13 +14,13 @@ ARampBase::ARampBase()
 	BuildableType = EBuildableType::Ramp;
 
 	RootComponentBox = CreateDefaultSubobject<UBoxComponent>("RootComponentBox");
-	RootComponent = RootComponentBox;
+	RootComponentBox->SetupAttachment(RootComponent);
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
-	StaticMesh->SetupAttachment(RootComponent);
+	StaticMesh->SetupAttachment(RootComponentBox);
 	VerticalCenterSnap = CreateDefaultSubobject<USceneComponent>("VerticalCenterSnap");
 	HorizontalCenterSnap = CreateDefaultSubobject<USceneComponent>("HorizontalCenterSnap");
-	VerticalCenterSnap->SetupAttachment(RootComponent);
-	HorizontalCenterSnap->SetupAttachment(RootComponent);
+	VerticalCenterSnap->SetupAttachment(RootComponentBox);
+	HorizontalCenterSnap->SetupAttachment(RootComponentBox);
 }
 
 // Called when the game starts or when spawned

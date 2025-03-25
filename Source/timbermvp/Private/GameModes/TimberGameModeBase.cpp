@@ -180,7 +180,7 @@ void ATimberGameModeBase::SpawnDummyForTutorial()
 	// Load Blueprint asset
 	UClass* DummyBPClass = LoadObject<UClass>(nullptr, *DummyAssetLocationString);
     
-	const FVector SpawnLocation = FVector(-2493.0f, 504.0f, 230.0f);
+	const FVector SpawnLocation = FVector(-1165, 3163.0f, 160.0f);
 	const FRotator SpawnRotation = FRotator(180.f, 0.f, -180.f);
     
 	if (DummyBPClass)

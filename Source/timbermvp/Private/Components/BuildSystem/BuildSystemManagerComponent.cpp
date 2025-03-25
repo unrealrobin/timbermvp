@@ -58,19 +58,19 @@ void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult Hi
 		{
 		case 1:
 			SameOrientationSnapCondition(HitActor, HitQuadrant); //Wall Proxy to Wall
-			//UE_LOG(LogTemp, Warning, TEXT("Vertical to Vertical Snap Condition."))
+			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 1."));
 			break;
 		case 2:
 			SameOrientationSnapCondition(HitActor, HitQuadrant); // Floor Proxy to Floor
-			//UE_LOG(LogTemp, Warning, TEXT("Horizontal to Horizontal Snap Condition."));
+			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 2."));
 			break;
 		case 3:
 			VerticalToHorizontalSnapCondition(HitActor, HitQuadrant); //Wall Proxy to Floor
-			//UE_LOG(LogTemp, Warning, TEXT("Horizontal to Vertical Snap Condition."));
+			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 3."));
 			break;
 		case 4:
 			HorizontalToVerticalSnapCondition(HitActor, HitQuadrant); //Floor Proxy to Wall
-			//UE_LOG(LogTemp, Warning, TEXT("Vertical to Horizontal Snap Condition."));
+			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 4."));
 			break;
 		default:
 			//UE_LOG(LogTemp, Error, TEXT("Error handling Orientation Condition Check."));
@@ -298,8 +298,11 @@ void UBuildSystemManagerComponent::HorizontalToVerticalSnapCondition(FHitResult 
 
 void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation)
 {
+	//Getting Vector Between 2 assumed Snap Points.
 	FVector MoveLocation = SnapLocation - ProxySnapLocation;
 	FVector CurrentLocation = ActiveBuildingComponentProxy->GetActorLocation();
+	
+	//Moving Actor the MoveLocation distance from the Current Location.
 	ActiveBuildingComponentProxy->SetActorLocation(CurrentLocation + MoveLocation);
 
 	FVector WorldLocation = ActiveBuildingComponentProxy->GetActorTransform().TransformPosition(MoveLocation);
@@ -333,7 +336,9 @@ void UBuildSystemManagerComponent::MoveProxyToSnapLocation(FVector ProxySnapLoca
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, BlueHoloMaterial);
 	}
 
-	/*FBox ActorBox = ActiveBuildingComponentProxy->GetComponentsBoundingBox();
+	/*
+	 *USED FOR DEBUGGING
+	 *FBox ActorBox = ActiveBuildingComponentProxy->GetComponentsBoundingBox();
 	DrawDebugBox(GetWorld(), ActorBox.GetCenter(), ActorBox.GetExtent(), FColor::Red, false, 1.0f, 0, 5.0f);*/
 }
 

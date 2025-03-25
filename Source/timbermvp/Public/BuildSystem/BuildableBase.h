@@ -23,6 +23,23 @@ public:
 	int CostOfUniques = 0;
 };
 
+UENUM(BlueprintType)
+enum class ESnapCondition : uint8
+{
+	/* Used for Walls and Floors*/
+	BuildingComponent UMETA(DisplayName = "BuildingComponent"),
+	/* Used for Traps that can be placed on Front or Back of Walls and Floors*/
+	CenterSnap UMETA(DisplayName = "CenterSnap"),
+	/* Used for Items Like Teleporters */
+	EdgeSnapTopOnly UMETA(DisplayName = "EdgeSnapTopOnly"),
+	/* Used for items like the Power-plate that need to be walked over. - Facing +Z */
+	FloorCenterSnapTopOnly UMETA(DisplayName = "FloorCenterSnapTopOnly"),
+	/* Used for Items that may only hand from ceiling - Facing -Z*/
+	FloorCenterSnapBottomOnly UMETA(DisplayName = "FloorCenterSnapBottomOnly"),
+	/*Default Setting needs to be Overwritten on the Individual Buildables*/
+	Default UMETA(DisplayName = "Default"),
+};
+
 
 UENUM(BlueprintType)
 enum class EBuildableType : uint8
@@ -47,6 +64,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
 	bool bCanBuildableBeFinalized = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
+	ESnapCondition SnapCondition = ESnapCondition::Default;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
 	EBuildableType BuildableType = EBuildableType::Default;
 

@@ -8,9 +8,9 @@
 #include "BuildSystemManagerComponent.generated.h"
 
 
-class ATeleportConstruct;
 enum class EBuildingComponentOrientation : uint8;
 enum class EBuildingComponentTrapDirection : uint8;
+class ATeleportConstruct;
 class ARampBase;
 class ATrapBase;
 class ABuildableBase;
@@ -56,9 +56,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 
-	//A Reference to the Proxy as a buildable
+	//A Reference to the Proxy as a buildable - This should always be the reference to the Proxy
 	UPROPERTY(EditAnywhere, Category="Buildable")
-	ABuildableBase* BuildableRef = nullptr;
+	ABuildableBase* BuildableProxyInstance = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
@@ -122,6 +122,8 @@ protected:
 
 public:
 	/* Spawning */
+
+	
 	UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
 	UFUNCTION()
@@ -135,6 +137,18 @@ public:
 	void SpawnFinalCenterSnapFloorOnlyBuildingComponent(FActorSpawnParameters SpawnParameters);
 
 	/*Placement*/
+
+	//New Build Placement Functions
+
+	UFUNCTION()
+	void HandleProxyPlacement(TArray<FHitResult> HitResults, TSubclassOf<ABuildableBase> BuildableProxyClass);
+	UFUNCTION()
+	AActor* SpawnProxy(TSubclassOf<ABuildableBase> ActiveBuildableClass, FVector SpawnLocation, FRotator SpawnRotation);
+	UFUNCTION()
+	ATimberBuildingComponentBase* FindFirstHitBuildingComponent(TArray<FHitResult> HitResults);
+
+
+	// Old Build Placement Functions
 	UFUNCTION()
 	void HandleCenterSnapFloorOnlyPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
@@ -180,13 +194,14 @@ public:
 	FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };
-	FORCEINLINE ABuildableBase* GetBuildableRef() { return BuildableRef; };
-	FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) { BuildableRef = BuildingComponent; };
+	FORCEINLINE ABuildableBase* GetBuildableRef() { return BuildableProxyInstance; };
+	FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) { BuildableProxyInstance = BuildingComponent; };
 
 	//Used to remember the previous Rotation of the Building Component after Leaving Build Mode.
 	void SetSavedRotation(FRotator Rotation) { SavedRotation = Rotation; };
 
 	/*Buildable Placement Functions*/
+	//Used for Traps and Constructs
 	FTrapSnapData GetTrapSnapTransform(
 		FVector ImpactPoint, ATimberBuildingComponentBase*
 		BuildingComponent, ATrapBase* TrapComponentProxy);

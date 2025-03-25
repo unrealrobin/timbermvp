@@ -208,6 +208,10 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 			//There is a Hit and We can Start the PlacementProcess.
 			BuildSystemManager->HandleProxyPlacement(HitResults, ActiveBuildableClass);
 			
+			/*if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+			{
+				BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
+			}*/
 			
 			/*if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
 			{
@@ -224,22 +228,15 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 				BuildSystemManager->HandleRampPlacement(HitResults);
 			}
 
-			if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-			{
-				BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
-			}
 			
 			if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
 			{
 				BuildSystemManager->HandleCenterSnapFloorOnlyPlacement(HitResults);
 			}*/
 		}
-		else
+		else //If the Raycast Hit Nothing
 		{
 			BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
-			BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
-			BuildSystemManager->ResetBuildableComponents(ARampBase::StaticClass());
-			BuildSystemManager->ResetBuildableComponents(ATeleportConstruct::StaticClass());
 		}
 	}
 }

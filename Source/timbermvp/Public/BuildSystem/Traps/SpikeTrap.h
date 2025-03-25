@@ -16,9 +16,6 @@ class TIMBERMVP_API ASpikeTrap : public ATrapBase
 
 public:
 	ASpikeTrap();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	ESnapCondition SnapCondition = ESnapCondition::CenterSnap;
 	
 protected:
 	virtual void BeginPlay() override;

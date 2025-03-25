@@ -20,9 +20,6 @@ public:
 	// Sets default values for this actor's properties
 	AElectroStaticPulseTrap();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	ESnapCondition SnapCondition = ESnapCondition::CenterSnap;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

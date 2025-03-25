@@ -27,8 +27,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* CollisionBox;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	ESnapCondition SnapCondition = ESnapCondition::FloorCenterSnapTopOnly;
 
 protected:
 	// Called when the game starts or when spawned

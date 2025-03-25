@@ -15,9 +15,6 @@ public:
 	// Sets default values for this actor's properties
 	ATimberVerticalBuildingComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	ESnapCondition SnapCondition = ESnapCondition::BuildingComponent;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

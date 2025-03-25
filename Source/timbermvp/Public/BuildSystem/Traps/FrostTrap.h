@@ -18,9 +18,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* FrostTrapVentMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	ESnapCondition SnapCondition = ESnapCondition::CenterSnap;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

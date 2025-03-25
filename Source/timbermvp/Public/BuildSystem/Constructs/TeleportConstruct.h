@@ -33,9 +33,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	ETeleportConstructState TeleportConstructState = ETeleportConstructState::Default;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	ESnapCondition SnapCondition = ESnapCondition::EdgeSnapTopOnly;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

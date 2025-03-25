@@ -17,11 +17,11 @@ class ABuildableBase;
 class ATimberBuildingComponentBase;
 
 USTRUCT(BlueprintType)
-struct FTrapSnapData
+struct FBuildablePlacementData
 {
 	GENERATED_BODY()
 
-	FTrapSnapData()
+	FBuildablePlacementData()
 		: TrapLocation(FVector::ZeroVector), TrapRotation(FRotator::ZeroRotator)
 	{
 	}
@@ -60,8 +60,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ABuildableBase* BuildableProxyInstance = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Buildable")
-	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;
+	/*UPROPERTY(EditAnywhere, Category="Buildable")
+	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;*/
 
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ATrapBase* ActiveTrapComponentProxy = nullptr;
@@ -124,8 +124,8 @@ public:
 	/* Spawning */
 
 	
-	UFUNCTION()
-	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);
+	/*UFUNCTION()
+	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);*/
 	UFUNCTION()
 	void SpawnFinalBuildable();
 	void SpawnFinalRampComponent(FActorSpawnParameters SpawnParameters);
@@ -146,6 +146,8 @@ public:
 	AActor* SpawnProxy(TSubclassOf<ABuildableBase> ActiveBuildableClass, FVector SpawnLocation, FRotator SpawnRotation);
 	UFUNCTION()
 	ATimberBuildingComponentBase* FindFirstHitBuildingComponent(TArray<FHitResult> HitResults);
+	UFUNCTION()
+	FHitResult FirstHitBuildingComponentHitResult(TArray<FHitResult> HitResults);
 
 
 	// Old Build Placement Functions
@@ -158,9 +160,9 @@ public:
 	UFUNCTION()
 	void HandleTrapPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
-	void HandleBuildingComponentPlacement(TArray<FHitResult> HitResults);
+	void HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult);
 	UFUNCTION()
-	void HandleBuildingComponentSnapping(FHitResult HitQuadrant, FHitResult HitActor);
+	void HandleBuildingComponentSnapping(FHitResult HitResult);
 	void MoveBuildingComponent(
 		FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation
 			= FRotator::ZeroRotator);
@@ -181,7 +183,7 @@ public:
 	/*Building Component Placement Variables*/
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
-	FORCEINLINE void EmptyActiveBuildingComponent() { ActiveBuildingComponentProxy = nullptr; };
+	//FORCEINLINE void EmptyActiveBuildingComponent() { ActiveBuildingComponentProxy = nullptr; };
 
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() { return ActiveBuildableComponentClass; } ;
@@ -189,8 +191,8 @@ public:
 	FORCEINLINE ATrapBase* GetActiveRampComponent() const { return ActiveTrapComponentProxy; };
 	UFUNCTION(BlueprintCallable, Category="Building Component")
 	void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass);
-	FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponentProxy() const { return ActiveBuildingComponentProxy; };
-	FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
+	//FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponentProxy() const { return ActiveBuildingComponentProxy; };
+	//FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
 	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };
@@ -202,7 +204,7 @@ public:
 
 	/*Buildable Placement Functions*/
 	//Used for Traps and Constructs
-	FTrapSnapData GetTrapSnapTransform(
+	FBuildablePlacementData GetTrapSnapTransform(
 		FVector ImpactPoint, ATimberBuildingComponentBase*
 		BuildingComponent, ATrapBase* TrapComponentProxy);
 	

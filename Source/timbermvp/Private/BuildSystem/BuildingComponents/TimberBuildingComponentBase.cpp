@@ -153,10 +153,10 @@ void ATimberBuildingComponentBase::CreateSnapPoints()
 		RightSnap->SetupAttachment(StaticMesh);
 		CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
 		CenterSnap->SetupAttachment(StaticMesh);
-		FrontTrapSnap = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
-		FrontTrapSnap->SetupAttachment(StaticMesh);
-		BackTrapSnap = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
-		BackTrapSnap->SetupAttachment(StaticMesh);
+		FrontCenterSnapPoint = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
+		FrontCenterSnapPoint->SetupAttachment(StaticMesh);
+		BackCenterSnapPoint = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
+		BackCenterSnapPoint->SetupAttachment(StaticMesh);
 	}
 }
 

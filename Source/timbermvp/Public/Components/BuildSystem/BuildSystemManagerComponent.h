@@ -53,11 +53,11 @@ protected:
 	int GridSize = 100.f;
 
 	//Class to be spawned with the SpawnActor function - Triggered by Selection in Building Component Icon Event Graph
-	UPROPERTY(EditAnywhere, Category="Buildable")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable")
 	TSubclassOf<ABuildableBase> ActiveBuildableComponentClass;
 
 	//A Reference to the Proxy as a buildable - This should always be the reference to the Proxy
-	UPROPERTY(EditAnywhere, Category="Buildable")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable")
 	ABuildableBase* BuildableProxyInstance = nullptr;
 
 	/*UPROPERTY(EditAnywhere, Category="Buildable")
@@ -77,8 +77,8 @@ protected:
 	 *The reason for this is that Traps and Constructs may share the exact same snapping conditions and some
 	 *traps may have more complex and unique snapping conditions +
 	 */ 
-	UPROPERTY(EditAnywhere, Category="Buildable")
-	ABuildableBase* CenterSnapFloorOnlyBuildingComponentProxy = nullptr;
+	/*UPROPERTY(EditAnywhere, Category="Buildable")
+	ABuildableBase* CenterSnapFloorOnlyBuildingComponentProxy = nullptr;*/
 
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
@@ -144,18 +144,20 @@ public:
 	void HandleProxyPlacement(TArray<FHitResult> HitResults, TSubclassOf<ABuildableBase> BuildableProxyClass);
 	UFUNCTION()
 	AActor* SpawnProxy(TSubclassOf<ABuildableBase> ActiveBuildableClass, FVector SpawnLocation, FRotator SpawnRotation);
-	UFUNCTION()
-	ATimberBuildingComponentBase* FindFirstHitBuildingComponent(TArray<FHitResult> HitResults);
+	/*UFUNCTION()
+	ATimberBuildingComponentBase* FindFirstHitBuildingComponent(TArray<FHitResult> HitResults);*/
 	UFUNCTION()
 	FHitResult FirstHitBuildingComponentHitResult(TArray<FHitResult> HitResults);
 	UFUNCTION()
 	void HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult);
 	UFUNCTION()
 	void HandleCenterSnapPlacement(FHitResult FirstHitBuildingComponentHitResult);
+	UFUNCTION()
+	void HandleFloorCenterSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult);
 
 	// Old Build Placement Functions
-	UFUNCTION()
-	void HandleCenterSnapFloorOnlyPlacement(TArray<FHitResult> HitResults);
+	/*UFUNCTION()
+	void HandleCenterSnapFloorOnlyPlacement(TArray<FHitResult> HitResults);*/
 	UFUNCTION()
 	void HandleTeleportConstructPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()

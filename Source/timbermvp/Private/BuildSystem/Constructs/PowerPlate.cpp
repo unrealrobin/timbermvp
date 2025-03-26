@@ -37,7 +37,7 @@ void APowerPlate::FreeUpTrapSlotOnBuildingComponent()
 {
 	if (ParentBuildingComponent)
 	{
-		ParentBuildingComponent->FrontTrap = nullptr;
+		ParentBuildingComponent->FrontCenterAttachment = nullptr;
 	}
 	else
 	{

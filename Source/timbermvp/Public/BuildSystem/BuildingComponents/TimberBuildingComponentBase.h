@@ -100,15 +100,15 @@ public:
 
 	/* Trap/Construct Snap Locations & Slots */
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
-	USceneComponent* FrontTrapSnap;
+	USceneComponent* FrontCenterSnapPoint;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
-	USceneComponent* BackTrapSnap;
+	USceneComponent* BackCenterSnapPoint;
 
 	//Tracks the Attached Traps Placed on the Walls/Floors
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
-	ABuildableBase* FrontTrap = nullptr;
+	ABuildableBase* FrontCenterAttachment = nullptr;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
-	ABuildableBase* BackTrap = nullptr;
+	ABuildableBase* BackCenterAttachment = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
 	UBoxComponent* TopQuadrant;

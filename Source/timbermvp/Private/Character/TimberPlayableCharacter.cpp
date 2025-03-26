@@ -213,15 +213,17 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 				BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
 			}*/
 			
+			/*
+			if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
+			{
+				BuildSystemManager->HandleTrapPlacement(HitResults);
+			}*/
+			
 			/*if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
 			{
 				BuildSystemManager->HandleTeleportConstructPlacement(HitResults);
 			}
 
-			if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
-			{
-				BuildSystemManager->HandleTrapPlacement(HitResults);
-			}
 
 			if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
 			{

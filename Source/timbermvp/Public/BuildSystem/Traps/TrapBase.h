@@ -86,6 +86,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
 	ETrapType TrapType = ETrapType::Default;
 
+	//TODO:: Work on Renaming this to be more General to Center Snap Buildable. 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
 	EBuildingComponentTrapDirection BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 

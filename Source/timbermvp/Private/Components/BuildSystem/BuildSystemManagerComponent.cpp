@@ -494,14 +494,16 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 		->InventoryManager->bCanAffordCost(BuildableProxyInstance->BuildableCost))
 		{
 			FActorSpawnParameters SpawnParameters;
-			if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
-			{
-				SpawnFinalCenterSnapBuildable(SpawnParameters);
-				PlayBuildablePlacementSound();
-			}
-			else if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+			//Walls, Floors, Etc.
+			if (ActiveBuildableComponentClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
 			{
 				SpawnFinalBuildingComponent(SpawnParameters);
+				PlayBuildablePlacementSound();
+			}
+			//Traps, Some Constructs, Etc.
+			else if (ActiveBuildableComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			{
+				SpawnFinalCenterSnapBuildable(SpawnParameters);
 				PlayBuildablePlacementSound();
 			}
 			else if (ActiveBuildableComponentClass->IsChildOf(ARampBase::StaticClass()))
@@ -584,13 +586,13 @@ void UBuildSystemManagerComponent::SpawnFinalRampComponent(FActorSpawnParameters
 void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnParameters SpawnParameters)
 {
 	//TODO:: We may need to rename the classes to be based on the Snap Condition and not the Trap Name.
-		//All Traps are Center Snap, but not all Center Snap are traps.
+	//All Traps are Center Snap, but not all Center Snap are traps.
+	//As it is now, all CenterSnapBuildabled would need to be children of the ATrapBase class which is not ideal.
 	ATrapBase* CenterSnapBuildable = Cast<ATrapBase>(BuildableProxyInstance);
 	
 	if (CenterSnapBuildable && CenterSnapBuildable->GetCanTrapBeFinalized())
 	{
 		//Spawn Final Trap
-		//GEngine->AddOnScreenDebugMessage(5, 3, FColor::Black, "Trap Finalized and spawned.");
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(
 			ActiveBuildableComponentClass,
@@ -598,42 +600,43 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			CenterSnapBuildable->GetActorRotation(),
 			SpawnParameters);
 
-		ATrapBase* FinalizedTrap = Cast<ATrapBase>(SpawnedActor);
-		if (FinalizedTrap &&  CenterSnapBuildable->TrapHoveredBuildingComponent)
+		ATrapBase* FinalizedCenterSnapBuildable = Cast<ATrapBase>(SpawnedActor);
+		if (FinalizedCenterSnapBuildable &&  CenterSnapBuildable->TrapHoveredBuildingComponent)
 		{
 			//Passing the Trap Direction from the Proxy to the Final Trap.
-			FinalizedTrap->BuildingComponentTrapDirection = CenterSnapBuildable->BuildingComponentTrapDirection;
+			FinalizedCenterSnapBuildable->BuildingComponentTrapDirection = CenterSnapBuildable->BuildingComponentTrapDirection;
 			
 			//Setting Parent-BC-Ref on Trap.
-			FinalizedTrap->ParentBuildingComponent = CenterSnapBuildable->TrapHoveredBuildingComponent;
+			FinalizedCenterSnapBuildable->ParentBuildingComponent = CenterSnapBuildable->TrapHoveredBuildingComponent;
 
-			//Resetting the Trap Direction back to default for further usage of the trap component.
+			//Resetting the Trap Direction back to default for further usage of the proxy.
 			CenterSnapBuildable->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 
-			BuildableProxyInstance = Cast<ABuildableBase>(FinalizedTrap);
+			//BuildableProxyInstance = Cast<ABuildableBase>(FinalizedCenterSnapBuildable);
 			
 			//Uses the solved Trap Direction to know which snap points to occupy on the Building Component (Wall/Floor)
-			EBuildingComponentTrapDirection TrapDirection = FinalizedTrap->BuildingComponentTrapDirection;
+			EBuildingComponentTrapDirection TrapDirection = FinalizedCenterSnapBuildable->BuildingComponentTrapDirection;
 			switch (TrapDirection)
 			{
 			case EBuildingComponentTrapDirection::Front:
-				CenterSnapBuildable->TrapHoveredBuildingComponent->FrontTrap = FinalizedTrap;
+				CenterSnapBuildable->TrapHoveredBuildingComponent->FrontTrap = FinalizedCenterSnapBuildable;
 				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Front Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Back:
-				CenterSnapBuildable->TrapHoveredBuildingComponent->BackTrap = FinalizedTrap;
+				CenterSnapBuildable->TrapHoveredBuildingComponent->BackTrap = FinalizedCenterSnapBuildable;
 				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Back Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Default:
 				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
 				break;
 			}
+			
+			//Uses hovered building component from player as the Parent Building Component to attach to.
+			AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedCenterSnapBuildable));
+			
+	        //Handle Inventory Transaction if Spawn is Successfull. We already checked if player can afford.
+			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(FinalizedCenterSnapBuildable->BuildableCost);
 		}
-		//Uses hovered building component from player as the Parent Building Component to attach to.
-		AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedTrap));
-		
-        //Handle Inventory Transaction if Spawn is Successfull. We check if player can afford in the SpawnFinalBuildable()
-		Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
 		
 		ResetBuildableComponents(ATrapBase::StaticClass());
 	}
@@ -1165,16 +1168,17 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		{
 			HandleBuildingComponentSnapping(FirstHitBuildingComponentHitResult);
 		}
-		else
+	}
+	else
+	{
+		//There is no Hit Result for either a Quadrant or a Building Component so we move it to some impact point.
+		//EX. First Blocking hit is some other type of actor. Ex. Seeda, Environment, etc,
+		ATimberBuildingComponentBase* ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(BuildableProxyInstance);
+		if (ActiveBuildingComponentProxy)
 		{
-			//There is no Hit Result for either a Quadrant or a Building Component so we move it to some impact point.
-			//EX. First Blocking hit is some other type of actor.
-			ATimberBuildingComponentBase* ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(BuildableProxyInstance);
-			if (ActiveBuildingComponentProxy)
-			{
-				/*Simple Move to Location*/
-				MoveBuildingComponent(FirstHitBuildingComponentHitResult.ImpactPoint, ActiveBuildingComponentProxy);
-			}
+			/*Simple Move to Location*/
+			MoveBuildingComponent(FirstHitBuildingComponentHitResult.ImpactPoint, ActiveBuildingComponentProxy);
+			ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
 		}
 		
 	}

@@ -1483,7 +1483,7 @@ void UBuildSystemManagerComponent::HandleProxyPlacement(TArray<FHitResult> HitRe
 	{
 		//We are Spawning the Initial Proxy at the Hit Location. At the next frame there may be a Snap that we can move to.
 		BuildableProxyInstance = Cast<ABuildableBase>(SpawnProxy(BuildableProxyClass, HitResults[0].ImpactPoint, 
-		GetOwner()->GetActorRotation()));
+		FRotator::ZeroRotator));
 		if (BuildableProxyInstance)
 		{
 			BuildableProxyInstance->bCanBuildableBeFinalized = false;

@@ -46,7 +46,10 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 		//UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Created"));
 		//Spawn the Box at the BoxExtentRayCast Start
 		PulseHitBox->SetRelativeLocation(BoxExtentRaycastStart->GetComponentLocation());
-		PulseHitBox->SetRelativeRotation(BoxExtentRaycastStart->GetComponentRotation());
+
+		FRotator AdjustedRotation = BoxExtentRaycastStart->GetComponentRotation();
+		AdjustedRotation.Yaw -= 90.f;
+		PulseHitBox->SetRelativeRotation(AdjustedRotation);
 		
 		PulseHitBox->RegisterComponent();
 
@@ -88,7 +91,7 @@ void AElectroStaticPulseTrap::MovePulseHitBox(float DeltaTime)
 		FVector PulseStartLocation = PulseHitBox->GetComponentLocation();
 
 		//Pulse Direction
-		FVector ForwardVector = BoxExtentRaycastStart->GetRightVector();
+		FVector ForwardVector = BoxExtentRaycastStart->GetForwardVector();
 		
 		//Amount of Translation 
 		FVector NewLocation =	PulseStartLocation + (ForwardVector * 200 * DeltaTime);

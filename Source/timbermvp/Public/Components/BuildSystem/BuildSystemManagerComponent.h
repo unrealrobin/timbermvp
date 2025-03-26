@@ -66,8 +66,8 @@ protected:
 	/*UPROPERTY(EditAnywhere, Category="Buildable")
 	ATrapBase* ActiveTrapComponentProxy = nullptr;*/
 
-	UPROPERTY(EditAnywhere, Category="Buildable")
-	ARampBase* ActiveRampComponentProxy = nullptr;
+	/*UPROPERTY(EditAnywhere, Category="Buildable")
+	ARampBase* ActiveRampComponentProxy = nullptr;*/
 	
 	UPROPERTY(EditAnywhere, Category="Buildable")
 	ATeleportConstruct* ActiveTeleportConstructProxy = nullptr;
@@ -126,15 +126,16 @@ public:
 	
 	/*UFUNCTION()
 	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);*/
+	/*UFUNCTION()
+	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);*/
 	UFUNCTION()
 	void SpawnFinalBuildable();
 	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalCenterSnapBuildable(FActorSpawnParameters SpawnParameters);
-	void SpawnFinalRampComponent(FActorSpawnParameters SpawnParameters);
+	void SpawnFinalFloorCenterSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters);
+	void SpawnFinalRampBuildable(FActorSpawnParameters SpawnParameters);
+	
 	void SpawnTemporaryTeleportConstruct(FActorSpawnParameters SpawnParameters);
-	/*UFUNCTION()
-	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);*/
-	void SpawnFinalCenterSnapFloorOnlyBuildingComponent(FActorSpawnParameters SpawnParameters);
 
 	/*Placement*/
 
@@ -161,7 +162,7 @@ public:
 	UFUNCTION()
 	void HandleTeleportConstructPlacement(TArray<FHitResult> HitResults);
 	UFUNCTION()
-	void HandleRampPlacement(TArray<FHitResult> HitResults);
+	void HandleRampPlacement(FHitResult FirstHitBuildingComponentHitResult);
 	/*UFUNCTION()
 	void HandleTrapPlacement(TArray<FHitResult> HitResults);*/
 	UFUNCTION()
@@ -203,8 +204,8 @@ public:
 	//FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponentProxy() const { return ActiveBuildingComponentProxy; };
 	//FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
 	/*FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };*/
-	FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
-	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };
+	/*FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
+	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };*/
 	FORCEINLINE ABuildableBase* GetBuildableRef() { return BuildableProxyInstance; };
 	FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) { BuildableProxyInstance = BuildingComponent; };
 
@@ -226,6 +227,8 @@ public:
 	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
 
 private:
+
+	USceneComponent* GetClosestFaceSnapPoint(FHitResult HitResult);
 
 	/*Tutorial*/
 	UPROPERTY()

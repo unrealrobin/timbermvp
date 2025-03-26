@@ -36,6 +36,8 @@ enum class ESnapCondition : uint8
 	FloorCenterSnapTopOnly UMETA(DisplayName = "FloorCenterSnapTopOnly"),
 	/* Used for Items that may only hand from ceiling - Facing -Z*/
 	FloorCenterSnapBottomOnly UMETA(DisplayName = "FloorCenterSnapBottomOnly"),
+	/*Used for Ramps and Stairs Only*/
+	Ramp UMETA(DisplayName = "Ramp"),
 	/*Default Setting needs to be Overwritten on the Individual Buildables*/
 	Default UMETA(DisplayName = "Default"),
 };

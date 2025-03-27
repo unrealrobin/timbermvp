@@ -519,8 +519,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				break;
 			default:
 				UE_LOG(LogTemp, Warning, TEXT("SpawnFinalBuildable() - No Set Snap Condition."))
-
-			PlayBuildablePlacementSound();
+			
 
 				{//Used for Tutorial - Needs to be cleaned up and moved or something.
 					//Broadcast to Tutorial Game State to Increment State.
@@ -570,7 +569,7 @@ void UBuildSystemManagerComponent::SpawnFinalRampBuildable(FActorSpawnParameters
 		if(SpawnedActor)
 		{
 			RedrawPathTraceHandle.Broadcast();
-
+			PlayBuildablePlacementSound();
 			//Adding Ramp to Hovered Building Components Attachment Array, on Deletion or Destruction, Ramp will also be deleted.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
 			
@@ -630,6 +629,7 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
 				break;
 			}
+			PlayBuildablePlacementSound();
 			
 			//Uses hovered building component from player as the Parent Building Component to attach to.
 			AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedCenterSnapBuildable));
@@ -665,7 +665,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 		{
 			SpawnedActor->SetActorEnableCollision(true);
 			RedrawPathTraceHandle.Broadcast();
-
+			PlayBuildablePlacementSound();
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
 		}
 	}
@@ -744,7 +744,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActo
 		{
 			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-			
+			PlayBuildablePlacementSound();
 			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
 			if (TeleportConstruct)
 			{
@@ -800,7 +800,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FAc
 			}
 			//Sets up BC to be destroyed when the Snapped to Buildable is destroyed.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-
+			PlayBuildablePlacementSound();
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
 		}
 	}
@@ -1153,14 +1153,25 @@ FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
 
 void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
-	//Spawn the Proxy if it is not spawned or if the class is different.
-	/*if (ActiveBuildingComponentProxy == nullptr || ActiveBuildingComponentProxy->GetClass() !=GetActiveBuildableClass())
+	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(BuildableProxyInstance);
+	if (FloorComponent)
 	{
-		SpawnBuildingComponentProxy(HitResults[0].ImpactPoint, FRotator::ZeroRotator);
-	}*/
+		//If the Proxy is a floor component hovering over any Environment Component, We set it to Not Finalizable and make it red.
+		if (Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor())->BuildingComponentType == EBuildingComponentType::Environment)
+		{
+			BuildableProxyInstance->bCanBuildableBeFinalized = false;
+			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
+			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, FloorComponent);
+			return;
+		}
+		else
+		{
+			MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
+		}
+	}
 
 	//Using this just as a check for a Valid Hit Result
-	if (FirstHitBuildingComponentHitResult.GetActor() && FirstHitBuildingComponentHitResult.GetComponent())
+	if (FirstHitBuildingComponentHitResult.GetActor() && Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor()) && FirstHitBuildingComponentHitResult.GetComponent())
 	{
 		/*Data for First Hit Building Component*/
 		ATimberBuildingComponentBase* FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
@@ -1182,7 +1193,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		if (ActiveBuildingComponentProxy)
 		{
 			/*Simple Move to Location*/
-			MoveBuildingComponent(FirstHitBuildingComponentHitResult.ImpactPoint, ActiveBuildingComponentProxy);
+			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, ActiveBuildingComponentProxy);
 			ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
 		}
 		
@@ -1305,7 +1316,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 }*/
 
 /* Buildable Utils*/
-void UBuildSystemManagerComponent::MoveBuildingComponent(
+void UBuildSystemManagerComponent::MoveBuildable(
 	FVector_NetQuantize Location, ABuildableBase*
 	BuildingComponent, const FRotator& Rotation)
 {
@@ -1584,9 +1595,21 @@ void UBuildSystemManagerComponent::HandleCenterSnapPlacement(FHitResult FirstHit
 
 	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
 	ATrapBase* ActiveCenterSnapBuildable = Cast<ATrapBase>(BuildableProxyInstance);
-	//HIT A BUILDING COMPONENT - Excluding Environment Buildable
 	if (ActiveCenterSnapBuildable)
 	{
+		// Hit and Environment Building Component.
+		if (BuildingComponent && BuildingComponent->BuildingComponentType == EBuildingComponentType::Environment || 
+			BuildingComponent->BuildableType == EBuildableType::Environment)
+		{
+			MoveBuildable(FVector_NetQuantize(FirstHitBuildingComponentHitResult.ImpactPoint),
+				ActiveCenterSnapBuildable,
+				FRotator::ZeroRotator);
+			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
+			BuildableProxyInstance->bCanBuildableBeFinalized = false;
+			return;
+		}
+		
+		//HIT A BUILDING COMPONENT - Excluding Environment Buildable
 		if (BuildingComponent && BuildingComponent->BuildingComponentType != EBuildingComponentType::Environment && 
 			BuildingComponent->BuildableType != EBuildableType::Environment  )
 		{
@@ -1599,7 +1622,7 @@ void UBuildSystemManagerComponent::HandleCenterSnapPlacement(FHitResult FirstHit
 			BuildingComponent, 
 			ActiveCenterSnapBuildable);
 			
-			MoveBuildingComponent(FVector_NetQuantize(PlacementData.TrapLocation),
+			MoveBuildable(FVector_NetQuantize(PlacementData.TrapLocation),
 				ActiveCenterSnapBuildable,
 				PlacementData.TrapRotation);
 		}
@@ -1614,7 +1637,7 @@ void UBuildSystemManagerComponent::HandleCenterSnapPlacement(FHitResult FirstHit
 				{
 					FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
 					PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
-					MoveBuildingComponent(
+					MoveBuildable(
 						FirstHitBuildingComponentHitResult.ImpactPoint, ActiveCenterSnapBuildable,
 						PlayerRotation);
 				}
@@ -1635,13 +1658,13 @@ void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitRes
 			//If slot is occupied, construct cant be finalized.
 			BuildableProxyInstance->bCanBuildableBeFinalized = false;
 			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-			MoveBuildingComponent(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, 
+			MoveBuildable(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, 
 			FRotator::ZeroRotator);
 		}
 		else
 		{
 			//Moving to the Buildable to the correct location.
-			MoveBuildingComponent(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, 
+			MoveBuildable(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, 
 			FRotator::ZeroRotator);
 			BuildableProxyInstance->bCanBuildableBeFinalized = true;
 			MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
@@ -1650,7 +1673,7 @@ void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitRes
 	else
 	{
 		//If the Hit Actor is not a Floor Component, we move the Proxy to the Hit Location & set to not Finalizable.
-		MoveBuildingComponent(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
+		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
 		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
 		BuildableProxyInstance->bCanBuildableBeFinalized = false;
 	}
@@ -1723,7 +1746,7 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 	}
 	else
 	{
-		MoveBuildingComponent(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
+		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
 		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
 		BuildableProxyInstance->bCanBuildableBeFinalized = false;
 	}

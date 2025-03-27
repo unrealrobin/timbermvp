@@ -167,7 +167,7 @@ public:
 	void HandleTrapPlacement(TArray<FHitResult> HitResults);*/
 	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitResult);
-	void MoveBuildingComponent(
+	void MoveBuildable(
 		FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation
 			= FRotator::ZeroRotator);
 	void RotateBuildingComponent();

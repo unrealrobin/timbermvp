@@ -59,6 +59,7 @@ public:
 	/*States*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component Info")
 	EBuildingComponentOrientation BuildingOrientation = EBuildingComponentOrientation::Default;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
 
@@ -87,6 +88,16 @@ public:
 	UStaticMeshComponent* StaticMesh;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UBoxComponent* NavCollisionBox;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* TopQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* BottomQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* RightQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* LeftQuadrant;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
+	UBoxComponent* CenterQuadrant;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
 	USceneComponent* TopSnap;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Snap Locations")
@@ -105,24 +116,18 @@ public:
 	USceneComponent* BackCenterSnapPoint;
 
 	//Tracks the Attached Traps Placed on the Walls/Floors
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
 	ABuildableBase* FrontCenterAttachment = nullptr;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Active Traps")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
 	ABuildableBase* BackCenterAttachment = nullptr;
-
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
-	UBoxComponent* TopQuadrant;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
-	UBoxComponent* BottomQuadrant;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
-	UBoxComponent* RightQuadrant;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
-	UBoxComponent* LeftQuadrant;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
-	UBoxComponent* CenterQuadrant;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool IsUnlocked = true;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* FrontTopAttachment = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* FrontBottomAttachment = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* FrontRightAttachment = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* FrontLeftAttachment = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;

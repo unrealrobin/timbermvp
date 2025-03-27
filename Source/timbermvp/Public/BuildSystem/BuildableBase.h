@@ -30,12 +30,12 @@ enum class ESnapCondition : uint8
 	BuildingComponent UMETA(DisplayName = "BuildingComponent"),
 	/* Used for Traps that can be placed on Front or Back of Walls and Floors*/
 	CenterSnap UMETA(DisplayName = "CenterSnap"),
-	/* Used for Items Like Teleporters */
-	EdgeSnapTopOnly UMETA(DisplayName = "EdgeSnapTopOnly"),
 	/* Used for items like the Power-plate that need to be walked over. - Facing +Z */
 	FloorCenterSnapTopOnly UMETA(DisplayName = "FloorCenterSnapTopOnly"),
 	/* Used for Items that may only hand from ceiling - Facing -Z*/
 	FloorCenterSnapBottomOnly UMETA(DisplayName = "FloorCenterSnapBottomOnly"),
+	/*Used for Teleporters*/
+	FloorEdgeSnapTopOnly UMETA(DisplayName = "FloorCenterSnapBottomOnly"),
 	/*Used for Ramps and Stairs Only*/
 	Ramp UMETA(DisplayName = "Ramp"),
 	/*Default Setting needs to be Overwritten on the Individual Buildables*/

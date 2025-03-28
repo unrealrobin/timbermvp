@@ -215,6 +215,11 @@ void ATimberGameModeBase::HandleTutorialStateChange(ETutorialState NewState)
 		{
 			//Starting wave 1 (Tutorial Wave)
 			WaveSubsystem->StartWave();
+			UE_LOG(LogTemp, Warning, TEXT("GameModeBase - Starting Wave 1."));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("GameModeBase - Wave Subsystem Not Found."));
 		}
 	}
 }

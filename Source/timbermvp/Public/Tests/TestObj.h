@@ -33,8 +33,6 @@ public:
 	TObjectPtr<UCapsuleComponent> CollisionCapsule;
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> StaticMeshBase;
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UStaticMeshComponent> StaticMeshAttachment;
 
 	UFUNCTION()
 	void SetInteractItem(

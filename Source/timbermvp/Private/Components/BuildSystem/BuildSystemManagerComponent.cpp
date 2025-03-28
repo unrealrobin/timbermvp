@@ -58,20 +58,20 @@ void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult Hi
 		{
 		case 1:
 			SameOrientationSnapCondition(HitResult, HitResult); //Wall Proxy to Wall
-			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 1."));
+			//UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 1."));
 			break;
 		case 2:
 			SameOrientationSnapCondition(HitResult, HitResult); // Floor Proxy to Floor
-			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 2."));
+			//UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 2."));
 			break;
 		case 3:
 			VerticalToHorizontalSnapCondition(HitResult, HitResult); //Wall Proxy to Floor
-			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 3."));
+			//UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 3."));
 			break;
 		case 4:
 			//Likely Unnecessary as Case 3 handles the same condition.
 			HorizontalToVerticalSnapCondition(HitResult, HitResult); //Floor Proxy to Wall
-			UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 4."));
+			//UE_LOG(LogTemp, Warning, TEXT("Building Component Snap Condition 4."));
 			break;
 		default:
 			//UE_LOG(LogTemp, Error, TEXT("Error handling Orientation Condition Check."));
@@ -501,7 +501,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 
 			switch (BuildableProxyInstance->SnapCondition)
 			{
-				//Walls, Floors, Etc.
+			//Walls, Floors, Etc.
 			case ESnapCondition::BuildingComponent:
 				SpawnFinalBuildingComponent(SpawnParameters);
 				break;
@@ -519,23 +519,20 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				break;
 			default:
 				UE_LOG(LogTemp, Warning, TEXT("SpawnFinalBuildable() - No Set Snap Condition."))
-			
+			}
 
-				{//Used for Tutorial - Needs to be cleaned up and moved or something.
-					//Broadcast to Tutorial Game State to Increment State.
-					ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-					if (DieRobotGameStateBase)
+
+			ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+			if (DieRobotGameStateBase)
+			{
+				ETutorialState CurrentState = DieRobotGameStateBase->TutorialState;
+				if (CurrentState == ETutorialState::Building1)
+				{
+					TutorialBuildsPlaced += 1;
+					if (TutorialBuildsPlaced == 2)
 					{
-						ETutorialState CurrentState = DieRobotGameStateBase->TutorialState;
-						if (CurrentState == ETutorialState::Building1)
-						{
-							TutorialBuildsPlaced += 1;
-							if (TutorialBuildsPlaced == 2)
-							{
-								//Wave Ready to begin.
-								DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
-							}
-						}
+						//Wave Ready to begin.
+						DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
 					}
 				}
 			}
@@ -1104,7 +1101,7 @@ FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
 		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
 		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
 
-		UE_LOG(LogTemp, Warning, TEXT("Length to Front Snap: %f. Length to Back Snap: %f."), LengthToFrontTrapSnap, LengthToBackTrapSnap);
+		//UE_LOG(LogTemp, Warning, TEXT("Length to Front Snap: %f. Length to Back Snap: %f."), LengthToFrontTrapSnap, LengthToBackTrapSnap);
 
 		if (LengthToFrontTrapSnap < LengthToBackTrapSnap)
 		{
@@ -1116,7 +1113,7 @@ FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
 				TrapSnapData.TrapRotation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
 				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
 				TrapComponentProxy->SetCanTrapBeFinalized(true);
-				UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Front Snap."));
+				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Front Snap."));
 			}
 			else
 			{
@@ -1134,7 +1131,7 @@ FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
 				TrapSnapData.TrapRotation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
 				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
 				TrapComponentProxy->SetCanTrapBeFinalized(true);
-				UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Back Snap."));
+				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Back Snap."));
 			}
 			else
 			{

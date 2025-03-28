@@ -86,8 +86,7 @@ protected:
 public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UStaticMeshComponent* StaticMesh;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	UBoxComponent* NavCollisionBox;
+	
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")
 	UBoxComponent* TopQuadrant;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Quadrants")

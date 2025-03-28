@@ -23,13 +23,6 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1); 
 	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 
-	//TODO:: Can we figure out collision with static meshes so that we dont have this fuckin issues. This is unenecessary.
-	NavCollisionBox = CreateDefaultSubobject<UBoxComponent>("NavCollisionBox");
-	NavCollisionBox->SetupAttachment(StaticMesh);
-	NavCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	NavCollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-	NavCollisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-
 	/* Snap Points for Building Component to Building Component Snapping.*/
 	CreateSnapPoints();
 

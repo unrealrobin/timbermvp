@@ -128,7 +128,7 @@ void UDialogueManager::HandlePlayedDialogue(FName VoiceoverName)
 		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWake1Finish);
 	}else if (VoiceoverName == FName("Molly_Wake_3"))
 	{
-		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleWake3Finish);
+		DialoguePlayer->OnAudioFinished.AddUniqueDynamic(this, &UDialogueManager::HandleWake3Finish);
 	}else if (VoiceoverName == FName("Molly_Parts_1"))
 	{
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::HandleParts1Finish);
@@ -249,7 +249,7 @@ void UDialogueManager::HandleWaveStartDialogueFinish()
 	{
 		//State Change initiates Broadcast to Listeners
 		DieRobotGameState->ChangeTutorialGameState(ETutorialState::WaveStart);
-
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - HandleWaveStartDialogueFinish - WaveStart State Change."));
 		//Removing the Binding.
 		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWaveStartDialogueFinish);
 	}

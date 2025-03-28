@@ -318,25 +318,35 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 	}
 
 	//Checks if there is a Building Component already at the Snapped Location by Using an Overlap box as a test.
-	TArray<FOverlapResult> Overlaps;
-	bool bWillOverlap = GetWorld()->OverlapMultiByChannel(Overlaps,
+	//TArray<FOverlapResult> Overlaps;
+	/*bool bWillOverlap = GetWorld()->OverlapMultiByChannel(Overlaps,
 		WorldLocation,
 		FQuat::Identity, 
 		ECC_GameTraceChannel1, 
-		FCollisionShape::MakeBox(FVector(40, 40, 40)));
+		FCollisionShape::MakeBox(FVector(40, 40, 40)));*/
+	
+	TArray<FHitResult> HitResults;
+	bool bWillOverlap = GetWorld()->SweepMultiByChannel(
+		HitResults,
+		WorldLocation,
+		WorldLocation,  // Same start and end if stationary
+		FQuat::Identity,
+		ECC_GameTraceChannel1,
+		FCollisionShape::MakeBox(FVector(40, 40, 40))
+		);
 
 	DrawDebugBox(GetWorld(), WorldLocation, FVector(40, 40, 40), FColor::Green, false, -1);
 	//UE_LOG(LogTemp, Warning, TEXT("Moving Building Component."));
 	
 	if (bWillOverlap)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
+		UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, RedHoloMaterial);
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Not Overlap."));
+		UE_LOG(LogTemp, Warning, TEXT("Building Component Will Not Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = true;
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, BlueHoloMaterial);
 	}

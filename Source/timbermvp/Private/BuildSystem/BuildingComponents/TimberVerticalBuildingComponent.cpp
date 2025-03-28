@@ -11,6 +11,7 @@ ATimberVerticalBuildingComponent::ATimberVerticalBuildingComponent()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BuildingOrientation = EBuildingComponentOrientation::Vertical;
+	SnapCondition = ESnapCondition::BuildingComponent;
 }
 
 // Called when the game starts or when spawned

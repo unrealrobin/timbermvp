@@ -182,46 +182,64 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 {
 	//Active Buildable class set from UI Click in Build Panel Menu
-	TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
-	if (bHits && ActiveBuildableClass)
+	if (BuildSystemManager)
 	{
-		/* Hit Something/Anything */
-		//DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
+		TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
+		if (bHits && ActiveBuildableClass)
+		{
+			/* Hit Something/Anything */
+			//DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
 
-		//TODO:: We can generalize this to any Buildable that Snaps to Edges of Floor Only.
-		//TODO:: We need to adjust all of these to have types that determine their snap conditions
-			// We can then use the type to determine the Placement Function to be called. 
-		if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
-		{
-			BuildSystemManager->HandleTeleportConstructPlacement(HitResults);
-		}
+			//TODO:: We can generalize this to any Buildable that Snaps to Edges of Floor Only.
+			//TODO:: We need to adjust all of these to have types that determine their snap conditions
+				// We can then use the type to determine the Placement Function to be called.
 
-		if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
-		{
-			BuildSystemManager->HandleTrapPlacement(HitResults);
-		}
+			/*
+			 * Call BuildSystemManager to HandleProxyPlacement
+			 * HandleProxyPlacement should then Handle:
+			 * 1. Finding the First HitBuildingComponent and Return it or return null if none found.
+			 *  a. Depending on the Buildable Type, this returned Building Component may need to be filtered. For example
+			 *  buildables that only snap to floors or only snap to walls etc.
+			 *  2. Depending on Valdity of FirstHitBuildingComponent, either:
+			 *  a. Move the Proxy to the Snap Location of the Building Component.
+			 *  b. Move proxy to Hit Location and Make it No Finalizable.
+			 */
 
-		if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
-		{
-			BuildSystemManager->HandleRampPlacement(HitResults);
-		}
+			//There is a Hit and We can Start the PlacementProcess.
+			BuildSystemManager->HandleProxyPlacement(HitResults, ActiveBuildableClass);
+			
+			/*if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
+			{
+				BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
+			}*/
+			
+			/*
+			if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
+			{
+				BuildSystemManager->HandleTrapPlacement(HitResults);
+			}*/
+			
+			/*if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
+			{
+				BuildSystemManager->HandleTeleportConstructPlacement(HitResults);
+			}
 
-		if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-		{
-			BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
+
+			if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
+			{
+				BuildSystemManager->HandleRampPlacement(HitResults);
+			}
+
+			
+			if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
+			{
+				BuildSystemManager->HandleCenterSnapFloorOnlyPlacement(HitResults);
+			}*/
 		}
-		
-		if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
+		else //If the Raycast Hit Nothing
 		{
-			BuildSystemManager->HandleCenterSnapFloorOnlyPlacement(HitResults);
+			BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
 		}
-	}
-	else
-	{
-		BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
-		BuildSystemManager->ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
-		BuildSystemManager->ResetBuildableComponents(ARampBase::StaticClass());
-		BuildSystemManager->ResetBuildableComponents(ATeleportConstruct::StaticClass());
 	}
 }
 

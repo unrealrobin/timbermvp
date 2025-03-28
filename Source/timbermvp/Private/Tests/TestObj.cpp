@@ -27,7 +27,7 @@ void ATestObj::BeginPlay()
 
 	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &ATestObj::SetInteractItem);
 	CollisionCapsule->OnComponentEndOverlap.AddDynamic(this, &ATestObj::UnSetInteractItem);
-	InitialLeverRotation = StaticMeshAttachment->GetRelativeRotation();
+	InitialLeverRotation = StaticMeshBase->GetRelativeRotation();
 }
 
 // Called every frame
@@ -53,10 +53,10 @@ void ATestObj::Interact()
 	}
 	//Purely Visual
 	//Rotates the Lever to Show it is being interacted with
-	if (InitialLeverRotation == StaticMeshAttachment->GetRelativeRotation())
+	if (InitialLeverRotation == StaticMeshBase->GetRelativeRotation())
 	{
 		FRotator NewRotation = LeverOnRotation;
-		StaticMeshAttachment->SetRelativeRotation(NewRotation);
+		StaticMeshBase->SetRelativeRotation(NewRotation);
 	}
 
 	{
@@ -81,12 +81,12 @@ void ATestObj::SetInteractItem(
 void ATestObj::UnSetInteractItem(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (InitialLeverRotation != StaticMeshAttachment->GetRelativeRotation())
+	if (InitialLeverRotation != StaticMeshBase->GetRelativeRotation())
 	{
-		StaticMeshAttachment->SetRelativeRotation(InitialLeverRotation);
+		StaticMeshBase->SetRelativeRotation(InitialLeverRotation);
 	}
 
-	StaticMeshAttachment->AddLocalRotation(FRotator3d(0.0f, 0.0f, 0.0f));
+	StaticMeshBase->AddLocalRotation(FRotator3d(0.0f, 0.0f, 0.0f));
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 
 	if (TimberCharacter)

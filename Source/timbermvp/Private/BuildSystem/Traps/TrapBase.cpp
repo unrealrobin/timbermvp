@@ -14,12 +14,12 @@ ATrapBase::ATrapBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	TrapBaseStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("TrapBaseStaticMesh");
-	RootComponent = TrapBaseStaticMesh;
+	TrapBaseStaticMesh->SetupAttachment(RootComponent);
 
 	DisableAllStaticMeshCollisions(TrapBaseStaticMesh);
 
 	HitBoxComponent = CreateDefaultSubobject<UBoxComponent>("DamageArea");
-	HitBoxComponent->SetupAttachment(RootComponent);
+	HitBoxComponent->SetupAttachment(TrapBaseStaticMesh);
 }
 
 void ATrapBase::BeginPlay()
@@ -49,11 +49,11 @@ void ATrapBase::FreeUpTrapSlotOnBuildingComponent()
 		switch (BuildingComponentTrapDirection)
 		{
 		case EBuildingComponentTrapDirection::Back :
-			ParentBuildingComponent->BackTrap = nullptr;
+			ParentBuildingComponent->BackCenterAttachment = nullptr;
 			UE_LOG(LogTemp, Warning, TEXT("Trap Base - Parent Building Component Back Trap Set to Nullptr."));
 			break;
 		case EBuildingComponentTrapDirection::Front :
-			ParentBuildingComponent->FrontTrap = nullptr;
+			ParentBuildingComponent->FrontCenterAttachment = nullptr;
 			UE_LOG(LogTemp, Warning, TEXT("Trap Base - Parent Building Component Front Trap Set to Nullptr."));
 			break;
 		case EBuildingComponentTrapDirection::Default:

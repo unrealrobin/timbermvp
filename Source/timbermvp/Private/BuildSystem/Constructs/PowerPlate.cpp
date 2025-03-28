@@ -13,8 +13,8 @@ APowerPlate::APowerPlate()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	RootSceneComponent = CreateDefaultSubobject<USceneComponent>("RootSceneComponent");
-	RootComponent = RootSceneComponent;
+	SnapCondition = ESnapCondition::FloorCenterSnapTopOnly;
+	
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMeshComponent->SetupAttachment(RootComponent);
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("CollisionBox");
@@ -37,7 +37,7 @@ void APowerPlate::FreeUpTrapSlotOnBuildingComponent()
 {
 	if (ParentBuildingComponent)
 	{
-		ParentBuildingComponent->FrontTrap = nullptr;
+		ParentBuildingComponent->FrontCenterAttachment = nullptr;
 	}
 	else
 	{

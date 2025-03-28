@@ -153,7 +153,7 @@ public:
 	ATimberPlayerController* RaycastController;
 	
 	UPROPERTY(EditAnywhere, Category="Build System Info")
-	float BuildRaycastDistance = 1000.f;
+	float BuildRaycastDistance = 2000.f;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	bool ShouldRaycast = true;

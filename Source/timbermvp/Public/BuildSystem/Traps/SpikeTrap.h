@@ -16,7 +16,7 @@ class TIMBERMVP_API ASpikeTrap : public ATrapBase
 
 public:
 	ASpikeTrap();
-
+	
 protected:
 	virtual void BeginPlay() override;
 

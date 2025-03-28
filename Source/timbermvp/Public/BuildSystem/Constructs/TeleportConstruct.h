@@ -38,9 +38,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	USceneComponent* ComponentRoot;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* TeleportEffectMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")

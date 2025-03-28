@@ -13,6 +13,8 @@ ATeleportConstruct::ATeleportConstruct()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SnapCondition = ESnapCondition::FloorEdgeSnapTopOnly;
+
 	SetupComponents();
 
 	SaveDefaultMaterials();
@@ -40,18 +42,16 @@ void ATeleportConstruct::Tick(float DeltaTime)
 
 void ATeleportConstruct::SetupComponents()
 {
-	ComponentRoot =  CreateDefaultSubobject<USceneComponent>("ComponentRoot");
-	RootComponent = ComponentRoot;
-	TeleportOverlapBox = CreateDefaultSubobject<UBoxComponent>("TeleportOverlapBox");
-	TeleportOverlapBox -> SetupAttachment(RootComponent);
 	PillarLeft = CreateDefaultSubobject<UStaticMeshComponent>("PillarLeftStaticMesh");
 	PillarLeft->SetupAttachment(RootComponent);
+	TeleportOverlapBox = CreateDefaultSubobject<UBoxComponent>("TeleportOverlapBox");
+	TeleportOverlapBox -> SetupAttachment(PillarLeft);
 	PillarRight = CreateDefaultSubobject<UStaticMeshComponent>("PillarRightStaticMesh");
-	PillarRight->SetupAttachment(RootComponent);
+	PillarRight->SetupAttachment(PillarLeft);
 	TeleportLandingLocation = CreateDefaultSubobject<USceneComponent>("TeleportLandingLocation");
-	TeleportLandingLocation->SetupAttachment(RootComponent);
+	TeleportLandingLocation->SetupAttachment(PillarLeft);
 	TeleportEffectMesh = CreateDefaultSubobject<UStaticMeshComponent>("TeleportEffectMesh");
-	TeleportEffectMesh->SetupAttachment(RootComponent);
+	TeleportEffectMesh->SetupAttachment(PillarLeft);
 }
 
 void ATeleportConstruct::HandleTeleportOverlap(

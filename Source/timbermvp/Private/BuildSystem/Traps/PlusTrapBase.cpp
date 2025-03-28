@@ -26,14 +26,11 @@ void APlusTrapBase::BeginPlay()
 
 void APlusTrapBase::RaycastForHitBoxLength()
 {
-	//Storing Raycast Hit Results Array Globally
+	//Only Dynamically adjusts the HitBoxLength
 	
 	//Raycast
 	FVector StartPoint = BoxExtentRaycastStart->GetComponentLocation();
-
-	//Inverse the Right Vector to get the LeftVector (Needed because all building components are Y Forward)
-	//FVector EndPoint = StartPoint + ( -1 * BoxExtentRaycastStart->GetRightVector() * MaxHitBoxLength);
-	FVector EndPoint = StartPoint + ( BoxExtentRaycastStart->GetRightVector() * MaxHitBoxLength);
+	FVector EndPoint = StartPoint + ( BoxExtentRaycastStart->GetForwardVector() * MaxHitBoxLength);
 	
 	bool bHits = GetWorld()->LineTraceMultiByChannel(HitResults, StartPoint, EndPoint, ECC_Visibility );
 

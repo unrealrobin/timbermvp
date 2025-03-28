@@ -23,6 +23,25 @@ public:
 	int CostOfUniques = 0;
 };
 
+UENUM(BlueprintType)
+enum class ESnapCondition : uint8
+{
+	/* Used for Walls and Floors*/
+	BuildingComponent UMETA(DisplayName = "BuildingComponent"),
+	/* Used for Traps that can be placed on Front or Back of Walls and Floors*/
+	CenterSnap UMETA(DisplayName = "CenterSnap"),
+	/* Used for items like the Power-plate that need to be walked over. - Facing +Z */
+	FloorCenterSnapTopOnly UMETA(DisplayName = "FloorCenterSnapTopOnly"),
+	/* Used for Items that may only hand from ceiling - Facing -Z*/
+	FloorCenterSnapBottomOnly UMETA(DisplayName = "FloorCenterSnapBottomOnly"),
+	/*Used for Teleporters*/
+	FloorEdgeSnapTopOnly UMETA(DisplayName = "FloorCenterSnapBottomOnly"),
+	/*Used for Ramps and Stairs Only*/
+	Ramp UMETA(DisplayName = "Ramp"),
+	/*Default Setting needs to be Overwritten on the Individual Buildables*/
+	Default UMETA(DisplayName = "Default"),
+};
+
 
 UENUM(BlueprintType)
 enum class EBuildableType : uint8
@@ -48,6 +67,9 @@ public:
 	bool bCanBuildableBeFinalized = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
+	ESnapCondition SnapCondition = ESnapCondition::Default;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
 	EBuildableType BuildableType = EBuildableType::Default;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
@@ -61,6 +83,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
+	USceneComponent* RootSceneComponent;
 	
 	void SpawnLootInRange(int NumberOfParts = 0, int NumberOfMechanisms = 0, int NumberOfUniques = 0);
 

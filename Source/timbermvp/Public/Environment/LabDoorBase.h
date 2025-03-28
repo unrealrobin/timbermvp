@@ -48,9 +48,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Path Tracer")
 	USceneComponent* PathTracerStart;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Door Meshes")
-	UBoxComponent* LabDoorActivatorComponent;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Lab Door Meshes")
 	UStaticMeshComponent* LabDoorFrame;
 

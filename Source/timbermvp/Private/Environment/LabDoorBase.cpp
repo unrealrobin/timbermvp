@@ -26,9 +26,7 @@ void ALabDoorBase::BeginPlay()
 
 	LabDoorLeftClosePos = LabDoorLeft->GetRelativeLocation();
 	LabDoorRightClosePos = LabDoorRight->GetRelativeLocation();
-
 	
-
 	FOnTimelineFloat TimelineProgress;
 	//Function that runs on the Timeline Update - Where we will set relative locations of the doors
 	TimelineProgress.BindUFunction(this, FName("HandleTimelineProgress"));

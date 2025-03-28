@@ -12,9 +12,8 @@ ARampBase::ARampBase()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	BuildableType = EBuildableType::Ramp;
-
-	RootComponentBox = CreateDefaultSubobject<UBoxComponent>("RootComponentBox");
-	RootComponent = RootComponentBox;
+	SnapCondition = ESnapCondition::Ramp;
+	
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(RootComponent);
 	VerticalCenterSnap = CreateDefaultSubobject<USceneComponent>("VerticalCenterSnap");

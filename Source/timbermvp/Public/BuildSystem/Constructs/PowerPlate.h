@@ -20,15 +20,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
 	ATimberBuildingComponentBase* ParentBuildingComponent = nullptr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	USceneComponent* RootSceneComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* StaticMeshComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* CollisionBox;
+
 
 protected:
 	// Called when the game starts or when spawned

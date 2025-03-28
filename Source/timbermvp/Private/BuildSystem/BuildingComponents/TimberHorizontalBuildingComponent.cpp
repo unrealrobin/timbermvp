@@ -11,6 +11,7 @@ ATimberHorizontalBuildingComponent::ATimberHorizontalBuildingComponent()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BuildingOrientation = EBuildingComponentOrientation::Horizontal;
+	SnapCondition = ESnapCondition::BuildingComponent;
 }
 
 // Called when the game starts or when spawned

@@ -46,6 +46,15 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Owner)
 	AActor* WeaponOwner;
 
+	/*
+	 * Unit offset from Direct Center in All Axis
+	 * 1 is 100% Accuracy
+	 * Ex. 5 would be +5 and -5 in all axis, and a Random Number taken from that range.
+	 * Large is less accurate, small is more accurate.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Accuract")
+	int WeaponAccuracy = 20;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Weapon Components")
 	USceneComponent* ProjectileSpawnComponent;
 

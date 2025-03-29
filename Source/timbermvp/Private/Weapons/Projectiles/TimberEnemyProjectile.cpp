@@ -4,6 +4,7 @@
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberSeeda.h"
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -38,6 +39,13 @@ void ATimberEnemyProjectile::HandleBlocked(
 	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 	const FHitResult& Hit)
 {
+	//If the Other Actor isn't the current Target, do not overlap Damage.
+	if (!IsActorCurrentTarget(OtherActor))
+	{
+		Destroy();
+		return;
+	}
+	
 	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
 	if (BuildingComponent && BuildingComponent->BuildingComponentType != EBuildingComponentType::Environment)
 	{
@@ -59,6 +67,13 @@ void ATimberEnemyProjectile::HandleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	//If the Other Actor isn't the current Target, do not overlap Damage.
+	if (!IsActorCurrentTarget(OtherActor))
+	{
+		//Destroy();
+		return;
+	}
+	
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
 
@@ -81,4 +96,16 @@ void ATimberEnemyProjectile::HandleOverlap(
 
 	//UE_LOG(LogTemp, Warning, TEXT("Enemy Projectile Destroyed on Overlap."))
 	
+}
+
+bool ATimberEnemyProjectile::IsActorCurrentTarget(AActor* OtherActor)
+{
+	//Called in both block and Overlap
+	UE_LOG(LogTemp, Warning, TEXT("CurrentTarget: %s. OtherActor: %s."), *Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget->GetName(), *OtherActor->GetName());
+	if (OtherActor == Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget)
+	{
+		return true;
+	}
+
+	return false;
 }

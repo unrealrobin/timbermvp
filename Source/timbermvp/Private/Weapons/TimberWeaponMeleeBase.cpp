@@ -68,8 +68,9 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Ignoring the Owning Character  and the Actual Weapon itself.
-	if (OtherActor == GetOwner() || OtherActor == this)
+	//Ignoring the Owning Character, the Actual Weapon itself, and anything that is not the current target.
+	if (OtherActor == GetOwner() || OtherActor == this || Cast<ATimberEnemyCharacter>(GetOwner())->CurrentTarget != 
+	OtherActor)
 	{
 		return;
 	}

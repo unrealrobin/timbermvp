@@ -105,6 +105,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ATimberBuildingComponentBase* LineTraceToSeeda();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Target")
+	AActor* CurrentTarget = nullptr;
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	void StopAiControllerBehaviorTree();

@@ -62,8 +62,9 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	
-	
-	if(ActorsToIgnore.Contains(OtherActor))
+	//Current Target can Range from Player, Seeda, Building Component
+	// We want to focus damage only on the Current Damage and avoid "Collateral Damage"
+	if(ActorsToIgnore.Contains(OtherActor) || OtherActor != CurrentTarget)
 	{
 		return;
 	}

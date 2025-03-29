@@ -61,11 +61,13 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s. Current Target: %s"), *OtherActor->GetName(), *CurrentTarget->GetName());
 	
 	//Current Target can Range from Player, Seeda, Building Component
 	// We want to focus damage only on the Current Damage and avoid "Collateral Damage"
 	if(ActorsToIgnore.Contains(OtherActor) || OtherActor != CurrentTarget)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit Actor is not the current target. Returning."));
 		return;
 	}
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);

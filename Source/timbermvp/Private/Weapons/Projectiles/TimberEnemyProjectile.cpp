@@ -70,7 +70,7 @@ void ATimberEnemyProjectile::HandleOverlap(
 	//If the Other Actor isn't the current Target, do not overlap Damage.
 	if (!IsActorCurrentTarget(OtherActor))
 	{
-		Destroy();
+		//Destroy();
 		return;
 	}
 	
@@ -100,7 +100,8 @@ void ATimberEnemyProjectile::HandleOverlap(
 
 bool ATimberEnemyProjectile::IsActorCurrentTarget(AActor* OtherActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ProjectileOwner:Owner: %s"), *GetOwner()->GetOwner()->GetName());
+	//Called in both block and Overlap
+	UE_LOG(LogTemp, Warning, TEXT("CurrentTarget: %s. OtherActor: %s."), *Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget->GetName(), *OtherActor->GetName());
 	if (OtherActor == Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget)
 	{
 		return true;

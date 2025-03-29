@@ -121,10 +121,10 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 				//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile All Variables Loaded");
 				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 
-				//Get Player Character
+				//Get Enemy Player Character
 				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 				FRotator RandomAimOffset = FRotator(
-					FMath::RandRange(-1, 1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1));
+					FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy), FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy), FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy));
 
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this; //Weapon is owner of the projectile.

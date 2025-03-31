@@ -40,6 +40,7 @@ public:
 
 	UFUNCTION()
 	void HandleHitBuildingComponent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	void SetupProxyCollisionHandling();
 
 	// Used to check overlap with other building component.
@@ -66,10 +67,6 @@ public:
 	/*Proxy*/
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Building Component")
 	bool bIsProxy = false;
-
-	/*Attached Traps/Constructs*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attached Building Components")
-	TArray<ABuildableBase*> AttachedBuildingComponents;
 	
 	virtual void HandleDeletionOfBuildable() override;
 
@@ -118,8 +115,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
 	ABuildableBase* FrontCenterAttachment = nullptr;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
-	ABuildableBase* BackCenterAttachment = nullptr;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
 	ABuildableBase* FrontTopAttachment = nullptr;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
 	ABuildableBase* FrontBottomAttachment = nullptr;
@@ -127,6 +122,21 @@ public:
 	ABuildableBase* FrontRightAttachment = nullptr;
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
 	ABuildableBase* FrontLeftAttachment = nullptr;
+	
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* BackCenterAttachment = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* BackTopAttachment = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* BackBottomAttachment = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* BackRightAttachment = nullptr;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Attached Buildables")
+	ABuildableBase* BackLeftAttachment = nullptr;
+
+	/*Attached Traps/Constructs*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Attached Building Components")
+	TArray<ABuildableBase*> AttachedBuildingComponents;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateBrush BuildingComponentIconImage;

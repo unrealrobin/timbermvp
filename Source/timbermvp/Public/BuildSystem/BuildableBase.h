@@ -84,6 +84,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	/*Unique Tag for Tracking/Saving/Loading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Buildable")
+	FGuid GUID;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
 	USceneComponent* RootSceneComponent;
 	
@@ -101,6 +105,11 @@ public:
 	
 	UFUNCTION()
 	virtual void HandleDeletionOfBuildable();
+
+	UFUNCTION()
+	FGuid GetGUID() const;
+	UFUNCTION()
+	void SetGUID(FGuid NewGUID);
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

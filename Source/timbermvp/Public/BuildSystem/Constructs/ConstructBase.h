@@ -6,6 +6,8 @@
 #include "BuildSystem/BuildableBase.h"
 #include "ConstructBase.generated.h"
 
+class ATimberBuildingComponentBase;
+
 UCLASS()
 class TIMBERMVP_API AConstructBase : public ABuildableBase
 {
@@ -22,4 +24,7 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
+	ATimberBuildingComponentBase* ParentBuildingComponent = nullptr;
 };

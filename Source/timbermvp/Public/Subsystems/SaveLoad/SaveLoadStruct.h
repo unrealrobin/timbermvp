@@ -6,7 +6,7 @@
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Components/Inventory/InventoryObject.h"
 #include "GameFramework/SaveGame.h"
-#include "TimberSaveSystem.generated.h"
+#include "SaveLoadStruct.generated.h"
 
 USTRUCT(BlueprintType)
 struct FInventoryData
@@ -28,18 +28,42 @@ struct FInventoryData
 };
 
 USTRUCT(BlueprintType)
-struct FBuildingComponentData
+struct FBuildableData
 {
 	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	FGuid GUID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TSubclassOf<ABuildableBase> BuildingComponentClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FTransform BuildingComponentTransform;
+	
+	/*
+	 * These may or may not be populated / Used only for Building Components
+	 */
+	TArray<FGuid> AttachedBuildablesArray;
+	FGuid FrontCenterAttachmentGUID;
+	FGuid FrontTopAttachmentGUID;
+	FGuid FrontBottomAttachmentGUID;
+	FGuid FrontRightAttachmentGUID;
+	FGuid FrontLeftAttachmentGUID;
+	FGuid BackCenterAttachmentGUID;
+	FGuid BackTopAttachmentGUID;
+	FGuid BackBottomAttachmentGUID;
+	FGuid BackRightAttachmentGUID;
+	FGuid BackLeftAttachmentGUID;
+
+	/*Used for Traps/Constructs/Teleporters*/
+	FGuid ParentBuildingComponentGUID;
+
+	/*Teleporter Pairing*/
+	FGuid TeleportPairGUID;
 
 	//Default Constructor
-	FBuildingComponentData() :
+	FBuildableData() :
 		BuildingComponentClass(nullptr), BuildingComponentTransform(FTransform::Identity)
 	{}
 };
@@ -72,6 +96,9 @@ struct FSeedaData
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FRotator SeedaRotation;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float SeedaHealth = 100.f;
+
 	FSeedaData() :
 		SeedaLocation(FVector::ZeroVector), SeedaRotation(FRotator::ZeroRotator)
 	{}
@@ -93,7 +120,7 @@ struct FSeedaData
  * 
  */
 UCLASS()
-class TIMBERMVP_API UTimberSaveSystem : public USaveGame
+class TIMBERMVP_API USaveLoadStruct : public USaveGame
 {
 	GENERATED_BODY()
 
@@ -104,7 +131,7 @@ public:
 	int WaveNumber = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Building Component Save Data")
-	TArray<FBuildingComponentData> BuildingComponentsArray;
+	TArray<FBuildableData> BuildingComponentsArray;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Player Save Data")
 	FPlayerData PlayerData;

@@ -11,6 +11,7 @@
 #include "Environment/GarageDoorBase.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -313,8 +314,11 @@ void UWaveGameInstanceSubsystem::EndWave()
 	//Increment Wave - HUD Will always show UPCOMING wave.
 	IncrementWave();
 	
-	//Save Game - Game Mode will handle the saving of the game.
-	//SaveCurrentGameHandle.Broadcast();
+	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+	if(SaveLoadSubsystem)
+	{
+		SaveLoadSubsystem->SaveCurrentGame();
+	}
 	
 	//Start Timer for Next Wave
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 

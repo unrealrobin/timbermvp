@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "TimerManager.h"
-#include "SaveSystem/TimberSaveSystem.h"
+#include "Subsystems/SaveLoad/SaveLoadStruct.h"
 #include "States/DieRobotGameStateBase.h"
 #include "TimberGameModeBase.generated.h"
 
@@ -91,24 +91,24 @@ public:
 	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");
 	FString StandardSaveSlot = TEXT("StandardSaveSlot");
 
-	UFUNCTION()
+	/*UFUNCTION()
 	FString GetSaveSlot();
 	
-	/* Save System*/
+	/* Save System#1#
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
-	void SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance);
-	void SaveWaveData(UTimberSaveSystem* SaveGameInstance);
-	void SavePlayerData(UTimberSaveSystem* SaveGameInstance);
-	void SaveSeedaData(UTimberSaveSystem* SaveGameInstance);
+	void SaveBuildingComponentData(USaveLoadStruct* SaveGameInstance);
+	void SaveWaveData(USaveLoadStruct* SaveGameInstance);
+	void SavePlayerData(USaveLoadStruct* SaveGameInstance);
+	void SaveSeedaData(USaveLoadStruct* SaveGameInstance);
 
-	/*Load System*/
+	/*Load System#1#
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame();
-	void LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance);
-	void LoadWaveData(UTimberSaveSystem* LoadGameInstance);
-	void LoadPlayerState(UTimberSaveSystem* LoadGameInstance);
-	void LoadSeedaData(UTimberSaveSystem* LoadGameInstance);
+	void LoadBuildingComponents(USaveLoadStruct* LoadGameInstance);
+	void LoadWaveData(USaveLoadStruct* LoadGameInstance);
+	void LoadPlayerState(USaveLoadStruct* LoadGameInstance);
+	void LoadSeedaData(USaveLoadStruct* LoadGameInstance);*/
 
 	UFUNCTION()
 	void HandleWaveComplete(int CompletedWave);
@@ -126,15 +126,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SwitchToMainMenu();
 
-protected:
-
-	UWaveGameInstanceSubsystem* GetWaveGameInstanceSubsystem();
-
-	UFUNCTION()
-	void PlayBuildMusic();
-	UFUNCTION()
-	void PlayAttackMusic();
-
 	/*Handle Doors */
 	UFUNCTION()
 	void OpenLabDoors();
@@ -147,12 +138,20 @@ protected:
 	TArray<AActor*> ArrayOfLabDoors;
 
 	/* Path Tracing */
-	
 	UFUNCTION(BlueprintImplementableEvent)
 	void RedrawPathTrace();
 	UFUNCTION()
 	void HandleRedrawPathTrace();
 
+protected:
+
+	UWaveGameInstanceSubsystem* GetWaveGameInstanceSubsystem();
+
+	UFUNCTION()
+	void PlayBuildMusic();
+	UFUNCTION()
+	void PlayAttackMusic();
+	
 	/*Spawn*/
 
 	UFUNCTION()

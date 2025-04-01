@@ -681,6 +681,97 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 	}
 }
 
+void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
+{
+	/*Classes Using This Snap:
+	 * Teleporters
+	 */
+	
+	if (BuildableProxyInstance && BuildableProxyInstance->bCanBuildableBeFinalized)
+	{
+		//Spawn the Teleport half.
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(
+			ActiveBuildableComponentClass,
+			BuildableProxyInstance->GetActorLocation(),
+			BuildableProxyInstance->GetActorRotation(),
+			SpawnParameters);
+
+		if (ABuildableBase* SpawnedBuildable = Cast<ABuildableBase>(SpawnedActor))
+		{
+			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
+			SpawnedBuildable->ParentBuildable = Cast<ATimberBuildingComponentBase>(Cast<ATimberPlayableCharacter>(GetOwner())->HoveredBuildingComponent);
+		}
+
+		if (SpawnedActor)
+		{
+			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
+			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			PlayBuildablePlacementSound();
+			
+			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
+			if (TeleportConstruct)
+			{
+				HandleIsTeleporter(TeleportConstruct);
+			}
+		}
+	}
+	else
+	{
+		PlayBuildDeniedSound();
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
+{
+	/*
+	 * Classes Using this Snap:
+	 * PowerPlate
+	 */
+	if (BuildableProxyInstance && 
+	BuildableProxyInstance->bCanBuildableBeFinalized)
+	{
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			BuildableProxyInstance->GetActorLocation(),
+			BuildableProxyInstance->GetActorRotation(),
+			SpawnParameters);
+
+		if (SpawnedActor)
+		{
+			/*
+			 * Attaching the Buildable to the Building Component Slot
+			 * Lets the player know that another Buildable can not be placed in this slot.
+			 */
+			ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+			if (PlayerCharacter && PlayerCharacter->HoveredBuildingComponent)
+			{
+				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
+				{
+					BuildingComponent->FrontCenterAttachment = Cast<ABuildableBase>(SpawnedActor);
+					UE_LOG(LogTemp, Warning, TEXT("Construct set on FrontTrapSnap Slot."))
+					APowerPlate* PowerPlate = Cast<APowerPlate>(SpawnedActor);
+
+					//Setting the parent floor component on this actor, so we can free up slot during deletion.
+					if (PowerPlate && Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
+					{
+						PowerPlate->ParentBuildable = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent);
+					}
+				}
+			}
+			//Sets up BC to be destroyed when the Snapped to Buildable is destroyed.
+			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			PlayBuildablePlacementSound();
+			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+		}
+	}
+	else
+	{
+		PlayBuildDeniedSound();
+	    UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
+	}
+}
+
 void UBuildSystemManagerComponent::HandleIsTeleporter(ATeleportConstruct* TeleportConstruct)
 {
 	Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
@@ -728,91 +819,6 @@ void UBuildSystemManagerComponent::HandleIsTeleporter(ATeleportConstruct* Telepo
 		//Clear the Temp Pair on the BSM -  We don't need the local values if the Teleport Construct has ref to each other.
 		TeleportTempPair.Key = nullptr;
 		TeleportTempPair.Value = nullptr;
-	}
-}
-
-void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
-{
-	// Called on Input from Controller
-	//Spawning Temporary Teleport Construct - This is 1/2 of the Teleport Pair
-	
-	if (BuildableProxyInstance && BuildableProxyInstance->bCanBuildableBeFinalized)
-	{
-		//Spawn the Teleport half.
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(
-			ActiveBuildableComponentClass,
-			BuildableProxyInstance->GetActorLocation(),
-			BuildableProxyInstance->GetActorRotation(),
-			SpawnParameters);
-
-		if (SpawnedActor)
-		{
-			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
-			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-			PlayBuildablePlacementSound();
-			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
-			if (TeleportConstruct)
-			{
-				HandleIsTeleporter(TeleportConstruct);
-			}
-		}
-	}
-	else
-	{
-		PlayBuildDeniedSound();
-	}
-}
-
-void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
-{
-	/*
-	 * Need to Pay Attention to what the Actual BuildableProxyInstance is. We don't check what it is here. The ESnapType Determines which logic route to follow.
-	 * 
-	 */
-	//Spawn the Final Center Snap Floor Only Building Component
-	//PowerPlate
-	if (BuildableProxyInstance && 
-	BuildableProxyInstance->bCanBuildableBeFinalized)
-	{
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			BuildableProxyInstance->GetActorLocation(),
-			BuildableProxyInstance->GetActorRotation(),
-			SpawnParameters);
-
-		if (SpawnedActor)
-		{
-			/*
-			 * Attaching the Buildable to the Building Component Slot
-			 * Lets the player know that another Buildable can not be placed in this slot.
-			 */
-			ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-			if (PlayerCharacter && PlayerCharacter->HoveredBuildingComponent)
-			{
-				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
-				{
-					BuildingComponent->FrontCenterAttachment = Cast<ABuildableBase>(SpawnedActor);
-					UE_LOG(LogTemp, Warning, TEXT("Construct set on FrontTrapSnap Slot."))
-					APowerPlate* PowerPlate = Cast<APowerPlate>(SpawnedActor);
-
-					//Setting the parent floor component on this actor, so we can free up slot during deletion.
-					if (PowerPlate && Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
-					{
-						PowerPlate->ParentBuildable = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent);
-					}
-				}
-			}
-			//Sets up BC to be destroyed when the Snapped to Buildable is destroyed.
-			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-			PlayBuildablePlacementSound();
-			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
-		}
-	}
-	else
-	{
-		PlayBuildDeniedSound();
-	    UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
 	}
 }
 
@@ -1349,7 +1355,6 @@ void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitRes
 			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
 			MoveBuildable(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, 
 			FRotator::ZeroRotator);
-			BuildableProxyInstance->ParentBuildable = nullptr;	
 		}
 		else
 		{
@@ -1358,7 +1363,6 @@ void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitRes
 			FRotator::ZeroRotator);
 			BuildableProxyInstance->bCanBuildableBeFinalized = true;
 			MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
-			BuildableProxyInstance->ParentBuildable = FloorComponent;
 		}
 	}
 	else
@@ -1367,12 +1371,14 @@ void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitRes
 		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
 		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
 		BuildableProxyInstance->bCanBuildableBeFinalized = false;
-		BuildableProxyInstance->ParentBuildable = nullptr;
 	}
 }
 
 void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
+	/*Classes Using this:
+	 * Teleporter
+	 */
 	// CHeck FirstHitBuildingComponent Actor and Ensure it's a floor.
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(FirstHitBuildingComponentHitResult.GetActor());
 	if (FloorComponent)
@@ -1434,17 +1440,13 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 		}
 
 		BuildableProxyInstance->bCanBuildableBeFinalized = true;
-		BuildableProxyInstance->ParentBuildable = FloorComponent;
-		
 	}
 	else
 	{
 		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
 		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
 		BuildableProxyInstance->bCanBuildableBeFinalized = false;
-		BuildableProxyInstance->ParentBuildable = nullptr;
 	}
-	
 }
 
 

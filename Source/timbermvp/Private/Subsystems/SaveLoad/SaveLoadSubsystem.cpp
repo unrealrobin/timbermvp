@@ -140,30 +140,31 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 					//Casting the Paired Building Component to the correct type and setting the Parent Building Component
 					if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(GuidToBuildableMap[Data.ParentBuildableGUID]))
 					{
+						/*Traps*/
 						if (Trap)
 						{
 							Trap->ParentBuildable= BuildingComponent;
 							UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *Trap->GetName(), *BuildingComponent->GetName());
 						}
+						/*Constructs*/
 						if (Construct)
 						{
 							Construct->ParentBuildable= BuildingComponent;
 							UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *Construct->GetName(), *BuildingComponent->GetName());
 						}
+						/*Teleporters*/
 						if (TeleportConstruct)
 						{
+							// Teleporter have some Construction necessary when respawning themselves. The link Delegates etc.
 							TeleportConstruct->ParentBuildable= BuildingComponent;
+							TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
+							if (TeleportConstruct->TeleportPair)
+							{
+								TeleportConstruct->LinkToPair(TeleportConstruct->TeleportPair);
+							}
+							
 							UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *TeleportConstruct->GetName(), *BuildingComponent->GetName());
 						}
-					}
-				}
-
-				//Ensures the Teleport Pair is Registered and then its Instance Set on the Teleport Construct
-				if (TeleportConstruct)
-				{
-					if (bIsBuildableRegistered(Data.TeleportPairGUID))
-					{
-						TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
 					}
 				}
 			}
@@ -349,12 +350,9 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 							*TeleportConstruct->GetGUID().ToString(),
 							*TeleportConstruct->ParentBuildable->GetName(),
 							*TeleportConstruct->ParentBuildable->GetGUID().ToString());
-						BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
 					}
-					else
-					{
-						UE_LOG(LogTemp, Warning, TEXT("Teleporter %s has no ParentBuildable!"), *GetNameSafe(TeleportConstruct));
-					}
+					//Saving Teleport Pait GUID
+					BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
 				}
 				
 				SaveGameInstance->BuildingComponentsArray.Add(BuildableData);

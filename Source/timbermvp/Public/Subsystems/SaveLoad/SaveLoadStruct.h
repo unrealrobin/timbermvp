@@ -32,14 +32,15 @@ struct FBuildableData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite)
-	FGuid GUID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TSubclassOf<ABuildableBase> BuildingComponentClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FTransform BuildingComponentTransform;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FGuid GUID;
 	
 	/*
 	 * These may or may not be populated / Used only for Building Components

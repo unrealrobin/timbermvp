@@ -26,6 +26,97 @@ FString USaveLoadSubsystem::GetSaveSlot()
 	return StandardSaveSlot;
 }
 
+void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
+{
+	//Adds Key Value Pair
+	if (Buildable && Buildable->GetGUID().IsValid())
+	{
+		GuidToBuildableMap.Add(Buildable->GetGUID(), Buildable);
+	}
+}
+
+void USaveLoadSubsystem::DeRegisterBuildable(FGuid BuildableGUID)
+{
+	//Removes Key Value Pair
+	if (GuidToBuildableMap.Contains(BuildableGUID))
+	{
+		GuidToBuildableMap.Remove(BuildableGUID);
+	}
+}
+
+bool USaveLoadSubsystem::bIsBuildableRegistered(FGuid BuildableGUID)
+{
+
+	if (GuidToBuildableMap.Contains(BuildableGUID))
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> BuildableData)
+{
+	for (FBuildableData& Data : BuildableData)
+	{
+		//Checking if the Buildable is registered in the GuidToBuildableMap
+		if (bIsBuildableRegistered(Data.GUID))
+		{
+			//Retrieving Instance of the Buildable from Guid from TMap
+			ABuildableBase* Buildable = GuidToBuildableMap[Data.GUID];
+			if (Buildable)
+			{
+				//Checking if the Buildable is a Building Component
+				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(Buildable))
+				{
+					//Checking if the Building Component has any attached Buildables
+					if (Data.AttachedBuildablesArray.Num() > 0)
+					{
+						//Looping through an array of GUID that Represent some Attached Buildables
+						for (FGuid AttachedBuildableGUID : Data.AttachedBuildablesArray)
+						{
+							//Checking if the Attached Buildable is registered in the GuidToBuildableMap
+							if (bIsBuildableRegistered(AttachedBuildableGUID))
+							{
+								ABuildableBase* AttachedBuildable = GuidToBuildableMap[AttachedBuildableGUID];
+								if (AttachedBuildable)
+								{
+									//Adding the Actual Buildable Instance Back to the AttachedBuildingComponents Array
+									BuildingComponent->AttachedBuildingComponents.Add(AttachedBuildable);
+								}
+							}
+						}
+					}
+					/*
+					 * Data is of Type FBuildableData
+					 * FBuildableData has GUID's for each Snap Attachment Point.
+					 * 
+					 * Check if the Data Asset has a Valid GUID for the Snap Attachments
+					 */
+					if (Data.FrontCenterAttachmentGUID.IsValid())
+					{
+						//Checking that this GUID is already registered. It should be as all Buildables are spawned and registered before hand.
+						if (bIsBuildableRegistered(Data.FrontCenterAttachmentGUID))
+						{
+							BuildingComponent->FrontCenterAttachment = GuidToBuildableMap[Data.FrontCenterAttachmentGUID];
+						}
+					}
+
+					if (Data.BackCenterAttachmentGUID.IsValid())
+					{
+						if (bIsBuildableRegistered(Data.BackCenterAttachmentGUID))
+						{
+							BuildingComponent->BackCenterAttachment = GuidToBuildableMap[Data.BackCenterAttachmentGUID];
+						}
+					}
+				}
+				//Checks for other than Building Components (Traps, Constructs, Ramps, Etc.)
+			}
+		}
+	}
+}
+
+
 /*Save System*/
 void USaveLoadSubsystem::SaveCurrentGame()
 {
@@ -59,12 +150,17 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 		BuildingComponent->FrontBottomAttachment->GetGUID().IsValid())
 	{
 		BuildableData.FrontBottomAttachmentGUID = BuildingComponent->FrontBottomAttachment->GetGUID();
+		UE_LOG(LogTemp, Warning, TEXT("FrontBottomAttachment Found: %s"), *BuildingComponent->FrontBottomAttachment->GetName());
+
 	}
 
 	if (BuildingComponent->FrontCenterAttachment &&
 		BuildingComponent->FrontCenterAttachment->GetGUID().IsValid())
 	{
 		BuildableData.FrontCenterAttachmentGUID = BuildingComponent->FrontCenterAttachment->GetGUID();
+		UE_LOG(LogTemp, Warning, TEXT("FrontCenterAttachment Found: %s"), 
+		*BuildingComponent->FrontCenterAttachment->GetName());
+
 	}
 
 	if (BuildingComponent->FrontTopAttachment &&
@@ -95,6 +191,8 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 		BuildingComponent->BackCenterAttachment->GetGUID().IsValid())
 	{
 		BuildableData.BackCenterAttachmentGUID = BuildingComponent->BackCenterAttachment->GetGUID();
+		UE_LOG(LogTemp, Warning, TEXT("BackCenterAttachment Found: %s"), *BuildingComponent->BackCenterAttachment->GetName());
+
 	}
 
 	if (BuildingComponent->BackTopAttachment &&
@@ -177,11 +275,13 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				
 				
 				SaveGameInstance->BuildingComponentsArray.Add(BuildableData);
+				
 				UE_LOG(LogTemp, Warning, TEXT("Saved Building Component: %s"), *BuildableActor->GetName());
+				UE_LOG(LogTemp, Warning, TEXT("Buildable GUID: %s"), *BuildableData.GUID.ToString());
+				
 			
 			}
 
-			
 			
 		}
 	}
@@ -295,10 +395,20 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 					BuildingComponentData.BuildingComponentTransform.GetLocation(),
 					BuildingComponentData.BuildingComponentTransform.GetRotation().Rotator());
 
+				if (ABuildableBase* SpawnedBuildable = Cast<ABuildableBase>(SpawnedActor))
+				{
+					//Set the Saved GUID back on the newly Spawned Buildable
+					SpawnedBuildable->SetGUID(BuildingComponentData.GUID);
+
+					//Add the KV Pair to the TMap
+					RegisterBuildable(SpawnedBuildable);
+				}
+
 				UE_LOG(LogTemp, Warning, TEXT("Loaded Buildable: %s"), *SpawnedActor->GetName());
 			}
 		}
 
+		ResolveBuildableReferences(LoadGameInstance->BuildingComponentsArray);
 		//TODO:: After Loading and Connecting all building Components redraw the PathTracers.
 	}
 }

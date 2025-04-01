@@ -30,16 +30,18 @@ public:
 	TMap<FGuid, ABuildableBase*> GuidToBuildableMap;
 	
 	//Register Buildables - Add to TMap
-	void RegisterBuildable();
+	void RegisterBuildable(ABuildableBase* Buildable);
 	//DeRegister Buildables - Remove Buildables from TMap
-	void DeRegisterBuildable();
+	void DeRegisterBuildable(FGuid BuildableGUID);
 	//Move all Save and Load functionality here.
+	bool bIsBuildableRegistered(FGuid BuildableGUID);
+	
+	void ResolveBuildableReferences(TArray<FBuildableData> BuildableData);
 
 	/* Save System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
-	void CheckBuildingComponentForSnapAttachments(
-		FBuildableData& BuildableData, ATimberBuildingComponentBase* BuildingComponent);
+	void CheckBuildingComponentForSnapAttachments(FBuildableData& BuildableData, ATimberBuildingComponentBase* BuildingComponent);
 	void SaveBuildableData(USaveLoadStruct* SaveGameInstance);
 	void SaveWaveData(USaveLoadStruct* SaveGameInstance);
 	void SavePlayerData(USaveLoadStruct* SaveGameInstance);
@@ -54,3 +56,4 @@ public:
 	void LoadSeedaData(USaveLoadStruct* LoadGameInstance);
 	
 };
+

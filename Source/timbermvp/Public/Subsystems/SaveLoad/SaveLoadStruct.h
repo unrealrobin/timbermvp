@@ -41,26 +41,37 @@ struct FBuildableData
 	
 	UPROPERTY(BlueprintReadWrite)
 	FGuid GUID;
-	
-	/*
-	 * These may or may not be populated / Used only for Building Components
-	 */
+
+	UPROPERTY()
 	TArray<FGuid> AttachedBuildablesArray;
+
+	UPROPERTY()
 	FGuid FrontCenterAttachmentGUID;
-	FGuid FrontTopAttachmentGUID;
-	FGuid FrontBottomAttachmentGUID;
-	FGuid FrontRightAttachmentGUID;
-	FGuid FrontLeftAttachmentGUID;
+	UPROPERTY()
 	FGuid BackCenterAttachmentGUID;
+	UPROPERTY()
+	FGuid FrontTopAttachmentGUID;
+	UPROPERTY()
+	FGuid FrontBottomAttachmentGUID;
+	UPROPERTY()
+	FGuid FrontRightAttachmentGUID;
+	UPROPERTY()
+	FGuid FrontLeftAttachmentGUID;
+	UPROPERTY()
 	FGuid BackTopAttachmentGUID;
+	UPROPERTY()
 	FGuid BackBottomAttachmentGUID;
+	UPROPERTY()
 	FGuid BackRightAttachmentGUID;
+	UPROPERTY()
 	FGuid BackLeftAttachmentGUID;
 
 	/*Used for Traps/Constructs/Teleporters*/
-	FGuid ParentBuildingComponentGUID;
+	UPROPERTY()
+	FGuid ParentBuildableGUID;
 
 	/*Teleporter Pairing*/
+	UPROPERTY()
 	FGuid TeleportPairGUID;
 
 	//Default Constructor

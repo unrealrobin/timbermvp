@@ -54,6 +54,9 @@ public:
 	void LoadWaveData(USaveLoadStruct* LoadGameInstance);
 	void LoadPlayerState(USaveLoadStruct* LoadGameInstance);
 	void LoadSeedaData(USaveLoadStruct* LoadGameInstance);
+
+	void RemoveAllLabBuildables();
+	void RemoveAllLootItems();
 	
 };
 

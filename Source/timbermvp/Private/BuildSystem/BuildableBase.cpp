@@ -29,7 +29,7 @@ void ABuildableBase::BeginPlay()
 	Super::BeginPlay();
 
 	//This creates a new Guid after the Actor is Spawned but only if its not Loaded.
-	//WHen its loaded the Actor recieves the GUID before begin play.
+	//WHen its loaded the Actor receives the GUID before begin play.
 	if (!GUID.IsValid())
 	{
 		GUID = FGuid::NewGuid();
@@ -63,7 +63,7 @@ void ABuildableBase::HandleDeletionOfBuildable()
 	Destroy();
 }
 
-FGuid ABuildableBase::GetGUID() const
+FGuid ABuildableBase::GetGUID()
 {
 	return GUID;
 }

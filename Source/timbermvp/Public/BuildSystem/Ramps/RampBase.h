@@ -29,8 +29,10 @@ public:
 	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
 	UStaticMeshComponent* StaticMesh;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
 	USceneComponent* VerticalCenterSnap;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
 	USceneComponent* HorizontalCenterSnap;
 };

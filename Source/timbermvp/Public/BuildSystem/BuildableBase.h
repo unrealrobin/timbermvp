@@ -59,27 +59,6 @@ class TIMBERMVP_API ABuildableBase : public AActor, public IGameplayTagAssetInte
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this actor's properties
-	ABuildableBase();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
-	bool bCanBuildableBeFinalized = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	ESnapCondition SnapCondition = ESnapCondition::Default;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
-	EBuildableType BuildableType = EBuildableType::Default;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
-	FBuildableCost BuildableCost;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Tags")
-	FGameplayTagContainer GameplayTagContainer;
-
-	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -96,21 +75,47 @@ protected:
 	/*Potential Loot on Destruction / Guaranteed on Deletion */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
 	TSubclassOf<AEnemyLootDropBase> PartsClass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
 	TSubclassOf<AEnemyLootDropBase> MechanismsClass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
 	TSubclassOf<AEnemyLootDropBase> UniquesClass;
-
+	
 public:
+	// Sets default values for this actor's properties
+	ABuildableBase();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
+	bool bCanBuildableBeFinalized = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
+	ESnapCondition SnapCondition = ESnapCondition::Default;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
+	EBuildableType BuildableType = EBuildableType::Default;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable Cost")
+	FBuildableCost BuildableCost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Tags")
+	FGameplayTagContainer GameplayTagContainer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
+	ABuildableBase* ParentBuildable;
+
+	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 	
 	UFUNCTION()
 	virtual void HandleDeletionOfBuildable();
 
 	UFUNCTION()
-	FGuid GetGUID() const;
+	FGuid GetGUID();
+	
 	UFUNCTION()
 	void SetGUID(FGuid NewGUID);
 	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 };

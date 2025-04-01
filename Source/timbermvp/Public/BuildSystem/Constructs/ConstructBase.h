@@ -24,7 +24,5 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
-	ATimberBuildingComponentBase* ParentBuildingComponent = nullptr;
+	
 };

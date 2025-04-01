@@ -35,7 +35,7 @@ void APowerPlate::BeginPlay()
 
 void APowerPlate::FreeUpTrapSlotOnBuildingComponent()
 {
-	if (ParentBuildingComponent)
+	if (ATimberBuildingComponentBase* ParentBuildingComponent = Cast<ATimberBuildingComponentBase>(ParentBuildable))
 	{
 		ParentBuildingComponent->FrontCenterAttachment = nullptr;
 	}

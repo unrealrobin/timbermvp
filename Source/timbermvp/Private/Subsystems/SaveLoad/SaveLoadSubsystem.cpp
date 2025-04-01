@@ -32,6 +32,7 @@ void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
 	if (Buildable && Buildable->GetGUID().IsValid())
 	{
 		GuidToBuildableMap.Add(Buildable->GetGUID(), Buildable);
+		UE_LOG(LogTemp, Warning, TEXT("Buildable Added to TMap: %s with GUID: %s"), *Buildable->GetName(), *Buildable->GetGUID().ToString());
 	}
 }
 
@@ -57,11 +58,17 @@ bool USaveLoadSubsystem::bIsBuildableRegistered(FGuid BuildableGUID)
 
 void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> BuildableData)
 {
+	UE_LOG(LogTemp, Warning, TEXT("RESOLVING BUILDABLE REFERENCES"));
+	UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
+	UE_LOG(LogTemp, Warning, TEXT("BuildableData Array Size: %d"), BuildableData.Num());
+	
 	for (FBuildableData& Data : BuildableData)
 	{
 		//Checking if the Buildable is registered in the GuidToBuildableMap
 		if (bIsBuildableRegistered(Data.GUID))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Buildable: %s is Registered"), *GuidToBuildableMap[Data.GUID]->GetName());
+			//Handling Attachment Array of Buildables
 			//Retrieving Instance of the Buildable from Guid from TMap
 			ABuildableBase* Buildable = GuidToBuildableMap[Data.GUID];
 			if (Buildable)
@@ -69,9 +76,14 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 				//Checking if the Buildable is a Building Component
 				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(Buildable))
 				{
+					UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
+					UE_LOG(LogTemp, Warning, TEXT("Handling Building Component Attachments"));
+					UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
+					UE_LOG(LogTemp, Warning, TEXT("Handling Building Component: %s"), *BuildingComponent->GetName());
 					//Checking if the Building Component has any attached Buildables
 					if (Data.AttachedBuildablesArray.Num() > 0)
 					{
+						UE_LOG(LogTemp, Warning, TEXT("Buildable has Attached Buildables"));
 						//Looping through an array of GUID that Represent some Attached Buildables
 						for (FGuid AttachedBuildableGUID : Data.AttachedBuildablesArray)
 						{
@@ -83,19 +95,19 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 								{
 									//Adding the Actual Buildable Instance Back to the AttachedBuildingComponents Array
 									BuildingComponent->AttachedBuildingComponents.Add(AttachedBuildable);
+									UE_LOG(LogTemp, Warning, TEXT("Adding: %s to AttachedBuildingComponents Array of: %s"), *AttachedBuildable->GetName(), *BuildingComponent->GetName());
 								}
 							}
 						}
 					}
-					/*
-					 * Data is of Type FBuildableData
-					 * FBuildableData has GUID's for each Snap Attachment Point.
-					 * 
-					 * Check if the Data Asset has a Valid GUID for the Snap Attachments
-					 */
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Buildable has no Attached Buildables"));
+					}
+					/* Checking and Setting GUID References for Each Individual Snap Point*/
 					if (Data.FrontCenterAttachmentGUID.IsValid())
 					{
-						//Checking that this GUID is already registered. It should be as all Buildables are spawned and registered before hand.
+						//Checking that this GUID is already registered. It should be as all Buildables are spawned and registered beforehand.
 						if (bIsBuildableRegistered(Data.FrontCenterAttachmentGUID))
 						{
 							BuildingComponent->FrontCenterAttachment = GuidToBuildableMap[Data.FrontCenterAttachmentGUID];
@@ -110,7 +122,50 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 						}
 					}
 				}
-				//Checks for other than Building Components (Traps, Constructs, Ramps, Etc.)
+				UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
+			}
+
+			/* Handling ParentBuildableReference*/
+			ATrapBase* Trap = Cast<ATrapBase>(GuidToBuildableMap[Data.GUID]);
+			AConstructBase* Construct = Cast<AConstructBase>(GuidToBuildableMap[Data.GUID]);
+			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.GUID]);
+			if (Trap || Construct || TeleportConstruct)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
+				UE_LOG(LogTemp, Warning, TEXT("TRAP/CONSTRUCT/TELEPORTCONSTRUCT PARENT BUILDABLE REFERENCE"));
+				UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
+				//Checking if the Parent Building Component is registered in the GuidToBuildableMap
+				if (bIsBuildableRegistered(Data.ParentBuildableGUID))
+				{
+					//Casting the Paired Building Component to the correct type and setting the Parent Building Component
+					if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(GuidToBuildableMap[Data.ParentBuildableGUID]))
+					{
+						if (Trap)
+						{
+							Trap->ParentBuildable= BuildingComponent;
+							UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *Trap->GetName(), *BuildingComponent->GetName());
+						}
+						if (Construct)
+						{
+							Construct->ParentBuildable= BuildingComponent;
+							UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *Construct->GetName(), *BuildingComponent->GetName());
+						}
+						if (TeleportConstruct)
+						{
+							TeleportConstruct->ParentBuildable= BuildingComponent;
+							UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *TeleportConstruct->GetName(), *BuildingComponent->GetName());
+						}
+					}
+				}
+
+				//Ensures the Teleport Pair is Registered and then its Instance Set on the Teleport Construct
+				if (TeleportConstruct)
+				{
+					if (bIsBuildableRegistered(Data.TeleportPairGUID))
+					{
+						TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
+					}
+				}
 			}
 		}
 	}
@@ -150,7 +205,7 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 		BuildingComponent->FrontBottomAttachment->GetGUID().IsValid())
 	{
 		BuildableData.FrontBottomAttachmentGUID = BuildingComponent->FrontBottomAttachment->GetGUID();
-		UE_LOG(LogTemp, Warning, TEXT("FrontBottomAttachment Found: %s"), *BuildingComponent->FrontBottomAttachment->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("FrontBottomAttachment Found: %s. Set GUID: %s"), *BuildingComponent->FrontBottomAttachment->GetName(), *BuildingComponent->FrontBottomAttachment->GetGUID().ToString());
 
 	}
 
@@ -158,8 +213,9 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 		BuildingComponent->FrontCenterAttachment->GetGUID().IsValid())
 	{
 		BuildableData.FrontCenterAttachmentGUID = BuildingComponent->FrontCenterAttachment->GetGUID();
-		UE_LOG(LogTemp, Warning, TEXT("FrontCenterAttachment Found: %s"), 
-		*BuildingComponent->FrontCenterAttachment->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("FrontCenterAttachment Found: %s. Set GUID: %s"), 
+			*BuildingComponent->FrontCenterAttachment->GetName(),
+			*BuildingComponent->FrontCenterAttachment->GetGUID().ToString());
 
 	}
 
@@ -191,7 +247,7 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 		BuildingComponent->BackCenterAttachment->GetGUID().IsValid())
 	{
 		BuildableData.BackCenterAttachmentGUID = BuildingComponent->BackCenterAttachment->GetGUID();
-		UE_LOG(LogTemp, Warning, TEXT("BackCenterAttachment Found: %s"), *BuildingComponent->BackCenterAttachment->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("BackCenterAttachment Found: %s. Set GUID: %s,"), *BuildingComponent->BackCenterAttachment->GetName(), *BuildingComponent->BackCenterAttachment->GetGUID().ToString());
 
 	}
 
@@ -225,7 +281,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 		for (AActor* BuildableActor : CurrentBuildingComponents)
 		{
 			ABuildableBase* Buildable = Cast<ABuildableBase>(BuildableActor);
-			if (Buildable && !BuildableActor->ActorHasTag(FName("ENV")))
+			if (Buildable && Buildable->BuildableType != EBuildableType::Environment)
 			{
 				//Creating the Building Component Struct to pass to the Save System's Building Component Array
 				FBuildableData BuildableData;
@@ -233,6 +289,8 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				BuildableData.BuildingComponentTransform = BuildableActor->GetActorTransform();
 
 				//Saving the GUID of this Buildable
+				UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
+				UE_LOG(LogTemp, Warning, TEXT("Saving Buildable: %s. GUID: %s"), *BuildableActor->GetName(), *Buildable->GetGUID().ToString());
 				BuildableData.GUID = Buildable->GetGUID();
 
 				//Checking if the Saved Buildable is Building Component (Walls/Floors)
@@ -246,7 +304,10 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 						for (ABuildableBase* AttachedComponent : BuildingComponent->AttachedBuildingComponents)
 						{
 							BuildableData.AttachedBuildablesArray.Add(AttachedComponent->GetGUID());
+							UE_LOG(LogTemp, Warning, TEXT("Attachment: %s. Attachment GUID: %s"), *AttachedComponent->GetName(), *AttachedComponent->GetGUID().ToString());
+
 						}
+						UE_LOG(LogTemp, Warning, TEXT("AttachedBuildablesArray Size: %d"), BuildableData.AttachedBuildablesArray.Num());
 					}
 
 					//Checks each potential snap point for the Building Component and saves the GUID of the attached Buildable.
@@ -257,32 +318,48 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				if (ATrapBase* Trap = Cast<ATrapBase>(Buildable))
 				{
 					//Saving the GUID of the Parent Building Component
-					BuildableData.ParentBuildingComponentGUID = Trap->ParentBuildingComponent->GetGUID();
+					BuildableData.ParentBuildableGUID = Trap->ParentBuildable->GetGUID();
+					UE_LOG(LogTemp, Warning, TEXT("Trap: %s. Trap GUID: %s. Parent: %s. Parent GUID: %s"), 
+						*Trap->GetName(),
+						*Trap->GetGUID().ToString(),
+						*Trap->ParentBuildable->GetName(),
+						*Trap->ParentBuildable->GetGUID().ToString());
 				}
 				//Linking the Parent Building Component to the Construct
 				if (AConstructBase* Construct = Cast<AConstructBase>(Buildable))
 				{
-					//Saving the GUID of the Parent Building Component
-					BuildableData.ParentBuildingComponentGUID = Construct->ParentBuildingComponent->GetGUID();
+					if (Construct->ParentBuildable)
+					{
+						BuildableData.ParentBuildableGUID = Construct->ParentBuildable->GetGUID();
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Construct %s has no ParentBuildable!"), *GetNameSafe(Construct));
+					}
 				}
 				//Linking the Parent Building Component to the Teleport Construct & the Teleport Pair
 				if (ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(Buildable))
 				{
 					//Saving the GUID of the Parent Building Component
-					BuildableData.ParentBuildingComponentGUID = TeleportConstruct->ParentBuildingComponent->GetGUID();
-					BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
+					if (TeleportConstruct->ParentBuildable)
+					{
+						BuildableData.ParentBuildableGUID = TeleportConstruct->ParentBuildable->GetGUID();
+						UE_LOG(LogTemp, Warning, TEXT("TeleportConstruct: %s. TeleportConstruct GUID: %s. Parent: %s. Parent GUID: %s"),
+							*TeleportConstruct->GetName(),
+							*TeleportConstruct->GetGUID().ToString(),
+							*TeleportConstruct->ParentBuildable->GetName(),
+							*TeleportConstruct->ParentBuildable->GetGUID().ToString());
+						BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Teleporter %s has no ParentBuildable!"), *GetNameSafe(TeleportConstruct));
+					}
 				}
 				
-				
 				SaveGameInstance->BuildingComponentsArray.Add(BuildableData);
-				
-				UE_LOG(LogTemp, Warning, TEXT("Saved Building Component: %s"), *BuildableActor->GetName());
-				UE_LOG(LogTemp, Warning, TEXT("Buildable GUID: %s"), *BuildableData.GUID.ToString());
-				
-			
+				UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
 			}
-
-			
 		}
 	}
 }
@@ -343,8 +420,11 @@ void USaveLoadSubsystem::LoadGame()
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (WaveSubsystem && GameMode)
 	{
+		RemoveAllLabBuildables();
+		RemoveAllLootItems();
+		
 		WaveSubsystem->ResetWaveEnemies();
-
+		
 		//Returns the correct Slot to use based on Game Config
 		FString LoadSlot = GetSaveSlot();
 		
@@ -390,6 +470,9 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 		{
 			if (BuildingComponentData.BuildingComponentClass)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
+				UE_LOG(LogTemp, Warning, TEXT("Loading Buildable: %s"), *BuildingComponentData.BuildingComponentClass->GetName());
+				
 				AActor* SpawnedActor = GetWorld()->SpawnActor<ABuildableBase>(
 					BuildingComponentData.BuildingComponentClass,
 					BuildingComponentData.BuildingComponentTransform.GetLocation(),
@@ -397,18 +480,23 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 
 				if (ABuildableBase* SpawnedBuildable = Cast<ABuildableBase>(SpawnedActor))
 				{
+					UE_LOG(LogTemp, Warning, TEXT("Spawned GUID: %s"), *SpawnedBuildable->GetGUID().ToString());
+					
 					//Set the Saved GUID back on the newly Spawned Buildable
 					SpawnedBuildable->SetGUID(BuildingComponentData.GUID);
+					UE_LOG(LogTemp, Warning, TEXT("Set GUID: %s"), *SpawnedBuildable->GetGUID().ToString());
 
 					//Add the KV Pair to the TMap
 					RegisterBuildable(SpawnedBuildable);
+					UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
 				}
 
-				UE_LOG(LogTemp, Warning, TEXT("Loaded Buildable: %s"), *SpawnedActor->GetName());
 			}
 		}
 
+		//Second Pass over the Saved Buildable Data Array. Resolving References (Attachments and Parenting)
 		ResolveBuildableReferences(LoadGameInstance->BuildingComponentsArray);
+		
 		//TODO:: After Loading and Connecting all building Components redraw the PathTracers.
 	}
 }
@@ -480,3 +568,34 @@ void USaveLoadSubsystem::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 		LoadGameInstance->SeedaData.SeedaRotation,
 		SpawnParams);
 }
+
+void USaveLoadSubsystem::RemoveAllLabBuildables()
+{
+	TArray<AActor*> LabBuildables;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABuildableBase::StaticClass(), LabBuildables);
+
+	for (AActor* LabBuildableActor : LabBuildables)
+	{
+		ABuildableBase* LabBuildable = Cast<ABuildableBase>(LabBuildableActor);
+		if (LabBuildable && LabBuildable->BuildableType != EBuildableType::Environment)
+		{
+			LabBuildable->Destroy();
+		}
+	}
+}
+
+void USaveLoadSubsystem::RemoveAllLootItems()
+{
+	TArray<AActor*> LootItems;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyLootDropBase::StaticClass(), LootItems);
+
+	for (AActor* LootItemActor : LootItems)
+	{
+		AEnemyLootDropBase* LootItem = Cast<AEnemyLootDropBase>(LootItemActor);
+		if (LootItem)
+		{
+			LootItem->Destroy();
+		}
+	}
+}
+

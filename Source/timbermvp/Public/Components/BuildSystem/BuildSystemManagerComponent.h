@@ -138,13 +138,10 @@ public:
 	/*Placement*/
 
 	//New Build Placement Functions
-
 	UFUNCTION()
 	void HandleProxyPlacement(TArray<FHitResult> HitResults, TSubclassOf<ABuildableBase> BuildableProxyClass);
 	UFUNCTION()
 	AActor* SpawnProxy(TSubclassOf<ABuildableBase> ActiveBuildableClass, FVector SpawnLocation, FRotator SpawnRotation);
-	/*UFUNCTION()
-	ATimberBuildingComponentBase* FindFirstHitBuildingComponent(TArray<FHitResult> HitResults);*/
 	UFUNCTION()
 	FHitResult FirstHitBuildingComponentHitResult(TArray<FHitResult> HitResults);
 	UFUNCTION()
@@ -157,14 +154,7 @@ public:
 	void HandleRampPlacement(FHitResult FirstHitBuildingComponentHitResult);
 	UFUNCTION()
 	void HandleFloorEdgeSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult);
-
-	// Old Build Placement Functions
-	/*UFUNCTION()
-	void HandleCenterSnapFloorOnlyPlacement(TArray<FHitResult> HitResults);*/
-	/*UFUNCTION()
-	void HandleTeleportConstructPlacement(TArray<FHitResult> HitResults);*/
-	/*UFUNCTION()
-	void HandleTrapPlacement(TArray<FHitResult> HitResults);*/
+	
 	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitResult);
 	void MoveBuildable(

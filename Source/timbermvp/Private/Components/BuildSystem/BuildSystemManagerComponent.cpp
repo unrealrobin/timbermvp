@@ -205,7 +205,7 @@ void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult 
 {
 	int QuadrantConditionNum = QuadrantCondition(HitQuadrant.GetComponent()->GetName());
 	FVector HitActorSnapLocation;
-	FRotator HitActorSnapRotation;
+	//FRotator HitActorSnapRotation;
 	FVector ProxySnapLocation;
 
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(BuildableProxyInstance);
@@ -215,7 +215,7 @@ void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult 
 			{
 				//Bottom Vertical SnapPoint -> Top Quad on Horizontal
 				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->TopSnap->GetComponentTransform().GetLocation();
-				HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->TopSnap->GetComponentTransform().GetRotation().Rotator();
+				//HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->TopSnap->GetComponentTransform().GetRotation().Rotator();
 				ProxySnapLocation = ActiveBuildingComponentProxy->BottomSnap->GetComponentTransform().GetLocation();
 				MoveBuildingComponentProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
 			}
@@ -224,7 +224,7 @@ void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult 
 			{
 				//Bottom Vertical SnapPoint -> Right Quad on Horizontal
 				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->RightSnap->GetComponentTransform().GetLocation();
-				HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->RightSnap->GetComponentTransform().GetRotation().Rotator();
+				//HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->RightSnap->GetComponentTransform().GetRotation().Rotator();
 				ProxySnapLocation = ActiveBuildingComponentProxy->BottomSnap->GetComponentTransform().GetLocation();
 				MoveBuildingComponentProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
 			}
@@ -233,7 +233,7 @@ void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult 
 			{
 				//Bottom Vertical SnapPoint -> Bottom Quad on Horizontal
 				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->BottomSnap->GetComponentTransform().GetLocation();
-				HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->BottomSnap->GetComponentTransform().GetRotation().Rotator();
+				//HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->BottomSnap->GetComponentTransform().GetRotation().Rotator();
 				ProxySnapLocation = ActiveBuildingComponentProxy->BottomSnap->GetComponentTransform().GetLocation();
 				MoveBuildingComponentProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
 			}
@@ -242,7 +242,7 @@ void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult 
 			{
 				//Bottom Vertical SnapPoint -> Left Quad on Horizontal
 				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->LeftSnap->GetComponentTransform().GetLocation();
-				HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->LeftSnap->GetComponentTransform().GetRotation().Rotator();
+				//HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->LeftSnap->GetComponentTransform().GetRotation().Rotator();
 				ProxySnapLocation = ActiveBuildingComponentProxy->BottomSnap->GetComponentTransform().GetLocation();
 				MoveBuildingComponentProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
 			}
@@ -251,7 +251,7 @@ void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult 
 			{
 				//Bottom Vertical SnapPoint -> Center Quad on Horizontal
 				HitActorSnapLocation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->CenterSnap->GetComponentTransform().GetLocation();
-				HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->CenterSnap->GetComponentTransform().GetRotation().Rotator();
+				//HitActorSnapRotation = Cast<ATimberBuildingComponentBase>(HitActor.GetActor())->CenterSnap->GetComponentTransform().GetRotation().Rotator();
 				ProxySnapLocation = ActiveBuildingComponentProxy->BottomSnap->GetComponentTransform().GetLocation();
 				MoveBuildingComponentProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
 				//No Snap Rotation, Player will Rotate on their own.
@@ -340,13 +340,13 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 	
 	if (bWillOverlap)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
+		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, RedHoloMaterial);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Building Component Will Not Overlap."));
+		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Not Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = true;
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, BlueHoloMaterial);
 	}
@@ -457,8 +457,6 @@ void UBuildSystemManagerComponent::MakeMaterialHoloColor(AActor* BuildingCompone
 	ClearStoredStaticMeshes();
 
 	//TODO:: Add a check here so that we arent calling this setting of material every frame.
-	//If its already Red, dont set it to Red again.
-	
 	if (StaticMeshs.Num() == 0)
 	{
 		GetStaticMeshComponents(BuildingComponentActor);
@@ -613,7 +611,7 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			FinalizedCenterSnapBuildable->BuildingComponentTrapDirection = CenterSnapBuildable->BuildingComponentTrapDirection;
 			
 			//Setting Parent-BC-Ref on Trap.
-			FinalizedCenterSnapBuildable->ParentBuildingComponent = CenterSnapBuildable->TrapHoveredBuildingComponent;
+			FinalizedCenterSnapBuildable->ParentBuildable = CenterSnapBuildable->TrapHoveredBuildingComponent;
 
 			//Resetting the Trap Direction back to default for further usage of the proxy.
 			CenterSnapBuildable->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
@@ -683,6 +681,97 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 	}
 }
 
+void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
+{
+	/*Classes Using This Snap:
+	 * Teleporters
+	 */
+	
+	if (BuildableProxyInstance && BuildableProxyInstance->bCanBuildableBeFinalized)
+	{
+		//Spawn the Teleport half.
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(
+			ActiveBuildableComponentClass,
+			BuildableProxyInstance->GetActorLocation(),
+			BuildableProxyInstance->GetActorRotation(),
+			SpawnParameters);
+
+		if (ABuildableBase* SpawnedBuildable = Cast<ABuildableBase>(SpawnedActor))
+		{
+			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
+			SpawnedBuildable->ParentBuildable = Cast<ATimberBuildingComponentBase>(Cast<ATimberPlayableCharacter>(GetOwner())->HoveredBuildingComponent);
+		}
+
+		if (SpawnedActor)
+		{
+			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
+			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			PlayBuildablePlacementSound();
+			
+			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
+			if (TeleportConstruct)
+			{
+				HandleIsTeleporter(TeleportConstruct);
+			}
+		}
+	}
+	else
+	{
+		PlayBuildDeniedSound();
+	}
+}
+
+void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
+{
+	/*
+	 * Classes Using this Snap:
+	 * PowerPlate
+	 */
+	if (BuildableProxyInstance && 
+	BuildableProxyInstance->bCanBuildableBeFinalized)
+	{
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
+		(
+			ActiveBuildableComponentClass,
+			BuildableProxyInstance->GetActorLocation(),
+			BuildableProxyInstance->GetActorRotation(),
+			SpawnParameters);
+
+		if (SpawnedActor)
+		{
+			/*
+			 * Attaching the Buildable to the Building Component Slot
+			 * Lets the player know that another Buildable can not be placed in this slot.
+			 */
+			ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+			if (PlayerCharacter && PlayerCharacter->HoveredBuildingComponent)
+			{
+				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
+				{
+					BuildingComponent->FrontCenterAttachment = Cast<ABuildableBase>(SpawnedActor);
+					UE_LOG(LogTemp, Warning, TEXT("Construct set on FrontTrapSnap Slot."))
+					APowerPlate* PowerPlate = Cast<APowerPlate>(SpawnedActor);
+
+					//Setting the parent floor component on this actor, so we can free up slot during deletion.
+					if (PowerPlate && Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
+					{
+						PowerPlate->ParentBuildable = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent);
+					}
+				}
+			}
+			//Sets up BC to be destroyed when the Snapped to Buildable is destroyed.
+			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			PlayBuildablePlacementSound();
+			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+		}
+	}
+	else
+	{
+		PlayBuildDeniedSound();
+	    UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
+	}
+}
+
 void UBuildSystemManagerComponent::HandleIsTeleporter(ATeleportConstruct* TeleportConstruct)
 {
 	Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
@@ -733,150 +822,6 @@ void UBuildSystemManagerComponent::HandleIsTeleporter(ATeleportConstruct* Telepo
 	}
 }
 
-void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
-{
-	// Called on Input from Controller
-	//Spawning Temporary Teleport Construct - This is 1/2 of the Teleport Pair
-	
-	if (BuildableProxyInstance && BuildableProxyInstance->bCanBuildableBeFinalized)
-	{
-		//Spawn the Teleport half.
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(
-			ActiveBuildableComponentClass,
-			BuildableProxyInstance->GetActorLocation(),
-			BuildableProxyInstance->GetActorRotation(),
-			SpawnParameters);
-
-		if (SpawnedActor)
-		{
-			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
-			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-			PlayBuildablePlacementSound();
-			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
-			if (TeleportConstruct)
-			{
-				HandleIsTeleporter(TeleportConstruct);
-			}
-		}
-	}
-	else
-	{
-		PlayBuildDeniedSound();
-	}
-}
-
-void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
-{
-	/*
-	 * Need to Pay Attention to what the Actual BuildableProxyInstance is. We don't check what it is here. The ESnapType Determines which logic route to follow.
-	 * 
-	 */
-	//Spawn the Final Center Snap Floor Only Building Component
-	//PowerPlate
-	if (BuildableProxyInstance && 
-	BuildableProxyInstance->bCanBuildableBeFinalized)
-	{
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			BuildableProxyInstance->GetActorLocation(),
-			BuildableProxyInstance->GetActorRotation(),
-			SpawnParameters);
-
-		if (SpawnedActor)
-		{
-			/*
-			 * Attaching the Buildable to the Building Component Slot
-			 * Lets the player know that another Buildable can not be placed in this slot.
-			 */
-			ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-			if (PlayerCharacter && PlayerCharacter->HoveredBuildingComponent)
-			{
-				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
-				{
-					BuildingComponent->FrontCenterAttachment = Cast<ABuildableBase>(SpawnedActor);
-					UE_LOG(LogTemp, Warning, TEXT("Construct set on FrontTrapSnap Slot."))
-					APowerPlate* PowerPlate = Cast<APowerPlate>(SpawnedActor);
-
-					//Setting the parent floor component on this actor, so we can free up slot during deletion.
-					if (PowerPlate && Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
-					{
-						PowerPlate->ParentBuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent);
-					}
-				}
-			}
-			//Sets up BC to be destroyed when the Snapped to Buildable is destroyed.
-			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-			PlayBuildablePlacementSound();
-			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
-		}
-	}
-	else
-	{
-		PlayBuildDeniedSound();
-	    UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
-	}
-}
-
-/*Spawn Proxy*/
-
-/*void UBuildSystemManagerComponent::SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator)
-{
-	if (ActiveBuildableComponentClass)
-	{
-		const FVector Location = SnapToGrid(SpawnVector);
-		const FVector Location1 = SpawnVector;
-		const FRotator Rotation = SnapToRotation(SpawnRotator);
-		const FActorSpawnParameters SpawnParameters;
-
-		FTransform SpawnTransform = FTransform(Rotation, Location1, FVector(1.0f, 1.0f, 1.0f));
-
-		//Use the InputTransform as the Location to Spawn the ActiveBuildingComponent
-		//Allows Setting of Properties on actor during runtime that are needed during BeginPlay()
-		ATimberBuildingComponentBase* SpawnedActor = GetWorld()->SpawnActorDeferred<ATimberBuildingComponentBase>
-		(
-			ActiveBuildableComponentClass,
-			SpawnTransform);
-
-		//Because proxy, handles some collision of proxy with already placed building components.
-		if (SpawnedActor)
-		{
-			ActiveBuildingComponentProxy = SpawnedActor;
-			ActiveBuildingComponentProxy->bIsProxy = true;
-			UE_LOG(LogTemp, Warning, TEXT("Building Component Proxy Spawned and Set to bIsProxyTrue."));
-			ActiveBuildingComponentProxy->FinishSpawning(SpawnTransform);
-			DisableBuildableProxyCollisions(ActiveBuildingComponentProxy);
-			MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
-
-			BuildableProxyInstance = Cast<ABuildableBase>(Cast<ABuildableBase>(ActiveBuildingComponentProxy));
-		}
-	}
-}*/
-
-/*void UBuildSystemManagerComponent::SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator)
-{
-	//Clearing any existing stored Static Meshes from Previous Trap Proxies
-	ClearStoredStaticMeshes();
-
-	FActorSpawnParameters SpawnParameters;
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-	(
-		ActiveBuildableComponentClass,
-		Location,
-		SpawnRotator,
-		SpawnParameters);
-	if (SpawnedActor)
-	{
-		ActiveTrapComponentProxy = Cast<ATrapBase>(SpawnedActor);
-		BuildableProxyInstance = Cast<ABuildableBase>(SpawnedActor);
-		//Binding the Delegate Call to the newly Spawned Trap Component
-		RegisterTrapComponent(ActiveTrapComponentProxy);
-
-		//Required so that delete functionality does delete the proxy
-		DisableBuildableProxyCollisions(ActiveTrapComponentProxy);
-	}
-}*/
-
 /*Collision*/
 void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent)
 {
@@ -887,69 +832,6 @@ void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBas
 	 */
 	BuildingComponent->SetActorEnableCollision(false);
 }
-
-/*Placement (Some With Spawning Proxy)*/
-/*void UBuildSystemManagerComponent::HandleCenterSnapFloorOnlyPlacement(TArray<FHitResult> HitResults)
-{
-	//Check Hit Results for first Floor Hit and get Snap Location
-	ATimberHorizontalBuildingComponent* FloorComponent = nullptr;
-	FVector FloorComponentSnapLocation;
-	for (FHitResult Hit : HitResults)
-	{
-		if (Cast<ATimberHorizontalBuildingComponent>(Hit.GetActor()))
-		{
-			//Getting Hit Floor Actors Center Snap Locations
-			FloorComponent = Cast<ATimberHorizontalBuildingComponent>(Hit.GetActor());
-
-			//Snapping the location to the "Upward Facing Snap Point" (Same as Traps)
-			FloorComponentSnapLocation = FloorComponent->FrontTrapSnap->GetComponentLocation();
-			break;
-		}
-	}
-
-	//Spawn the Center Snap Floor Only Building Component Proxy if not Spawned or if the Class is different.
-	if (CenterSnapFloorOnlyBuildingComponentProxy == nullptr || CenterSnapFloorOnlyBuildingComponentProxy->GetClass() != GetActiveBuildableClass())
-	{
-		//Spawn the first iterations of the Ramp into the world.
-		//Zero Rotator ensures that the Construct is always only placed facing upward - The Actors base rotation.
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			FloorComponentSnapLocation,
-			FRotator::ZeroRotator,
-			FActorSpawnParameters());
-		
-		CenterSnapFloorOnlyBuildingComponentProxy = Cast<ABuildableBase>(SpawnedActor);
-		BuildableProxyInstance = Cast<ABuildableBase>(SpawnedActor);
-		
-		if (CenterSnapFloorOnlyBuildingComponentProxy)
-		{
-			DisableBuildableProxyCollisions(CenterSnapFloorOnlyBuildingComponentProxy);
-		}
-	}
-	else 
-	{
-		//Proxy Already Spawned, handling movement of the proxy.
-		BuildableProxyInstance = CenterSnapFloorOnlyBuildingComponentProxy;
-		//Move the Proxy to the Center Snap of the Floor Component
-		CenterSnapFloorOnlyBuildingComponentProxy->SetActorLocation(FloorComponentSnapLocation);
-		MakeMaterialHoloColor(CenterSnapFloorOnlyBuildingComponentProxy, BlueHoloMaterial);
-	}
-
-	//Checking for finalization - if Building Component already has something in Snap Slot.
-	if (FloorComponent && FloorComponent->FrontTrap != nullptr)
-	{
-		//If slot is occupied, construct can be finalized.
-		CenterSnapFloorOnlyBuildingComponentProxy->bCanBuildableBeFinalized = false;
-		MakeMaterialHoloColor(CenterSnapFloorOnlyBuildingComponentProxy, RedHoloMaterial);
-	}
-	else
-	{
-		CenterSnapFloorOnlyBuildingComponentProxy->bCanBuildableBeFinalized = true;
-		MakeMaterialHoloColor(CenterSnapFloorOnlyBuildingComponentProxy, BlueHoloMaterial);
-	}
-	
-}*/
 
 void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
@@ -1002,73 +884,6 @@ void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildi
 	}
 }
 
-/*void UBuildSystemManagerComponent::HandleTrapPlacement(TArray<FHitResult> HitResults)
-{
-	//Just to get Here the Raycast must have hit something.
-
-	//SPAWNING TRAP COMPONENT
-	//ATrapBase* ActiveTrapComponentProxy = GetActiveTrapComponent();
-	if (ActiveTrapComponentProxy == nullptr || ActiveTrapComponentProxy->GetClass() != 
-		GetActiveBuildableClass())
-	{
-		SpawnTrapComponentProxy(
-			HitResults[0].ImpactPoint, HitResults[0].GetActor()->GetActorRotation());
-
-	}
-
-	if (ActiveTrapComponentProxy)
-	{
-		ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
-	}
-	// LOOKING FOR HITS ON A BUILDING COMPONENT
-	// Search all hits of Multi Ray Cast for one the first that casts to a BuildingComponentBase (Ramp || Wall )
-	ATimberBuildingComponentBase* FirstHitBuildingComponent = nullptr;
-	for (const FHitResult& Hits : HitResults)
-	{
-		if (Cast<ATimberBuildingComponentBase>(Hits.GetActor()))
-		{
-			FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(Hits.GetActor());
-			BuildingComponentImpactPoint = Hits.ImpactPoint;
-			break;
-		}
-	}
-
-	//HIT A BUILDING COMPONENT - Excluding Environment Buildable
-	if (FirstHitBuildingComponent && FirstHitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment && 
-		FirstHitBuildingComponent->BuildableType != EBuildableType::Environment )
-	{
-		// Pairing the trap with the wall its Hovering over.
-		if (ActiveTrapComponentProxy)
-		{
-		
-			ActiveTrapComponentProxy->TrapHoveredBuildingComponent = FirstHitBuildingComponent;
-
-			FBuildablePlacementData TrapSnapData = GetTrapSnapTransform(BuildingComponentImpactPoint, 
-			FirstHitBuildingComponent, ActiveTrapComponentProxy);
-			MoveBuildingComponent
-			(
-				FVector_NetQuantize(TrapSnapData.TrapLocation),
-				ActiveTrapComponentProxy,
-				TrapSnapData.TrapRotation);
-		}
-	}
-	else // HIT BUT NOT A BUILDING COMPONENT
-	{
-		if (ActiveTrapComponentProxy)
-		{
-			ActiveTrapComponentProxy->SetCanTrapBeFinalized(false);
-			ActiveTrapComponentProxy->TrapHoveredBuildingComponent = nullptr;
-			if (HitResults[0].ImpactPoint != FVector::ZeroVector)
-			{
-				FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
-				PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
-				MoveBuildingComponent(
-					HitResults[0].ImpactPoint, ActiveTrapComponentProxy,
-					PlayerRotation);
-			}
-		}
-	}
-}*/
 USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResult HitResult)
 {
 	FVector ImpactPointLocation = HitResult.ImpactPoint;
@@ -1206,121 +1021,6 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		
 	}
 }
-
-/*void UBuildSystemManagerComponent::HandleTeleportConstructPlacement(TArray<FHitResult> HitResults)
-{
-	//Check Hit Results for any Building Components that are the floor. (TimberHorizontalBuildingComponent
-	ATimberHorizontalBuildingComponent* HitFloorComponent = nullptr;
-
-	//Search Hit Results for First Floor Component
-	for (FHitResult Hit : HitResults)
-	{
-		ATimberHorizontalBuildingComponent* TimberHorizontalBuildingComponent = Cast<ATimberHorizontalBuildingComponent>(Hit.GetActor());
-		if (Hit.GetActor() == TimberHorizontalBuildingComponent)
-		{
-			//This is the first floor component
-			HitFloorComponent = TimberHorizontalBuildingComponent;
-			//UE_LOG(LogTemp, Warning, TEXT("Hit Floor Component: %s"), *HitFloorComponent->GetName());
-			break;
-		}
-	}
-	
-	//Get Each Snap points location
-	//This will hold the exact snaps were looking for
-	TArray<USceneComponent*> FilteredSnapPoints;
-	//This holds all USceneComponents
-	TArray<USceneComponent*> AllSceneComponents;
-	if (HitFloorComponent)
-	{
-		HitFloorComponent->GetComponents<USceneComponent>(AllSceneComponents);
-	}else
-	{
-		//If we didnt hit a floor component, we dont want to continue.
-		return;
-	}
-
-	//Filter Snap Points
-	for (USceneComponent* SnapPoint : AllSceneComponents )
-	{
-		FString ComponentName = SnapPoint->GetName();
-		//These are the only Snap Points I want to Snap To.
-		if (ComponentName == TEXT("LeftSnap") || ComponentName == TEXT("RightSnap") || ComponentName == TEXT("TopSnap") || ComponentName == TEXT("BottomSnap"))
-		{
-			FilteredSnapPoints.Add(SnapPoint);
-			//UE_LOG(LogTemp, Warning, TEXT("Snap Point: %s added to FilteredSnapPoints"), *SnapPoint->GetName());
-		}
-	}
-	
-	//Check distance between Raycast Hit and Snap Point
-	//Get the Closest Snap Point
-	float DistanceToClosestSnapPoint = 0;
-	USceneComponent* ClosestSnapPoint = nullptr;
-	for (USceneComponent* SnapPoint : FilteredSnapPoints)
-	{
-		float CheckDistance = FVector::Dist(HitResults[0].ImpactPoint, SnapPoint->GetComponentLocation());
-		if (CheckDistance < DistanceToClosestSnapPoint || DistanceToClosestSnapPoint == 0)
-		{
-			DistanceToClosestSnapPoint = CheckDistance;
-			ClosestSnapPoint = SnapPoint;
-		}
-	}
-	
-	//Spawn Proxy Teleport if none spawned.
-	if (!ActiveTeleportConstructProxy && ClosestSnapPoint)
-	{
-		//Spawn Teleport Proxy @ Closest Snap Point
-		FActorSpawnParameters SpawnParameters;
-		
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
-		(
-			ActiveBuildableComponentClass,
-			ClosestSnapPoint->GetComponentLocation(),
-			ClosestSnapPoint->GetComponentRotation(),
-			SpawnParameters);
-		
-		if (SpawnedActor)
-		{
-			//Set Proxy
-			ActiveTeleportConstructProxy = Cast<ATeleportConstruct>(SpawnedActor);
-			//Set BuildableRef
-			BuildableProxyInstance = Cast<ABuildableBase>(SpawnedActor);
-			if (ActiveTeleportConstructProxy)
-			{
-				//Orient the Building Component to Face the Floor Center
-				FVector ProxyForward = ActiveTeleportConstructProxy->GetActorLocation();
-				FVector FloorCenter = HitFloorComponent->CenterSnap->GetComponentLocation();
-				FRotator RotateToFace = UKismetMathLibrary::FindLookAtRotation(ProxyForward, FloorCenter) + FRotator(0, -90, 0);
-				ActiveTeleportConstructProxy->SetActorRotation(RotateToFace);
-				UE_LOG(LogTemp, Warning, TEXT("Teleport Construct Rotated to Face the Floor."));
-
-				//Handle Collision
-				DisableBuildableProxyCollisions(ActiveTeleportConstructProxy);
-				//Set State
-				ActiveTeleportConstructProxy->TeleportConstructState = ETeleportConstructState::Proxy;
-				//Set Material for Proxy State
-				MakeMaterialHoloColor(ActiveTeleportConstructProxy, BlueHoloMaterial); 
-			}
-		}
-	}
-	else if (ActiveTeleportConstructProxy && ClosestSnapPoint)
-	{
-		
-		//BuildableRef = Cast<ABuildableBase>(ActiveTeleportConstructProxy);
-		BuildableProxyInstance = ActiveTeleportConstructProxy;
-		
-		//Move the Proxy to the Closest Snap Point
-		ActiveTeleportConstructProxy->SetActorLocation(ClosestSnapPoint->GetComponentLocation());
-		
-		//This may be off because Y is forward on the Teleport Construct
-		FVector ProxyForward = ActiveTeleportConstructProxy->GetActorLocation();
-		FVector FloorCenter = HitFloorComponent->CenterSnap->GetComponentLocation();
-		//Set Rotation
-		FRotator RotateToFace = UKismetMathLibrary::FindLookAtRotation(ProxyForward, FloorCenter) + FRotator(0, -90, 0);
-		//Set Location
-		ActiveTeleportConstructProxy->SetActorRotation(RotateToFace);
-		
-	}
-}*/
 
 /* Buildable Utils*/
 void UBuildSystemManagerComponent::MoveBuildable(
@@ -1565,18 +1265,6 @@ AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> Act
 	return nullptr;
 }
 
-/*ATimberBuildingComponentBase* UBuildSystemManagerComponent::FindFirstHitBuildingComponent(TArray<FHitResult> HitResults)
-{
-	for (FHitResult Hit : HitResults)
-	{
-		if (Cast<ATimberBuildingComponentBase>(Hit.GetActor()))
-		{
-			return Cast<ATimberBuildingComponentBase>(Hit.GetActor());
-		}
-	}
-	return nullptr;
-}*/
-
 FHitResult UBuildSystemManagerComponent::FirstHitBuildingComponentHitResult(TArray<FHitResult> HitResults)
 {
 	FHitResult FirstHitBuildingComponentHitResult;
@@ -1688,11 +1376,14 @@ void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitRes
 
 void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
+	/*Classes Using this:
+	 * Teleporter
+	 */
 	// CHeck FirstHitBuildingComponent Actor and Ensure it's a floor.
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(FirstHitBuildingComponentHitResult.GetActor());
 	if (FloorComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hovering Over Floor Component: %s"), *FloorComponent->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Hovering Over Floor Component: %s"), *FloorComponent->GetName());
 		TArray<USceneComponent*> AllSceneComponents;
 		TArray<USceneComponent*> FilteredSnapPoints;
 		
@@ -1749,7 +1440,6 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 		}
 
 		BuildableProxyInstance->bCanBuildableBeFinalized = true;
-		
 	}
 	else
 	{
@@ -1757,7 +1447,6 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
 		BuildableProxyInstance->bCanBuildableBeFinalized = false;
 	}
-	
 }
 
 

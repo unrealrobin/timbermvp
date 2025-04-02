@@ -96,8 +96,10 @@ public:
 	/*Handling Pair Destruction*/
 	UFUNCTION()
 	void LinkToPair(ATeleportConstruct* Pair);
+	
 	UFUNCTION()
 	void OnPairDestruction(AActor* DestroyedActor);
+	
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:

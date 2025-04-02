@@ -14,10 +14,11 @@
 #include "Environment/LabDoorBase.h"
 #include "Environment/LocationMarkerBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "SaveSystem/TimberSaveSystem.h"
+#include "Subsystems/SaveLoad/SaveLoadStruct.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
 #include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
+#include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 
@@ -37,7 +38,7 @@ void ATimberGameModeBase::BeginPlay()
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
-		GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
+		//GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
 		GetWaveGameInstanceSubsystem()->HandleWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
 		/*Subscribing to Player Death Delegate Signature*/
 	}
@@ -129,27 +130,30 @@ void ATimberGameModeBase::InitializeGameState()
 		else if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Mid Game Demo Game State."))
+			USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+			if (SaveLoadSubsystem)
+			{
+				//Loading the Game with Wave 9 Builds
+				SaveLoadSubsystem->LoadGame();
 
-			//Loading the Game with Wave 9 Builds
-			LoadGame();
+				//Calling to Redraw the Path Trace next tick, after all the building components are built.
+				
 
-			//Calling to Redraw the Path Trace next tick, after all the building components are built.
-			
+				//Set to Tutorial Complete / Ensures HUD Knows to Display all Widgets
+				DieRobotGameState->ChangeTutorialGameState(ETutorialState::TutorialComplete);
+				
+				//Setting Wave Number for GDC Mid Game Demo
+				GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(9);
 
-			//Set to Tutorial Complete / Ensures HUD Knows to Display all Widgets
-			DieRobotGameState->ChangeTutorialGameState(ETutorialState::TutorialComplete);
-			
-			//Setting Wave Number for GDC Mid Game Demo
-			GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(9);
-
-			//TODO:: Currently Unused, But we can use this later to increase enemy health based on wave #.
-			//This broadcasts to Enemy Characters the current Wave Number.
-			CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
-			UE_LOG(LogTemp, Warning, TEXT("Broadcasted Current Wave Number: %d. "), GetWaveGameInstanceSubsystem()->CurrentWaveNumber)
-			
-			//Load all Game Assets
-			//Set Inventory to a reasonable rate
-			//Set the Wave to the correct Wave
+				//TODO:: Currently Unused, But we can use this later to increase enemy health based on wave #.
+				//This broadcasts to Enemy Characters the current Wave Number.
+				CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
+				UE_LOG(LogTemp, Warning, TEXT("Broadcasted Current Wave Number: %d. "), GetWaveGameInstanceSubsystem()->CurrentWaveNumber)
+				
+				//Load all Game Assets
+				//Set Inventory to a reasonable rate
+				//Set the Wave to the correct Wave
+			}
 		}
 		else
 		{
@@ -356,7 +360,8 @@ void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 	}
 }
 
-FString ATimberGameModeBase::GetSaveSlot()
+/*Save System*/
+/*FString ATimberGameModeBase::GetSaveSlot()
 {
 	UDieRobotGameConfigSubsystem* GameConfigSubsystem = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
 	if (GameConfigSubsystem)
@@ -368,17 +373,15 @@ FString ATimberGameModeBase::GetSaveSlot()
 	return StandardSaveSlot;
 }
 
-/*Save System*/
 void ATimberGameModeBase::SaveCurrentGame()
 {
-	//TODO:: IF GameConfig = MidGameDemo Return. No Saving for MidGame At the moment.
 	
 	FString SaveSlot = GetSaveSlot();
 	
 	//Creating an instance of the Save Game Object
-	UTimberSaveSystem* SaveGameInstance = Cast<UTimberSaveSystem>(
+	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(
 		UGameplayStatics::CreateSaveGameObject
-		(UTimberSaveSystem::StaticClass()));
+		(USaveLoadStruct::StaticClass()));
 
 	SaveBuildingComponentData(SaveGameInstance);
 	SaveWaveData(SaveGameInstance);
@@ -395,7 +398,7 @@ void ATimberGameModeBase::SaveCurrentGame()
 	}
 }
 
-void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameInstance)
+void ATimberGameModeBase::SaveBuildingComponentData(USaveLoadStruct* SaveGameInstance)
 {
 	if (SaveGameInstance)
 	{
@@ -423,14 +426,14 @@ void ATimberGameModeBase::SaveBuildingComponentData(UTimberSaveSystem* SaveGameI
 	}
 }
 
-void ATimberGameModeBase::SaveWaveData(UTimberSaveSystem* SaveGameInstance)
+void ATimberGameModeBase::SaveWaveData(USaveLoadStruct* SaveGameInstance)
 {
 	SaveGameInstance->WaveNumber = GetWaveGameInstanceSubsystem()->CurrentWaveNumber;
 	
 	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), SaveGameInstance->WaveNumber);
 }
 
-void ATimberGameModeBase::SavePlayerData(UTimberSaveSystem* SaveGameInstance)
+void ATimberGameModeBase::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 {
 	if (TimberCharacter)
 	{
@@ -451,7 +454,7 @@ void ATimberGameModeBase::SavePlayerData(UTimberSaveSystem* SaveGameInstance)
 	}
 }
 
-void ATimberGameModeBase::SaveSeedaData(UTimberSaveSystem* SaveGameInstance)
+void ATimberGameModeBase::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 {
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
 	if (Seeda && SaveGameInstance)
@@ -461,7 +464,7 @@ void ATimberGameModeBase::SaveSeedaData(UTimberSaveSystem* SaveGameInstance)
 	}
 }
 
-/* Load System */
+/* Load System #1#
 void ATimberGameModeBase::LoadGame()
 {
 	GetWaveGameInstanceSubsystem()->ResetWaveEnemies();
@@ -469,7 +472,7 @@ void ATimberGameModeBase::LoadGame()
 	//Returns the correct Slot to use based on Game Config
 	FString LoadSlot = GetSaveSlot();
 	
-	UTimberSaveSystem* LoadGameInstance = Cast<UTimberSaveSystem>(
+	USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(
 		UGameplayStatics::LoadGameFromSlot(LoadSlot, 0));
 
 	if (LoadGameInstance)
@@ -503,7 +506,7 @@ void ATimberGameModeBase::LoadGame()
 	
 }
 
-void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInstance)
+void ATimberGameModeBase::LoadBuildingComponents(USaveLoadStruct* LoadGameInstance)
 {
 	if (LoadGameInstance)
 	{
@@ -528,7 +531,7 @@ void ATimberGameModeBase::LoadBuildingComponents(UTimberSaveSystem* LoadGameInst
 	}
 }
 
-void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
+void ATimberGameModeBase::LoadWaveData(USaveLoadStruct* LoadGameInstance)
 {
 	if (LoadGameInstance)
 	{
@@ -540,7 +543,7 @@ void ATimberGameModeBase::LoadWaveData(UTimberSaveSystem* LoadGameInstance)
 	}
 }
 
-void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
+void ATimberGameModeBase::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 {
 	if (TimberCharacter)
 	{
@@ -567,7 +570,7 @@ void ATimberGameModeBase::LoadPlayerState(UTimberSaveSystem* LoadGameInstance)
 	}
 }
 
-void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
+void ATimberGameModeBase::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 {
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()));
 	//If Seeda Wasn't destroyed - player only died - destroy the instance of Seeda
@@ -583,7 +586,7 @@ void ATimberGameModeBase::LoadSeedaData(UTimberSaveSystem* LoadGameInstance)
 		HardCodeSeedaLocation,
 		LoadGameInstance->SeedaData.SeedaRotation,
 		SpawnParams);
-}
+}*/
 
 void ATimberGameModeBase::OpenAllLabDoors()
 {

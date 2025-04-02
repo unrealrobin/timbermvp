@@ -43,9 +43,10 @@ void ATrapBase::Tick(float DeltaTime)
 
 void ATrapBase::FreeUpTrapSlotOnBuildingComponent()
 {
-	if (ParentBuildingComponent)
+	if (ATimberBuildingComponentBase* ParentBuildingComponent = Cast<ATimberBuildingComponentBase>(ParentBuildable))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Parent Building Component Name: %s"), *ParentBuildingComponent->GetName());
+	
+		UE_LOG(LogTemp, Warning, TEXT("Parent Building Component Name: %s"), *ParentBuildable->GetName());
 		switch (BuildingComponentTrapDirection)
 		{
 		case EBuildingComponentTrapDirection::Back :

@@ -35,10 +35,6 @@ class TIMBERMVP_API ATrapBase : public ABuildableBase
 public:
 	ATrapBase();
 
-	/*Ref to Attached BC*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
-	ATimberBuildingComponentBase* ParentBuildingComponent;
-
 protected:
 	virtual void BeginPlay() override;
 

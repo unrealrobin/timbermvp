@@ -15,6 +15,13 @@ enum class EDieRobotGameConfigType : uint8
 	Default UMETA(DisplayName = "Default"),
 };
 
+/*GameConfig
+ * This Class tells the Game what type of GameMode we are in.
+ * Initially this was to distinguish between demos, but it also serves a good purpose to clarify which game mode the player is in.
+ * Ex. Story Mode, Endless Mode, Other, Etc.
+ * At the Moment it is used to help select the Correct Game Slot to Save/Load to/from.
+ */
+
 /**
  * 
  */

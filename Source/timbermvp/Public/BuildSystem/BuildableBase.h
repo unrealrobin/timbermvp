@@ -59,10 +59,36 @@ class TIMBERMVP_API ABuildableBase : public AActor, public IGameplayTagAssetInte
 {
 	GENERATED_BODY()
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	/*Unique Tag for Tracking/Saving/Loading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Buildable")
+	FGuid GUID;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
+	USceneComponent* RootSceneComponent;
+	
+	void SpawnLootInRange(int NumberOfParts = 0, int NumberOfMechanisms = 0, int NumberOfUniques = 0);
+
+	/*Potential Loot on Destruction / Guaranteed on Deletion */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
+	TSubclassOf<AEnemyLootDropBase> PartsClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
+	TSubclassOf<AEnemyLootDropBase> MechanismsClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
+	TSubclassOf<AEnemyLootDropBase> UniquesClass;
+	
 public:
 	// Sets default values for this actor's properties
 	ABuildableBase();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
 	bool bCanBuildableBeFinalized = true;
 
@@ -78,30 +104,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Tags")
 	FGameplayTagContainer GameplayTagContainer;
 
-	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
-	USceneComponent* RootSceneComponent;
-	
-	void SpawnLootInRange(int NumberOfParts = 0, int NumberOfMechanisms = 0, int NumberOfUniques = 0);
+	ABuildableBase* ParentBuildable;
 
-	/*Potential Loot on Destruction / Guaranteed on Deletion */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
-	TSubclassOf<AEnemyLootDropBase> PartsClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
-	TSubclassOf<AEnemyLootDropBase> MechanismsClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
-	TSubclassOf<AEnemyLootDropBase> UniquesClass;
-
-public:
+	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 	
 	UFUNCTION()
 	virtual void HandleDeletionOfBuildable();
+
+	UFUNCTION()
+	FGuid GetGUID();
 	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void SetGUID(FGuid NewGUID);
+	
 };

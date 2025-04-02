@@ -18,9 +18,6 @@ public:
 	// Sets default values for this actor's properties
 	APowerPlate();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
-	ATimberBuildingComponentBase* ParentBuildingComponent = nullptr;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* StaticMeshComponent;
 	

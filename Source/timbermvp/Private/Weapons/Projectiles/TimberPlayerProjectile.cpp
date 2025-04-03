@@ -72,40 +72,6 @@ void ATimberPlayerProjectile::HandleBlocked(
 	//UE_LOG(LogTemp, Warning, TEXT("PlayerProjectile - Player Projectile has been Blocked and Destroyed."))
 }
 
-/*void ATimberPlayerProjectile::HandleOverlap(
-	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
-	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
-
-	if (HitEnemy)
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("HitEnemy Valid."));
-		//Play the IDamageableEnemy's TakeDamage function. Interface.
-		HitEnemy->PlayProjectileHitSound(SweepResult);
-
-		//Weapon Owns Projectile, Player Owns Weapon.
-		if (PlayerProjectileOwner)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Owning Weapon is Valid."));
-			HitEnemy->TakeDamage(CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner())), PlayerProjectileOwner);
-		}
-		else
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Owning Weapon Not Valid."));
-		}
-		
-		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
-		//UE_LOG(LogTemp, Warning, TEXT("Timer Started to Handle Destruction."));
-		FTimerHandle OnHandleDestroy;
-		//GetWorld()->GetTimerManager().SetTimer(OnHandleDestroy, this, &ATimberPlayerProjectile::HandleDestroy, 0.2f, false);
-		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATimberPlayerProjectile::HandleDestroy);
-	}
-	
-	
-}*/
-
 float ATimberPlayerProjectile::CalculateOutputDamage(ATimberWeaponRangedBase* Weapon)
 {
 	/*Projectile Damage can be modified by the Players Modifier && The Weapons Modifier

@@ -53,6 +53,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	UUserWidget* RepairWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial")
+	TSubclassOf<AActor> TutorialLocationMarkerClass;
+
+	void SpawnLocationMarkerForTutorial();
+
 	UFUNCTION()
 	void HandleRepairWidget();
 

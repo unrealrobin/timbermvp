@@ -11,7 +11,7 @@ enum class EDieRobotGameConfigType : uint8
 {
 	MainMenu UMETA(DisplayName = "MainMenu"),
 	MidGameDemo UMETA(DisplayName = "MidGameDemo"),
-	Standard UMETA(DisplayName = "MidGameDemo"),
+	Standard UMETA(DisplayName = "Standard"),
 	Default UMETA(DisplayName = "Default"),
 };
 
@@ -32,5 +32,5 @@ class TIMBERMVP_API UDieRobotGameConfigSubsystem : public UGameInstanceSubsystem
 
 public:
 	UPROPERTY()
-	EDieRobotGameConfigType GameConfig = EDieRobotGameConfigType::Default;
+	EDieRobotGameConfigType GameConfig = EDieRobotGameConfigType::Standard;
 };

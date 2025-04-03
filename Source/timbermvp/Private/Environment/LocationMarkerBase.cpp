@@ -16,8 +16,7 @@ ALocationMarkerBase::ALocationMarkerBase()
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	RootComponent = StaticMeshComponent;
 
-	StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-	StaticMeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	StaticMeshComponent->SetCollisionProfileName("DR_HitEventOnly");
 	StaticMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ALocationMarkerBase::HandleLocationOverlap);
 }
 

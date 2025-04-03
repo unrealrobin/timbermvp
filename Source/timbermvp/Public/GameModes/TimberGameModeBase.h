@@ -152,8 +152,4 @@ protected:
 	UFUNCTION()
 	void PlayAttackMusic();
 	
-	/*Spawn*/
-
-	UFUNCTION()
-	void SpawnLocationMarker();
 };

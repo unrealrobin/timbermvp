@@ -29,12 +29,13 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
 
-	if (GetCapsuleComponent())
+	//Remove if no issues with Invis Wall - Presets Fixed this issue.
+	/*if (GetCapsuleComponent())
 	{
 		//Should Ignore the invisible wall in the lab doors.
 		GetCapsuleComponent()->SetCollisionResponseToChannel(UCollisionProfile::Get()->ConvertToCollisionChannel
 		(false, *"InvisWall"), ECR_Ignore);
-	}
+	}*/
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -165,14 +166,14 @@ void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 void ATimberEnemyCharacter::OnDeath_HandleCollision()
 {
 	//Disable Collision
-	TArray<USceneComponent*> CollisionComponents;
+	/*TArray<USceneComponent*> CollisionComponents;
 	GetRootComponent()->GetChildrenComponents(true, CollisionComponents);
 	CollisionComponents.Add(GetRootComponent());
 	for (USceneComponent* Component : CollisionComponents)
 	{
 		if (UShapeComponent* ShapeComponent = Cast<UShapeComponent>(Component))
 		{
-			/*Remove All Collisions but don't fall through the map.*/
+			/*Remove All Collisions but don't fall through the map.#1#
 			ShapeComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 			ShapeComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 			ShapeComponent->SetCanEverAffectNavigation(false);
@@ -185,7 +186,13 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 			StaticMesh->bFillCollisionUnderneathForNavmesh = true;
 		}
 		//UE_LOG(LogTemp, Warning, TEXT("Collision Disabled for a Single Component"));
-	}
+	}*/
+
+	/*
+	 * Blocks: Static, Dynamic, BuildingComponent,InvisWall
+	 */
+	GetCapsuleComponent()->SetCollisionProfileName("DR_DeadCharacter");
+
 }
 
 void ATimberEnemyCharacter::OnDeath_DropLoot()

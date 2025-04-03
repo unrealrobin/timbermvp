@@ -30,8 +30,6 @@ enum class EEnemyType : uint8
 	
 };
 
-
-
 /**
  * 
  */

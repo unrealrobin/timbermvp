@@ -31,7 +31,7 @@ EBTNodeResult::Type UTask_AI_SetCurrentTarget::ExecuteTask(UBehaviorTreeComponen
 	{
 		//Setting current target on Enemy AI Character
 		Cast<ATimberEnemyCharacter>(AIControllerBase->GetPawn())->CurrentTarget = CurrentTarget;
-		UE_LOG(LogTemp, Warning, TEXT("Task_AI_SetCurrentTarget: Current Target is %s."), *CurrentTarget->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Task_AI_SetCurrentTarget: Current Target is %s."), *CurrentTarget->GetName());
 		return EBTNodeResult::Succeeded;
 	}
 	else

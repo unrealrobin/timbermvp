@@ -108,11 +108,6 @@ void ATimberGameModeBase::InitializeGameState()
 		//Standard Game with Tutorial
 		if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::Standard)
 		{
-			//Setting Normal Game Mode to Wave Number 1
-			//TODO:: This will have to be changed to ensure we dont always overwrite this game mode to start on Wave 1 if a current save is available.
-			//INFO:: This is here for Demo Purposes only at the moment.
-			GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(1);
-
 			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Standard Game State."))
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateTutorialState);
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleTutorialStateChange);
@@ -126,7 +121,7 @@ void ATimberGameModeBase::InitializeGameState()
 				SpawnDummyForTutorial();
 			}
 		}
-		//Game Demo starting at Mid Game
+		//Game Demo starting at Mid-Game
 		else if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Mid Game Demo Game State."))
@@ -200,10 +195,10 @@ void ATimberGameModeBase::SpawnDummyForTutorial()
 
 void ATimberGameModeBase::HandleTutorialStateChange(ETutorialState NewState)
 {
-	if (NewState == ETutorialState::Wake2)
+	/*if (NewState == ETutorialState::Wake2)
 	{
 		SpawnLocationMarker();
-	}
+	}*/
 	/*if (NewState == ETutorialState::Wake3)
 	{
 		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
@@ -314,19 +309,6 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 	RedrawPathTrace();
 }
 
-void ATimberGameModeBase::SpawnLocationMarker()
-{
-	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
-	if (Seeda)
-	{
-		SeedaLocation = Seeda->GetActorLocation();
-		SeedaLocation.Z -= 100.0f;
-
-		FActorSpawnParameters SpawnParams;
-
-		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(LocationMarker, SeedaLocation, FRotator(0, 0, 0), SpawnParams);
-	}
-}
 
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)

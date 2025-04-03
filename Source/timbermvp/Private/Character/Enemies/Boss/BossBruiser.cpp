@@ -34,20 +34,19 @@ void ABossBruiser::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ABossBruiser::EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
+void ABossBruiser::EnableCollisionToDamagePlayerOnly(UCapsuleComponent* ComponentToUpdate)
 {
-	if (WWCapsuleComponent)
+	if (ComponentToUpdate)
 	{
-		WWCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-		WWCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		ComponentToUpdate->SetCollisionProfileName("DR_HitEventOnly");
 	}
 }
 
-void ABossBruiser::DisableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent)
+void ABossBruiser::DisableCollisionToDamagePlayerOnly(UCapsuleComponent* ComponentToUpdate)
 {
-	if (WWCapsuleComponent)
+	if (ComponentToUpdate)
 	{
-		WWCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+		ComponentToUpdate->SetCollisionProfileName("NoCollision");
 	}
 }
 
@@ -79,7 +78,7 @@ void ABossBruiser::HandleOverHeadSmashOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("OverHeadSmashOverlap"));
+	UE_LOG(LogTemp, Warning, TEXT("Bruiser - Overhead Smash Overlapped."));
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter)
 	{
@@ -92,20 +91,19 @@ void ABossBruiser::SpawnOverHeadCapsule()
 	OverHeadSmashCapsuleComponent = NewObject<UCapsuleComponent>(this);
 	if (OverHeadSmashCapsuleComponent)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("OverHeadSmashCapsuleComponent Created."));
 		OverHeadSmashCapsuleComponent->AttachToComponent(
 			OverHeadSmashCapsuleSpawnLocation,
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		OverHeadSmashCapsuleComponent->RegisterComponent();
-		OverHeadSmashCapsuleComponent->SetCapsuleHalfHeight(OverHeadSmashCapsuleHeight, true);
-		OverHeadSmashCapsuleComponent->SetCapsuleRadius(OverHeadSmashCapsuleRadius, true);
 		//Collision Delegate
 		OverHeadSmashCapsuleComponent->OnComponentBeginOverlap.AddDynamic(
 			this, &ABossBruiser::HandleOverHeadSmashOverlap);
+		OverHeadSmashCapsuleComponent->RegisterComponent();
+		OverHeadSmashCapsuleComponent->SetCapsuleHalfHeight(OverHeadSmashCapsuleHeight, true);
+		OverHeadSmashCapsuleComponent->SetCapsuleRadius(OverHeadSmashCapsuleRadius, true);
+		OverHeadSmashCapsuleComponent->SetCollisionProfileName("DR_HitEventOnly");
 
-		//TODO:: May need to be more stringent with the collision setting. This should only damage players within the AOE of the attack.
-		OverHeadSmashCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-		OverHeadSmashCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		OverHeadSmashCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		
 	}
 }
 
@@ -113,6 +111,7 @@ void ABossBruiser::DestroyOverHeadCapsule()
 {
 	if (OverHeadSmashCapsuleComponent)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("OverHeadSmashCapsuleComponent Destroyed."));
 		OverHeadSmashCapsuleComponent->DestroyComponent();
 	}
 }
@@ -124,21 +123,26 @@ void ABossBruiser::SetupCapsuleComponents()
 		//Used for HeadShotCollisions
 		HeadCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("HeadCapsuleComponent");
 		HeadCapsuleComponent->SetupAttachment(GetMesh(), FName("headSocket"));
+		HeadCapsuleComponent->SetCollisionProfileName("DR_HitEventOnly");
 
 		BodyCollisionComponent = CreateDefaultSubobject<UBoxComponent>("BodyCollisionComponent");
 		BodyCollisionComponent->SetupAttachment(RootComponent);
+		BodyCollisionComponent->SetCollisionProfileName("DR_HitEventOnly");
 
 		//Used only for attack animation collision
 		RightArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("RightArmCapsuleComponent");
 		LeftArmCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("LeftArmCapsuleComponent");
 		RightArmCapsuleComponent->SetupAttachment(GetMesh(), FName("rightArmSocket"));
 		LeftArmCapsuleComponent->SetupAttachment(GetMesh(), FName("leftArmSocket"));
+		RightArmCapsuleComponent->SetCollisionProfileName("DR_EnemyCharacterCapsule");
+		LeftArmCapsuleComponent->SetCollisionProfileName("DR_EnemyCharacterCapsule");
 
 		//Capsules for Whirldwind Animation
 		WhirlwindRightCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("WhirlwindRightCollisionSphere");
 		WhirlwindLeftCollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("WhirlwindLeftCollisionSphere");
 		WhirlwindRightCollisionSphere->SetupAttachment(RightArmCapsuleComponent);
 		WhirlwindLeftCollisionSphere->SetupAttachment(LeftArmCapsuleComponent);
+		
 		//Collision Enabling will happen in the Event Notify Custom Event Function
 		DisableCollisionToDamagePlayerOnly(WhirlwindRightCollisionSphere);
 		DisableCollisionToDamagePlayerOnly(WhirlwindLeftCollisionSphere);

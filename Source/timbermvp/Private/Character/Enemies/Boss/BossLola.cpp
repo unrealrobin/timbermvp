@@ -50,7 +50,7 @@ void ABossLola::BeginPlay()
 
 void ABossLola::SetLolaNotDamageable()
 {
-	if (CapsuleComponentsArray.Num() > 0)
+	/*if (CapsuleComponentsArray.Num() > 0)
 	{
 		for (UPrimitiveComponent* LolaCapsuleComponent : CapsuleComponentsArray)
 		{
@@ -58,11 +58,13 @@ void ABossLola::SetLolaNotDamageable()
 			LolaCapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 			LolaCapsuleComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Ignore);
 		}
-	}
+	}*/
 
 	if (GetMesh())
 	{
-		GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
+		/*GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);*/
+
+		LolaTakeDamagePotential = ELolaTakeDamePotential::NotDamageable;
 
 		//Adding Shield Overlay Material VFX.
 		AddOverlayMaterialToCharacter(ShieldOverlayMaterial, 0.0f);
@@ -78,12 +80,14 @@ void ABossLola::SetLolaToDamageable()
 		{
 			//Removing Shield Overlay Material VFX
 			RemoveOverlayMaterialFromCharacter();
+
+			LolaTakeDamagePotential = ELolaTakeDamePotential::Damageable;
 			
-			//Overlapping Melee Weapons
+			/*//Overlapping Melee Weapons
 			LolaCapsuleComponent->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 
 			//Overlapping Projectiles
-			LolaCapsuleComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
+			LolaCapsuleComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);*/
 		}
 	}
 
@@ -116,6 +120,10 @@ void ABossLola::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 	See the SetLolaToDamageable() and SetLolaNotDamageable() functions.
 	See the SetLolaStunned() and SetLolaNotStunned() functions.
 	*/
+	if (LolaTakeDamagePotential == ELolaTakeDamePotential::NotDamageable)
+	{
+		return;
+	}
 	
 	Super::TakeDamage(DamageAmount, DamageInstigator);
 }
@@ -218,7 +226,7 @@ void ABossLola::LolaInitializeComponents()
 
 	
 
-	/* Minions */
+	/* Minions / Actor Components Set on BP */
 	Drone1Component = CreateDefaultSubobject<UChildActorComponent>("Drone1");
 	Drone2Component = CreateDefaultSubobject<UChildActorComponent>("Drone2");
 	Drone3Component = CreateDefaultSubobject<UChildActorComponent>("Drone3");
@@ -273,8 +281,6 @@ void ABossLola::DemolishBuildable()
 			UE_LOG(LogTemp, Warning, TEXT("Lola - Buildable Destroyed. Sweep Hit Cleared."));
 			Buildable->Destroy();
 			SweepHitActor = nullptr;
-
-			//TODO:: Potentially may need to Clear the Blackboard Value for "ClosestBuildingComponentActor" through the controller in the future.
 		}
 	}
 }

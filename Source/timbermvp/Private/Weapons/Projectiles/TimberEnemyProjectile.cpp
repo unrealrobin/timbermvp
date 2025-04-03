@@ -102,6 +102,20 @@ bool ATimberEnemyProjectile::IsActorCurrentTarget(AActor* OtherActor)
 {
 	//Called in both block and Overlap
 	//UE_LOG(LogTemp, Warning, TEXT("CurrentTarget: %s. OtherActor: %s."), *Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget->GetName(), *OtherActor->GetName());
+
+	//Used for Drones
+	// Projectile->Drone Enemy
+	if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner()))
+	{
+		if (OtherActor == EnemyCharacter->CurrentTarget)
+		{
+			return true;
+		}
+	}
+
+	//Double Get Owner because most projectiles file from Gun, but we need GunOwner
+	// Projectile -> Gun -> GunOwner
+	if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner()))
 	if (OtherActor == Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget)
 	{
 		return true;

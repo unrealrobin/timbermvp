@@ -91,8 +91,6 @@ void AFloaterDrones::SetActorUnDamageable()
 
 void AFloaterDrones::SetActorDamageable()
 {
-
-	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 

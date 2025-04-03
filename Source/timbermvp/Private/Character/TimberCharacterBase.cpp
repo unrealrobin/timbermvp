@@ -20,6 +20,8 @@ void ATimberCharacterBase::BeginPlay()
 
 void ATimberCharacterBase::AddOverlayMaterialToCharacter(UMaterialInterface* MaterialToOverlay, float TimeBeforeRemoval)
 {
+	//Function has an option for Automatic Remove with the TImeBeforeRemoval float.
+	//Passing in 0 will allow us to remove on some event instead.
 	if (TimeBeforeRemoval > 0)
 	{
 		//Material to be removed with timer.

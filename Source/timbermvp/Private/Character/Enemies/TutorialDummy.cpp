@@ -26,21 +26,6 @@ void ATutorialDummy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	USkeletalMeshComponent* SkeletalMesh = GetMesh();
-	if (SkeletalMesh)
-	{
-		SkeletalMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-	}
-	
-	if (CollisionCapsule)
-	{
-		CollisionCapsule->SetCollisionResponseToAllChannels(ECR_Ignore);
-		//Projectile
-		CollisionCapsule->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
-		//Sword
-		CollisionCapsule->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
-	}
-
 	DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
 
 	//Broadcasts to Increment Tutorial State

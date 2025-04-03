@@ -12,6 +12,7 @@
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -31,6 +32,9 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 	/* Actor Components */
 	BuildSystemManager = CreateDefaultSubobject<UBuildSystemManagerComponent>("BuildSystemManager");
 	InventoryManager = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("DR_PlayerCharacterCapsule"));
+	GetMesh()->SetCollisionProfileName(TEXT("DR_AestheticMeshOnly"));
 }
 
 void ATimberPlayableCharacter::BeginPlay()

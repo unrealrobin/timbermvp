@@ -17,6 +17,7 @@ ATimberWeaponBase::ATimberWeaponBase()
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
 	RootComponent = StaticMesh;
+	StaticMesh->SetCollisionProfileName("AestheticMeshOnly");
 }
 
 // Called when the game starts or when spawned

@@ -16,7 +16,6 @@ enum class EDroneState : uint8
 {
 	Damageable UMETA(DisplayName = "Damageable"),
 	NotDamageable UMETA(DisplayName = "Not Damageable")
-	
 };
 
 UCLASS()

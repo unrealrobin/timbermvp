@@ -19,7 +19,9 @@ ASpikeTrap::ASpikeTrap()
 	
 	TrapSpikeMesh = CreateDefaultSubobject<UStaticMeshComponent>("Spikes");
 	TrapSpikeMesh->SetupAttachment(TrapBaseStaticMesh);
-	DisableAllStaticMeshCollisions(TrapSpikeMesh);
+	
+	//Using No Collision Preset
+	TrapSpikeMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	SpikeOutTimeline = CreateDefaultSubobject<UTimelineComponent>("SpikeOutTimeline");
 }
 

@@ -19,7 +19,7 @@ ATeleportConstruct::ATeleportConstruct()
 
 	SaveDefaultMaterials();
 
-	TeleportOverlapBox->OnComponentBeginOverlap.AddDynamic(this, &ATeleportConstruct::HandleTeleportOverlap);
+	TeleportEffectMesh->OnComponentBeginOverlap.AddDynamic(this, &ATeleportConstruct::HandleTeleportOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -44,20 +44,23 @@ void ATeleportConstruct::SetupComponents()
 {
 	PillarLeft = CreateDefaultSubobject<UStaticMeshComponent>("PillarLeftStaticMesh");
 	PillarLeft->SetupAttachment(RootComponent);
-	TeleportOverlapBox = CreateDefaultSubobject<UBoxComponent>("TeleportOverlapBox");
-	TeleportOverlapBox -> SetupAttachment(PillarLeft);
 	PillarRight = CreateDefaultSubobject<UStaticMeshComponent>("PillarRightStaticMesh");
 	PillarRight->SetupAttachment(PillarLeft);
 	TeleportLandingLocation = CreateDefaultSubobject<USceneComponent>("TeleportLandingLocation");
 	TeleportLandingLocation->SetupAttachment(PillarLeft);
 	TeleportEffectMesh = CreateDefaultSubobject<UStaticMeshComponent>("TeleportEffectMesh");
 	TeleportEffectMesh->SetupAttachment(PillarLeft);
+
+	PillarLeft->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
+	PillarRight->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
+	TeleportEffectMesh->SetCollisionProfileName(TEXT("DR_HitEventOnly"));
 }
 
 void ATeleportConstruct::HandleTeleportOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Overlapped Teleporter."));
 	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (Player && TeleportPair)
 	{

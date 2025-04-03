@@ -11,6 +11,9 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
+
+class UDieRobotGameConfigSubsystem;
 
 ATimberSeeda::ATimberSeeda()
 {
@@ -56,6 +59,8 @@ void ATimberSeeda::BeginPlay()
 	InteractOverlapSphere->OnComponentEndOverlap.AddDynamic(this, &ATimberSeeda::RemoveInteractableFromPlayer);
 
 	HandleRepairWidget();
+
+	SpawnLocationMarkerForTutorial();
 }
 
 void ATimberSeeda::Tick(float DeltaTime)
@@ -177,6 +182,31 @@ void ATimberSeeda::RemoveInteractableFromPlayer(
 			}
 		}
 	}
+}
+
+void ATimberSeeda::SpawnLocationMarkerForTutorial()
+{
+	//Only spawning this in the standard game mode if tutorial is in the first state.
+	ADieRobotGameStateBase* DieRobotGameState = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	
+	if (DieRobotGameState && DieRobotGameState->TutorialState == ETutorialState::Wake1 && 
+		DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::Standard)
+	{
+		//Spawn the Location Marker for the Tutorial
+		FActorSpawnParameters SpawnParams;
+
+		FVector SeedaLocation = GetActorLocation();
+
+		//Arbitrary Z Offset to ensure the Location Marker is above the Seeda
+		SeedaLocation.Z -= 100.f;
+		
+		if (TutorialLocationMarkerClass)
+		{
+			GetWorld()->SpawnActor<AActor>(TutorialLocationMarkerClass, SeedaLocation, GetActorRotation(), SpawnParams);
+		}
+	}
+	
 }
 
 void ATimberSeeda::HandleRepairWidget()

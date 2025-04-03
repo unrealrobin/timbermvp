@@ -17,6 +17,13 @@ enum class ELolaState : uint8
 	NotStunned UMETA(DisplayName = "Not Stunned")
 };
 
+UENUM(BlueprintType)
+enum class ELolaTakeDamePotential : uint8
+{
+	NotDamageable UMETA(DisplayName = "Not Damageable"),
+	Damageable UMETA(DisplayName = "Damageable")
+};
+
 
 UCLASS()
 class TIMBERMVP_API ABossLola : public ABossBase
@@ -39,6 +46,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	ELolaState LolaState = ELolaState::NotStunned;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	ELolaTakeDamePotential LolaTakeDamagePotential = ELolaTakeDamePotential::NotDamageable;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Damage")
 	bool bCanLolaTakeDamage = false;

@@ -41,14 +41,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
 	UCapsuleComponent* WhirlwindLeftCollisionSphere;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
-	UCapsuleComponent* OverHeadSmashCapsuleComponent;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
 	USceneComponent* OverHeadSmashCapsuleSpawnLocation;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BruiserInfo")
+	UCapsuleComponent* OverHeadSmashCapsuleComponent;
 
 	UFUNCTION(BlueprintCallable)
-	void EnableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent);
+	void EnableCollisionToDamagePlayerOnly(UCapsuleComponent* ComponentToUpdate);
 	UFUNCTION(BlueprintCallable)
-	void DisableCollisionToDamagePlayerOnly(UCapsuleComponent* WWCapsuleComponent);
+	void DisableCollisionToDamagePlayerOnly(UCapsuleComponent* ComponentToUpdate);
 	UFUNCTION()
 	void HandleWhirlwindOverlap(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -61,6 +61,7 @@ public:
 	void HandleOverHeadSmashOverlap(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
 		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 	UFUNCTION(BlueprintCallable)
 	void SpawnOverHeadCapsule();
 	UFUNCTION(BlueprintCallable)

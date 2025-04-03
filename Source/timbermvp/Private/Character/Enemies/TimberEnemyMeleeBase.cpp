@@ -37,17 +37,12 @@ void ATimberEnemyMeleeBase::BeginPlay()
 
 void ATimberEnemyMeleeBase::EnableCapsuleComponent(UCapsuleComponent* MeleeCapsuleComponent)
 {
-	MeleeCapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	MeleeCapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
+	MeleeCapsuleComponent->SetCollisionProfileName("DR_HitEventOnly");
 }
 
 void ATimberEnemyMeleeBase::DisableCapsuleComponent(UCapsuleComponent* MeleeCapsuleComponent)
 {
-	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	MeleeCapsuleComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
-
+	MeleeCapsuleComponent->SetCollisionProfileName("NoCollision");
 	//Empties the array of actors to ignore after the completion of the hand and leg swing.
 	ActorsToIgnore.Empty();
 }

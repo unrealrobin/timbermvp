@@ -38,23 +38,33 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Collision")
 	void HandleWeaponCollision(bool ShouldReadyCollision) const;
-
+	
 	UFUNCTION()
-	virtual void OnWeaponOverlapBegin(
+	void OnWeaponOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
 		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	virtual void OnWeaponOverlapEnd(
-		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
-		OtherComp, int32 OtherBodyIndex);
+	void OnWeaponOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+
+	UFUNCTION()
+	void OnPlayerWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable)
 	void EmptyActorToIgnoreArray();
+	
+	UFUNCTION()
+	virtual void OnAiWeaponOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	/* Attack */
 	UFUNCTION()
 	void HandlePlayAttackMontage();
+
+	/*Animation*/
 	UFUNCTION(BlueprintCallable, Category="Weapons")
 	virtual void PerformStandardAttack();
 

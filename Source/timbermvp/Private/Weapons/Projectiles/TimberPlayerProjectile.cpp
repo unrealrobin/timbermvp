@@ -15,7 +15,7 @@ ATimberPlayerProjectile::ATimberPlayerProjectile()
 	//Overlap Delegate
 	if (CapsuleComponent)
 	{
-		CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberPlayerProjectile::HandleOverlap);
+		//CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberPlayerProjectile::HandleOverlap);
 		CapsuleComponent->OnComponentHit.AddDynamic(this, &ATimberPlayerProjectile::HandleBlocked);
 	}
 }
@@ -39,14 +39,6 @@ void ATimberPlayerProjectile::HandleBlocked(
 {
 	//if the projectile is blocked by a wall or other object, destroy the projectile. This is only for the Players 
 	// Projectile. Different collisions for enemy projectile.
-	Destroy();
-	//UE_LOG(LogTemp, Warning, TEXT("PlayerProjectile - Player Projectile has been Blocked and Destroyed."))
-}
-
-void ATimberPlayerProjectile::HandleOverlap(
-	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
-{
 	//UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
 	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
 
@@ -54,7 +46,7 @@ void ATimberPlayerProjectile::HandleOverlap(
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("HitEnemy Valid."));
 		//Play the IDamageableEnemy's TakeDamage function. Interface.
-		HitEnemy->PlayProjectileHitSound(SweepResult);
+		HitEnemy->PlayProjectileHitSound(Hit);
 
 		//Weapon Owns Projectile, Player Owns Weapon.
 		if (PlayerProjectileOwner)
@@ -73,8 +65,11 @@ void ATimberPlayerProjectile::HandleOverlap(
 		//GetWorld()->GetTimerManager().SetTimer(OnHandleDestroy, this, &ATimberPlayerProjectile::HandleDestroy, 0.2f, false);
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATimberPlayerProjectile::HandleDestroy);
 	}
-	
-	
+	else
+	{
+		Destroy();
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("PlayerProjectile - Player Projectile has been Blocked and Destroyed."))
 }
 
 float ATimberPlayerProjectile::CalculateOutputDamage(ATimberWeaponRangedBase* Weapon)

@@ -49,9 +49,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* TeleportLandingLocation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UBoxComponent* TeleportOverlapBox;
-
 	UFUNCTION()
 	void HandleTeleportOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	

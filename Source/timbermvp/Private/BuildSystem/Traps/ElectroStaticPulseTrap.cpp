@@ -55,10 +55,7 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 
 		//For other size Traps these variables may need to be changed.
 		PulseHitBox->SetBoxExtent(FVector(BoxWidth, 20.f, BoxHeight));
-		PulseHitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-		PulseHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		PulseHitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-		PulseHitBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		PulseHitBox->SetCollisionProfileName(TEXT("HitEventOnly"));
 		
 		//Collision Delegate
 		PulseHitBox->OnComponentBeginOverlap.AddDynamic(this, &AElectroStaticPulseTrap::HandlePulseBoxOverlap);

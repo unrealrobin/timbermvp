@@ -24,21 +24,19 @@ EBTNodeResult::Type UTask_AI_SetCurrentTarget::ExecuteTask(UBehaviorTreeComponen
 
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	if (!BlackboardComponent) return EBTNodeResult::Failed;
-
+	
 	//Getting the Actor stored on the BB at the input Key. Key is set on the Task on the Behavior Tree
 	AActor* CurrentTarget = Cast<AActor>(BlackboardComponent->GetValueAsObject(TargetKey.SelectedKeyName));
 	if (CurrentTarget)
 	{
 		//Setting current target on Enemy AI Character
 		Cast<ATimberEnemyCharacter>(AIControllerBase->GetPawn())->CurrentTarget = CurrentTarget;
+		//UE_LOG(LogTemp, Warning, TEXT("Task_AI_SetCurrentTarget: Current Target is %s."), *CurrentTarget->GetName());
+		return EBTNodeResult::Succeeded;
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Task_AI_SetCurrentTarget: Current Target is NULL."));
 		return EBTNodeResult::Failed;
 	}
-
-	
-
-	return EBTNodeResult::Succeeded;
 }

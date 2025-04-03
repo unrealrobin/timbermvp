@@ -101,7 +101,7 @@ void ATimberEnemyProjectile::HandleOverlap(
 bool ATimberEnemyProjectile::IsActorCurrentTarget(AActor* OtherActor)
 {
 	//Called in both block and Overlap
-	UE_LOG(LogTemp, Warning, TEXT("CurrentTarget: %s. OtherActor: %s."), *Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget->GetName(), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("CurrentTarget: %s. OtherActor: %s."), *Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget->GetName(), *OtherActor->GetName());
 	if (OtherActor == Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget)
 	{
 		return true;

@@ -1420,7 +1420,7 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 			}
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Closest Snap Point: %s"), *ClosestSnapPoint->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Closest Snap Point: %s"), *ClosestSnapPoint->GetName());
 		
 		//Orienting the Proxy to Face the Floors Center
 		FVector BuildableProxy = BuildableProxyInstance->GetActorLocation();

@@ -19,6 +19,7 @@ AFrostTrap::AFrostTrap()
 
 	FrostTrapVentMesh = CreateDefaultSubobject<UStaticMeshComponent>("Frost Trap Vent");
 	FrostTrapVentMesh->SetupAttachment(TrapBaseStaticMesh);
+	FrostTrapVentMesh->SetCollisionProfileName(TEXT("BuildableBlockEverything"));
 
 	TrapType = ETrapType::FrostTrap;
 

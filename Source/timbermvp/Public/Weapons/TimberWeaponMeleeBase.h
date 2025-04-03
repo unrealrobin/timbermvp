@@ -15,6 +15,7 @@ class TIMBERMVP_API ATimberWeaponMeleeBase : public ATimberWeaponBase
 	GENERATED_BODY()
 
 public:
+	
 	// Sets default values for this actor's properties
 	ATimberWeaponMeleeBase();
 
@@ -38,23 +39,39 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Collision")
 	void HandleWeaponCollision(bool ShouldReadyCollision) const;
-
+	
 	UFUNCTION()
-	virtual void OnWeaponOverlapBegin(
+	void OnWeaponHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION()
+	void OnWeaponOverlapBegin(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
 		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION()
+	void HandleAiSwordHit(AActor* Actor);
 
 	UFUNCTION()
-	virtual void OnWeaponOverlapEnd(
-		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
-		OtherComp, int32 OtherBodyIndex);
+	void HandlePlayerCharacterSwordHit(AActor* Actor);
 
 	UFUNCTION(BlueprintCallable)
 	void EmptyActorToIgnoreArray();
+	
+	UFUNCTION()
+	virtual void OnAiWeaponOverlap(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/*UFUNCTION()
+	virtual void OnWeaponOverlapEnd(
+		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
+		OtherComp, int32 OtherBodyIndex);*/
+
 
 	/* Attack */
 	UFUNCTION()
 	void HandlePlayAttackMontage();
+
+	/*Animation*/
 	UFUNCTION(BlueprintCallable, Category="Weapons")
 	virtual void PerformStandardAttack();
 

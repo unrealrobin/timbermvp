@@ -17,8 +17,10 @@ APowerPlate::APowerPlate()
 	
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	StaticMeshComponent->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("CollisionBox");
 	CollisionBox->SetupAttachment(RootComponent);
+	CollisionBox->SetCollisionProfileName(TEXT("DR_HitEventOnly"));
 	
 	
 }

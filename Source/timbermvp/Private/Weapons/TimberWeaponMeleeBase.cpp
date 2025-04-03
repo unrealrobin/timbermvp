@@ -3,8 +3,6 @@
 
 #include "Weapons/TimberWeaponMeleeBase.h"
 
-#include <string>
-
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "Character/TimberPlayableCharacter.h"
@@ -22,13 +20,13 @@ ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 
 	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>("Collision Box");
 	WeaponBoxComponent->SetupAttachment(GetRootComponent());
-	WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	WeaponBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	WeaponBoxComponent->SetCollisionProfileName("NoCollision");
 
 	if (WeaponBoxComponent)
 	{
-		WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapBegin);
-		WeaponBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapEnd);
+		WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnAiWeaponOverlap);
+		//WeaponBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapEnd);
+		WeaponBoxComponent->OnComponentHit.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponHit);
 	}
 }
 
@@ -51,20 +49,105 @@ void ATimberWeaponMeleeBase::HandleWeaponCollision(bool ShouldReadyCollision) co
 {
 	if (ShouldReadyCollision)
 	{
-		//GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Red, FString::Printf(TEXT("Sword Collision Enabled")));
-		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
+		UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - HandleWeaponCollision() - Setting Collision Profile to HitEventOnly"));
+		WeaponBoxComponent->SetCollisionProfileName("DR_HitEventOnly");
 	}
 	else
 	{
-		WeaponBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		WeaponBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+		UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - HandleWeaponCollision() - Setting Collision Profile to NoCollision"));
+		WeaponBoxComponent->SetCollisionProfileName("NoCollision");
 	}
 }
 
+void ATimberWeaponMeleeBase::HandleAiSwordHit(AActor* Actor)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Handling AI Sword Hit Response."));
+	if (ActorsToIgnore.Contains(Actor))
+	{
+		return;
+	}
+	
+	ActorsToIgnore.Add(Actor);
+	UE_LOG(LogTemp, Warning, TEXT("Added Actor to Ignore Array: %s"), *Actor->GetName());
+	
+	ATimberBuildingComponentBase* HitBuildingComponent = Cast<ATimberBuildingComponentBase>(Actor);
+	ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(Actor);
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(Actor);
+	
+	if (HitCharacter) //Is the player character and doesn't need to be ignored.
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Applying Damage to Player. Amount = %f"), TotalWeaponDamage);
+		HitCharacter->PlayerTakeDamage(TotalWeaponDamage);
+		return;
+	}
+	if(Seeda)
+	{
+		Seeda->TakeDamage_Seeda(TotalWeaponDamage);
+		return;
+	}
+	if (HitBuildingComponent && HitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment)
+	{
+		HitBuildingComponent->BuildingComponentTakeDamage(BaseWeaponDamage, GetOwner());
+	}
+}
+
+void ATimberWeaponMeleeBase::HandlePlayerCharacterSwordHit(AActor* Actor)
+{
+	ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(Actor);
+	if (ActorsToIgnore.Contains(HitEnemy))
+	{
+		return;
+	}
+
+	HitEnemy->TakeDamage(TotalWeaponDamage, GetOwner());
+}
+
+void ATimberWeaponMeleeBase::OnWeaponHit(
+	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+	const FHitResult& Hit)
+{
+
+	//Need a check to see if the weapon is being used by the player or the AI.
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
+
+	if (EnemyCharacter)
+	{
+		HandleAiSwordHit(OtherActor);
+		
+	}
+	else if (PlayerCharacter)
+	{
+		HandlePlayerCharacterSwordHit(OtherActor);
+	}
+	
+	//First check if the actor is in the ActorsToIgnore Array.
+	//If it is, return.
+	
+	//On a hit, add the Hit Actor to the enemies to ignore array.
+	//Apply Damamge
+
+	//When animation Ends, Empty the Array
+}
+
 void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
+
+	if (EnemyCharacter)
+	{
+		OnAiWeaponOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	}
+	else if (PlayerCharacter)
+	{
+		HandlePlayerCharacterSwordHit(OtherActor);
+	}
+}
+
+/*void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -111,7 +194,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 		}
 	}
 
-	{/* Player using Sword - If Melee Hit is Against the AI Enemy Characters*/
+	{/* Player using Sword - If Melee Hit is Against the AI Enemy Characters#1#
 		if (Cast<ATimberPlayableCharacter>(GetOwner()))
 		{
 			ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(OtherActor);
@@ -135,7 +218,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 						/*UE_LOG(LogTemp, Warning, TEXT("Sword Base Damage: %f. Player Character Damage Modifier: %f. TotalDamage: %f. "),
 							BaseWeaponDamage,
 							PlayerCharacter->DamageModifierValue,
-							BaseWeaponDamage * PlayerCharacter->DamageModifierValue );*/
+							BaseWeaponDamage * PlayerCharacter->DamageModifierValue );#1#
 					}
 				}
 				ActorsToIgnore.Add(HitEnemy);
@@ -151,7 +234,7 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapEnd(
 
 	//Will also be forced at the end of the attack animation through Notifies.
 	EmptyActorToIgnoreArray();
-}
+}*/
 
 //Called in the Animations Montage using Notifies.
 // Each Swing should result in only 1 dmg event per hit enemy. Resetting on Collision End Overlap can cause Double Hits,
@@ -160,6 +243,48 @@ void ATimberWeaponMeleeBase::EmptyActorToIgnoreArray()
 {
 	//Resetting the Actors to Ignore Array for the next attack.
 	ActorsToIgnore.Empty();
+	if (ActorsToIgnore.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Emptying Actor to Ignore Array"));
+	}
+}
+
+void ATimberWeaponMeleeBase::OnAiWeaponOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Handling AI Sword Hit Response."));
+	if (ActorsToIgnore.Contains(OtherActor) ||
+		OtherActor != Cast<ATimberEnemyCharacter>(GetOwner())->CurrentTarget ||
+		OtherActor == GetOwner() || OtherActor == this)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Ignoring Actor: %s"), *OtherActor->GetName());
+		return;
+	}
+	
+	ActorsToIgnore.Add(OtherActor);
+	UE_LOG(LogTemp, Warning, TEXT("Added Actor to Ignore Array: %s"), *OtherActor->GetName());
+	
+	ATimberBuildingComponentBase* HitBuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
+	ATimberPlayableCharacter* HitCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
+	ATimberSeeda* Seeda = Cast<ATimberSeeda>(OtherActor);
+	
+	if (HitCharacter) //Is the player character and doesn't need to be ignored.
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Applying Damage to Player. Amount = %f"), TotalWeaponDamage);
+		HitCharacter->PlayerTakeDamage(TotalWeaponDamage);
+		return;
+	}
+	if(Seeda)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Applying Damage to Seeda. Amount = %f"), TotalWeaponDamage);
+		Seeda->TakeDamage_Seeda(TotalWeaponDamage);
+		return;
+	}
+	if (HitBuildingComponent && HitBuildingComponent->BuildingComponentType != EBuildingComponentType::Environment)
+	{
+		HitBuildingComponent->BuildingComponentTakeDamage(BaseWeaponDamage, GetOwner());
+	}
 }
 
 void ATimberWeaponMeleeBase::HandleAttackMontageInterrupted(UAnimMontage* AnimMontage, bool bArg, bool bCond)

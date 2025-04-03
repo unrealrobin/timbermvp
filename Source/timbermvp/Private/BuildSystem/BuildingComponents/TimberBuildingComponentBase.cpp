@@ -18,16 +18,115 @@ ATimberBuildingComponentBase::ATimberBuildingComponentBase()
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(RootComponent);
-
-	//these settings get overwritten in bp it seems.
-	StaticMesh->SetCollisionObjectType(ECC_EngineTraceChannel1); 
-	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
+	
+	StaticMesh->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
 
 	/* Snap Points for Building Component to Building Component Snapping.*/
 	CreateSnapPoints();
 
 	/*Quadrants for Raycast Collision to know where to snap too.*/
 	CreateQuadrantComponents();
+}
+
+// Called when the game starts or when spawned
+void ATimberBuildingComponentBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//UE_LOG(LogTemp, Warning, TEXT("Begin Play on Proxy Building Component."));
+	SetupProxyCollisionHandling();
+}
+
+void ATimberBuildingComponentBase::SetupProxyCollisionHandling()
+{
+	if (bIsProxy == true)
+	{
+		//Will check if overlapping another Buildings Components Overlap Box, if it does, Do Not Allow Finalization.
+		//Is only necessary if Proxy
+		//Using New Object because Runtime Creation.
+		UBoxComponent* CheckBuildingComponentOverlapCollisionBox = NewObject<UBoxComponent>(this, "CheckBuildingComponentOverlapCollisionBox");
+		if (CheckBuildingComponentOverlapCollisionBox)
+		{
+			CheckBuildingComponentOverlapCollisionBox->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			CheckBuildingComponentOverlapCollisionBox->RegisterComponent();
+			
+			/*CheckBuildingComponentOverlapCollisionBox->OnComponentBeginOverlap.AddDynamic(this, 
+				&ATimberBuildingComponentBase::HandleOverlappedBuildingComponent);*/
+			CheckBuildingComponentOverlapCollisionBox->OnComponentHit.AddDynamic(this, &ATimberBuildingComponentBase::HandleHitBuildingComponent);
+			/*CheckBuildingComponentOverlapCollisionBox->OnComponentEndOverlap.AddDynamic(this, 
+				&ATimberBuildingComponentBase::HandleEndOverlappedBuildingComponent);*/
+
+			CheckBuildingComponentOverlapCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			CheckBuildingComponentOverlapCollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+			//Checks if this Box Component is Overlapping with another Building Component (Walls/Floor).
+			//Setting the Object type to Building Component object type.
+			CheckBuildingComponentOverlapCollisionBox->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+
+			//Makes it visible in the Editor.
+			AddInstanceComponent(CheckBuildingComponentOverlapCollisionBox);
+			UE_LOG(LogTemp, Warning, TEXT("Check Building Component Overlap Collision Box Created."));
+		}
+		
+	}
+}
+
+void ATimberBuildingComponentBase::CreateSnapPoints()
+{
+	if (StaticMesh)
+	{
+		TopSnap = CreateDefaultSubobject<USceneComponent>("TopSnap");
+		TopSnap->SetupAttachment(StaticMesh);
+		BottomSnap = CreateDefaultSubobject<USceneComponent>("BottomSnap");
+		BottomSnap->SetupAttachment(StaticMesh);
+		LeftSnap = CreateDefaultSubobject<USceneComponent>("LeftSnap");
+		LeftSnap->SetupAttachment(StaticMesh);
+		RightSnap = CreateDefaultSubobject<USceneComponent>("RightSnap");
+		RightSnap->SetupAttachment(StaticMesh);
+		CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
+		CenterSnap->SetupAttachment(StaticMesh);
+		FrontCenterSnapPoint = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
+		FrontCenterSnapPoint->SetupAttachment(StaticMesh);
+		BackCenterSnapPoint = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
+		BackCenterSnapPoint->SetupAttachment(StaticMesh);
+	}
+}
+
+void ATimberBuildingComponentBase::CreateQuadrantComponents()
+{
+	if (StaticMesh)
+	{
+		TopQuadrant = CreateDefaultSubobject<UBoxComponent>("TopQuadrant");
+		TopQuadrant->SetupAttachment(StaticMesh);
+		BottomQuadrant = CreateDefaultSubobject<UBoxComponent>("BottomQuadrant");
+		BottomQuadrant->SetupAttachment(StaticMesh);
+		LeftQuadrant = CreateDefaultSubobject<UBoxComponent>("LeftQuadrant");
+		LeftQuadrant->SetupAttachment(StaticMesh);
+		RightQuadrant = CreateDefaultSubobject<UBoxComponent>("RightQuadrant");
+		RightQuadrant->SetupAttachment(StaticMesh);
+		CenterQuadrant = CreateDefaultSubobject<UBoxComponent>("CenterQuadrant");
+		CenterQuadrant->SetupAttachment(StaticMesh);
+
+		//Setting Collision Presets on Each Quadrant. Only Overlaps Visibility to populate Raycast Hit Results. Raytrace can pass through.
+		TopQuadrant->SetCollisionProfileName(TEXT("VisibilityOverlap"));
+		BottomQuadrant->SetCollisionProfileName(TEXT("VisibilityOverlap"));
+		LeftQuadrant->SetCollisionProfileName(TEXT("VisibilityOverlap"));
+		RightQuadrant->SetCollisionProfileName(TEXT("VisibilityOverlap"));
+		CenterQuadrant->SetCollisionProfileName(TEXT("VisibilityOverlap"));
+	}
+}
+
+void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor)
+{
+	//Who hit what for how much?
+	UE_LOG(LogTemp, Warning, TEXT("%lS took %f damage from %s."), *GetName(), AmountOfDamage, *DamagingActor->GetName());
+	
+	ComponentDurability = ComponentDurability - AmountOfDamage;
+
+	if (ComponentDurability <= 0)
+	{
+		DestroyAllAttachments();
+		Destroy();
+	}
 }
 
 void ATimberBuildingComponentBase::HandleDeletionOfBuildable()
@@ -73,100 +172,6 @@ void ATimberBuildingComponentBase::DestroyAllAttachments()
 				AttachedBuildingComponent->Destroy();
 			}
 		}
-	}
-}
-
-// Called when the game starts or when spawned
-void ATimberBuildingComponentBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-	//UE_LOG(LogTemp, Warning, TEXT("Begin Play on Proxy Building Component."));
-	SetupProxyCollisionHandling();
-}
-
-void ATimberBuildingComponentBase::SetupProxyCollisionHandling()
-{
-	if (bIsProxy == true)
-	{
-		//Will check if overlapping another Buildings Components Overlap Box, if it does, Do Not Allow Finalization.
-		//Is only necessary if Proxy
-		//Using New Object because Runtime Creation.
-		UBoxComponent* CheckBuildingComponentOverlapCollisionBox = NewObject<UBoxComponent>(this, "CheckBuildingComponentOverlapCollisionBox");
-		if (CheckBuildingComponentOverlapCollisionBox)
-		{
-			CheckBuildingComponentOverlapCollisionBox->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-			CheckBuildingComponentOverlapCollisionBox->RegisterComponent();
-			
-			/*CheckBuildingComponentOverlapCollisionBox->OnComponentBeginOverlap.AddDynamic(this, 
-				&ATimberBuildingComponentBase::HandleOverlappedBuildingComponent);*/
-			CheckBuildingComponentOverlapCollisionBox->OnComponentHit.AddDynamic(this, &ATimberBuildingComponentBase::HandleHitBuildingComponent);
-			/*CheckBuildingComponentOverlapCollisionBox->OnComponentEndOverlap.AddDynamic(this, 
-				&ATimberBuildingComponentBase::HandleEndOverlappedBuildingComponent);*/
-
-			CheckBuildingComponentOverlapCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			CheckBuildingComponentOverlapCollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-			//Checks if this Box Component is Overlapping with another Building Component (Walls/Floor).
-			//Setting the Object type to Building Component object type.
-			CheckBuildingComponentOverlapCollisionBox->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
-
-			//Makes it visible in the Editor.
-			AddInstanceComponent(CheckBuildingComponentOverlapCollisionBox);
-			UE_LOG(LogTemp, Warning, TEXT("Check Building Component Overlap Collision Box Created."));
-		}
-		
-	}
-}
-
-void ATimberBuildingComponentBase::BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor)
-{
-	//Who hit what for how much?
-	UE_LOG(LogTemp, Warning, TEXT("%lS took %f damage from %s."), *GetName(), AmountOfDamage, *DamagingActor->GetName());
-	
-	ComponentDurability = ComponentDurability - AmountOfDamage;
-
-	if (ComponentDurability <= 0)
-	{
-		DestroyAllAttachments();
-		Destroy();
-	}
-}
-
-void ATimberBuildingComponentBase::CreateSnapPoints()
-{
-	if (StaticMesh)
-	{
-		TopSnap = CreateDefaultSubobject<USceneComponent>("TopSnap");
-		TopSnap->SetupAttachment(StaticMesh);
-		BottomSnap = CreateDefaultSubobject<USceneComponent>("BottomSnap");
-		BottomSnap->SetupAttachment(StaticMesh);
-		LeftSnap = CreateDefaultSubobject<USceneComponent>("LeftSnap");
-		LeftSnap->SetupAttachment(StaticMesh);
-		RightSnap = CreateDefaultSubobject<USceneComponent>("RightSnap");
-		RightSnap->SetupAttachment(StaticMesh);
-		CenterSnap = CreateDefaultSubobject<USceneComponent>("CenterSnap");
-		CenterSnap->SetupAttachment(StaticMesh);
-		FrontCenterSnapPoint = CreateDefaultSubobject<USceneComponent>("FrontTrapSnap");
-		FrontCenterSnapPoint->SetupAttachment(StaticMesh);
-		BackCenterSnapPoint = CreateDefaultSubobject<USceneComponent>("BackTrapSnap");
-		BackCenterSnapPoint->SetupAttachment(StaticMesh);
-	}
-}
-
-void ATimberBuildingComponentBase::CreateQuadrantComponents()
-{
-	if (StaticMesh)
-	{
-		TopQuadrant = CreateDefaultSubobject<UBoxComponent>("TopQuadrant");
-		TopQuadrant->SetupAttachment(StaticMesh);
-		BottomQuadrant = CreateDefaultSubobject<UBoxComponent>("BottomQuadrant");
-		BottomQuadrant->SetupAttachment(StaticMesh);
-		LeftQuadrant = CreateDefaultSubobject<UBoxComponent>("LeftQuadrant");
-		LeftQuadrant->SetupAttachment(StaticMesh);
-		RightQuadrant = CreateDefaultSubobject<UBoxComponent>("RightQuadrant");
-		RightQuadrant->SetupAttachment(StaticMesh);
-		CenterQuadrant = CreateDefaultSubobject<UBoxComponent>("CenterQuadrant");
-		CenterQuadrant->SetupAttachment(StaticMesh);
 	}
 }
 

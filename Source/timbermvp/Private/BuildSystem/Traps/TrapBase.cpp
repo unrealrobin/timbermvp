@@ -15,11 +15,13 @@ ATrapBase::ATrapBase()
 
 	TrapBaseStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("TrapBaseStaticMesh");
 	TrapBaseStaticMesh->SetupAttachment(RootComponent);
-
-	DisableAllStaticMeshCollisions(TrapBaseStaticMesh);
+	TrapBaseStaticMesh->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
 
 	HitBoxComponent = CreateDefaultSubobject<UBoxComponent>("DamageArea");
 	HitBoxComponent->SetupAttachment(TrapBaseStaticMesh);
+
+	//Only Generates Hit Events on Pawns and Building Components
+	HitBoxComponent->SetCollisionProfileName(TEXT("DR_HitEventOnly"));
 }
 
 void ATrapBase::BeginPlay()

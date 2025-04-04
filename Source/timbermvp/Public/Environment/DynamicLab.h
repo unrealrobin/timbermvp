@@ -25,6 +25,10 @@ private:
 	void BuildLab();
 	
 	void HandleFloorLayoutChildComponent();
+	
+	void HandleWallLayoutChildComponent();
+
+	void HandleCeilingLayoutChildComponent();
 
 	void GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation);
 
@@ -44,8 +48,20 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
 	int NumberOfFloors = 0;
 
+	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
+	int NumberOfWalls = 0;
+
+	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
+	int NumberOfCeilingTiles = 0;
+
+	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
+	int NumberOfLabDoor = 0;
+
+	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
+	int NumberOfCeilingLights = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
-	TSubclassOf<AActor> EnvironmentWallsClass = nullptr;
+	TSubclassOf<AActor> EnvironmentWalls = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
 	TSubclassOf<AActor> EnvironmentFloors = nullptr;
@@ -64,9 +80,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
 	float FloorSizeY = 395.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
+	float WallSizeZ = 395.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
-	int LabFloors = 1;
+	int LabLevels = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
 	int LabLength = 1;

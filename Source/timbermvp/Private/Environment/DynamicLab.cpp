@@ -33,6 +33,7 @@ void ADynamicLab::BuildLab()
 {
 	EmptyChildComponentArray();
 	HandleFloorLayoutChildComponent();
+	HandleWallLayoutChildComponent();
 }
 
 void ADynamicLab::HandleFloorLayout()
@@ -73,13 +74,15 @@ void ADynamicLab::EmptyChildComponentArray()
 
 void ADynamicLab::HandleFloorLayoutChildComponent()
 {
+	NumberOfFloors = 0;
+	NumberOfCeilingTiles = 0;
 	//Looping through Length -> +X Direction
 	for (int i = 0; i <= LabLength -1; i++ )
 	{
 		//Looping through Width -> +Y Direction
 		for (int k = 0; k <= LabWidth -1; k++ )
 		{
-			//If the EnvironmentFloors Class is set
+			//Handling Lab Floor Tile Generation
 			if (EnvironmentFloors)
 			{
 				int LengthIncrement = i; //(0,1,2,3,4)
@@ -89,13 +92,87 @@ void ADynamicLab::HandleFloorLayoutChildComponent()
 				FloorSpawnLocation.Y = WidthIncrement * FloorSizeY;
 
 				GenerateChildComponent(EnvironmentFloors, FloorSpawnLocation, FRotator::ZeroRotator);
-				
+				NumberOfFloors++;
+			}
+
+			//Handling Lab Ceiling Tile Generation
+			if (EnvironmentFloors)
+			{
+				int LengthIncrement = i; //(0,1,2,3,4)
+				int WidthIncrement = k; //(0,1,2,3,4)
+				FVector CeilingSpawnLocation = FVector::ZeroVector;
+				CeilingSpawnLocation.X = LengthIncrement * FloorSizeX;
+				CeilingSpawnLocation.Y = WidthIncrement * FloorSizeY;
+
+				float CeilingHeight = WallSizeZ * LabLevels;
+				CeilingSpawnLocation.Z = CeilingHeight;
+
+				GenerateChildComponent(EnvironmentFloors, CeilingSpawnLocation, FRotator::ZeroRotator);
+				NumberOfCeilingTiles++;
 			}
 		}
 	}
-
-	NumberOfFloors = ChildComponents.Num();
 }
+
+void ADynamicLab::HandleWallLayoutChildComponent()
+{
+	NumberOfWalls = 0;
+	//How many Levels of Walls.
+	for (int i = 0; i <= LabLevels - 1; i++ )
+	{
+		int LevelIncrement = i;
+		FVector InitialWallLocationLength = FVector::ZeroVector;
+		InitialWallLocationLength.Y -= 205.0f;
+		InitialWallLocationLength.Z += (LevelIncrement) * WallSizeZ;
+
+		//How many "Runs" of the walls -> +X Direction
+		for (int k = 0; k <= LabLength - 1; k++ )
+		{
+			if (EnvironmentWalls)
+			{
+				//Using the Increment to calculate the Location of the wall.
+				FVector UpdatedWallLocation = InitialWallLocationLength;
+				UpdatedWallLocation.X += k * FloorSizeX;
+				GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, FRotator::ZeroRotator);
+				NumberOfWalls++;
+				
+				FVector AdjacentWallLocation = UpdatedWallLocation;
+				AdjacentWallLocation.Y += FloorSizeX * LabWidth + 15;
+				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
+				
+				NumberOfWalls++;
+			}
+		}
+
+		FVector InitialWallLocationWidth = FVector::ZeroVector;
+		InitialWallLocationWidth.X -= 205.0f;
+		InitialWallLocationWidth.Z += (LevelIncrement) * WallSizeZ;
+		FRotator AdjustedWallRotation = FRotator::ZeroRotator;
+		AdjustedWallRotation.Yaw += 90.0f;
+
+		
+		//How many "Widths" of the walls -> Y Directions
+		for (int j = 0; j <= LabWidth - 1; j++ )
+		{
+			if (EnvironmentWalls)
+			{
+				//Using the Increment to calculate the Location of the wall.
+				FVector UpdatedWallLocation = InitialWallLocationWidth;
+				UpdatedWallLocation.Y += j * FloorSizeX;
+				GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
+
+				NumberOfWalls++;
+
+				FVector AdjacentWallLocation = UpdatedWallLocation;
+				AdjacentWallLocation.X += FloorSizeY * LabLength + 15;
+				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, AdjustedWallRotation);
+				
+				NumberOfWalls++;
+			}
+		}
+	}
+}
+
 
 void ADynamicLab::GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation)
 {

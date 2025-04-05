@@ -32,29 +32,8 @@ void ADynamicLab::Tick(float DeltaTime)
 void ADynamicLab::BuildLab()
 {
 	EmptyChildComponentArray();
-	HandleFloorLayoutChildComponent();
-	HandleWallLayoutChildComponent();
-}
-
-void ADynamicLab::HandleFloorLayout()
-{
-	//Looping through Length -> +X Direction
-	for (int i = 0; i <= LabLength -1; i++ )
-	{
-		for (int k = 0; k <= LabWidth -1; k++ )
-		{
-			if (EnvironmentFloors)
-			{
-				int LengthIncrement = i; //(0,1,2,3,4)
-				int WidthIncrement = k; //(0,1,2,3,4)
-				FVector FloorSpawnLocation = FVector::ZeroVector;
-				FloorSpawnLocation.X = LengthIncrement * FloorSizeX;
-				FloorSpawnLocation.Y = WidthIncrement * FloorSizeY;
-
-				//Something
-			}
-		}
-	}
+	HandleFloorLayout();
+	HandleWallLayout();
 }
 
 void ADynamicLab::EmptyChildComponentArray()
@@ -72,7 +51,7 @@ void ADynamicLab::EmptyChildComponentArray()
 	}
 }
 
-void ADynamicLab::HandleFloorLayoutChildComponent()
+void ADynamicLab::HandleFloorLayout()
 {
 	NumberOfFloors = 0;
 	NumberOfCeilingTiles = 0;
@@ -104,6 +83,40 @@ void ADynamicLab::HandleFloorLayoutChildComponent()
 				CeilingSpawnLocation.X = LengthIncrement * FloorSizeX;
 				CeilingSpawnLocation.Y = WidthIncrement * FloorSizeY;
 
+				/*Handling Lighting Placement*/
+				// If on the First Length Tile or On an Even Tile Increment
+				if (CeilingLights)
+				{
+					if (LengthIncrement == 0 || LengthIncrement % 2 == 0)
+					{
+						if (WidthIncrement == 0 || WidthIncrement % 2 == 0)
+						{
+							FVector LightSpawnLocation = CeilingSpawnLocation;
+							
+							//Moves Light Spawn Locations +Z to Ceiling Height, Then Drops it down 50.f to be just below the Ceiling
+							LightSpawnLocation.Z += WallSizeZ * LabLevels - 10.0f;
+
+							//Handles Ceiling Light Generation
+							HandleCeilingLightLayout(LightSpawnLocation);
+							NumberOfCeilingLights++;
+						}
+					}
+					else
+					{
+						if (WidthIncrement != 0 && WidthIncrement % 2 != 0)
+						{
+							FVector LightSpawnLocation = CeilingSpawnLocation;
+							
+							//Moves Light Spawn Locations +Z to Ceiling Height, Then Drops it down 50.f to be just below the Ceiling
+							LightSpawnLocation.Z += WallSizeZ * LabLevels - 50.0f;
+
+							//Handles Ceiling Light Generation
+							HandleCeilingLightLayout(LightSpawnLocation);
+							NumberOfCeilingLights++;
+						}
+					}
+				}
+
 				float CeilingHeight = WallSizeZ * LabLevels;
 				CeilingSpawnLocation.Z = CeilingHeight;
 
@@ -114,10 +127,10 @@ void ADynamicLab::HandleFloorLayoutChildComponent()
 	}
 }
 
-void ADynamicLab::HandleWallLayoutChildComponent()
+void ADynamicLab::HandleWallLayout()
 {
 	NumberOfWalls = 0;
-	//How many Levels of Walls.
+	//How many Levels of Walls. (Vertical)
 	for (int i = 0; i <= LabLevels - 1; i++ )
 	{
 		int LevelIncrement = i;
@@ -125,17 +138,19 @@ void ADynamicLab::HandleWallLayoutChildComponent()
 		InitialWallLocationLength.Y -= 205.0f;
 		InitialWallLocationLength.Z += (LevelIncrement) * WallSizeZ;
 
-		//How many "Runs" of the walls -> +X Direction
+		//How many "Lengths" of the walls -> +X Direction
 		for (int k = 0; k <= LabLength - 1; k++ )
 		{
 			if (EnvironmentWalls)
 			{
+				//Walls Closer to 0 X
 				//Using the Increment to calculate the Location of the wall.
 				FVector UpdatedWallLocation = InitialWallLocationLength;
 				UpdatedWallLocation.X += k * FloorSizeX;
 				GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, FRotator::ZeroRotator);
 				NumberOfWalls++;
-				
+
+				//Walls Closer to 1 X
 				FVector AdjacentWallLocation = UpdatedWallLocation;
 				AdjacentWallLocation.Y += FloorSizeX * LabWidth + 15;
 				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
@@ -156,20 +171,27 @@ void ADynamicLab::HandleWallLayoutChildComponent()
 		{
 			if (EnvironmentWalls)
 			{
-				//Using the Increment to calculate the Location of the wall.
+				//Walls Closer to 0 Y
 				FVector UpdatedWallLocation = InitialWallLocationWidth;
 				UpdatedWallLocation.Y += j * FloorSizeX;
 				GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
-
 				NumberOfWalls++;
 
+				//Walls Closer to 1 Y
 				FVector AdjacentWallLocation = UpdatedWallLocation;
 				AdjacentWallLocation.X += FloorSizeY * LabLength + 15;
 				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, AdjustedWallRotation);
-				
 				NumberOfWalls++;
 			}
 		}
+	}
+}
+
+void ADynamicLab::HandleCeilingLightLayout(FVector Location)
+{
+	if (CeilingLights)
+	{
+		GenerateChildComponent(CeilingLights, Location, FRotator::ZeroRotator);
 	}
 }
 

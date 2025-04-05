@@ -18,19 +18,18 @@ public:
 	ADynamicLab();
 
 private:
-	UFUNCTION()
-	void HandleFloorLayout();
 	void EmptyChildComponentArray();
 
 	void BuildLab();
 	
-	void HandleFloorLayoutChildComponent();
+	void HandleFloorLayout();
 	
-	void HandleWallLayoutChildComponent();
+	void HandleWallLayout();
 
-	void HandleCeilingLayoutChildComponent();
+	void HandleCeilingLightLayout(FVector Location);
 
 	void GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation);
+
 
 protected:
 	// Called when the game starts or when spawned

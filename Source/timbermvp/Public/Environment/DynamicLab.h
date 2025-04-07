@@ -8,6 +8,15 @@
 
 class ABuildableBase;
 
+UENUM(BlueprintType) // Allows usage in Blueprints
+enum class ELabDimension : uint8
+{
+	S UMETA(DisplayName = "Small"), 
+	M UMETA(DisplayName = "Medium"),
+	L UMETA(DisplayName = "Large"),
+	XL UMETA(DisplayName = "Extra Large"),
+};
+
 UCLASS()
 class TIMBERMVP_API ADynamicLab : public AActor
 {
@@ -21,6 +30,10 @@ private:
 	void EmptyChildComponentArray();
 
 	void BuildLab();
+
+	void SetDimensionsFromState(ELabDimension LabDimensionEnum);
+
+	void UpdateLabDimensions(int x, int y, int z);
 	
 	void HandleFloorLayout();
 	
@@ -28,8 +41,9 @@ private:
 
 	void HandleCeilingLightLayout(FVector Location);
 
+	void HandleBossSpawnArea();
+	
 	void GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation);
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,9 +54,30 @@ protected:
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
+	int LabLevels = 1;
+
+	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
+	int LabLength = 1;
+
+	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
+	int LabWidth = 1;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Lab Meshes")
+	float FloorSizeX = 395.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Lab Meshes")
+	float FloorSizeY = 395.0f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Lab Meshes")
+	float WallSizeZ = 395.0f;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
+	ELabDimension LabDimension = ELabDimension::L;
 
 	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
 	int NumberOfFloors = 0;
@@ -59,6 +94,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
 	int NumberOfCeilingLights = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
+	float CeilingLightDropOffset = 10.f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
 	TSubclassOf<AActor> EnvironmentWalls = nullptr;
 	
@@ -73,25 +111,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
 	TSubclassOf<AActor> CeilingLights = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
-	float FloorSizeX = 395.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
-	float FloorSizeY = 395.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
-	float WallSizeZ = 395.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
-	int LabLevels = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
-	int LabLength = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
-	int LabWidth = 1;
-
 
 	
 };

@@ -31,9 +31,44 @@ void ADynamicLab::Tick(float DeltaTime)
 
 void ADynamicLab::BuildLab()
 {
+	SetDimensionsFromState(LabDimension);
 	EmptyChildComponentArray();
 	HandleFloorLayout();
 	HandleWallLayout();
+	HandleBossSpawnArea();
+}
+
+void ADynamicLab::SetDimensionsFromState(ELabDimension LabDimensionEnum)
+{
+	/* Lab Dimensions Number Order:
+	 * X =  In + X Direction (Typically the Longest Run of the Lab.)(Length)
+	 * Y = In + Y Direction (Typically the Shortest Run of the Lab.)(Width)(Doors Created on this Axis.)
+	 * Z = In + Z Direction (Typically the Height of the Lab.)(Levels)
+	 */
+	switch (LabDimensionEnum)
+	{
+	case ELabDimension::S :
+		UpdateLabDimensions(3,3,3);
+		break;
+	case ELabDimension::M :
+		UpdateLabDimensions(6,6,3);
+		break;
+	case ELabDimension::L :
+		UpdateLabDimensions( 16, 8, 3);
+		break;
+	case ELabDimension::XL :
+		UpdateLabDimensions( 16, 12, 4);
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Incompatible Lab Dimension in Lab State"));
+	}
+}
+
+void ADynamicLab::UpdateLabDimensions(int x, int y, int z)
+{
+	LabLength = x;
+	LabWidth = y;
+	LabLevels = z;
 }
 
 void ADynamicLab::EmptyChildComponentArray()
@@ -82,6 +117,12 @@ void ADynamicLab::HandleFloorLayout()
 				FVector CeilingSpawnLocation = FVector::ZeroVector;
 				CeilingSpawnLocation.X = LengthIncrement * FloorSizeX;
 				CeilingSpawnLocation.Y = WidthIncrement * FloorSizeY;
+				
+				float CeilingHeight = WallSizeZ * LabLevels;
+				CeilingSpawnLocation.Z = CeilingHeight;
+
+				GenerateChildComponent(EnvironmentFloors, CeilingSpawnLocation, FRotator::ZeroRotator);
+				NumberOfCeilingTiles++;
 
 				/*Handling Lighting Placement*/
 				// If on the First Length Tile or On an Even Tile Increment
@@ -94,7 +135,7 @@ void ADynamicLab::HandleFloorLayout()
 							FVector LightSpawnLocation = CeilingSpawnLocation;
 							
 							//Moves Light Spawn Locations +Z to Ceiling Height, Then Drops it down 50.f to be just below the Ceiling
-							LightSpawnLocation.Z += WallSizeZ * LabLevels - 10.0f;
+							LightSpawnLocation.Z -=  CeilingLightDropOffset;
 
 							//Handles Ceiling Light Generation
 							HandleCeilingLightLayout(LightSpawnLocation);
@@ -108,7 +149,7 @@ void ADynamicLab::HandleFloorLayout()
 							FVector LightSpawnLocation = CeilingSpawnLocation;
 							
 							//Moves Light Spawn Locations +Z to Ceiling Height, Then Drops it down 50.f to be just below the Ceiling
-							LightSpawnLocation.Z += WallSizeZ * LabLevels - 50.0f;
+							LightSpawnLocation.Z -= CeilingLightDropOffset;
 
 							//Handles Ceiling Light Generation
 							HandleCeilingLightLayout(LightSpawnLocation);
@@ -116,12 +157,6 @@ void ADynamicLab::HandleFloorLayout()
 						}
 					}
 				}
-
-				float CeilingHeight = WallSizeZ * LabLevels;
-				CeilingSpawnLocation.Z = CeilingHeight;
-
-				GenerateChildComponent(EnvironmentFloors, CeilingSpawnLocation, FRotator::ZeroRotator);
-				NumberOfCeilingTiles++;
 			}
 		}
 	}
@@ -195,6 +230,85 @@ void ADynamicLab::HandleCeilingLightLayout(FVector Location)
 	}
 }
 
+void ADynamicLab::HandleBossSpawnArea()
+{
+
+	//Handling Floors.
+	//Boss Area Always have 3 Floors for Length +X Direction
+	if (EnvironmentFloors)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			for (int k = 0; k < LabWidth; k++)
+			{
+				FVector BossAreaLocation = FVector::ZeroVector;
+				//For every increamenet we move in the X Direction the floor size units more.
+				BossAreaLocation.X -= (i + 1) * FloorSizeX;
+				BossAreaLocation.Y += k * FloorSizeY;
+				GenerateChildComponent(EnvironmentFloors, BossAreaLocation, FRotator::ZeroRotator);
+				NumberOfFloors++;
+
+				//Handle Ceiling piece above new Floor Piece.
+				float ZFloorOffset = WallSizeZ * LabLevels;
+				BossAreaLocation.Z += ZFloorOffset;
+				GenerateChildComponent(EnvironmentFloors, BossAreaLocation, FRotator::ZeroRotator);
+			}
+		}
+	}
+
+	/*
+	 * Handling Walls
+	 *
+	 * We need to Create the 3 Sides of the Walls.
+	 */
+
+	
+	if (EnvironmentWalls)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			for (int k = 0; k < LabLevels; k++)
+			{
+				//Walls on X axis 
+				//For every increment we move in the X Direction the floor size units more.
+				
+				FVector BossAreaLocation = FVector::ZeroVector;
+				BossAreaLocation.Y -= 205.0f;
+				BossAreaLocation.X -= (i + 1) * FloorSizeX;	
+				BossAreaLocation.Z += k * WallSizeZ;
+				GenerateChildComponent(EnvironmentWalls, BossAreaLocation, FRotator::ZeroRotator);
+				NumberOfWalls++;
+				
+				FVector AdjacentWallLocation = BossAreaLocation;
+				AdjacentWallLocation.Y += FloorSizeX * LabWidth + 5;
+				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
+				NumberOfWalls++;
+			}
+		}
+	}
+	if (EnvironmentWalls)
+	{
+		for (int i = 0; i < LabWidth; i++)
+		{
+			for (int k = 0; k < LabLevels; k++)
+			{
+				//Walls on Y Axis
+				//Horizontal Placement of the Wall
+				FVector BossAreaLocation = FVector::ZeroVector;
+				FVector BackWallLocation = BossAreaLocation;
+				BackWallLocation.X -= 1390.0f;
+				FRotator AdjustedWallRotation = FRotator::ZeroRotator;
+				AdjustedWallRotation.Yaw += 90.0f;
+				BackWallLocation.Y += i * FloorSizeY;
+				BackWallLocation.Z += k * WallSizeZ;
+				GenerateChildComponent(EnvironmentWalls, BackWallLocation, AdjustedWallRotation);
+				NumberOfWalls++;
+			}
+		}
+	}
+	
+	
+}
 
 void ADynamicLab::GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation)
 {

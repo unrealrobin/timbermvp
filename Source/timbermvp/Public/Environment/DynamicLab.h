@@ -37,11 +37,13 @@ private:
 	
 	void HandleFloorLayout();
 	
-	void HandleWallLayout();
+	void HandleWallLayout(ELabDimension InLabDimension);
 
 	void HandleCeilingLightLayout(FVector Location);
 
 	void HandleBossSpawnArea();
+
+	void HandleEnemySpawnArea();
 	
 	void GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation);
 

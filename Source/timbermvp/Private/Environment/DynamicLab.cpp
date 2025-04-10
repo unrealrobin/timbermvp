@@ -34,13 +34,16 @@ void ADynamicLab::BuildLab()
 	SetDimensionsFromState(LabDimension);
 	EmptyChildComponentArray();
 	HandleFloorLayout();
-	HandleWallLayout();
+	HandleWallLayout(LabDimension);
 	HandleBossSpawnArea();
+	HandleEnemySpawnArea();
 }
 
 void ADynamicLab::SetDimensionsFromState(ELabDimension LabDimensionEnum)
 {
-	/* Lab Dimensions Number Order:
+	/*These are template Dimensions.
+	 *
+	 * Lab Dimensions Number Order:
 	 * X =  In + X Direction (Typically the Longest Run of the Lab.)(Length)
 	 * Y = In + Y Direction (Typically the Shortest Run of the Lab.)(Width)(Doors Created on this Axis.)
 	 * Z = In + Z Direction (Typically the Height of the Lab.)(Levels)
@@ -162,7 +165,7 @@ void ADynamicLab::HandleFloorLayout()
 	}
 }
 
-void ADynamicLab::HandleWallLayout()
+void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 {
 	NumberOfWalls = 0;
 	//How many Levels of Walls. (Vertical)
@@ -200,24 +203,80 @@ void ADynamicLab::HandleWallLayout()
 		FRotator AdjustedWallRotation = FRotator::ZeroRotator;
 		AdjustedWallRotation.Yaw += 90.0f;
 
-		
-		//How many "Widths" of the walls -> Y Directions
+		/*Garage Door Side*/
 		for (int j = 0; j <= LabWidth - 1; j++ )
 		{
-			if (EnvironmentWalls)
+			if (EnvironmentWalls && GarageDoor)
 			{
-				//Walls Closer to 0 Y
 				FVector UpdatedWallLocation = InitialWallLocationWidth;
 				UpdatedWallLocation.Y += j * FloorSizeX;
-				GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
-				NumberOfWalls++;
 
-				//Walls Closer to 1 Y
-				FVector AdjacentWallLocation = UpdatedWallLocation;
-				AdjacentWallLocation.X += FloorSizeY * LabLength + 15;
-				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, AdjustedWallRotation);
-				NumberOfWalls++;
+				if (InLabDimension == ELabDimension::L)
+				{
+					//At the third index place the Garage Door.
+					if ( j == 3 || j == 4 )
+					{
+						//If on the 3rd Index on 1st floor, Place the Garage Door.
+						if ( j == 3 && i == 0)
+						{
+							FVector GarageDoorLocationAdjustment = UpdatedWallLocation;
+							//Shifting the garage door 200.
+							GarageDoorLocationAdjustment.Y += 200.f;
+							
+							FRotator GarageDoorRotation = FRotator::ZeroRotator;
+							GarageDoorRotation.Yaw -= 90.0f;
+							GenerateChildComponent(GarageDoor, GarageDoorLocationAdjustment, GarageDoorRotation);
+							NumberOfLabDoor++;
+							
+						}
+						else if (i == 0 || i == 1)
+						{
+							//Skipping placing walls in locations that would overlap the Garage door.
+							continue;
+						}
+						else
+						{
+							//This handles the situation where Above the Garage Door on Index j=3 && j=4, we still want walls. Walls Directly above garage door.
+							GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
+							NumberOfWalls++;
+						}
+					}
+					else
+					{
+						//Handles all other wall placements.
+						GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
+						NumberOfWalls++;
+					}
+
+				}
 			}
+		}
+
+		/*Lab Door Side*/
+		for (int l = 0; l <=LabWidth-1; l++)
+		{
+			//Walls Closer to 0 Y
+			FVector UpdatedWallLocation = InitialWallLocationWidth;
+			UpdatedWallLocation.Y += l * FloorSizeX;
+			FVector AdjacentWallLocation = UpdatedWallLocation;
+			AdjacentWallLocation.X += FloorSizeY * LabLength + 15;
+					
+			if (i == 0 && InLabDimension == ELabDimension::L)
+			{
+				if ( l == 2 || l == 5)
+				{
+					if (LabDoors)
+					{
+						GenerateChildComponent(LabDoors, AdjacentWallLocation, AdjustedWallRotation);
+						NumberOfLabDoor++;
+
+						//this exits this loops iteration so we dont place a wall on top of the door.
+						continue;
+					}
+				}
+			}
+			GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, AdjustedWallRotation);
+			NumberOfWalls++;
 		}
 	}
 }
@@ -308,6 +367,81 @@ void ADynamicLab::HandleBossSpawnArea()
 	}
 	
 	
+}
+
+void ADynamicLab::HandleEnemySpawnArea()
+{
+	//Handling Floors.
+	//Boss Area Always have 3 Floors for Length +X Direction
+	if (EnvironmentFloors)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			for (int k = 0; k < LabWidth; k++)
+			{
+				FVector EnemySpawnAreaStartLocation = FVector::ZeroVector;
+				//For every incremenet we move in the X Direction the floor size units more.
+				EnemySpawnAreaStartLocation.X += (LabLength + i) * FloorSizeX;
+				EnemySpawnAreaStartLocation.Y += k * FloorSizeY;
+				GenerateChildComponent(EnvironmentFloors, EnemySpawnAreaStartLocation, FRotator::ZeroRotator);
+				NumberOfFloors++;
+
+				//Handle Ceiling piece above new Floor Piece.
+				float ZFloorOffset = WallSizeZ * LabLevels;
+				EnemySpawnAreaStartLocation.Z += ZFloorOffset;
+				GenerateChildComponent(EnvironmentFloors, EnemySpawnAreaStartLocation, FRotator::ZeroRotator);
+			}
+		}
+	}
+
+	//Handling Walls in the X Direction | |
+	if (EnvironmentWalls)
+	{
+		//Spawn Areas are always 3 Floor in Length X Width Amount
+		for (int i = 0; i < 3; i++)
+		{
+			for (int k = 0; k < LabLevels; k++)
+			{
+				//Walls on X axis 
+				//For every increment we move in the X Direction the floor size units more.
+				
+				FVector SpawnAreaLocation = FVector::ZeroVector;
+				SpawnAreaLocation.Y -= 205.0f;
+				SpawnAreaLocation.X += (LabLength + i) * FloorSizeX;	
+				SpawnAreaLocation.Z += k * WallSizeZ;
+				GenerateChildComponent(EnvironmentWalls, SpawnAreaLocation, FRotator::ZeroRotator);
+				NumberOfWalls++;
+				
+				FVector AdjacentWallLocation = SpawnAreaLocation;
+				AdjacentWallLocation.Y += FloorSizeX * LabWidth + 5;
+				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
+				NumberOfWalls++;
+			}
+		}
+	}
+
+	//Handling Walls in the Y Direction  < -- >
+	if (EnvironmentWalls)
+	{
+		for (int i = 0; i < LabWidth; i++)
+		{
+			for (int k = 0; k < LabLevels; k++)
+			{
+				//Walls on Y Axis
+				//Horizontal Placement of the Wall
+				FVector SpawnAreaLocation = FVector::ZeroVector;
+				FVector BackWallLocation = SpawnAreaLocation;
+				
+				BackWallLocation.X += (LabLength + 3) * FloorSizeX - 200.0f;
+				FRotator AdjustedWallRotation = FRotator::ZeroRotator;
+				AdjustedWallRotation.Yaw += 90.0f;
+				BackWallLocation.Y += i * FloorSizeY;
+				BackWallLocation.Z += k * WallSizeZ;
+				GenerateChildComponent(EnvironmentWalls, BackWallLocation, AdjustedWallRotation);
+				NumberOfWalls++;
+			}
+		}
+	}
 }
 
 void ADynamicLab::GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation)

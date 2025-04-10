@@ -10,6 +10,7 @@
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
+#include "Environment/DynamicLab.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Environment/LabDoorBase.h"
 #include "Environment/LocationMarkerBase.h"
@@ -301,7 +302,28 @@ void ATimberGameModeBase::PlayAttackMusic()
 
 void ATimberGameModeBase::GatherAllLabDoors()
 {
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
+	AActor* LabActor = UGameplayStatics::GetActorOfClass(GetWorld(), ADynamicLab::StaticClass());
+	ADynamicLab* Lab = Cast<ADynamicLab>(LabActor);
+	if (Lab)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Lab Asset Found. Gathering Lab Doors"));
+		TArray<UChildActorComponent*> ChildComponents;
+		Lab->GetComponents<UChildActorComponent*>(ChildComponents);
+		UE_LOG(LogTemp, Warning, TEXT(" There are %d Child Components"), ChildComponents.Num());
+		for (UChildActorComponent* Child : ChildComponents)
+		{
+			if (Cast<ALabDoorBase>(Child->GetChildActor()))
+			{
+				ArrayOfLabDoors.Add(Cast<AActor>((Child->GetChildActor())));
+				UE_LOG(LogTemp, Warning, TEXT("Gathered Lab Door: %s"), *Child->GetName());
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Could not get Dynamic Lab Actor."));
+	}
 }
 
 void ATimberGameModeBase::HandleRedrawPathTrace()
@@ -341,234 +363,6 @@ void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 		}
 	}
 }
-
-/*Save System*/
-/*FString ATimberGameModeBase::GetSaveSlot()
-{
-	UDieRobotGameConfigSubsystem* GameConfigSubsystem = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
-	if (GameConfigSubsystem)
-	{
-		
-		 return GameConfigSubsystem->GameConfig == EDieRobotGameConfigType::MidGameDemo ? MidGameDemoSaveSlot : StandardSaveSlot;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Using Standard Save Slot."))
-	return StandardSaveSlot;
-}
-
-void ATimberGameModeBase::SaveCurrentGame()
-{
-	
-	FString SaveSlot = GetSaveSlot();
-	
-	//Creating an instance of the Save Game Object
-	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(
-		UGameplayStatics::CreateSaveGameObject
-		(USaveLoadStruct::StaticClass()));
-
-	SaveBuildingComponentData(SaveGameInstance);
-	SaveWaveData(SaveGameInstance);
-	SavePlayerData(SaveGameInstance);
-	SaveSeedaData(SaveGameInstance);
-
-
-	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlot, 0);
-
-	if(GEngine)
-	{
-		//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Red, "ATimberGameModeBase::SaveCurrentGame() -> Game Saved");
-	}
-}
-
-void ATimberGameModeBase::SaveBuildingComponentData(USaveLoadStruct* SaveGameInstance)
-{
-	if (SaveGameInstance)
-	{
-		TArray<AActor*> CurrentBuildingComponents;
-		UGameplayStatics::GetAllActorsOfClass(
-			GetWorld(), ABuildableBase::StaticClass(), CurrentBuildingComponents);
-
-		for (AActor* BuildingComponentActors : CurrentBuildingComponents)
-		{
-			//If the Building Component is an Environment Object - Don't Save it.
-			//The environment objects are added by the Developer and should not be saved. Only UGC should be saved.
-			if (!BuildingComponentActors->ActorHasTag(FName("ENV")))
-			{
-				//Creating the Building Component Struct to pass to the Save System's Building Component Array
-				FBuildingComponentData BuildingComponentData;
-				BuildingComponentData.BuildingComponentClass = BuildingComponentActors->GetClass();
-				BuildingComponentData.BuildingComponentTransform = BuildingComponentActors->GetActorTransform();
-				SaveGameInstance->BuildingComponentsArray.Add(BuildingComponentData);
-				UE_LOG(LogTemp, Warning, TEXT("Saved Building Component: %s"), *BuildingComponentActors->GetName());
-			}
-
-			
-			
-		}
-	}
-}
-
-void ATimberGameModeBase::SaveWaveData(USaveLoadStruct* SaveGameInstance)
-{
-	SaveGameInstance->WaveNumber = GetWaveGameInstanceSubsystem()->CurrentWaveNumber;
-	
-	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), SaveGameInstance->WaveNumber);
-}
-
-void ATimberGameModeBase::SavePlayerData(USaveLoadStruct* SaveGameInstance)
-{
-	if (TimberCharacter)
-	{
-		SaveGameInstance->PlayerData.PlayerLocation = TimberCharacter->GetActorLocation();
-
-		APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());
-		if (PS)
-		{
-			SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts = PS->MainInventory->NumberOfParts;
-			SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
-			SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;
-			
-			UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts,
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism,
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques);
-		}
-	}
-}
-
-void ATimberGameModeBase::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
-{
-	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
-	if (Seeda && SaveGameInstance)
-	{
-		SaveGameInstance->SeedaData.SeedaLocation = Seeda->GetActorLocation();
-		SaveGameInstance->SeedaData.SeedaRotation = Seeda->GetActorRotation();
-	}
-}
-
-/* Load System #1#
-void ATimberGameModeBase::LoadGame()
-{
-	GetWaveGameInstanceSubsystem()->ResetWaveEnemies();
-
-	//Returns the correct Slot to use based on Game Config
-	FString LoadSlot = GetSaveSlot();
-	
-	USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(
-		UGameplayStatics::LoadGameFromSlot(LoadSlot, 0));
-
-	if (LoadGameInstance)
-	{
-		LoadBuildingComponents(LoadGameInstance);
-		LoadWaveData(LoadGameInstance);
-		LoadPlayerState(LoadGameInstance);
-		LoadSeedaData(LoadGameInstance);
-
-		CloseAllLabDoors();
-		GetWaveGameInstanceSubsystem()->CloseBossDoor();
-		HandleRedrawPathTrace();
-
-
-		if (SwitchToStandardUI.IsBound())
-		{
-			SwitchToStandardUI.Execute();
-		}
-
-		//Potential to be called before player controller is bound to this.
-		//Needs at least 1 listener to not error.
-		if (EnableStandardInputMappingContext.IsBound())
-		{
-			EnableStandardInputMappingContext.Execute();
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to load Game - No Save/Load Slot."));
-	}
-	
-}
-
-void ATimberGameModeBase::LoadBuildingComponents(USaveLoadStruct* LoadGameInstance)
-{
-	if (LoadGameInstance)
-	{
-		for (FBuildingComponentData BuildingComponentData : LoadGameInstance->BuildingComponentsArray)
-		{
-			if (BuildingComponentData.BuildingComponentClass)
-			{
-				AActor* SpawnedActor = GetWorld()->SpawnActor<ABuildableBase>(
-					BuildingComponentData.BuildingComponentClass,
-					BuildingComponentData.BuildingComponentTransform.GetLocation(),
-					BuildingComponentData.BuildingComponentTransform.GetRotation().Rotator());
-
-				UE_LOG(LogTemp, Warning, TEXT("Loaded Buildable: %s"), *SpawnedActor->GetName());
-			}
-		}
-
-		//TODO:: This is not working. Why Not.
-		GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([this]()
-				{
-					HandleRedrawPathTrace();  // Call it next tick
-				}));
-	}
-}
-
-void ATimberGameModeBase::LoadWaveData(USaveLoadStruct* LoadGameInstance)
-{
-	if (LoadGameInstance)
-	{
-		GetWaveGameInstanceSubsystem()->CurrentWaveNumber = LoadGameInstance->WaveNumber;
-
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
-
-		CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
-	}
-}
-
-void ATimberGameModeBase::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
-{
-	if (TimberCharacter)
-	{
-		TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
-		TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
-		TimberCharacter->bIsPlayerDead = false;
-		
-		//Reverting player Inventory to last save.
-		APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());
-		if (PS)
-		{
-			PS->MainInventory->NumberOfParts = LoadGameInstance->PlayerData.PlayerInventory.NumberOfParts;
-			PS->MainInventory->NumberOfMechanism = LoadGameInstance->PlayerData.PlayerInventory.NumberOfMechanism;
-			PS->MainInventory->NumberOfUniques = LoadGameInstance->PlayerData.PlayerInventory.NumberOfUniques;
-			
-			//Broadcast update so HUD Reflects Inventory
-			TimberCharacter->InventoryManager->UpdateInventoryHandle.Broadcast();
-
-			UE_LOG(LogTemp, Warning, TEXT("Loaded Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
-                PS->MainInventory->NumberOfParts,
-                PS->MainInventory->NumberOfMechanism,
-                PS->MainInventory->NumberOfUniques);
-		}
-	}
-}
-
-void ATimberGameModeBase::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
-{
-	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()));
-	//If Seeda Wasn't destroyed - player only died - destroy the instance of Seeda
-	if (Seeda)
-	{
-		Seeda->Destroy();
-	}
-
-	FVector HardCodeSeedaLocation = FVector(-2310.000000,-634.000000,130.000000);
-	
-	FActorSpawnParameters SpawnParams;
-	GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass,
-		HardCodeSeedaLocation,
-		LoadGameInstance->SeedaData.SeedaRotation,
-		SpawnParams);
-}*/
 
 void ATimberGameModeBase::OpenAllLabDoors()
 {

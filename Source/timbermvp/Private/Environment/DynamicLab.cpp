@@ -267,6 +267,7 @@ void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 				{
 					if (LabDoors)
 					{
+						AdjacentWallLocation.X += 20.0f;
 						GenerateChildComponent(LabDoors, AdjacentWallLocation, AdjustedWallRotation);
 						NumberOfLabDoor++;
 

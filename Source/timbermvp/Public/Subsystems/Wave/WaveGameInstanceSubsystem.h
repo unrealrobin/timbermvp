@@ -20,7 +20,7 @@ class TIMBERMVP_API UWaveGameInstanceSubsystem : public UGameInstanceSubsystem
 public:
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 1;
+	int CurrentWaveNumber = 3;
 	
 	void SetCurrentWaveNumber(int InWaveNumber);
 

@@ -302,7 +302,6 @@ void ATimberGameModeBase::PlayAttackMusic()
 
 void ATimberGameModeBase::GatherAllLabDoors()
 {
-	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
 	AActor* LabActor = UGameplayStatics::GetActorOfClass(GetWorld(), ADynamicLab::StaticClass());
 	ADynamicLab* Lab = Cast<ADynamicLab>(LabActor);
 	if (Lab)
@@ -322,6 +321,7 @@ void ATimberGameModeBase::GatherAllLabDoors()
 	}
 	else
 	{
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
 		UE_LOG(LogTemp, Warning, TEXT("Could not get Dynamic Lab Actor."));
 	}
 }

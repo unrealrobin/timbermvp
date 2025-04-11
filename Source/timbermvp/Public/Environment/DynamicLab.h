@@ -47,13 +47,32 @@ private:
 	
 	void GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVector Location, FRotator Rotation);
 
+	void GenerateStaticMeshComponent(UStaticMesh* StaticMesh, FVector Location, FRotator Rotation);
+
+	void GenerateInstancedWallStaticMeshComponent(FVector Location, FRotator Rotation);
+	
+	void GenerateInstancedCeilingStaticMeshComponent(FVector Location, FRotator Rotation);
+
+	void SetupInstancedWallStaticMeshComponent();
+
+	void SetupInstancedCeilingStaticMeshComponent();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Details")
 	TArray<UChildActorComponent*> ChildComponents;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Details")
+	TArray<UStaticMeshComponent*> StaticMeshComponentsArray;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Details")
+	UInstancedStaticMeshComponent* InstancedWallStaticMesh = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lab Details")
+	UInstancedStaticMeshComponent* InstancedCeilingStaticMesh = nullptr;
+	
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Lab Details")
@@ -99,6 +118,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Details")
 	float CeilingLightDropOffset = 10.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
+	UStaticMesh* FloorMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
+	UStaticMesh* WallMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
+	UStaticMesh* WallMeshUnmarked = nullptr;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lab Meshes")
 	TSubclassOf<AActor> EnvironmentWalls = nullptr;
 	

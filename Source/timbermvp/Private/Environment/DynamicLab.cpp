@@ -1,6 +1,7 @@
 ﻿// Property of Paracosm Industries. Dont use my shit.
 #include "Environment/DynamicLab.h"
 
+#include "Components/InstancedStaticMeshComponent.h"
 
 
 // Sets default values
@@ -31,6 +32,8 @@ void ADynamicLab::Tick(float DeltaTime)
 
 void ADynamicLab::BuildLab()
 {
+	SetupInstancedWallStaticMeshComponent();
+	SetupInstancedCeilingStaticMeshComponent();
 	SetDimensionsFromState(LabDimension);
 	EmptyChildComponentArray();
 	HandleFloorLayout();
@@ -124,8 +127,10 @@ void ADynamicLab::HandleFloorLayout()
 				float CeilingHeight = WallSizeZ * LabLevels;
 				CeilingSpawnLocation.Z = CeilingHeight;
 
-				GenerateChildComponent(EnvironmentFloors, CeilingSpawnLocation, FRotator::ZeroRotator);
-				NumberOfCeilingTiles++;
+				//GenerateChildComponent(EnvironmentFloors, CeilingSpawnLocation, FRotator::ZeroRotator);
+				//GenerateStaticMeshComponent(FloorMesh, CeilingSpawnLocation, FRotator::ZeroRotator);
+				GenerateInstancedCeilingStaticMeshComponent(CeilingSpawnLocation, FRotator::ZeroRotator);
+				
 
 				/*Handling Lighting Placement*/
 				// If on the First Length Tile or On an Even Tile Increment
@@ -179,21 +184,22 @@ void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 		//How many "Lengths" of the walls -> +X Direction
 		for (int k = 0; k <= LabLength - 1; k++ )
 		{
-			if (EnvironmentWalls)
+			if (WallMesh)
 			{
 				//Walls Closer to 0 X
 				//Using the Increment to calculate the Location of the wall.
 				FVector UpdatedWallLocation = InitialWallLocationLength;
 				UpdatedWallLocation.X += k * FloorSizeX;
-				GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, FRotator::ZeroRotator);
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, FRotator::ZeroRotator);
+				//GenerateStaticMeshComponent(WallMesh, UpdatedWallLocation, FRotator::ZeroRotator);
+				GenerateInstancedWallStaticMeshComponent(UpdatedWallLocation, FRotator::ZeroRotator);
 
 				//Walls Closer to 1 X
 				FVector AdjacentWallLocation = UpdatedWallLocation;
 				AdjacentWallLocation.Y += FloorSizeX * LabWidth + 15;
-				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
-				
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
+				//GenerateStaticMeshComponent(WallMesh, AdjacentWallLocation, FRotator::ZeroRotator);
+				GenerateInstancedWallStaticMeshComponent(AdjacentWallLocation, FRotator::ZeroRotator);
 			}
 		}
 
@@ -206,7 +212,7 @@ void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 		/*Garage Door Side*/
 		for (int j = 0; j <= LabWidth - 1; j++ )
 		{
-			if (EnvironmentWalls && GarageDoor)
+			if (WallMesh && GarageDoor)
 			{
 				FVector UpdatedWallLocation = InitialWallLocationWidth;
 				UpdatedWallLocation.Y += j * FloorSizeX;
@@ -237,15 +243,17 @@ void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 						else
 						{
 							//This handles the situation where Above the Garage Door on Index j=3 && j=4, we still want walls. Walls Directly above garage door.
-							GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
-							NumberOfWalls++;
+							//GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
+							//GenerateStaticMeshComponent(WallMesh, UpdatedWallLocation, AdjustedWallRotation);
+							GenerateInstancedWallStaticMeshComponent(UpdatedWallLocation, AdjustedWallRotation);
 						}
 					}
 					else
 					{
 						//Handles all other wall placements.
-						GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
-						NumberOfWalls++;
+						//GenerateChildComponent(EnvironmentWalls, UpdatedWallLocation, AdjustedWallRotation);
+						//GenerateStaticMeshComponent(WallMesh, UpdatedWallLocation, AdjustedWallRotation);
+						GenerateInstancedWallStaticMeshComponent(UpdatedWallLocation, AdjustedWallRotation);
 					}
 
 				}
@@ -260,9 +268,11 @@ void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 			UpdatedWallLocation.Y += l * FloorSizeX;
 			FVector AdjacentWallLocation = UpdatedWallLocation;
 			AdjacentWallLocation.X += FloorSizeY * LabLength + 15;
-					
+
+			//If on the first Floor Level
 			if (i == 0 && InLabDimension == ELabDimension::L)
 			{
+				//In Positions 2 & 5, Create Lab Door, Skip Wall Placement.
 				if ( l == 2 || l == 5)
 				{
 					if (LabDoors)
@@ -271,13 +281,15 @@ void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 						GenerateChildComponent(LabDoors, AdjacentWallLocation, AdjustedWallRotation);
 						NumberOfLabDoor++;
 
-						//this exits this loops iteration so we dont place a wall on top of the door.
+						//this exits this loops iteration so we don't place a wall on top of the door.
 						continue;
 					}
 				}
+				GenerateInstancedWallStaticMeshComponent(AdjacentWallLocation, AdjustedWallRotation);
 			}
-			GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, AdjustedWallRotation);
-			NumberOfWalls++;
+			GenerateInstancedWallStaticMeshComponent(AdjacentWallLocation, AdjustedWallRotation);
+			//GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, AdjustedWallRotation);
+			//GenerateStaticMeshComponent(WallMesh, AdjacentWallLocation, AdjustedWallRotation);
 		}
 	}
 }
@@ -311,7 +323,8 @@ void ADynamicLab::HandleBossSpawnArea()
 				//Handle Ceiling piece above new Floor Piece.
 				float ZFloorOffset = WallSizeZ * LabLevels;
 				BossAreaLocation.Z += ZFloorOffset;
-				GenerateChildComponent(EnvironmentFloors, BossAreaLocation, FRotator::ZeroRotator);
+				//GenerateChildComponent(EnvironmentFloors, BossAreaLocation, FRotator::ZeroRotator);
+				GenerateInstancedCeilingStaticMeshComponent(BossAreaLocation, FRotator::ZeroRotator);
 			}
 		}
 	}
@@ -323,7 +336,7 @@ void ADynamicLab::HandleBossSpawnArea()
 	 */
 
 	
-	if (EnvironmentWalls)
+	if (WallMesh)
 	{
 		for (int i = 0; i < 3; i++)
 		{
@@ -336,17 +349,19 @@ void ADynamicLab::HandleBossSpawnArea()
 				BossAreaLocation.Y -= 205.0f;
 				BossAreaLocation.X -= (i + 1) * FloorSizeX;	
 				BossAreaLocation.Z += k * WallSizeZ;
-				GenerateChildComponent(EnvironmentWalls, BossAreaLocation, FRotator::ZeroRotator);
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, BossAreaLocation, FRotator::ZeroRotator);
+				//GenerateStaticMeshComponent(WallMesh, BossAreaLocation, FRotator::ZeroRotator);
+				GenerateInstancedWallStaticMeshComponent(BossAreaLocation, FRotator::ZeroRotator);
 				
 				FVector AdjacentWallLocation = BossAreaLocation;
 				AdjacentWallLocation.Y += FloorSizeX * LabWidth + 5;
-				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
+				//GenerateStaticMeshComponent(WallMesh, AdjacentWallLocation, FRotator::ZeroRotator);
+				GenerateInstancedWallStaticMeshComponent(AdjacentWallLocation, FRotator::ZeroRotator);
 			}
 		}
 	}
-	if (EnvironmentWalls)
+	if (WallMesh)
 	{
 		for (int i = 0; i < LabWidth; i++)
 		{
@@ -361,8 +376,10 @@ void ADynamicLab::HandleBossSpawnArea()
 				AdjustedWallRotation.Yaw += 90.0f;
 				BackWallLocation.Y += i * FloorSizeY;
 				BackWallLocation.Z += k * WallSizeZ;
-				GenerateChildComponent(EnvironmentWalls, BackWallLocation, AdjustedWallRotation);
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, BackWallLocation, AdjustedWallRotation);
+				//GenerateStaticMeshComponent(WallMesh, BackWallLocation, AdjustedWallRotation);
+				GenerateInstancedWallStaticMeshComponent(BackWallLocation, AdjustedWallRotation);
+				
 			}
 		}
 	}
@@ -390,13 +407,14 @@ void ADynamicLab::HandleEnemySpawnArea()
 				//Handle Ceiling piece above new Floor Piece.
 				float ZFloorOffset = WallSizeZ * LabLevels;
 				EnemySpawnAreaStartLocation.Z += ZFloorOffset;
-				GenerateChildComponent(EnvironmentFloors, EnemySpawnAreaStartLocation, FRotator::ZeroRotator);
+				//GenerateChildComponent(EnvironmentFloors, EnemySpawnAreaStartLocation, FRotator::ZeroRotator);
+				GenerateInstancedCeilingStaticMeshComponent(EnemySpawnAreaStartLocation, FRotator::ZeroRotator);
 			}
 		}
 	}
 
 	//Handling Walls in the X Direction | |
-	if (EnvironmentWalls)
+	if (WallMesh)
 	{
 		//Spawn Areas are always 3 Floor in Length X Width Amount
 		for (int i = 0; i < 3; i++)
@@ -410,19 +428,23 @@ void ADynamicLab::HandleEnemySpawnArea()
 				SpawnAreaLocation.Y -= 205.0f;
 				SpawnAreaLocation.X += (LabLength + i) * FloorSizeX;	
 				SpawnAreaLocation.Z += k * WallSizeZ;
-				GenerateChildComponent(EnvironmentWalls, SpawnAreaLocation, FRotator::ZeroRotator);
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, SpawnAreaLocation, FRotator::ZeroRotator);
+				//GenerateStaticMeshComponent(WallMesh, SpawnAreaLocation, FRotator::ZeroRotator);
+				GenerateInstancedWallStaticMeshComponent(SpawnAreaLocation, FRotator::ZeroRotator);
+				
 				
 				FVector AdjacentWallLocation = SpawnAreaLocation;
 				AdjacentWallLocation.Y += FloorSizeX * LabWidth + 5;
-				GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, AdjacentWallLocation, FRotator::ZeroRotator);
+				//GenerateStaticMeshComponent(WallMesh, AdjacentWallLocation, FRotator::ZeroRotator);
+				GenerateInstancedWallStaticMeshComponent(AdjacentWallLocation, FRotator::ZeroRotator);
+				
 			}
 		}
 	}
 
 	//Handling Walls in the Y Direction  < -- >
-	if (EnvironmentWalls)
+	if (WallMesh)
 	{
 		for (int i = 0; i < LabWidth; i++)
 		{
@@ -438,8 +460,10 @@ void ADynamicLab::HandleEnemySpawnArea()
 				AdjustedWallRotation.Yaw += 90.0f;
 				BackWallLocation.Y += i * FloorSizeY;
 				BackWallLocation.Z += k * WallSizeZ;
-				GenerateChildComponent(EnvironmentWalls, BackWallLocation, AdjustedWallRotation);
-				NumberOfWalls++;
+				//GenerateChildComponent(EnvironmentWalls, BackWallLocation, AdjustedWallRotation);
+				//GenerateStaticMeshComponent(WallMesh, BackWallLocation, AdjustedWallRotation);
+				GenerateInstancedWallStaticMeshComponent(BackWallLocation, AdjustedWallRotation);
+				
 			}
 		}
 	}
@@ -461,4 +485,67 @@ void ADynamicLab::GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVe
 
 	ChildComponents.Add(ChildActorComponent);
 	
+}
+
+void ADynamicLab::GenerateStaticMeshComponent(UStaticMesh* StaticMesh, FVector Location, FRotator Rotation)
+{
+	if (StaticMesh)
+	{
+		UStaticMeshComponent* StaticMeshComponent = NewObject<UStaticMeshComponent>(this);
+		StaticMeshComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+		StaticMeshComponent->SetStaticMesh(StaticMesh);
+
+		// Set location/rotation/scale as needed
+		StaticMeshComponent->SetRelativeLocation(Location);
+		StaticMeshComponent->SetRelativeRotation(Rotation);
+
+		// Register so it shows up in the editor
+		StaticMeshComponent->RegisterComponent();
+
+		StaticMeshComponentsArray.Add(StaticMeshComponent);
+	}
+}
+
+void ADynamicLab::GenerateInstancedWallStaticMeshComponent(FVector Location, FRotator Rotation)
+{
+	const FTransform InstanceTransform(Rotation, Location);
+	InstancedWallStaticMesh->AddInstance(InstanceTransform);
+	NumberOfWalls++;
+	//UE_LOG(LogTemp, Warning, TEXT("Instanced Wall Static Mesh Component Created"));
+}
+
+void ADynamicLab::GenerateInstancedCeilingStaticMeshComponent(FVector Location, FRotator Rotation)
+{
+	const FTransform InstanceTransform(Rotation, Location);
+	InstancedCeilingStaticMesh->AddInstance(InstanceTransform);
+	NumberOfCeilingTiles++;
+}
+
+void ADynamicLab::SetupInstancedWallStaticMeshComponent()
+{
+	if (InstancedWallStaticMesh)
+	{
+		InstancedWallStaticMesh->ClearInstances();
+	}
+	InstancedWallStaticMesh = NewObject<UInstancedStaticMeshComponent>(this);
+	InstancedWallStaticMesh->SetupAttachment(RootComponent);
+	InstancedWallStaticMesh->SetStaticMesh(WallMesh);
+	InstancedWallStaticMesh->RegisterComponent();
+	InstancedWallStaticMesh->SetCollisionProfileName("DR_BuildableBlockEverything");
+
+	
+}
+
+void ADynamicLab::SetupInstancedCeilingStaticMeshComponent()
+{
+	if (InstancedCeilingStaticMesh)
+	{
+		InstancedCeilingStaticMesh->ClearInstances();
+	}
+	InstancedCeilingStaticMesh = NewObject<UInstancedStaticMeshComponent>(this);
+	InstancedCeilingStaticMesh->SetupAttachment(RootComponent);
+	InstancedCeilingStaticMesh->SetStaticMesh(FloorMesh);
+	InstancedCeilingStaticMesh->RegisterComponent();
+	InstancedCeilingStaticMesh->ClearInstances();
+	InstancedCeilingStaticMesh->SetCollisionProfileName("DR_BuildableBlockEverything");
 }

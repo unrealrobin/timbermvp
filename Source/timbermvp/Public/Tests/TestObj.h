@@ -33,6 +33,8 @@ public:
 	TObjectPtr<UCapsuleComponent> CollisionCapsule;
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> StaticMeshBase;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStaticMeshComponent> LeverStaticMesh;
 
 	UFUNCTION()
 	void SetInteractItem(

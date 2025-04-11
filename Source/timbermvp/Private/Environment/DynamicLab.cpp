@@ -228,6 +228,7 @@ void ADynamicLab::HandleWallLayout(ELabDimension InLabDimension)
 							FVector GarageDoorLocationAdjustment = UpdatedWallLocation;
 							//Shifting the garage door 200.
 							GarageDoorLocationAdjustment.Y += 200.f;
+							GarageDoorLocationAdjustment.X -= 10.0f;
 							
 							FRotator GarageDoorRotation = FRotator::ZeroRotator;
 							GarageDoorRotation.Yaw -= 90.0f;

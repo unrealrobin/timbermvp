@@ -37,7 +37,7 @@ void AStartUpGameMode::BeginPlay()
 		MusicManager->HandleInitialization();
 
 		//Play the Startup1 Song
-		MusicManager->PlayMusic("Startup1", 2.0f);
+		MusicManager->PlayMusic("CyberpunkBoy", 2.0f);
 		
 		UE_LOG(LogTemp, Warning, TEXT("Startup Level Initialized the Music Manager and Played Song."))
 	}

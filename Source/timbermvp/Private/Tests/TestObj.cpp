@@ -18,6 +18,8 @@ ATestObj::ATestObj()
 	RootComponent = CollisionCapsule;
 	StaticMeshBase = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMeshBase->SetupAttachment(CollisionCapsule);
+	LeverStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("Lever Static Mesh");
+	LeverStaticMesh->SetupAttachment(StaticMeshBase);
 }
 
 // Called when the game starts or when spawned
@@ -27,7 +29,7 @@ void ATestObj::BeginPlay()
 
 	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &ATestObj::SetInteractItem);
 	CollisionCapsule->OnComponentEndOverlap.AddDynamic(this, &ATestObj::UnSetInteractItem);
-	InitialLeverRotation = StaticMeshBase->GetRelativeRotation();
+	InitialLeverRotation = LeverStaticMesh->GetRelativeRotation();
 }
 
 // Called every frame
@@ -51,12 +53,13 @@ void ATestObj::Interact()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Test Obj - Could not load Die Robot Game State."))
 	}
+	
 	//Purely Visual
 	//Rotates the Lever to Show it is being interacted with
 	if (InitialLeverRotation == StaticMeshBase->GetRelativeRotation())
 	{
 		FRotator NewRotation = LeverOnRotation;
-		StaticMeshBase->SetRelativeRotation(NewRotation);
+		LeverStaticMesh->SetRelativeRotation(NewRotation);
 	}
 
 	{
@@ -81,9 +84,9 @@ void ATestObj::SetInteractItem(
 void ATestObj::UnSetInteractItem(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (InitialLeverRotation != StaticMeshBase->GetRelativeRotation())
+	if (InitialLeverRotation != LeverStaticMesh->GetRelativeRotation())
 	{
-		StaticMeshBase->SetRelativeRotation(InitialLeverRotation);
+		LeverStaticMesh->SetRelativeRotation(InitialLeverRotation);
 	}
 
 	StaticMeshBase->AddLocalRotation(FRotator3d(0.0f, 0.0f, 0.0f));

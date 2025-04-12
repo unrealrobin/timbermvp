@@ -8,6 +8,7 @@
 #include "Character/Enemies/Boss/BossBase.h"
 #include "Data/WaveData.h"
 #include "Environment/BossSpawnLocation.h"
+#include "Environment/DynamicLab.h"
 #include "Environment/GarageDoorBase.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
@@ -71,7 +72,28 @@ FVector UWaveGameInstanceSubsystem::GetRandomStandardSpawnPointLocation()
 
 void UWaveGameInstanceSubsystem::GetGarageDoor()
 {
-	BossDoor = Cast<AGarageDoorBase>(UGameplayStatics::GetActorOfClass(GetWorld(), AGarageDoorBase::StaticClass()));
+
+	AActor* LabActor = UGameplayStatics::GetActorOfClass(GetWorld(), ADynamicLab::StaticClass());
+	ADynamicLab* Lab = Cast<ADynamicLab>(LabActor);
+	if (Lab)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Lab Asset Found. Gathering Lab Doors"));
+		TArray<UChildActorComponent*> ChildComponents;
+		Lab->GetComponents<UChildActorComponent*>(ChildComponents);
+		UE_LOG(LogTemp, Warning, TEXT(" There are %d Child Components"), ChildComponents.Num());
+		for (UChildActorComponent* Child : ChildComponents)
+		{
+			if (Cast<AGarageDoorBase>(Child->GetChildActor()))
+			{
+				BossDoor = Cast<AGarageDoorBase>((Child->GetChildActor()));
+				UE_LOG(LogTemp, Warning, TEXT("Gathered Lab Door: %s"), *Child->GetName());
+			}
+		}
+	}
+	else
+	{
+		BossDoor = Cast<AGarageDoorBase>(UGameplayStatics::GetActorOfClass(GetWorld(), AGarageDoorBase::StaticClass()));
+	}
 }
 
 void UWaveGameInstanceSubsystem::StartWave()

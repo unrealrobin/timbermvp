@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries. 
 
 
 #include "Subsystems/Dialogue/DialogueManager.h"
@@ -9,8 +9,6 @@
 #include "Data/NarrativeDialogueLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "States/DieRobotGameStateBase.h"
-
-
 
 void UDialogueManager::Initialize(FSubsystemCollectionBase& Collection)
 {

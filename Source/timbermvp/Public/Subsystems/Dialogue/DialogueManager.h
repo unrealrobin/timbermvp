@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 #pragma once
 
@@ -19,17 +19,8 @@ class TIMBERMVP_API UDialogueManager : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-
-	/*
-	 * Dialogue Names
-	 *
-	 * Speaker_TutorialState_DialogueOrder#
-	 * Molly_Wake_1
-	 * Molly_Wake_2
-	 * Molly_Wake_3
-	 */
 	
-	void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY()
 	UAudioComponent* DialoguePlayer = nullptr;

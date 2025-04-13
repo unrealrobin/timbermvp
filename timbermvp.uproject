@@ -121,6 +121,10 @@
 		{
 			"Name": "SpeedTreeImporter",
 			"Enabled": false
+		},
+		{
+			"Name": "OnlineServicesEOS",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

@@ -20,16 +20,8 @@ class TIMBERMVP_API ULogin : public UGameInstanceSubsystem
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Login")
-	void AuthenticateUser();
-
-	UFUNCTION(BlueprintCallable, Category = "Login")	
-	void ShowExternalUI();
-	
-	UFUNCTION(BlueprintCallable, Category = "Login")
-	void LoginUser(FPlatformUserId PlatformUserId, FString CredentialsToken);
-
-	UFUNCTION(BlueprintCallable, Category = "Login")
 	void LoginAuto();
+	
 private:
 	FPlatformUserId GetPlatformUserId();
 	

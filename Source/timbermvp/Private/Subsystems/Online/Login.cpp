@@ -14,33 +14,6 @@ void ULogin::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 }
 
-void ULogin::AuthenticateUser()
-{
-	//Use the login popup to retrieve the Credentials token. Use callback to call the LoginUser function
-	//Passing in the PlatformUserId and the CredentialsToken
-}
-
-void ULogin::ShowExternalUI()
-{
-	const UE::Online::IOnlineServicesPtr OnlineServices = UE::Online::GetServices();
-	const UE::Online::IExternalUIPtr ExternalUI = OnlineServices->GetExternalUIInterface();
-
-	ExternalUI->ShowLoginUI(UE::Online::FExternalUIShowLoginUI::Params()).OnComplete([](const UE::Online::TOnlineResult<UE::Online::FExternalUIShowLoginUI>& Result)
-	{
-		if (Result.IsOk())
-		{
-			const TSharedRef<UE::Online::FAccountInfo> AccountInfo = Result.GetOkValue().AccountInfo;
-			// AccountInfo object is now accessible
-			UE_LOG(LogTemp, Warning, TEXT("Login successful for user: %s"), *ToString(AccountInfo->AccountId));
-		}
-		else
-		{
-			UE::Online::FOnlineError Error = Result.GetErrorValue();
-			// Error can now be processed
-		}
-	});
-}
-
 void ULogin::LoginAuto()
 {
 	using namespace UE::Online;
@@ -90,35 +63,7 @@ void ULogin::LoginAuto()
 	
 }
 
-void ULogin::LoginUser(::FPlatformUserId PlatformUserId, FString CredentialsToken)
-{
-	UE::Online::IOnlineServicesPtr OnlineServices = UE::Online::GetServices();
-	UE::Online::IAuthPtr AuthInterface = OnlineServices->GetAuthInterface();
-	
-	UE::Online::FAuthLogin::Params LoginParams;
-	LoginParams.CredentialsType = UE::Online::LoginCredentialsType::AccountPortal;
-	LoginParams.PlatformUserId = PlatformUserId;
 
-	//Constructing a Variant to work with the CreditalToken Type Needs.
-	LoginParams.CredentialsToken = TVariant<FString, UE::Online::FExternalAuthToken>(TInPlaceType<FString>(), CredentialsToken);;
-	
-	AuthInterface->Login(MoveTemp(LoginParams)).OnComplete([](const UE::Online::TOnlineResult<UE::Online::FAuthLogin>& Result)
-				{
-					if(Result.IsOk())
-					{
-						const TSharedRef<UE::Online::FAccountInfo> AccountInfo = Result.GetOkValue().AccountInfo;
-						// AccountInfo object is now accessible
-						UE_LOG(LogTemp, Warning, TEXT("Login successful for user: %s"), *ToString(AccountInfo->AccountId));
-					}
-					else
-					{
-						UE::Online::FOnlineError Error = Result.GetErrorValue();
-						// Error can now be processed
-					}
-				});
- 
-	UE_LOG(LogTemp, Warning, TEXT("Called Handle Login Function"));
-}
 
 FPlatformUserId ULogin::GetPlatformUserId()
 {

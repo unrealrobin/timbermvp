@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "UI/TimberHUDBase.h"
@@ -18,7 +18,6 @@ void ATimberHUDBase::BeginPlay()
 
 	//Binding to Tutorial States
 	InitializeTutorialStateBinding();
-	
 	HandleTutorialStateChanges(GetTutorialState());
 
 }

@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries. 
 
 #pragma once
 
@@ -13,4 +13,7 @@ UCLASS()
 class TIMBERMVP_API UStartMenu : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	
 };

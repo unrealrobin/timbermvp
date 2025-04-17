@@ -5,68 +5,97 @@
 #include "Online/OnlineAsyncOpHandle.h"
 #include "Online/Auth.h"
 #include "Online/UserInfo.h"
-#include "Online/ExternalUI.h"
 #include "Online/AuthErrors.h"
 #include "Online/OnlineResult.h"
 
 void ULogin::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+
+	//Handles setting up of all connections
+	InitializeOnlineServices();
 }
 
 void ULogin::LoginAuto()
 {
-	using namespace UE::Online;
-
-	IOnlineServicesPtr Services = GetServices();
-	if (!Services.IsValid()) return;
-	GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, TEXT("Online Service Valid."));
-
-	IAuthPtr Auth = Services->GetAuthInterface();
-	if (!Auth.IsValid()) return;
-	GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, TEXT("Auth Interface Valid."));
-	
-	IUserInfoPtr UserInfo = Services->GetUserInfoInterface();
-	if (!UserInfo.IsValid()) return;
-	GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, TEXT("User Info Interface Valid.."));
-	
-	FAuthLogin::Params LoginParams;
-	LoginParams.PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
-	LoginParams.CredentialsType = LoginCredentialsType::AccountPortal;
-
-	Auth->Login(MoveTemp(LoginParams)).OnComplete([UserInfo](const TOnlineResult<FAuthLogin>& Result)
+	if (OnlineService.IsValid() && AuthService.IsValid())
 	{
-		if (Result.IsOk())
-		{
-			GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, TEXT("Login successful."));
-			
-			FAccountId LoggedInPlayerAccountId = Result.GetOkValue().AccountInfo->AccountId;
+		FAuthLogin::Params LoginParams;
+		LoginParams.PlatformUserId = FPlatformUserId::CreateFromInternalId(0);
+		LoginParams.CredentialsType = LoginCredentialsType::AccountPortal;
 
-			/*After Retrieving the Account ID we want to Display the Users Display Name*/
-			FGetUserInfo::Params GetUserInfoParams;
-			GetUserInfoParams.AccountId = LoggedInPlayerAccountId;
-			GetUserInfoParams.LocalAccountId = LoggedInPlayerAccountId;
-			
-			bool bIsOk = UserInfo->GetUserInfo(MoveTemp(GetUserInfoParams)).IsOk();
-			if (bIsOk)
-			{
-				FString LoggedInUserName = UserInfo->GetUserInfo(MoveTemp(GetUserInfoParams)).GetOkValue().UserInfo->DisplayName;
-				GEngine->AddOnScreenDebugMessage(1, 10, FColor::Green, FString::Printf(TEXT("Logged in as: %s"), *LoggedInUserName));
-			}
-			
-		}
-		else
+		AuthService->Login(MoveTemp(LoginParams)).OnComplete([this](const TOnlineResult<FAuthLogin>& Result)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Login failed: %s"), *Result.GetErrorValue().GetLogString());
-		}
-	});
-	
+			if (Result.IsOk())
+			{
+				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, TEXT("Login successful."));
+
+				//Saving Struct Locally for Easy Access.
+				UserInfo.AccountInfo = *Result.GetOkValue().AccountInfo;
+
+				GetOnlineUserDisplayName();
+
+				
+			}
+		});
+	}
 }
 
+FString ULogin::GetOnlineUserDisplayName()
+{
+	/*After Retrieving the Account ID we want to Display the Users Display Name*/
+	if (UserInfo.AccountInfo.AccountId.IsValid() )
+	{
+		FAccountId PlayerAccountId = UserInfo.AccountInfo.AccountId;
+		//UE_LOG(LogTemp, Warning, TEXT("Player Account ID: %s"), *PlayerAccountId.ToString());
+		FGetUserInfo::Params GetUserInfoParams;
+		GetUserInfoParams.AccountId = PlayerAccountId;
+		GetUserInfoParams.LocalAccountId = PlayerAccountId;
+		bool bIsOk = UserInfoService->GetUserInfo(MoveTemp(GetUserInfoParams)).IsOk();
 
+		if (bIsOk)
+		{
+			UserInfo.OnlineUserDisplayName = UserInfoService->GetUserInfo(MoveTemp(GetUserInfoParams)).GetOkValue().UserInfo->DisplayName;
+			FString Name = UserInfo.OnlineUserDisplayName;
+			GEngine->AddOnScreenDebugMessage(1, 10, FColor::Green, FString::Printf(TEXT("Logged in as: %s"), *Name));
+			return Name;
+		}
+	
+		GEngine->AddOnScreenDebugMessage(1, 10, FColor::Green, TEXT("Error retrieving Display Name"));
+		return TEXT("Error");
+	
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("Player Account ID is not valid."));
+	return TEXT("Error");;
+
+						
+}
 
 FPlatformUserId ULogin::GetPlatformUserId()
 {
 	FPlatformUserId PlatformUserId =  PLATFORMUSERID_NONE;
 	return PlatformUserId;
+}
+
+void ULogin::InitializeOnlineServices()
+{
+	using namespace UE::Online;
+
+	OnlineService = GetServices();
+	if (OnlineService.IsValid())
+	{
+		AuthService = OnlineService->GetAuthInterface();
+		if (AuthService.IsValid())
+		{
+			UserInfoService = OnlineService->GetUserInfoInterface();
+			if (UserInfoService.IsValid())
+			{
+				if (GEngine)
+				{
+					GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, TEXT("Online Services Initialized."));
+				}
+			}
+		}
+	}
 }

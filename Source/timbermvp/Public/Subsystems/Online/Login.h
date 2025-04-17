@@ -31,14 +31,14 @@ class TIMBERMVP_API ULogin : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	using FAccountId = TOnlineId<OnlineIdHandleTags::FAccount>;
+
+	void Initialize(FSubsystemCollectionBase& Collection) override;
+public:
 	/*
 	 * Broadcasts to other Systems whether the Local Player is Logged in and Authenticated
 	 */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsPlayerLoggedIn, bool, bIsPlayerLoggedIn);
 	FIsPlayerLoggedIn IsPlayerLoggedIn;
-
-	void Initialize(FSubsystemCollectionBase& Collection) override;
-public:
 
 	UPROPERTY()
 	FOnlineUserInfo UserInfo = FOnlineUserInfo();

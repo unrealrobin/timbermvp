@@ -35,6 +35,8 @@ void ULogin::LoginAuto()
 
 				GetOnlineUserDisplayName();
 
+				//Broadcasting to other systems that the player is logged in. (Start Menu)
+				IsPlayerLoggedIn.Broadcast(true);
 				
 			}
 		});

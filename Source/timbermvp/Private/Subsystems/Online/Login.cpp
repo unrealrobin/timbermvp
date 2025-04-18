@@ -4,6 +4,7 @@
 #include "Online/OnlineAsyncOpHandle.h"
 #include "Online/UserInfo.h"
 #include "Online/OnlineResult.h"
+#include "Subsystems/Online/Leaderboard.h"
 
 void ULogin::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -28,9 +29,16 @@ void ULogin::LoginAuto()
 				GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, TEXT("Login successful."));
 
 				//Saving Struct Locally for Easy Access.
-				UserInfo.AccountInfo = *Result.GetOkValue().AccountInfo;
+				LocalUserInfo.AccountInfo = *Result.GetOkValue().AccountInfo;
 
 				GetOnlineUserDisplayName();
+
+				ULeaderboard* LeaderboardSubsystem = GetGameInstance()->GetSubsystem<ULeaderboard>();
+				if (LeaderboardSubsystem)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Attempting to Query Top Ten Leaderboard."));
+					LeaderboardSubsystem->QueryTopTenLeaderboard();
+				}
 
 				//Broadcasting to other systems that the player is logged in. (Start Menu)
 				IsPlayerLoggedIn.Broadcast(true);
@@ -43,9 +51,9 @@ void ULogin::LoginAuto()
 FString ULogin::GetOnlineUserDisplayName()
 {
 	/*After Retrieving the Account ID we want to Display the Users Display Name*/
-	if (UserInfo.AccountInfo.AccountId.IsValid() )
+	if (LocalUserInfo.AccountInfo.AccountId.IsValid() )
 	{
-		FAccountId PlayerAccountId = UserInfo.AccountInfo.AccountId;
+		FAccountId PlayerAccountId = LocalUserInfo.AccountInfo.AccountId;
 		//UE_LOG(LogTemp, Warning, TEXT("Player Account ID: %s"), *PlayerAccountId.ToString());
 		FGetUserInfo::Params GetUserInfoParams;
 		GetUserInfoParams.AccountId = PlayerAccountId;
@@ -54,8 +62,8 @@ FString ULogin::GetOnlineUserDisplayName()
 
 		if (bIsOk)
 		{
-			UserInfo.OnlineUserDisplayName = UserInfoService->GetUserInfo(MoveTemp(GetUserInfoParams)).GetOkValue().UserInfo->DisplayName;
-			FString Name = UserInfo.OnlineUserDisplayName;
+			LocalUserInfo.OnlineUserDisplayName = UserInfoService->GetUserInfo(MoveTemp(GetUserInfoParams)).GetOkValue().UserInfo->DisplayName;
+			FString Name = LocalUserInfo.OnlineUserDisplayName;
 			GEngine->AddOnScreenDebugMessage(1, 10, FColor::Green, FString::Printf(TEXT("Logged in as: %s"), *Name));
 			return Name;
 		}
@@ -73,13 +81,34 @@ FString ULogin::GetOnlineUserDisplayName()
 
 FAccountId* ULogin::GetLoggedInUserAccountId()
 {
-	if (UserInfo.AccountInfo.AccountId.IsValid())
+	if (LocalUserInfo.AccountInfo.AccountId.IsValid())
 	{
-		return &UserInfo.AccountInfo.AccountId;
+		return &LocalUserInfo.AccountInfo.AccountId;
 	}
 	
 	UE_LOG(LogTemp, Error, TEXT("Player Account ID is not valid."));
 	return nullptr;
+}
+
+FString ULogin::GetDisplayNameFromAccountId(FAccountId* AccountId)
+{
+	if (OnlineService.IsValid() && UserInfoService.IsValid())
+	{
+		FGetUserInfo::Params UserInfo;
+		UserInfo.AccountId = *AccountId;
+		UserInfo.LocalAccountId = LocalUserInfo.AccountInfo.AccountId;
+		bool bIsOk = UserInfoService->GetUserInfo(MoveTemp(UserInfo)).IsOk();
+		if (bIsOk)
+		{
+			return UserInfoService->GetUserInfo(MoveTemp(UserInfo)).GetOkValue().UserInfo->DisplayName;
+		}
+	
+		UE_LOG(LogTemp, Error, TEXT("Error retrieving Display Name"));
+		return TEXT("Error");
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("Error retrieving Display Name"));
+	return TEXT("Error");
 }
 
 FPlatformUserId ULogin::GetPlatformUserId()

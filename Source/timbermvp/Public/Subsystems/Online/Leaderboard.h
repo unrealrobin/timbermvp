@@ -26,13 +26,18 @@ public:
 
 	void InitializeOnlineServices();
 
+	void QueryTopTenLeaderboard();
 	
 private:
 	IOnlineServicesPtr OnlineService = nullptr;
 	ILeaderboardsPtr LeaderboardService = nullptr;
 	IStatsPtr StatsService = nullptr;
+	IAuthPtr LoginService = nullptr;
+
+	
 	
 	ULogin* GetLoginSubsystem();
+	void UpdateLocalOnlineUserStat(int CompletedWaveNumber);
 
 	/*Wave Information*/
 	UFUNCTION()

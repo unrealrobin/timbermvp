@@ -41,15 +41,20 @@ public:
 	FIsPlayerLoggedIn IsPlayerLoggedIn;
 
 	UPROPERTY()
-	FOnlineUserInfo UserInfo = FOnlineUserInfo();
+	FOnlineUserInfo LocalUserInfo = FOnlineUserInfo();
 	
 	UFUNCTION(BlueprintCallable, Category = "Login")
 	void LoginAuto();
 
 	UFUNCTION(BlueprintCallable, Category = "Login")
 	FString GetOnlineUserDisplayName();
-	
+
+	//Cannot use UMACROS on these 2 functions, breaks FAccountId
 	FAccountId* GetLoggedInUserAccountId();
+	
+	FString GetDisplayNameFromAccountId(FAccountId* AccountId);
+	
+		
 	
 private:
 	void InitializeOnlineServices();

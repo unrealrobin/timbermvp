@@ -2,6 +2,7 @@
 
 
 #include "Subsystems/Online/Leaderboard.h"
+#include "Online/Leaderboards.h"
 #include "Online/OnlineAsyncOpHandle.h"
 #include "Online/OnlineResult.h"
 #include "Online/Stats.h"
@@ -42,13 +43,13 @@ ULogin* ULeaderboard::GetLoginSubsystem()
 	return nullptr;
 }
 
-void ULeaderboard::OnWaveComplete(int CompletedWaveNumber)
+void ULeaderboard::UpdateLocalOnlineUserStat(int CompletedWaveNumber)
 {
 	ULogin* Login = GetLoginSubsystem();
 	if (StatsService.IsValid() && Login)
 	{
 		//Get Local Account ID - Available on Login Struct
-		FAccountId PlayerAccountId = Login->UserInfo.AccountInfo.AccountId;;
+		FAccountId PlayerAccountId = Login->LocalUserInfo.AccountInfo.AccountId;;
 		
 		//Configuring the StatValue
 		int64 WaveNumberAsINT64 = static_cast<int64>(CompletedWaveNumber);
@@ -65,7 +66,7 @@ void ULeaderboard::OnWaveComplete(int CompletedWaveNumber)
 		FUpdateStats::Params Params;
 		Params.LocalAccountId = PlayerAccountId;
 		Params.UpdateUsersStats.Add(UserStats);
-		StatsService->UpdateStats(MoveTemp(Params)).OnComplete([](const TOnlineResult<FUpdateStats>& Result)
+		StatsService->UpdateStats(MoveTemp(Params)).OnComplete([this](const TOnlineResult<FUpdateStats>& Result)
 		{
 			if (Result.IsOk())
 			{
@@ -82,6 +83,11 @@ void ULeaderboard::OnWaveComplete(int CompletedWaveNumber)
 	}
 }
 
+void ULeaderboard::OnWaveComplete(int CompletedWaveNumber)
+{
+	UpdateLocalOnlineUserStat(CompletedWaveNumber);
+}
+
 void ULeaderboard::InitializeOnlineServices()
 {
 	OnlineService = GetServices();
@@ -91,12 +97,48 @@ void ULeaderboard::InitializeOnlineServices()
 		StatsService = OnlineService->GetStatsInterface();
 		if (LeaderboardService.IsValid() && StatsService.IsValid())
 		{
-			
+			UE_LOG(LogLeaderboard, Warning, TEXT("Leaderboard and Stats service is valid."));
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Leaderboard or Stats service is not valid."));
 		}
+	}
+}
+
+void ULeaderboard::QueryTopTenLeaderboard()
+{
+	if (OnlineService.IsValid() && LeaderboardService.IsValid())
+	{
+
+		FReadEntriesAroundRank::Params Params;
+		Params.LocalAccountId = GetLoginSubsystem()->LocalUserInfo.AccountInfo.AccountId;
+		Params.Rank = 0;
+		Params.Limit = 10;
+		Params.BoardName = TEXT("HIGHEST_WAVE_COMPLETED");
+
+		UE_LOG(LogLeaderboard, Warning, TEXT("Leaderboard Calling Read Entries Around Rank."));
+		LeaderboardService->ReadEntriesAroundRank(MoveTemp(Params)).OnComplete([this]
+		(const TOnlineResult<FReadEntriesAroundRank>& Result)
+		{
+			if (Result.IsOk())
+			{
+				UE_LOG(LogLeaderboard, Warning, TEXT("Leaderboard Query IsOk."));
+				const TArray<FLeaderboardEntry>& Entries = Result.GetOkValue().Entries;
+
+				for (const FLeaderboardEntry& Entry : Entries)
+				{
+					FAccountId AccountId = Entry.AccountId;
+					FString EntryDisplayName = GetLoginSubsystem()->GetDisplayNameFromAccountId(&AccountId);
+					UE_LOG(LogLeaderboard, Warning, TEXT("Rank: %d, DisplayName: %s, Score: %lld"),
+						Entry.Rank, *EntryDisplayName, Entry.Score);
+				}
+				}
+			else if (Result.IsError())
+			{
+				UE_LOG(LogLeaderboard, Warning, TEXT("Leaderboard Query Failed."));
+			}
+		});
 	}
 }
 

@@ -21,6 +21,6 @@ void UStartMenu::HandleUserLogin(bool bIsPlayerLoggedIn)
 
 	if (bIsPlayerLoggedInOnline)
 	{
-		LoggedInUserDisplayName = LoginSubsystem->UserInfo.OnlineUserDisplayName;
+		LoggedInUserDisplayName = LoginSubsystem->LocalUserInfo.OnlineUserDisplayName;
 	}
 }

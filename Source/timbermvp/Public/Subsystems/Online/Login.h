@@ -6,6 +6,7 @@
 #include "Online/Auth.h"
 #include "Online/OnlineServices.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Online/CoreOnline.h"
 #include "Login.generated.h"
 
 using namespace UE::Online;
@@ -30,7 +31,6 @@ UCLASS(config = Engine, defaultconfig)
 class TIMBERMVP_API ULogin : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	using FAccountId = TOnlineId<OnlineIdHandleTags::FAccount>;
 
 	void Initialize(FSubsystemCollectionBase& Collection) override;
 public:
@@ -48,6 +48,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Login")
 	FString GetOnlineUserDisplayName();
+	
+	FAccountId* GetLoggedInUserAccountId();
 	
 private:
 	void InitializeOnlineServices();

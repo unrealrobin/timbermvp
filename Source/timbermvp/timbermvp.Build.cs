@@ -21,7 +21,9 @@ public class timbermvp : ModuleRules
 			"MetasoundEngine", 
 			"GameplayTags",
 			"OnlineServicesInterface", 
-			"CoreOnline"
+			"CoreOnline",
+			"OnlineServicesCommon",
+			"OnlineServicesEOS"
 		});
 	}
 }

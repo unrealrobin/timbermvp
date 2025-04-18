@@ -1,11 +1,8 @@
 ﻿// Property of Paracosm.
 
 #include "Subsystems/Online/Login.h"
-#include "Online/OnlineServices.h"
 #include "Online/OnlineAsyncOpHandle.h"
-#include "Online/Auth.h"
 #include "Online/UserInfo.h"
-#include "Online/AuthErrors.h"
 #include "Online/OnlineResult.h"
 
 void ULogin::Initialize(FSubsystemCollectionBase& Collection)
@@ -72,6 +69,17 @@ FString ULogin::GetOnlineUserDisplayName()
 	return TEXT("Error");;
 
 						
+}
+
+FAccountId* ULogin::GetLoggedInUserAccountId()
+{
+	if (UserInfo.AccountInfo.AccountId.IsValid())
+	{
+		return &UserInfo.AccountInfo.AccountId;
+	}
+	
+	UE_LOG(LogTemp, Error, TEXT("Player Account ID is not valid."));
+	return nullptr;
 }
 
 FPlatformUserId ULogin::GetPlatformUserId()

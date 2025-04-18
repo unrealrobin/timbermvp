@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
@@ -12,11 +12,28 @@
 #include "Environment/GarageDoorBase.h"
 #include "Environment/TimberEnemySpawnLocations.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/Online/Leaderboard.h"
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
+
+void UWaveGameInstanceSubsystem::CallForLeaderboardSubsystemBindings()
+{
+	ULeaderboard* LeaderboardSubsytem = GetGameInstance()->GetSubsystem<ULeaderboard>();
+	if (LeaderboardSubsytem)
+	{
+		LeaderboardSubsytem->HandleBindToWaveSubsytem();
+	}
+}
+
+void UWaveGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	CallForLeaderboardSubsystemBindings();
+}
 
 void UWaveGameInstanceSubsystem::SetCurrentWaveNumber(int InWaveNumber)
 {

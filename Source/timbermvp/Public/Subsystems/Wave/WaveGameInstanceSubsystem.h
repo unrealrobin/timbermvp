@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 #pragma once
 
@@ -18,6 +18,8 @@ class TIMBERMVP_API UWaveGameInstanceSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	void CallForLeaderboardSubsystemBindings();
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY(BlueprintReadOnly)
 	int CurrentWaveNumber = 1;

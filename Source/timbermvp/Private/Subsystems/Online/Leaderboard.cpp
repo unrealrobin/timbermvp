@@ -59,7 +59,7 @@ void ULeaderboard::OnWaveComplete(int CompletedWaveNumber)
 		//Setting Which stat to Update with which value.
 		FUserStats UserStats;
 		UserStats.AccountId = PlayerAccountId;
-		UserStats.Stats.Add(TEXT("HIGHEST_COMPLETED_WAVE"), StatValue);
+		UserStats.Stats.Add(TEXT("HIGHEST_WAVE_COMPLETED"), StatValue);
 		
 		//Utilizing the UpdateStats function to send the data to the backend.
 		FUpdateStats::Params Params;

@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Online/Leaderboards.h"
 #include "Online/OnlineServices.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Leaderboard.generated.h"
+
 
 class ULogin;
 using namespace UE::Online;
@@ -19,7 +21,11 @@ UCLASS()
 class TIMBERMVP_API ULeaderboard : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
+
 public:
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSuccessfulLeaderboardQuery);
+	FSuccessfulLeaderboardQuery OnSuccessfulLeaderboardQuery;
+	
 	void HandleBindToWaveSubsytem();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -28,6 +34,9 @@ public:
 
 	void QueryTopTenLeaderboard();
 	
+	TArray<FLeaderboardEntry> TopTenEntries;
+	
+	ULogin* GetLoginSubsystem();
 private:
 	IOnlineServicesPtr OnlineService = nullptr;
 	ILeaderboardsPtr LeaderboardService = nullptr;
@@ -35,8 +44,6 @@ private:
 	IAuthPtr LoginService = nullptr;
 
 	
-	
-	ULogin* GetLoginSubsystem();
 	void UpdateLocalOnlineUserStat(int CompletedWaveNumber);
 
 	/*Wave Information*/

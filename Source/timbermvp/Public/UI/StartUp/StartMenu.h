@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Online/Leaderboards.h"
 #include "StartMenu.generated.h"
 
+
+using namespace UE::Online;
 class ULogin;
 
 /**

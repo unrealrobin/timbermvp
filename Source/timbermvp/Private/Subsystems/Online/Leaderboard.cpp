@@ -124,16 +124,22 @@ void ULeaderboard::QueryTopTenLeaderboard()
 			if (Result.IsOk())
 			{
 				UE_LOG(LogLeaderboard, Warning, TEXT("Leaderboard Query IsOk."));
-				const TArray<FLeaderboardEntry>& Entries = Result.GetOkValue().Entries;
+				TopTenEntries = Result.GetOkValue().Entries;
 
-				for (const FLeaderboardEntry& Entry : Entries)
+				if (TopTenEntries.Num() > 0)
+				{
+					OnSuccessfulLeaderboardQuery.Broadcast(); //Notifying Leaderboard Widget that the query was successful.
+				}
+				
+				//DEBUGGING PURPOSES
+				/*for (const FLeaderboardEntry& Entry : TopTenEntries)
 				{
 					FAccountId AccountId = Entry.AccountId;
 					FString EntryDisplayName = GetLoginSubsystem()->GetDisplayNameFromAccountId(&AccountId);
 					UE_LOG(LogLeaderboard, Warning, TEXT("Rank: %d, DisplayName: %s, Score: %lld"),
 						Entry.Rank, *EntryDisplayName, Entry.Score);
-				}
-				}
+				}*/
+			}
 			else if (Result.IsError())
 			{
 				UE_LOG(LogLeaderboard, Warning, TEXT("Leaderboard Query Failed."));

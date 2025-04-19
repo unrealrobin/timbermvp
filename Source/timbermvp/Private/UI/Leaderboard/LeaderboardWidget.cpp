@@ -3,6 +3,7 @@
 
 #include "UI/Leaderboard/LeaderboardWidget.h"
 
+#include "Components/VerticalBox.h"
 #include "Subsystems/Online/Leaderboard.h"
 #include "Subsystems/Online/Login.h"
 #include "UI/Leaderboard/LeaderboardUserRankWidget.h"
@@ -24,12 +25,15 @@ void ULeaderboardWidget::ProduceTopTenLeaderboardEntries()
 	ULogin* LoginSubsystem = GetGameInstance()->GetSubsystem<ULogin>();
 	if (LoginSubsystem)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Leaderboard Widget - LoginSubsystem is valid."));
 		if (LeaderboardSubsystem)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Leaderboard Widget - Leaderboard Subsystem is valid."));
 			if (LeaderboardSubsystem->TopTenEntries.Num() > 0)
 			{
 				for (FLeaderboardEntry& Entry : LeaderboardSubsystem->TopTenEntries)
 				{
+					UE_LOG(LogTemp, Warning, TEXT("Leaderboard Widget - Leaderboard Subsystem is valid."));
 					
 					FString EntryDisplayName = LeaderboardSubsystem->GetLoginSubsystem()->GetDisplayNameFromAccountId(&Entry.AccountId);
 
@@ -49,7 +53,7 @@ void ULeaderboardWidget::ProduceTopTenLeaderboardEntries()
 						//Add the UserRankWidget to the UI
 						if (VerticalEntriesContainer)
 						{
-							
+							VerticalEntriesContainer->AddChildToVerticalBox(UserRankWidget);
 						}
 					}
 					else

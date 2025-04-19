@@ -129,6 +129,7 @@ void ULeaderboard::QueryTopTenLeaderboard()
 				if (TopTenEntries.Num() > 0)
 				{
 					OnSuccessfulLeaderboardQuery.Broadcast(); //Notifying Leaderboard Widget that the query was successful.
+					UE_LOG(LogLeaderboard, Warning, TEXT("Broadcasting Successful Leaderboard Entries."));
 				}
 				
 				//DEBUGGING PURPOSES

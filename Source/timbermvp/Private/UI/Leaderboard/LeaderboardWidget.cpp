@@ -15,8 +15,13 @@ void ULeaderboardWidget::NativeConstruct()
 	LeaderboardSubsystem = GetGameInstance()->GetSubsystem<ULeaderboard>();
 	if (LeaderboardSubsystem)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Leaderboard Widget - Bound to Leaderboard Subsystem."));
 		LeaderboardSubsystem->OnSuccessfulLeaderboardQuery.AddDynamic(this, 
 		&ULeaderboardWidget::ProduceTopTenLeaderboardEntries);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Leaderboard Widget - Failed to bind to Leaderboard Subsystem."));
 	}
 }
 
@@ -33,8 +38,6 @@ void ULeaderboardWidget::ProduceTopTenLeaderboardEntries()
 			{
 				for (FLeaderboardEntry& Entry : LeaderboardSubsystem->TopTenEntries)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Leaderboard Widget - Leaderboard Subsystem is valid."));
-					
 					FString EntryDisplayName = LeaderboardSubsystem->GetLoginSubsystem()->GetDisplayNameFromAccountId(&Entry.AccountId);
 
 					int32 Rank = Entry.Rank;
@@ -43,17 +46,23 @@ void ULeaderboardWidget::ProduceTopTenLeaderboardEntries()
 
 
 					//Create a LeaderboardUserRankWidget for Each Iteration.
-					ULeaderboardUserRankWidget* UserRankWidget = CreateWidget<ULeaderboardUserRankWidget>(this, UserRankWidget->StaticClass());
+					ULeaderboardUserRankWidget* UserRankWidget = CreateWidget<ULeaderboardUserRankWidget>(this, UserRankWidgetClass);
 					if (UserRankWidget)
 					{
+						UE_LOG(LogTemp, Warning, TEXT("Successfully created UserRankWidget."));
+						//Setting Variables on the newly created UserRankWidget
 						UserRankWidget->UserDisplayName = EntryDisplayName;
 						UserRankWidget->UserRank = Rank;
 						UserRankWidget->HighestWaveCompleted = WavesCompleted;
+
+						//Assigns the Actual Data to the Text Blocks in the Widget
+						UserRankWidget->SetupLeaderBoardEntry();
 
 						//Add the UserRankWidget to the UI
 						if (VerticalEntriesContainer)
 						{
 							VerticalEntriesContainer->AddChildToVerticalBox(UserRankWidget);
+							UE_LOG(LogTemp, Warning, TEXT("Added UserRankWidget to Vertical Box."));
 						}
 					}
 					else

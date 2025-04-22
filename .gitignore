@@ -54,3 +54,6 @@ Build/*
 
 # Built data for maps
 *_BuiltData.uasset
+
+#Keys Etc.
+LocalEngine.ini

@@ -51,11 +51,11 @@ void APlusTrapBase::RaycastForHitBoxLength()
 			 {
 			 	//UE_LOG(LogTemp, Warning, TEXT("Hit a Building Component"));
 				HitLocation = Hit.ImpactPoint;
-			 	//Debug the Hit Point
+			 	/*//Debug the Hit Point
 			 	DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
 			 	DrawDebugSphere(GetWorld(), EndPoint, 10.f, 12, FColor::Red, false, -1.f);
 			 	DrawDebugSphere(GetWorld(), StartPoint, 10.f, 12, FColor::Green, false, -1.f);
-			 	DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);
+			 	DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);*/
 			 	break;
 			 }
 		}
@@ -83,7 +83,8 @@ void APlusTrapBase::RaycastForHitBoxLength()
 	//Setting the Box Extent
 	HitBoxComponent->SetBoxExtent(DynamicBoxExtent);
 
-	HitBoxComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	HitBoxComponent->SetCollisionProfileName("DR_HitEventOnly");
+	HitBoxComponent->bDynamicObstacle = true;
 
 	//Relative Locations because when scaling extents the box components scales in 2 directions
 	// -y <--MHBL--> +y

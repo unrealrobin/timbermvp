@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "BuildSystem/Constructs/TeleportConstruct.h"
@@ -20,6 +20,7 @@ ATeleportConstruct::ATeleportConstruct()
 	SaveDefaultMaterials();
 
 	TeleportEffectMesh->OnComponentBeginOverlap.AddDynamic(this, &ATeleportConstruct::HandleTeleportOverlap);
+	TeleportEffectMesh->OnComponentHit.AddDynamic(this, &ATeleportConstruct::HandleTeleportHit);
 }
 
 // Called when the game starts or when spawned
@@ -74,6 +75,22 @@ void ATeleportConstruct::HandleTeleportOverlap(
 		PlayerToTeleport->SetActorLocation(TeleportToLocation);
 	}
 	
+}
+
+void ATeleportConstruct::HandleTeleportHit(
+	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+	const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Hit Teleporter."));
+	ATimberPlayableCharacter* Player = Cast<ATimberPlayableCharacter>(OtherActor);
+	if (Player && TeleportPair)
+	{
+		PlayerToTeleport = Player;
+		FVector TeleportToLocation = TeleportPair->TeleportLandingLocation->GetComponentLocation();
+		
+		//Instant Teleport
+		PlayerToTeleport->SetActorLocation(TeleportToLocation);
+	}
 }
 
 void ATeleportConstruct::StartTeleport(FVector TargetDestination, float DurationToTeleport)

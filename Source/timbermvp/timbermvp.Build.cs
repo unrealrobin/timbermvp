@@ -10,8 +10,20 @@ public class timbermvp : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new[]
 		{
-			"Core", "CoreUObject", "Engine", "InputCore",
-			"EnhancedInput", "UMG", "SlateCore", "Slate", "MetasoundEngine", "GameplayTags"
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore",
+			"EnhancedInput", 
+			"UMG", 
+			"SlateCore", 
+			"Slate", 
+			"MetasoundEngine", 
+			"GameplayTags",
+			"OnlineServicesInterface", 
+			"CoreOnline",
+			"OnlineServicesCommon",
+			"OnlineServicesEOS"
 		});
 	}
 }

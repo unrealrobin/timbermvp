@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "TimberEnemyCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "EnemyDrone.generated.h"
 
 class USplineComponent;
 class AEnemyDroneSplinePath;
+class UNiagaraComponent;
 
 UCLASS()
 class TIMBERMVP_API AEnemyDrone : public ATimberEnemyCharacter
@@ -21,7 +23,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Particle System")
+	UNiagaraComponent* DroneParticleSystem = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline Paths")
+	bool bIsDead = false;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline Paths")
 	bool bShouldMoveAlongSpline = false;
 
@@ -42,15 +50,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline Paths")
 	float CurrentDistanceAlongSplinePath = 0.0f; // Distance along the spline path
 
+	UFUNCTION()
+	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+
+	UFUNCTION()
+	void DestroyAfterDelay();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
-	AEnemyDroneSplinePath* SplinePathRef; // Reference to the spline path this drone will follow
+	AEnemyDroneSplinePath* SplinePathRef = nullptr; // Reference to the spline path this drone will follow
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
-	USplineComponent* SplineComponent; // Reference to the spline component of the selected spline path
+	USplineComponent* SplineComponent = nullptr; // Reference to the spline component of the selected spline path
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
 	float DroneApproachSpeed = 400.0f;
@@ -59,3 +73,5 @@ public:
 	float DroneFlightSpeed = 300.0f;
 
 };
+
+

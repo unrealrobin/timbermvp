@@ -18,6 +18,7 @@ public class timbermvp : ModuleRules
 			"UMG", 
 			"SlateCore", 
 			"Slate", 
+			"Niagara", 
 			"MetasoundEngine", 
 			"GameplayTags",
 			"OnlineServicesInterface", 

@@ -2,7 +2,7 @@
 
 
 #include "Character/Enemies/EnemyDrone.h"
-
+#include "Niagara/Public/NiagaraComponent.h"
 #include "Components/SplineComponent.h"
 #include "Environment/EnemyDroneSplinePath.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,6 +13,9 @@ AEnemyDrone::AEnemyDrone()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	DroneParticleSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DroneParticleSystem"));
+	DroneParticleSystem->SetupAttachment(RootComponent);
+	DroneParticleSystem->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
@@ -107,7 +110,7 @@ void AEnemyDrone::FlyToSplineStart(float DeltaTime)
 void AEnemyDrone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (SplineComponent)
+	if (SplineComponent && !bIsDead)
 	{
 		if (bIsApproachSpline)
 		{
@@ -118,5 +121,36 @@ void AEnemyDrone::Tick(float DeltaTime)
 			MoveAlongSplinePath(DeltaTime);
 		}
 	}
+}
+
+void AEnemyDrone::TakeDamage(float DamageAmount, AActor* DamageInstigator)
+{
+	Super::TakeDamage(DamageAmount, DamageInstigator);
+
+	if (CurrentHealth <= 0)
+	{
+		bIsDead = true;
+		if (DroneParticleSystem)
+		{
+			DroneParticleSystem->Activate();
+		}
+		// Stop the drone's movement when it takes fatal damage
+		GetCapsuleComponent()->SetEnableGravity(true);
+		GetMesh()->SetEnableGravity(true);
+		GetCapsuleComponent()->SetSimulatePhysics(true);
+
+		FTimerHandle DestroyTimerHandle;
+
+		GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AEnemyDrone::DestroyAfterDelay, 5.0f, false);
+		
+	}
+	
+}
+
+void AEnemyDrone::DestroyAfterDelay()
+{
+	//TODO:: If we do end up using a death montage, then we need to rethink this and the TakeDamage override.
+	UE_LOG(LogTemp, Warning, TEXT("Drone Destroyed after Delay."));
+	Destroy();
 }
 

@@ -96,7 +96,10 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 		OnDeath_HandleCollision();
 
 		//Plays Death Animation
-		PlayMontageAtRandomSection(DeathMontage);
+		if (DeathMontage)
+		{
+			PlayMontageAtRandomSection(DeathMontage);
+		}
 
 		//Drops Any Loot set on the Characters Loot Drop
 		OnDeath_DropLoot();

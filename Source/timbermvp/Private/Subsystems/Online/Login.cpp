@@ -36,8 +36,10 @@ void ULogin::LoginAuto()
 				ULeaderboard* LeaderboardSubsystem = GetGameInstance()->GetSubsystem<ULeaderboard>();
 				if (LeaderboardSubsystem)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Attempting to Query Top Ten Leaderboard."));
+					//Retrieving the top ten Leaderboard Users and Setting into the TopTenEntries Array.
 					LeaderboardSubsystem->QueryTopTenLeaderboard();
+					//Retrieving the Local User Rank and Setting into the LocalOnlineUserData Struct.
+					LeaderboardSubsystem->QueryLocalUserLeaderboardRank(TEXT("HIGHEST_WAVE_COMPLETED"));
 				}
 
 				//Broadcasting to other systems that the player is logged in. (Start Menu)

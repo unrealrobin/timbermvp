@@ -8,6 +8,7 @@
 
 class ULeaderboard;
 class ULeaderboardUserRankWidget;
+class UVerticalBox;
 /**
  * 
  */
@@ -25,9 +26,15 @@ public:
 	UFUNCTION()
 	void ProduceTopTenLeaderboardEntries();
 
+	UFUNCTION()
+	void ProduceLocalOnlineUserRankWidget();
+
 
 	UPROPERTY(meta = (BindWidget))
-	class UVerticalBox* VerticalEntriesContainer;
+	UVerticalBox* VerticalEntriesContainer;
+
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* LocalOnlineUserVerticalBox;
 	
 private:
 	UPROPERTY()

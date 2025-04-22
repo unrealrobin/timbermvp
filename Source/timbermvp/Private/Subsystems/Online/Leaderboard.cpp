@@ -149,3 +149,88 @@ void ULeaderboard::QueryTopTenLeaderboard()
 	}
 }
 
+void ULeaderboard::QueryLocalUserLeaderboardRank(FString BoardName)
+{
+	//Retriev the Local User Account id from the Login Subsystem
+
+	ULogin* LoginSubsystem = GetLoginSubsystem();
+	if (LoginSubsystem && LeaderboardService.IsValid())
+	{
+		FAccountId AccountId = LoginSubsystem->LocalUserInfo.AccountInfo.AccountId;
+
+		/*{
+			FReadEntriesForUsers::Params Params;
+			Params.BoardName = BoardName;
+			Params.AccountIds.Add(AccountId);
+			Params.LocalAccountId = AccountId;
+
+			LeaderboardService->ReadEntriesForUsers(MoveTemp(Params)).OnComplete([this]
+				(const TOnlineResult<FReadEntriesForUsers>& Result)
+				{
+					if (Result.IsOk())
+					{
+						TArray<FLeaderboardEntry> Entries = Result.GetOkValue().Entries;
+						if (Entries.Num() > 0)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("There are %d Entries for the Local User."), Entries.Num());
+							//Populating a Local Struct on the Leaderboard Subsystem with the Local User Data.
+							LocalOnlineUserData.LocalOnlineUserRank = Entries[0].Rank;
+							LocalOnlineUserData.LocalOnlineUserScore = Entries[0].Score;
+							LocalOnlineUserData.DisplayName = GetLoginSubsystem()->GetDisplayNameFromAccountId(&Entries[0].AccountId);
+							UE_LOG(LogTemp, Warning, TEXT("DisplayName: %s, Rank: %d, Score: %lld"),*LocalOnlineUserData.DisplayName, LocalOnlineUserData.LocalOnlineUserRank, LocalOnlineUserData.LocalOnlineUserScore);
+							OnSuccessfulLeaderboardQuery.Broadcast();
+
+							if (Entries.Num() > 1)
+							{
+								for (FLeaderboardEntry Entry : Entries)
+								{
+									FString EntryDisplayName = GetLoginSubsystem()->GetDisplayNameFromAccountId(&Entry.AccountId);
+									UE_LOG(LogTemp, Warning, TEXT("Rank: %d, DisplayName: %s, Score: %lld"),
+										Entry.Rank, *EntryDisplayName, Entry.Score);
+								}
+							
+
+							}
+						}
+					}
+					else if (Result.IsError())
+					{
+						UE_LOG(LogLeaderboard, Warning, TEXT("Local Online user is Unranked or other Error."));
+					}
+				});
+		}*/
+
+		FReadEntriesAroundUser::Params Params;
+		Params.Limit = 1;
+		Params.Offset = 0;
+		Params.AccountId = AccountId;
+		Params.LocalAccountId = AccountId;
+		Params.BoardName = TEXT("HIGHEST_WAVE_COMPLETED");
+		LeaderboardService->ReadEntriesAroundUser(MoveTemp(Params)).OnComplete([this]
+		(const TOnlineResult<FReadEntriesAroundUser>& Result)
+		{
+			if (Result.IsOk())
+			{
+				TArray<FLeaderboardEntry> Entries = Result.GetOkValue().Entries;
+				if (Entries.Num() > 0)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("There are %d Entries for the Local User."), Entries.Num());
+					//Populating a Local Struct on the Leaderboard Subsystem with the Local User Data.
+					LocalOnlineUserData.LocalOnlineUserRank = Entries[0].Rank;
+					LocalOnlineUserData.LocalOnlineUserScore = Entries[0].Score;
+					LocalOnlineUserData.DisplayName = GetLoginSubsystem()->GetDisplayNameFromAccountId(&Entries[0].AccountId);
+					UE_LOG(LogTemp, Warning, TEXT("DisplayName: %s, Rank: %d, Score: %lld"),*LocalOnlineUserData.DisplayName, LocalOnlineUserData.LocalOnlineUserRank, LocalOnlineUserData.LocalOnlineUserScore);
+
+					//Broadcast to Update UI
+					OnSuccessfulLeaderboardQuery.Broadcast();
+				}
+				else
+				{
+					UE_LOG(LogLeaderboard, Warning, TEXT("No Entries for the Local User."));
+				}
+			}
+		});
+	}
+}
+
+

@@ -11,6 +11,25 @@
 
 class ULogin;
 using namespace UE::Online;
+
+USTRUCT(BlueprintType)
+struct FLocalOnlineUserLeaderboardRank
+{
+	GENERATED_BODY()
+
+public:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 LocalOnlineUserRank = 0;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int64 LocalOnlineUserScore = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FString DisplayName = TEXT("Unranked");
+	
+};
+
 /**
  * 
  */
@@ -31,9 +50,15 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	void InitializeOnlineServices();
+	
+	void QueryLocalUserLeaderboardRank(FString BoardName);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FLocalOnlineUserLeaderboardRank LocalOnlineUserData;
 
 	void QueryTopTenLeaderboard();
-	
+
+	//Populated by QueryTopTenLeaderboard()
 	TArray<FLeaderboardEntry> TopTenEntries;
 	
 	ULogin* GetLoginSubsystem();

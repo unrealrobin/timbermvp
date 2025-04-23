@@ -72,6 +72,9 @@ protected:
 	void GatherTargets();
 
 	FTimerHandle TargetingTimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+	void ClearCurrentTarget();
 	
 	UFUNCTION()
 	void ShootTarget();

@@ -6,6 +6,7 @@
 #include "AsyncTreeDifferences.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/buildingComponents/TimberVerticalBuildingComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Niagara/Public/NiagaraComponent.h"
 #include "Components/SplineComponent.h"
@@ -37,7 +38,7 @@ void AEnemyDrone::BeginPlay()
 	SelectRandomSplinePath();
 
 	FTimerHandle ShootTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(ShootTimerHandle, this, &AEnemyDrone::ShootTarget, 2.0f, true);
+	GetWorld()->GetTimerManager().SetTimer(ShootTimerHandle, this, &AEnemyDrone::ShootTarget, 3.0f, true);
 	
 }
 
@@ -117,9 +118,18 @@ void AEnemyDrone::FlyToSplineStart(float DeltaTime)
 	}
 }
 
-void AEnemyDrone::ShootTarget()
+void AEnemyDrone::ClearCurrentTarget()
 {
 	if (CurrentTarget)
+	{
+		CurrentTarget = nullptr;
+		UE_LOG(LogTemp, Warning, TEXT("No Current Target"));
+	}
+}
+
+void AEnemyDrone::ShootTarget()
+{
+	if (CurrentTarget && !bIsDead)
 	{
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;
@@ -184,9 +194,20 @@ void AEnemyDrone::DestroyAfterDelay()
 
 void AEnemyDrone::GatherTargets()
 {
-	TargetActors.Reset();
+	TargetActors.Empty();
 	
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberBuildingComponentBase::StaticClass(), TargetActors);
+
+	//Remove all loops through the TargetActors array to remove any Environment Building Components, ensure to do it safely without skipping
+	TargetActors.RemoveAll([](AActor* Actor)
+	{
+		ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(Actor);
+		if (BuildingComponent && BuildingComponent->BuildingComponentType == EBuildingComponentType::Environment)
+		{
+			return true; // Remove Environment Building Components
+		}
+		return false;
+	});
 
 	int Attempts = 0;
 	int MaxAllowableAttempts = 10;
@@ -200,7 +221,7 @@ void AEnemyDrone::GatherTargets()
 			int32 RandomIndex = FMath::RandRange(0, TargetActors.Num() - 1);
 			AActor* PotentialTarget = TargetActors[RandomIndex];
 
-			ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PotentialTarget);
+			ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberVerticalBuildingComponent>(PotentialTarget);
 			if (BuildingComponent && BuildingComponent->BuildingComponentType == EBuildingComponentType::Environment)
 			{
 				//Do not want to target Environment Building Components
@@ -219,9 +240,15 @@ void AEnemyDrone::GatherTargets()
 				if (Hit.GetActor() == PotentialTarget)
 				{
 					CurrentTarget = PotentialTarget;
+					UE_LOG(LogTemp, Warning, TEXT("Found Current Target: %s. Has Line of Sight."), *CurrentTarget->GetName());
+					DrawDebugSphere(GetWorld(), CurrentTarget->GetActorLocation(), 50.f, 12, FColor::Red, false, 5.0f);
 				}
 			}
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Potential Building Component Targets Found"));
 	}
 }
 

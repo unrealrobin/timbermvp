@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "TimberEnemyCharacter.h"
-#include "Components/CapsuleComponent.h"
 #include "EnemyDrone.generated.h"
 
 class USplineComponent;
 class AEnemyDroneSplinePath;
 class UNiagaraComponent;
+class ATimberEnemyProjectile;
 
 UCLASS()
 class TIMBERMVP_API AEnemyDrone : public ATimberEnemyCharacter
@@ -19,14 +19,20 @@ class TIMBERMVP_API AEnemyDrone : public ATimberEnemyCharacter
 public:
 	// Sets default values for this character's properties
 	AEnemyDrone();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* ProjectileSpawnSceneComponent = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Particle System")
+	UNiagaraComponent* DroneParticleSystem = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	TSubclassOf<ATimberEnemyProjectile> ProjectileClass = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
     
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Particle System")
-	UNiagaraComponent* DroneParticleSystem = nullptr;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline Paths")
 	bool bIsDead = false;
 	
@@ -35,6 +41,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline Paths")
 	bool bIsApproachSpline = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Paths")
+	bool bHasSightOfKip = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Paths")
+	bool bHasSightOfSeeda = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline Paths")
 	TArray<AActor*> SplinePathActors; // Array to hold all spline paths in the level
@@ -55,12 +67,23 @@ protected:
 
 	UFUNCTION()
 	void DestroyAfterDelay();
+	
+	UFUNCTION(BlueprintCallable)
+	void GatherTargets();
+
+	FTimerHandle TargetingTimerHandle;
+	
+	UFUNCTION()
+	void ShootTarget();
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Targets")
+	TArray<AActor*> TargetActors; // Array to hold all target actors in the level
+	
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
 	AEnemyDroneSplinePath* SplinePathRef = nullptr; // Reference to the spline path this drone will follow
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")

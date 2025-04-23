@@ -2,6 +2,11 @@
 
 
 #include "Character/Enemies/EnemyDrone.h"
+
+#include "AsyncTreeDifferences.h"
+#include "Weapons/Projectiles/TimberEnemyProjectile.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "Components/CapsuleComponent.h"
 #include "Niagara/Public/NiagaraComponent.h"
 #include "Components/SplineComponent.h"
 #include "Environment/EnemyDroneSplinePath.h"
@@ -16,6 +21,8 @@ AEnemyDrone::AEnemyDrone()
 	DroneParticleSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DroneParticleSystem"));
 	DroneParticleSystem->SetupAttachment(RootComponent);
 	DroneParticleSystem->SetAutoActivate(false);
+	ProjectileSpawnSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSpawnLocation"));
+	ProjectileSpawnSceneComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -28,6 +35,10 @@ void AEnemyDrone::BeginPlay()
 	// From a list of spline paths, select one at random
 		// Set as a reference on this drone.
 	SelectRandomSplinePath();
+
+	FTimerHandle ShootTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(ShootTimerHandle, this, &AEnemyDrone::ShootTarget, 2.0f, true);
+	
 }
 
 void AEnemyDrone::SelectRandomSplinePath()
@@ -106,6 +117,23 @@ void AEnemyDrone::FlyToSplineStart(float DeltaTime)
 	}
 }
 
+void AEnemyDrone::ShootTarget()
+{
+	if (CurrentTarget)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		FVector Location = ProjectileSpawnSceneComponent->GetComponentLocation();
+		FRotator Rotation = (CurrentTarget->GetActorLocation() - Location).Rotation();
+		AActor* SpawnedProjectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, Location, Rotation, SpawnParams);
+		if (SpawnedProjectile)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Drone Projectile Spawned."));
+		}
+	}
+	
+}
+
 // Called every frame
 void AEnemyDrone::Tick(float DeltaTime)
 {
@@ -152,5 +180,48 @@ void AEnemyDrone::DestroyAfterDelay()
 	//TODO:: If we do end up using a death montage, then we need to rethink this and the TakeDamage override.
 	UE_LOG(LogTemp, Warning, TEXT("Drone Destroyed after Delay."));
 	Destroy();
+}
+
+void AEnemyDrone::GatherTargets()
+{
+	TargetActors.Reset();
+	
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberBuildingComponentBase::StaticClass(), TargetActors);
+
+	int Attempts = 0;
+	int MaxAllowableAttempts = 10;
+
+	if (TargetActors.Num() > 0)
+	{
+		while (!CurrentTarget && Attempts < MaxAllowableAttempts)
+		{
+			
+			//Choose a Random Target
+			int32 RandomIndex = FMath::RandRange(0, TargetActors.Num() - 1);
+			AActor* PotentialTarget = TargetActors[RandomIndex];
+
+			ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PotentialTarget);
+			if (BuildingComponent && BuildingComponent->BuildingComponentType == EBuildingComponentType::Environment)
+			{
+				//Do not want to target Environment Building Components
+				continue;
+			}
+			
+			Attempts++;
+			
+			FHitResult Hit;
+			bool bHit = GetWorld()->LineTraceSingleByChannel(Hit,
+			ProjectileSpawnSceneComponent->GetComponentLocation(), 
+			PotentialTarget->GetActorLocation(),
+			ECC_Visibility);
+			if (bHit)
+			{
+				if (Hit.GetActor() == PotentialTarget)
+				{
+					CurrentTarget = PotentialTarget;
+				}
+			}
+		}
+	}
 }
 

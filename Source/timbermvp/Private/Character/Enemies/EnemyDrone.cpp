@@ -3,7 +3,7 @@
 
 #include "Character/Enemies/EnemyDrone.h"
 
-#include "AsyncTreeDifferences.h"
+#include "StructDeserializer.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildSystem/buildingComponents/TimberVerticalBuildingComponent.h"
@@ -11,6 +11,7 @@
 #include "Niagara/Public/NiagaraComponent.h"
 #include "Components/SplineComponent.h"
 #include "Environment/EnemyDroneSplinePath.h"
+#include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -31,10 +32,12 @@ void AEnemyDrone::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Find all Actors of Type EnemyDroneSplinePaths
+	//Stores Lab Door Exit Location locally.
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AEnemyDrone::GetClosestLabDoorExitLocation);
+	//GetClosestLabDoorExitLocation();
+	
 	GetAllDroneSplinePathActors();
-	// From a list of spline paths, select one at random
-		// Set as a reference on this drone.
+	
 	SelectRandomSplinePath();
 
 	FTimerHandle ShootTimerHandle;
@@ -148,7 +151,11 @@ void AEnemyDrone::ShootTarget()
 void AEnemyDrone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (SplineComponent && !bIsDead)
+	if (!bIsOutsideSpawnArea && !bIsDead)
+	{
+		MoveToOutsideSpawnArea(DeltaTime);
+	}
+	else if (SplineComponent && bIsOutsideSpawnArea && !bIsDead)
 	{
 		if (bIsApproachSpline)
 		{
@@ -158,6 +165,46 @@ void AEnemyDrone::Tick(float DeltaTime)
 		{
 			MoveAlongSplinePath(DeltaTime);
 		}
+	}
+}
+
+void AEnemyDrone::GetClosestLabDoorExitLocation()
+{
+	TArray<AActor*> LabDoorExitActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), LabDoorExitActors);
+
+	if (LabDoorExitActors.Num() > 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT(" Found Lab Doors."));
+	}
+	ALabDoorBase* ClosestLabDoor = nullptr;
+	
+	float DistToClosestLabDoor = UE_MAX_FLT;
+	
+	for (AActor* LabDoor : LabDoorExitActors)
+	{
+		if (ALabDoorBase* LabDoorBase = Cast<ALabDoorBase>(LabDoor))
+		{
+			DrawDebugSphere(GetWorld(), LabDoor->GetActorLocation(), 50.f, 12, FColor::Green, false, 10.0f);
+
+			float DistToLabDoor = FVector::Dist(GetActorLocation(), LabDoorBase->GetActorLocation());
+			
+			if (DistToLabDoor < DistToClosestLabDoor)
+			{
+				//Resetting the value of closest Lab Door to check against next lab doors.
+				DistToClosestLabDoor = DistToLabDoor;
+				ClosestLabDoor = LabDoorBase;
+			}
+		}
+	}
+	
+	if (ClosestLabDoor)
+	{
+		FVector ExitLocation = ClosestLabDoor->GetActorLocation();
+		ExitLocation.Z += 200.0f;
+		ExitLocation.Y -= 100.0f;
+		ClosestLabDoorExitLocation = ExitLocation;
+		DrawDebugSphere(GetWorld(), ClosestLabDoorExitLocation, 50.f, 12, FColor::Blue, false, 5.0f);
 	}
 }
 
@@ -249,6 +296,32 @@ void AEnemyDrone::GatherTargets()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Potential Building Component Targets Found"));
+	}
+}
+
+void AEnemyDrone::MoveToOutsideSpawnArea(float DeltaTime)
+{
+	//Using this to get the Drone from the Spawn Area into the open Map.
+	//Initialized to 0 (Can be any distance along the spline)
+	if (ClosestLabDoorExitLocation != FVector::ZeroVector)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Closest Lab Door Exit Location: %s"), *ClosestLabDoorExitLocation.ToString());
+		//DrawDebugSphere(GetWorld(), ClosestLabDoorExitLocation, 50.f, 12, FColor::Red, false, 5.0f);
+		FVector DroneLocation = GetActorLocation();
+		//Getting a vector that points from drone to spline start location
+		FVector MoveDirection = (ClosestLabDoorExitLocation - DroneLocation).GetSafeNormal();
+		//Getting a point scaled by the speed of the drone along the Move Direction
+		FVector NewLocation = DroneLocation + MoveDirection * DroneApproachSpeed * DeltaTime;
+
+		SetActorLocation(NewLocation);
+		SetActorRotation(MoveDirection.Rotation());
+
+		//Checking if within range of the spline start location
+		if (FVector::Dist(NewLocation, ClosestLabDoorExitLocation) < 20.0f)
+		{
+			//When within range of spline start, move to standard spline flight trajectory.
+			bIsOutsideSpawnArea = true;
+		}
 	}
 }
 

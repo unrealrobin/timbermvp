@@ -48,6 +48,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Paths")
 	bool bHasSightOfSeeda = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Paths")
+	bool bIsOutsideSpawnArea = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spline Paths")
+	FVector ClosestLabDoorExitLocation;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline Paths")
 	TArray<AActor*> SplinePathActors; // Array to hold all spline paths in the level
 	
@@ -56,6 +62,8 @@ protected:
 	void GetAllDroneSplinePathActors();
 
 	void MoveAlongSplinePath(float DeltaTime);
+
+	void MoveToOutsideSpawnArea(float DeltaTime);
 
 	void FlyToSplineStart(float DeltaTime);
 
@@ -86,7 +94,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Targets")
 	TArray<AActor*> TargetActors; // Array to hold all target actors in the level
 	
-UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
 	AEnemyDroneSplinePath* SplinePathRef = nullptr; // Reference to the spline path this drone will follow
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
@@ -98,6 +106,11 @@ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline Path")
 	float DroneFlightSpeed = 300.0f;
 
+private:
+	void GetClosestLabDoorExitLocation();
+
 };
+
+
 
 

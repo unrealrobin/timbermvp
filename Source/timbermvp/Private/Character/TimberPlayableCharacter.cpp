@@ -90,7 +90,7 @@ void ATimberPlayableCharacter::BeginPlay()
 		SpawnRangedWeapon();
 	}
 
-	//Tutorial is just starting play the wake animation.
+	//Tutorial is just starting, play the wake animation.
 	if (GetTutorialState() == ETutorialState::Wake1)
 	{
 		PlayWakeAnimationMontage();

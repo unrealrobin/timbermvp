@@ -58,5 +58,7 @@ public:
 	void RemoveAllLabBuildables();
 	void RemoveAllLootItems();
 	
+	UClass* SeedaClass = nullptr;
+	
 };
 

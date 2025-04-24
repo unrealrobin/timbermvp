@@ -552,19 +552,27 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 void USaveLoadSubsystem::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 {
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()));
-	//If Seeda Wasn't destroyed - player only died - destroy the instance of Seeda
+
 	if (Seeda)
 	{
 		Seeda->Destroy();
 	}
 
-	FVector HardCodeSeedaLocation = FVector(-2310.000000,-634.000000,130.000000);
-	
-	FActorSpawnParameters SpawnParams;
-	GetWorld()->SpawnActor<ATimberSeeda>(Seeda->GetClass(),
-		HardCodeSeedaLocation,
-		LoadGameInstance->SeedaData.SeedaRotation,
-		SpawnParams);
+	check(SeedaClass);
+	if (SeedaClass)
+	{
+		//TODO:: If seeda gets destroyed, we will not be able to get the class through the reference. There will be no Seeda to find.
+
+		FVector HardCodeSeedaLocation = FVector(2370.000000,1580.000000,130.000000);
+		
+		FActorSpawnParameters SpawnParams;
+		GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass,
+			HardCodeSeedaLocation,
+			LoadGameInstance->SeedaData.SeedaRotation,
+			SpawnParams);
+		
+	}
+
 }
 
 void USaveLoadSubsystem::RemoveAllLabBuildables()

@@ -137,7 +137,15 @@ void AEnemyDrone::ShootTarget()
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;
 		FVector Location = ProjectileSpawnSceneComponent->GetComponentLocation();
+
+		//Adding some precision  offset to the projectile spawn rotation.
 		FRotator Rotation = (CurrentTarget->GetActorLocation() - Location).Rotation();
+		float OffsetPercent = FMath::RandRange(-1,1);
+		float OffsetAmount = 2.0f;
+		Rotation.Yaw += OffsetAmount * OffsetPercent;
+		Rotation.Pitch += OffsetAmount * OffsetPercent;
+		Rotation.Roll += OffsetAmount * OffsetPercent;
+		
 		AActor* SpawnedProjectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, Location, Rotation, SpawnParams);
 		if (SpawnedProjectile)
 		{

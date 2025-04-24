@@ -79,7 +79,7 @@ public:
 	ATimberPlayableCharacter* TimberCharacter = nullptr;
 	
 	/* Seeda Details */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Seeda")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Classes")
 	TSubclassOf<ATimberSeeda> SeedaClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Seeda Info")
 	FVector SeedaLocation;

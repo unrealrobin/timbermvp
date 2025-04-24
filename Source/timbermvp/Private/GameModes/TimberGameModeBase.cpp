@@ -47,15 +47,11 @@ void ATimberGameModeBase::BeginPlay()
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
 
 	{
-		/*
-		 * Ensures that the Dialogue Manager is bound to the Game State once the Game State and Dialogue Manager are both Initialized.
-		 */
 		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
 		if (DialogueManager)
 		{
 			DialogueManager->BindToGameState();
 		}
-		
 	}
 	
 	GatherSeedaData();
@@ -96,6 +92,15 @@ void ATimberGameModeBase::GatherSeedaData()
 {
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
 	SeedaLocation = Seeda->GetActorLocation();
+
+	//Passing Seeda Class to Save Load Susbsytem for future Seeda Spawning.
+	if (USaveLoadSubsystem* SLSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>())
+	{
+		if (Seeda)
+		{
+			SLSubsystem->SeedaClass = Seeda->GetClass();
+		}
+	}
 }
 
 /*Game State*/
@@ -180,7 +185,7 @@ void ATimberGameModeBase::SpawnDummyForTutorial()
 	// Load Blueprint asset
 	UClass* DummyBPClass = LoadObject<UClass>(nullptr, *DummyAssetLocationString);
     
-	const FVector SpawnLocation = FVector(-1165, 3163.0f, 160.0f);
+	const FVector SpawnLocation = FVector(1845.0f, 2916.0f, 150.0f);
 	const FRotator SpawnRotation = FRotator(180.f, 0.f, -180.f);
     
 	if (DummyBPClass)

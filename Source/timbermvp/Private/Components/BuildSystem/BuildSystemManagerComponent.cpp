@@ -857,7 +857,7 @@ void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildi
 		if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Vertical)
 		{
 			USceneComponent* BCSnapComponent = GetClosestFaceSnapPoint(FirstHitBuildingComponentHitResult);
-			UE_LOG(LogTemp, Warning, TEXT("Closest Ramp Snap Point: %s"), *BCSnapComponent->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Closest Ramp Snap Point: %s"), *BCSnapComponent->GetName());
 			// Snap Ramps Vertical Snap to the Building Components Vertical Center Snap
 			FVector RampSnapLocation = ActiveRampComponentProxy->VerticalCenterSnap->GetComponentLocation();
 			if (BCSnapComponent)

@@ -101,7 +101,7 @@ void USFXManagerSubsystem::HandleTrackSubmixCleanup(FName TrackName)
 		const FString BossSoundMixAssetPath = TEXT("/Game/Sounds/02_SoundMix/SCM_DieRobot_BossSpawnMix");
 		USoundMix* BossSoundMix = LoadObject<USoundMix>(nullptr, *BossSoundMixAssetPath);
 		UGameplayStatics::PopSoundMixModifier(this, BossSoundMix);
-		//UE_LOG(LogTemp, Warning, TEXT("SFX Manager - Removed Boss Sound Mix"));
+		UE_LOG(LogTemp, Warning, TEXT("SFX Manager - Removed Boss Sound Mix"));
 	}
 }
 
@@ -131,7 +131,6 @@ void USFXManagerSubsystem::PlayBossSpawnSound()
 	{
 		UGameplayStatics::PushSoundMixModifier(this, BossSoundMix);
 		//UE_LOG(LogTemp, Warning, TEXT("SFX Manager - Added Boss Sound Mix"));
-
 	}
 	
 	PlaySound("BossEntry_1");

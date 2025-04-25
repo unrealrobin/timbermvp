@@ -47,8 +47,8 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 		//Spawn the Box at the BoxExtentRayCast Start
 		PulseHitBox->SetRelativeLocation(BoxExtentRaycastStart->GetComponentLocation());
 
-		FRotator AdjustedRotation = BoxExtentRaycastStart->GetComponentRotation();
-		AdjustedRotation.Yaw -= 90.f;
+		FRotator AdjustedRotation = TrapBaseStaticMesh->GetComponentRotation();
+		
 		PulseHitBox->SetRelativeRotation(AdjustedRotation);
 		
 		PulseHitBox->RegisterComponent();
@@ -97,10 +97,11 @@ void AElectroStaticPulseTrap::MovePulseHitBox(float DeltaTime)
 
 		//Once the Pulse has Reached the End of the Hit Box Extents, Destroy the Pulse Hit Box.
 		bool HitEndOfBoxExtent = FVector::Dist(PulseHitBox->GetComponentLocation(), 
-											   BoxExtentRaycastStart->GetComponentLocation()) >= MaxHitBoxLength;
+		BoxExtentRaycastStart->GetComponentLocation()) >= CalculatedBoxLength;
 
 		if ( HitEndOfBoxExtent )
 		{
+			//The actual box that causes the Overlaps/Hits
 			PulseHitBox->DestroyComponent();
 			PulseHitBox = nullptr;
 

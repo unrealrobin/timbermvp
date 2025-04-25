@@ -327,13 +327,13 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 		FCollisionShape::MakeBox(FVector(40, 40, 40))
 		);
 
-	DrawDebugBox(GetWorld(), WorldLocation, FVector(40, 40, 40), FColor::Green, false, -1);
+	//DrawDebugBox(GetWorld(), WorldLocation, FVector(40, 40, 40), FColor::Green, false, -1);
 	
 	bool bHitMesh = false;
 	for (FHitResult Hit: HitResults)
 	{
 		UPrimitiveComponent* Component = Hit.GetComponent();
-		UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());
 		if (UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Component))
 		{
 			if (Mesh)

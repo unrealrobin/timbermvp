@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Box Data")
 	float BoxLength = 400.f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hit Box Data")
+	float CalculatedBoxLength;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trap Components")
 	USceneComponent* BoxExtentRaycastStart;
 	

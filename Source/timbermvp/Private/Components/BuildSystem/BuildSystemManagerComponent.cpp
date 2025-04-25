@@ -857,21 +857,19 @@ void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildi
 		if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Vertical)
 		{
 			USceneComponent* BCSnapComponent = GetClosestFaceSnapPoint(FirstHitBuildingComponentHitResult);
+			UE_LOG(LogTemp, Warning, TEXT("Closest Ramp Snap Point: %s"), *BCSnapComponent->GetName());
 			// Snap Ramps Vertical Snap to the Building Components Vertical Center Snap
 			FVector RampSnapLocation = ActiveRampComponentProxy->VerticalCenterSnap->GetComponentLocation();
 			if (BCSnapComponent)
 			{
-			
-				FRotator SnapRotation = BCSnapComponent->GetComponentRotation() * -1;
+				FRotator SnapRotation = BCSnapComponent->GetComponentRotation();
 				ActiveRampComponentProxy->SetActorRotation(SnapRotation);
-				
 				FVector BCSnapLocation = BCSnapComponent->GetComponentLocation();
 				//Finding the Difference between the location of the Ramps Center Snap and the Building Components Center Snap
 				//Target Location Minus Current Location
 				FVector OffsetVector = BCSnapLocation - RampSnapLocation;
 				//Moving the Ramp to the Building Components Center Snap
 				ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
-				
 			}
 			
 			MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);

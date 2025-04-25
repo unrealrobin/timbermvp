@@ -4,6 +4,7 @@
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 
 #include "BuildSystem/Constructs/ConstructBase.h"
+#include "BuildSystem/Ramps/RampBase.h"
 #include "Character/Enemies/TimberEnemyMeleeBase.h"
 #include "Components/BoxComponent.h"
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
@@ -41,6 +42,7 @@ void ATimberBuildingComponentBase::SetupProxyCollisionHandling()
 {
 	if (bIsProxy == true)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Setting up Proxy Collision Handling."));
 		//Will check if overlapping another Buildings Components Overlap Box, if it does, Do Not Allow Finalization.
 		//Is only necessary if Proxy
 		//Using New Object because Runtime Creation.
@@ -64,6 +66,7 @@ void ATimberBuildingComponentBase::SetupProxyCollisionHandling()
 
 			//Makes it visible in the Editor.
 			AddInstanceComponent(CheckBuildingComponentOverlapCollisionBox);
+			
 			UE_LOG(LogTemp, Warning, TEXT("Check Building Component Overlap Collision Box Created."));
 		}
 		
@@ -198,12 +201,19 @@ void ATimberBuildingComponentBase::HandleHitBuildingComponent(
 	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 	const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Building Component Hit: %s"), *OtherActor->GetClass()->GetName());
+	{
+		ARampBase* Ramp = Cast<ARampBase>(OtherActor);
+		ATrapBase* Trap = Cast<ATrapBase>(OtherActor);
+		if (OtherActor == Ramp || OtherActor == Trap) return;
+	}
+	
 	ATimberBuildingComponentBase* OtherOverlappedBuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
 	if (OtherOverlappedBuildingComponent && OtherOverlappedBuildingComponent != this)
 	{
 		//This will let us know the Other Actor that we are overlapping
-		UE_LOG(LogTemp, Warning, TEXT("Proxy: %s Overlap Check Box Overlapping with Building Component Actor: %s."), *GetClass()->GetName(), *OtherOverlappedBuildingComponent->GetName());
 		
+		UE_LOG(LogTemp, Warning, TEXT("Proxy: %s Overlap Check Box Overlapping with Building Component Actor: %s."), *GetClass()->GetName(), *OtherOverlappedBuildingComponent->GetName());
 		if (OtherOverlappedBuildingComponent)
 		{
 			//Make sure that the Final Spawning of the Building Component Cant Be Finalized.

@@ -60,26 +60,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Buildable")
 	ABuildableBase* BuildableProxyInstance = nullptr;
 
-	/*UPROPERTY(EditAnywhere, Category="Buildable")
-	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = nullptr;*/
-
-	/*UPROPERTY(EditAnywhere, Category="Buildable")
-	ATrapBase* ActiveTrapComponentProxy = nullptr;*/
-
-	/*UPROPERTY(EditAnywhere, Category="Buildable")
-	ARampBase* ActiveRampComponentProxy = nullptr;*/
-	
-	/*UPROPERTY(EditAnywhere, Category="Buildable")
-	ATeleportConstruct* ActiveTeleportConstructProxy = nullptr;*/
-
-	/*
-	 *This is a new approach where we group the Building Components by their Snapping Conditions instead of Play Type.
-	 *The reason for this is that Traps and Constructs may share the exact same snapping conditions and some
-	 *traps may have more complex and unique snapping conditions +
-	 */ 
-	/*UPROPERTY(EditAnywhere, Category="Buildable")
-	ABuildableBase* CenterSnapFloorOnlyBuildingComponentProxy = nullptr;*/
-
 	/*Grid Snap*/
 	FVector SnapToGrid(FVector RaycastLocation);
 	FRotator SnapToRotation(FRotator CharactersRotation);
@@ -121,11 +101,6 @@ protected:
 	void PlayBuildDeniedSound();
 
 public:
-	/* Spawning */
-	/*UFUNCTION()
-	void SpawnBuildingComponentProxy(FVector SpawnVector, FRotator SpawnRotator);*/
-	/*UFUNCTION()
-	void SpawnTrapComponentProxy(FVector_NetQuantize Location, FRotator SpawnRotator);*/
 	UFUNCTION()
 	void SpawnFinalBuildable();
 	void SpawnFinalBuildingComponent(FActorSpawnParameters SpawnParameters);
@@ -133,9 +108,8 @@ public:
 	void SpawnFinalFloorCenterSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalRampBuildable(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters);
-
 	void HandleIsTeleporter(ATeleportConstruct* TeleportConstruct);
-	/*Placement*/
+
 
 	//New Build Placement Functions
 	UFUNCTION()
@@ -191,15 +165,6 @@ public:
 	void SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass);
 	//Used to remember the previous Rotation of the Building Component after Leaving Build Mode.
 	void SetSavedRotation(FRotator Rotation) { SavedRotation = Rotation; };
-	/*UFUNCTION()
-	FORCEINLINE ATrapBase* GetActiveRampComponent() const { return ActiveTrapComponentProxy; };*/
-	//FORCEINLINE ATimberBuildingComponentBase* GetActiveBuildingComponentProxy() const { return ActiveBuildingComponentProxy; };
-	//FORCEINLINE void SetActiveBuildingComponentToNull() { ActiveBuildingComponentProxy = nullptr; };
-	/*FORCEINLINE void SetActiveTrapComponentToNull() { ActiveTrapComponentProxy = nullptr; };*/
-	/*FORCEINLINE void SetActiveRampComponentToNull() { ActiveRampComponentProxy = nullptr; };
-	FORCEINLINE void SetActiveRampComponent(ARampBase* RampComponent) { ActiveRampComponentProxy = RampComponent; };*/
-	/*FORCEINLINE ABuildableBase* GetBuildableRef() { return BuildableProxyInstance; };*/
-	/*FORCEINLINE void SetBuildingRef(ABuildableBase* BuildingComponent) { BuildableProxyInstance = BuildingComponent; };*/
 	
 	/*Component Snapping */
 	UFUNCTION(BlueprintCallable, Category="Building")

@@ -316,14 +316,6 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 	{
 		WorldLocation.Z += 200.0f;
 	}
-
-	//Checks if there is a Building Component already at the Snapped Location by Using an Overlap box as a test.
-	//TArray<FOverlapResult> Overlaps;
-	/*bool bWillOverlap = GetWorld()->OverlapMultiByChannel(Overlaps,
-		WorldLocation,
-		FQuat::Identity, 
-		ECC_GameTraceChannel1, 
-		FCollisionShape::MakeBox(FVector(40, 40, 40)));*/
 	
 	TArray<FHitResult> HitResults;
 	bool bWillOverlap = GetWorld()->SweepMultiByChannel(
@@ -336,9 +328,31 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 		);
 
 	DrawDebugBox(GetWorld(), WorldLocation, FVector(40, 40, 40), FColor::Green, false, -1);
-	//UE_LOG(LogTemp, Warning, TEXT("Moving Building Component."));
 	
-	if (bWillOverlap)
+	bool bHitMesh = false;
+	for (FHitResult Hit: HitResults)
+	{
+		UPrimitiveComponent* Component = Hit.GetComponent();
+		UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());
+		if (UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Component))
+		{
+			if (Mesh)
+			{
+				//break that loop if any mesh was hit.
+				bHitMesh = true;
+
+				//Checking for outlier meshes.
+				//Ex. The Ramp is Tanget to the wall causing an overlap over the HitBox. This is not a valid overlap.
+				//TODO:: This may be adjusted in the future by adjusted the Width of the Overlap box to only be the width of the wall.
+				if (Cast<ARampBase>(Hit.GetActor()))
+				{
+					bHitMesh = false;
+				}
+				break;
+			}
+		}
+	}
+	if (bWillOverlap && bHitMesh)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
@@ -986,10 +1000,8 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, FloorComponent);
 			return;
 		}
-		else
-		{
-			MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
-		}
+		
+		MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
 	}
 
 	//Using this just as a check for a Valid Hit Result
@@ -1106,19 +1118,11 @@ void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildab
 
 void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 {
-	/*ResetBuildableComponents(ATrapBase::StaticClass());
-	ResetBuildableComponents(ATimberBuildingComponentBase::StaticClass());
-	ResetBuildableComponents(ARampBase::StaticClass());
-	ResetBuildableComponents(ATeleportConstruct::StaticClass());
-	ResetBuildableComponents(APowerPlate::StaticClass());*/
-
 	if (BuildableProxyInstance)
 	{
 		BuildableProxyInstance->Destroy();
 		BuildableProxyInstance = nullptr;
 	}
-	
-	
 	if (GEngine)
 	{
 		//GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
@@ -1164,10 +1168,6 @@ void UBuildSystemManagerComponent::RotateBuildingComponent()
 void UBuildSystemManagerComponent::SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass)
 {
 	ActiveBuildableComponentClass = BuildingComponentClass;
-	if(GEngine)
-	{
-		//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Active Building Component Class Set.");
-	}
 }
 
 /*SFX*/
@@ -1256,8 +1256,13 @@ AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> Act
 	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ActiveBuildableClass, SpawnLocation, SpawnRotation, SpawnParams);
 	if (SpawnedActor)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("BuildingSystemManagerComponent - SpawnProxy() - Spawned Initial Buildable Proxy."));
-
+		if (ATimberBuildingComponentBase* SpawnedBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor))
+		{
+			//We need to set this to proxy to ensure that the overlap check box is created.
+			UE_LOG(LogTemp, Warning, TEXT("Spawned Building Component Proxy"));
+			SpawnedBuildingComponent->bIsProxy = true;
+		}
+		
 		DisableBuildableProxyCollisions(Cast<ABuildableBase>(SpawnedActor));
 		MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
 		return SpawnedActor;

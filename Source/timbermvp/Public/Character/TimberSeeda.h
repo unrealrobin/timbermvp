@@ -29,6 +29,9 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaDeathHandle, bool, bIsSeedaDestroyed);
 	FOnSeedaDeathHandle OnSeedaDeath;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaDeath_UI, bool, bIsSeedaDestroyed);
+	FOnSeedaDeathHandle OnSeedaDeathUI;
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaInteractOverlap, bool, bShouldShowToolTip);
 	FOnSeedaInteractOverlap OnSeedaInteractOverlap;
 

@@ -1,6 +1,6 @@
 ﻿
 # Seeda Death
-Description: The process that happens when Seeda is destroyed through the Death UI Screen showing to the player.
+Description: This sequence describes how the game reacts when Seeda's health reaches zero, triggering player death logic, AI freeze, and the Death UI screen transition.
 ## Seeda Death Process
 
 ```mermaid
@@ -12,6 +12,8 @@ sequenceDiagram
     participant HUD
     
     note over Seeda: Seedas Health Drops below 0
+    Seeda->>HUD: OnSeedaDeathUI.Broadcast(bIsSeedaDestroyed = true)
+    HUD->>HUD: UpdateDeathUIReason_SeedaDestroyed();
     Seeda->>Kip: OnSeedaDeath.Broadcast(bIsSeedaDestroyed = true)
     Seeda->>Seeda: Destroy();
     note over Kip: Kip Hears OnSeedaDeath Broadcast
@@ -24,22 +26,14 @@ sequenceDiagram
     note over Kip_Controller: Kip_Controller Hears HandlePlayerDeath_DelegateHandle Broadcast
     Kip_Controller->>Kip_Controller: Internal Logic()
     end
-    Kip-Controller->>HUD: HandleDeathUi()
+    Kip_Controller->>HUD: HandleDeathUi()
+    note over Kip_Controller: Can Only Update Death UI Reason if Default
     HUD->>HUD: ShowDeathUi()
+    note right of HUD: Death UI Resets Reasons on Button Press.
 
 ```
-# HUD Data Update
-```mermaid
-sequenceDiagram
-    participant Seeda
-    participant HUD
-    participant DeathWidget
-    
-    Seeda->>HUD: UpdateDeathHUD()
-    HUD->>HUD: UpdateDeathReason()
-    HUD->>DeathWidget: SetDeathReasonText()
-    note over DeathWidget: On Button Press -> Reset Death Reason to Default
-    
-    
 
-```
+---
+Note:
+1. When the Data Seed (Seeda) dies, the play is also destroyed directly after. The player also tries to update the 
+   death reason ui so we have a check to make sure it can only be set when its the default reason.

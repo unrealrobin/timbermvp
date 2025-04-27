@@ -340,6 +340,7 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Freezing AI Characters."));
 	TArray<AActor*> ArrayOfAICharacters;
 	UGameplayStatics::GetAllActorsOfClass(this, ATimberEnemyCharacter::StaticClass(), ArrayOfAICharacters);
 

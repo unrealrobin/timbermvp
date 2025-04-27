@@ -137,6 +137,10 @@
 		{
 			"Name": "EOSVoiceChat",
 			"Enabled": true
+		},
+		{
+			"Name": "AudioInsights",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

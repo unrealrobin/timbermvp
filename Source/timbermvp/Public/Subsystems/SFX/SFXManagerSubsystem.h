@@ -34,6 +34,7 @@ public:
 	FOnUIFailure OnUIFailure;
 
 	void BindToSFXDelegates();
+	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 	//Creates the Audio Component and Plays the Sound - Called in each function

@@ -90,7 +90,7 @@ void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
 
 void ATimberGameModeBase::GatherSeedaData()
 {
-	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
+	Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
 	SeedaLocation = Seeda->GetActorLocation();
 
 	//Passing Seeda Class to Save Load Susbsytem for future Seeda Spawning.
@@ -340,6 +340,7 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Freezing AI Characters."));
 	TArray<AActor*> ArrayOfAICharacters;
 	UGameplayStatics::GetAllActorsOfClass(this, ATimberEnemyCharacter::StaticClass(), ArrayOfAICharacters);
 

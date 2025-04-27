@@ -106,7 +106,7 @@ void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Seeda Initialized, Binding to Seeda Delegates."));
 
-		//When seeda dies, handle player death
+		//When seeda dies, player also dies.
 		SeedaRef->OnSeedaDeath.AddDynamic(this, &ATimberPlayableCharacter::HandlePlayerDeath);
 		
 		//When Seeda is being Destroyed
@@ -193,10 +193,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		{
 			/* Hit Something/Anything */
 			//DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
-
-			//TODO:: We can generalize this to any Buildable that Snaps to Edges of Floor Only.
-			//TODO:: We need to adjust all of these to have types that determine their snap conditions
-				// We can then use the type to determine the Placement Function to be called.
+			
 
 			/*
 			 * Call BuildSystemManager to HandleProxyPlacement
@@ -211,34 +208,6 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 
 			//There is a Hit and We can Start the PlacementProcess.
 			BuildSystemManager->HandleProxyPlacement(HitResults, ActiveBuildableClass);
-			
-			/*if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-			{
-				BuildSystemManager->HandleBuildingComponentPlacement(HitResults);
-			}*/
-			
-			/*
-			if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
-			{
-				BuildSystemManager->HandleTrapPlacement(HitResults);
-			}*/
-			
-			/*if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
-			{
-				BuildSystemManager->HandleTeleportConstructPlacement(HitResults);
-			}
-
-
-			if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
-			{
-				BuildSystemManager->HandleRampPlacement(HitResults);
-			}
-
-			
-			if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
-			{
-				BuildSystemManager->HandleCenterSnapFloorOnlyPlacement(HitResults);
-			}*/
 		}
 		else //If the Raycast Hit Nothing
 		{
@@ -267,8 +236,7 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 				ScreenLocationOfImpactPoint);
 
 			// Broadcast a Delegate with the Impact Position to the HUD.
-			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(
-				ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
+			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
 			
 		}
 		break;
@@ -292,13 +260,13 @@ void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
 /*Death & Damage*/
 void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 {
-	bIsPlayerDead = bIsPlayerDeadNow;
-	if (bIsPlayerDead)
+	if (bIsPlayerDeadNow)
 	{
 		PlayDeathAnimation();
-		//Broadcasting the Player Death Delegate
-		//Player Controller is Subscribed to this Delegate
-		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDead);
+		//Broadcast to HUD to Update Death UI Reason Text
+		
+		//Player Controller && HUD is Subscribed to this Delegate
+		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDeadNow);
 	}
 }
 

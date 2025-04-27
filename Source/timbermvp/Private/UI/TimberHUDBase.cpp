@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Character/TimberSeeda.h"
 #include "GameModes/TimberGameModeBase.h"
+#include "UI/Death/TimberDeathWidget.h"
 
 
 void ATimberHUDBase::BeginPlay()
@@ -14,8 +15,8 @@ void ATimberHUDBase::BeginPlay()
 	InitializeWidgets();
 	CharacterAndControllerBindings();
 	GameModeBindings();
-	//SeedaBinding();
-
+	SeedaBindings();
+	
 	//Binding to Tutorial States
 	InitializeTutorialStateBinding();
 	HandleTutorialStateChanges(GetTutorialState());
@@ -81,8 +82,18 @@ void ATimberHUDBase::InitializeWidgets()
 			KBM_BuildControlsWidget->AddToViewport(2);
 			KBM_BuildControlsWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
-	}			
-}		
+	}
+
+	if (DeathWidgetClass)
+	{
+		DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
+		if (DeathWidget)
+		{
+			DeathWidget->AddToViewport(100);
+			DeathWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
 
 void ATimberHUDBase::CharacterAndControllerBindings()
 {
@@ -101,10 +112,9 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 
 		if (TimberCharacter)
 		{
-			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.AddDynamic(
-				this, &ATimberHUDBase::ShowDeleteBuildingComponentWidget);
-			TimberCharacter->HandleRemoveDeleteIcon_DelegateHandle.AddDynamic(
-				this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
+			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.AddDynamic(this, &ATimberHUDBase::ShowDeleteBuildingComponentWidget);
+			TimberCharacter->HandleRemoveDeleteIcon_DelegateHandle.AddDynamic(this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
+			TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_KipDestroyed);
 		}
 	}
 }
@@ -115,6 +125,58 @@ void ATimberHUDBase::GameModeBindings()
 	if (GameMode)
 	{
 		GameMode->SwitchToStandardUI.BindUFunction(this, FName("SwitchToGameUI"));
+	}
+}
+
+void ATimberHUDBase::SeedaBindings()
+{
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		ATimberSeeda* Seeda = GameMode->Seeda;
+		if (Seeda)
+		{
+			Seeda->OnSeedaDeathUI.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed);
+			UE_LOG(LogTemp, Warning, TEXT("Successfully Bound to Seeda Death UI Reason Delegate."))
+		}
+	}
+}
+
+void ATimberHUDBase::UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Death Delegate Received to Hud from Kip."));
+	if (bIsPlayerDead)
+	{
+		if (DeathWidget)
+		{
+			UTimberDeathWidget* TimberDeathWidget = Cast<UTimberDeathWidget>(DeathWidget);
+			if (TimberDeathWidget && TimberDeathWidget->DeathReason == EDeathReason::Default)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("DeathReason is Default, Changing to Kip."));
+				TimberDeathWidget->DeathReason = EDeathReason::KipDestroyed;
+				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::KipDestroyed);
+			}
+		}
+	}
+}
+
+void ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Death Delegate Received to Hud from Seeda."));
+	if (DeathWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda Death Widget Valid."));
+		UTimberDeathWidget* TimberDeathWidget = Cast<UTimberDeathWidget>(DeathWidget);
+		if (TimberDeathWidget)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Seeda - Successful cast to Death Widget Class"));
+			if (TimberDeathWidget->DeathReason == EDeathReason::Default)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("DeathReason is Default, Changing to Seeda."));
+				TimberDeathWidget->DeathReason = EDeathReason::SeedaDestroyed;
+				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::SeedaDestroyed);
+			}
+		}
 	}
 }
 
@@ -234,28 +296,18 @@ void ATimberHUDBase::ShowAllGameWidgets()
 
 void ATimberHUDBase::SwitchToDeathUI()
 {
+	/*
+	 * Called from Player Controller.
+	 * When Seeda Dies, it Broadcasts to the player to be Destroyed.
+	 * When the player is Destroyed, it Broadcasts to the controller that the player is Destroyed.
+	 */
 	RootWidget->RemoveFromParent();
+	
 	if (DeathWidget)
 	{
-		DeathWidget->SetVisibility(ESlateVisibility::Visible);	
+		DeathWidget->AddToViewport(1);
+		DeathWidget->SetVisibility(ESlateVisibility::Visible);
 	}
-	else
-	{
-		DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
-		if (DeathWidget)
-		{
-			DeathWidget->AddToViewport(1);
-			DeathWidget->SetVisibility(ESlateVisibility::Visible);
-		}
-	}
-	
-	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	if (GameMode)
-	{
-		GameMode->FreezeAllAICharacters(true);
-	}
-	
-	//TODO:: Make sure we disable the keyboard input when the player dies.
 }
 
 void ATimberHUDBase::SwitchToGameUI()

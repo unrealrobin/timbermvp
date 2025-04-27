@@ -28,8 +28,10 @@ void APlusTrapBase::RaycastForHitBoxLength()
 {
 	//Only Dynamically adjusts the HitBoxLength
 	
-	//Raycast
+	//Raycast Start and End Points
 	FVector StartPoint = BoxExtentRaycastStart->GetComponentLocation();
+
+	//Max Hit Box Length is the furthest we want the extend of this Plus Trap to fire.
 	FVector EndPoint = StartPoint + ( BoxExtentRaycastStart->GetForwardVector() * MaxHitBoxLength);
 	
 	bool bHits = GetWorld()->LineTraceMultiByChannel(HitResults, StartPoint, EndPoint, ECC_Visibility );
@@ -47,35 +49,36 @@ void APlusTrapBase::RaycastForHitBoxLength()
 			 * 2. Ensuring Hit Actor is NOT the TrapHoveredBuildingComponent (this is this First Hit Buildable in the Player Raycast Hit Results)
 			 * 3. Ignore Self
 			 */
-			 if (Cast<ABuildableBase>(Hit.GetActor()) && Cast<ATimberBuildingComponentBase>(Hit.GetActor()) != TrapHoveredBuildingComponent && Hit.GetActor() != this) 
+			UE_LOG(LogTemp, Warning, TEXT("Plus Trap Hit Box Length Hit: %s ,  Hit Component: %s"), *Hit.GetActor()->GetName(),*Hit.GetComponent()->GetName());
+			 if (Cast<ABuildableBase>(Hit.GetActor()) && Cast<ABuildableBase>(Hit.GetActor()) != TrapHoveredBuildingComponent && Hit.GetActor() != this) 
 			 {
-			 	//UE_LOG(LogTemp, Warning, TEXT("Hit a Building Component"));
 				HitLocation = Hit.ImpactPoint;
-			 	/*//Debug the Hit Point
+			 	//Debug the Hit Point
 			 	DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
 			 	DrawDebugSphere(GetWorld(), EndPoint, 10.f, 12, FColor::Red, false, -1.f);
 			 	DrawDebugSphere(GetWorld(), StartPoint, 10.f, 12, FColor::Green, false, -1.f);
-			 	DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);*/
+			 	DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);
 			 	break;
 			 }
 		}
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("No Hit"));
-		/*DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
+		UE_LOG(LogTemp, Warning, TEXT("No Hit"));
+		DrawDebugSphere(GetWorld(), HitLocation, 10.f, 12, FColor::Blue, false, -1.f);
 		DrawDebugSphere(GetWorld(), EndPoint, 10.f, 12, FColor::Red, false, -1.f);
 		DrawDebugSphere(GetWorld(), StartPoint, 10.f, 12, FColor::Green, false, -1.f);
-		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);*/
+		DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Red, false, -1.f, 0, 2.f);
 	}
 
-	//The difference between the Raycast Start and End.
+	//The difference between the Raycast Start and End. Identifies the length at the blocking Hit.
 	float DistanceDifference = FVector::Dist(HitLocation, StartPoint);
 
-	//The Value Clamped to not Exceed the Max Hit Box Length (2 Grid Squares for thise Trap)
-	MaxHitBoxLength = UKismetMathLibrary::Clamp(DistanceDifference, 1.f, MaxHitBoxLength);
+	//To be used for Trap Overlap Elements. Ex. This is the Distance a Pulse Box travels with Pulse Box Trap
+	CalculatedBoxLength = DistanceDifference;
 
-	BoxLength = MaxHitBoxLength / 2 + 30.f;
+	//Resetting the Actual Box Length after a Raycast
+	BoxLength = DistanceDifference / 2 + 30.f;
 
 	//Setting the Box Extent Vector
 	FVector DynamicBoxExtent = FVector(BoxWidth, BoxLength, BoxHeight);

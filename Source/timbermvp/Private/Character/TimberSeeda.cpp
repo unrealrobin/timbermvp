@@ -76,7 +76,16 @@ void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)
 	CurrentHealth -= DamageAmount;
 	if (CurrentHealth <= 0)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda Destroyed."));
+
+		//Handles UI Updates required before other logic.
+		OnSeedaDeathUI.Broadcast(true);
+		UE_LOG(LogTemp, Warning, TEXT("Broadcast Seeda Death to HUD."));
+
+		//Handles Destruction, Calls to Player, Player Controller, GameMode.
 		OnSeedaDeath.Broadcast(true);
+		UE_LOG(LogTemp, Warning, TEXT("Broadcast Seeda Death to player."));
+		
 		Destroy();
 	}
 	

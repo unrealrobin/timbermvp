@@ -56,6 +56,9 @@ public:
 	void PathTracer_RedrawDelegateBinding();\
 	
 	void GatherSeedaData();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Seeda")
+	ATimberSeeda* Seeda = nullptr;
 
 	/* Game State / Tutorial */
 	void InitializeGameState();

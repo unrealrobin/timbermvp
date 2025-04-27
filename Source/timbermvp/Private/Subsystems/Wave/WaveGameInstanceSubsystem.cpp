@@ -115,23 +115,36 @@ void UWaveGameInstanceSubsystem::GetGarageDoor()
 
 void UWaveGameInstanceSubsystem::StartWave()
 {
-	//TODO:: Lets find a way to play this for 2 seconds before the rest of the function runs.
 	PlayWaveStartSound();
+
+	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+	if (SaveLoadSubsystem)
+	{
+		SaveLoadSubsystem->SaveCurrentGame();
+	}
 	
-	if(CurrentWaveNumber >= 30)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Its about to get wild. Endless mode. Bucket of popcorn time. Leaderboards in view."));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
-		//Prepares the Wave Composition
-		ComposeWaveFromDataTable();
-		//Process of Opening Doors
-		OpenLabDoorHandle.Broadcast();
-		//Spawning Enemies from Data Tables
-		SpawnWave();
-	}
+	FTimerHandle WaveDelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+	WaveDelayHandle,
+	FTimerDelegate::CreateLambda([this]()
+		{
+			if(CurrentWaveNumber >= 30)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Its about to get wild. Endless mode. Bucket of popcorn time. Leaderboards in view."));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
+				//Prepares the Wave Composition
+				ComposeWaveFromDataTable();
+				//Process of Opening Doors
+				OpenLabDoorHandle.Broadcast();
+				//Spawning Enemies from Data Tables
+				SpawnWave();
+			}
+		}),
+	2.0f,  
+	false);  
 }
 
 void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
@@ -404,7 +417,7 @@ void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 void UWaveGameInstanceSubsystem::IncrementWave()
 {
 	CurrentWaveNumber++;
-
+	UE_LOG(LogTemp, Warning, TEXT("Incrementing Wave #."));
 	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
 }
 

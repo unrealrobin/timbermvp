@@ -27,7 +27,6 @@ enum class EEnemyType : uint8
 	MeleeWeaponRobot UMETA(DisplayName = "MeleeWeaponRobot"),
 	RangedWeaponRobot UMETA(DisplayName = "RangedWeaponRobot"),
 	Default UMETA(DisplayName = "Default")
-	
 };
 
 /**

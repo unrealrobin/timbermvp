@@ -31,6 +31,7 @@ class TIMBERMVP_API UDieRobotGameConfigSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	
 	UPROPERTY()
 	EDieRobotGameConfigType GameConfig = EDieRobotGameConfigType::Standard;
 };

@@ -209,9 +209,6 @@ protected:
 	/*Interactable Items*/
 	IInteractable* InteractableItem;
 
-	/*Attack Data*/
-	
-
 	/*Build Controls*/
 	void HandleControllerExitBuildMode();
 	UFUNCTION()

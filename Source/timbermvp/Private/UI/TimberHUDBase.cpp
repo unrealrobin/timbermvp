@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Character/TimberSeeda.h"
 #include "GameModes/TimberGameModeBase.h"
+#include "UI/Death/TimberDeathWidget.h"
 
 
 void ATimberHUDBase::BeginPlay()
@@ -82,7 +83,7 @@ void ATimberHUDBase::InitializeWidgets()
 			KBM_BuildControlsWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}			
-}		
+}
 
 void ATimberHUDBase::CharacterAndControllerBindings()
 {
@@ -101,10 +102,9 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 
 		if (TimberCharacter)
 		{
-			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.AddDynamic(
-				this, &ATimberHUDBase::ShowDeleteBuildingComponentWidget);
-			TimberCharacter->HandleRemoveDeleteIcon_DelegateHandle.AddDynamic(
-				this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
+			TimberCharacter->HandleSpawnDeleteIconLocation_DelegateHandle.AddDynamic(this, &ATimberHUDBase::ShowDeleteBuildingComponentWidget);
+			TimberCharacter->HandleRemoveDeleteIcon_DelegateHandle.AddDynamic(this, &ATimberHUDBase::HideDeleteBuildingComponentWidget);
+			TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_KipDestroyed);
 		}
 	}
 }
@@ -115,6 +115,51 @@ void ATimberHUDBase::GameModeBindings()
 	if (GameMode)
 	{
 		GameMode->SwitchToStandardUI.BindUFunction(this, FName("SwitchToGameUI"));
+	}
+}
+
+void ATimberHUDBase::UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead)
+{
+	if (bIsPlayerDead)
+	{
+		if (DeathWidget)
+		{
+			UTimberDeathWidget* TimberDeathWidget = Cast<UTimberDeathWidget>(DeathWidget);
+			if (TimberDeathWidget && TimberDeathWidget->DeathReason == EDeathReason::Default)
+			{
+				TimberDeathWidget->DeathReason = EDeathReason::KipDestroyed;
+				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::KipDestroyed);
+			}
+		}
+	}
+}
+
+void ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed)
+{
+	if (DeathWidget)
+	{
+		UTimberDeathWidget* TimberDeathWidget = Cast<UTimberDeathWidget>(DeathWidget);
+		if (TimberDeathWidget)
+		{
+			if (TimberDeathWidget->DeathReason == EDeathReason::Default)
+			{
+				TimberDeathWidget->DeathReason = EDeathReason::SeedaDestroyed;
+				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::SeedaDestroyed);
+			}
+		}
+	}
+}
+
+void ATimberHUDBase::SeedaBindings()
+{
+	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		ATimberSeeda* Seeda = GameMode->Seeda;
+		if (Seeda)
+		{
+			Seeda->OnSeedaDeath.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed);
+		}
 	}
 }
 
@@ -234,6 +279,11 @@ void ATimberHUDBase::ShowAllGameWidgets()
 
 void ATimberHUDBase::SwitchToDeathUI()
 {
+	/*
+	 * Called from Player Controller.
+	 * When Seeda Dies, it Broadcasts to the player to be Destroyed.
+	 * When the player is Destroyed, it Broadcasts to the controller that the player is Destroyed.
+	 */
 	RootWidget->RemoveFromParent();
 	if (DeathWidget)
 	{

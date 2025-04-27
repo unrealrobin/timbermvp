@@ -20,12 +20,19 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 
 public:
-	void InitializeWidgets();
-	void CharacterAndControllerBindings();
-	void GameModeBindings();
 	//void SeedaBinding();
 	virtual void BeginPlay() override;
 
+	void InitializeWidgets();
+	UFUNCTION()
+	void UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead);
+	void CharacterAndControllerBindings();
+	void GameModeBindings();
+	
+	UFUNCTION()
+	void UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed);
+	
+	void SeedaBindings();
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
 

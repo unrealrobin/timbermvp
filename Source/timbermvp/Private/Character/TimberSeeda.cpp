@@ -76,7 +76,10 @@ void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)
 	CurrentHealth -= DamageAmount;
 	if (CurrentHealth <= 0)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Seeda Destroyed."));
+		
 		OnSeedaDeath.Broadcast(true);
+		
 		Destroy();
 	}
 	

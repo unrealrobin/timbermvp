@@ -90,7 +90,7 @@ void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
 
 void ATimberGameModeBase::GatherSeedaData()
 {
-	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
+	Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
 	SeedaLocation = Seeda->GetActorLocation();
 
 	//Passing Seeda Class to Save Load Susbsytem for future Seeda Spawning.

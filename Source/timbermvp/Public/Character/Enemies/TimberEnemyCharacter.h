@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -7,6 +7,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class ULootTable;
 class ALootHealthDrop;
 class AEnemyLootDropBase;
 class ATimberBuildingComponentBase;
@@ -116,7 +117,7 @@ protected:
 	/* Death */
 	void OnDeath_HandleCollision();
 	
-	virtual void OnDeath_DropLoot();
+	
 	
 	/* Animation */
 	void PlayMontageAtRandomSection(UAnimMontage* Montage);
@@ -136,9 +137,14 @@ protected:
 
 	/* Loot */
 
-	void SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
+	ULootTable* LootTable = nullptr;
+	
+	void OnDeath_DropLoot();
+	
+	/*void SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass);*/
 
-	virtual void HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass);
+	/*virtual void HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass);
 
 	//Basic Health Drop Chance - If in Loot Array
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
@@ -154,7 +160,7 @@ protected:
 	
 	//Specific Enemies may drop specific Loot Items.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot")
-	TArray<TSubclassOf<AEnemyLootDropBase>> UniqueLootArray;
+	TArray<TSubclassOf<AEnemyLootDropBase>> UniqueLootArray;*/
 
 	
 };

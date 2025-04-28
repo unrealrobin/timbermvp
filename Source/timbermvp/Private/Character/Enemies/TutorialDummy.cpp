@@ -45,7 +45,7 @@ void ATutorialDummy::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 	
 }
 
-void ATutorialDummy::OnDeath_DropLoot()
+/*void ATutorialDummy::OnDeath_DropLoot()
 {
 	//TODO:: Rework Loot Drop System after GDC.
 	for(TSubclassOf<AEnemyLootDropBase> LootDrop : StandardLootArray)
@@ -66,7 +66,7 @@ void ATutorialDummy::OnDeath_DropLoot()
 			//UE_LOG(LogTemp, Warning, TEXT("Spawned: %s at: %s"), *LootDrop->GetName(), *AdjustedLocation.ToString());
 		}
 	}
-}
+}*/
 
 void ATutorialDummy::HandleDeath(AActor* DeadActor)
 {

@@ -28,13 +28,7 @@ void ABossBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
-void ABossBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void ABossBase::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass)
+/*void ABossBase::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass)
 {
 
 	//Bosses always Drop a Max Health
@@ -45,7 +39,7 @@ void ABossBase::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropC
 
 	//This calls the Original function which has a 5% chance for another Max Health and a 20% chance for a normal health drop.
 	Super::HandleDropHealthLoot(HealthDropClass);
-}
+}*/
 
 void ABossBase::BroadcastDeathDelegate(AActor* DestroyedActor)
 {

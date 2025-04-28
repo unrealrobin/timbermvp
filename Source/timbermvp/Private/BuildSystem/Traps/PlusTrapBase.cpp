@@ -49,7 +49,7 @@ void APlusTrapBase::RaycastForHitBoxLength()
 			 * 2. Ensuring Hit Actor is NOT the TrapHoveredBuildingComponent (this is this First Hit Buildable in the Player Raycast Hit Results)
 			 * 3. Ignore Self
 			 */
-			UE_LOG(LogTemp, Warning, TEXT("Plus Trap Hit Box Length Hit: %s ,  Hit Component: %s"), *Hit.GetActor()->GetName(),*Hit.GetComponent()->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Plus Trap Hit Box Length Hit: %s ,  Hit Component: %s"), *Hit.GetActor()->GetName(),*Hit.GetComponent()->GetName());
 			 if (Cast<ABuildableBase>(Hit.GetActor()) && Cast<ABuildableBase>(Hit.GetActor()) != TrapHoveredBuildingComponent && Hit.GetActor() != this) 
 			 {
 				HitLocation = Hit.ImpactPoint;

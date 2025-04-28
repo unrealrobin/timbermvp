@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
@@ -11,6 +11,7 @@
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Data/DataAssets/LootTable.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
@@ -200,34 +201,63 @@ void ATimberEnemyCharacter::OnDeath_HandleCollision()
 
 void ATimberEnemyCharacter::OnDeath_DropLoot()
 {
-	//When the enemy dies, it drops loot that the player can pick up.
-	//Can be overwritten by child Classes.
-
-	//Array can contain parts, mechanisms, Uniques, health drops, etc
-	
-	//TODO:: Rework Loot Drop System after GDC.
-	for(TSubclassOf<AEnemyLootDropBase> LootDrop : StandardLootArray)
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed. Dropping Loot."))
+	//Get the Loot Table
+	if (LootTable)
 	{
-		if(LootDrop->IsChildOf(ALootHealthDrop::StaticClass()))
+		//UE_LOG(LogTemp, Warning, TEXT("Loot Table is Valid."))
+		//Loot Table has an array that will be looped over.
+		TArray<FLootEntry> LootEntries = LootTable->LootEntries;
+		//Each item in the Array is a FLootEntry Struct that has a TSubclassOf<AEnemyLootDropBase> and a TMap<int, float> AmountChance.
+		if (LootEntries.Num() > 0)
 		{
-			HandleDropHealthLoot(LootDrop);
-		}
-		else
-		{
-			SpawnLoot(LootDrop);
-		}
-	}
+			//UE_LOG(LogTemp, Warning, TEXT("Found Loot Entries."))
+			//We loop over the array, and use the Structs PickAmount() function to get a random amount of loot to drop.
+			for (FLootEntry Items : LootEntries)
+			{
 
-	if (UniqueLootArray.Num() > 0)
-	{
-		for (TSubclassOf<AEnemyLootDropBase>LootItem : UniqueLootArray)
-		{
-			SpawnLoot(LootItem);
+				//This breaks this loop iteration as the chance was not met.
+				//Checking if any loot should drop at all.Drop Chance set in the Loot Table.
+				float AnyLootDropChance = FMath::FRand();
+				//UE_LOG(LogTemp, Warning, TEXT("AnyLootDropChance: %f. Item Drop Chance: %f."), AnyLootDropChance, Items.DropChance);
+				if (AnyLootDropChance > Items.DropChance)
+				{
+					continue;
+				}
+
+				FActorSpawnParameters SpawnParams;
+				int32 AmountToSpawn = Items.PickAmount();
+				//UE_LOG(LogTemp, Warning, TEXT("Amount to Spawn: %d"), AmountToSpawn);
+				//We then spawn the loot using the SpawnLoot() function.
+				for (int i = 0; i < AmountToSpawn; i++)
+				{
+					AActor* SpawnedLootActor = GetWorld()->SpawnActor<AActor>(Items.LootItemClass,
+						GetActorLocation(),
+						FRotator::ZeroRotator, 
+						SpawnParams);
+
+					if (SpawnedLootActor)
+					{
+						// Try to apply an upward impulse
+						UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(SpawnedLootActor->GetRootComponent());
+						if (PrimitiveComp && PrimitiveComp->IsSimulatingPhysics())
+						{
+							FVector Impulse = FVector(
+								FMath::FRandRange(-100.0f, 100.0f), // small random left/right push
+								FMath::FRandRange(-100.0f, 100.0f), // small random forward/backward push
+								FMath::FRandRange(400.0f, 600.0f)   // strong upward push
+							);
+
+							PrimitiveComp->AddImpulse(Impulse, NAME_None, false);
+						}//UE_LOG(LogTemp, Warning, TEXT("Spawned Loot Actor: %s"), *SpawnedLootActor->GetName());
+					}
+				}
+			}
 		}
 	}
 }
 
-void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass)
+/*void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass)
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
@@ -252,9 +282,9 @@ void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropCl
 			//UE_LOG(LogTemp, Warning, TEXT("Spawning Loot Item During Combat1 Tutorial Stage."))
 		}
 	}
-}
+}*/
 
-void ATimberEnemyCharacter::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass)
+/*void ATimberEnemyCharacter::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass)
 {
 	float RandomNumber = FMath::RandRange(0, 100);
 
@@ -268,7 +298,7 @@ void ATimberEnemyCharacter::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase>
 	{
 		SpawnLoot(HealthDropClass);
 	}
-}
+}*/
 
 void ATimberEnemyCharacter::HandleEnemyDeath()
 {

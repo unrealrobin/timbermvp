@@ -27,10 +27,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	virtual void HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass) override;
+	//virtual void HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass) override;
 
 	UFUNCTION()
 	void BroadcastDeathDelegate(AActor* DestroyedActor);

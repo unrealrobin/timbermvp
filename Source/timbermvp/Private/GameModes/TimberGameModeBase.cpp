@@ -300,8 +300,6 @@ void ATimberGameModeBase::PlayAttackMusic()
 		{
 			MusicManager->PlayMusic("Attack1", 1.0f);	
 		}), 1.0f, false);
-		
-		//MusicManager->PlayMusic("Build1", 2.0f);
 	}
 }
 

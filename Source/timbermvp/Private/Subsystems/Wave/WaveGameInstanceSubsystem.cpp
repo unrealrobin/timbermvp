@@ -38,7 +38,7 @@ void UWaveGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection
 void UWaveGameInstanceSubsystem::SetCurrentWaveNumber(int InWaveNumber)
 {
 	CurrentWaveNumber = InWaveNumber;
-	CurrentWaveHandle.Broadcast(InWaveNumber);
+	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
 	UE_LOG(LogTemp, Warning, TEXT("Set Wave Number to: %d"), InWaveNumber);
 }
 
@@ -281,26 +281,30 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 	//We need to adjust the Index used based on whether a boss is or isn't spawned. If we dont, then Total Enemies To Spawn will overflow the EnemiesToSpawn Array which
 	//doesn't include the boss. So if Enemies to Spawn = 20 and Boss = 1, it can try to find EnemiesToSpawn[21] which would overflow, so we adjust that index whether the boss has been spawned.
 	//Always starts at TotalEnemiesSpawned, but needs to adjust first if boss was spawned, by subtracting 1
-	int ArrayIndex;
-	if (BossSpawned)
-	{
-		//TotalEnemiesToSpawn = 1
-		ArrayIndex = TotalEnemiesSpawned -1;
-	}
-	else
-	{
-		//This keeps the ArrayIndex Incremented and not starting over.
-		ArrayIndex = TotalEnemiesSpawned;
-		//UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
-	}
 	
 	for(int i = 0; i < RandomNumberOfEnemiesToSpawnAtOnce; i++)
 	{
-		//We need to reset this because we adjust TotalEnemiesSpawned inside of SpawnEnemy()
-		ArrayIndex = TotalEnemiesSpawned;
+		int ArrayIndex;
+		if (BossSpawned)
+		{
+			//TotalEnemiesToSpawn = 1
+			ArrayIndex = TotalEnemiesSpawned -1;
+		}
+		else
+		{
+			//This keeps the ArrayIndex Incremented and not starting over.
+			ArrayIndex = TotalEnemiesSpawned;
+			//UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
+		}
 		/*
-		 * TotalEnemiesToSpawn - Decided in Composition, takes Boss into Account.
+		 * TotalEnemiesToSpawn - Decided in Composition, if Boss, Includes Boss.
 		 * TotalEnemiesSpawned - Incremented in SpawnEnemy()
+		 *
+		 * Ex. 5 Basic 1 Boss
+		 * Iteration Starts at 0, but TotalEnemiesSpawned is 1
+		 * Iteration is 0 on boss because always set Array Index to TotalEnemiesSpawned - 1
+		 * Otherwise it is just TotalEnemiesSpawned.
+		 * We use Less than to offset by 1 because iteration starts at 0.
 		 */
 		if(TotalEnemiesSpawned < TotalEnemiesToSpawn)
 		{

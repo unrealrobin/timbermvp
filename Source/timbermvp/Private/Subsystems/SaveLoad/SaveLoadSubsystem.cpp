@@ -507,10 +507,8 @@ void USaveLoadSubsystem::LoadWaveData(USaveLoadStruct* LoadGameInstance)
 	if (LoadGameInstance && WaveSubsystem && GameMode)
 	{
 		WaveSubsystem->CurrentWaveNumber = LoadGameInstance->WaveNumber;
-
+		WaveSubsystem->SetCurrentWaveNumber(LoadGameInstance->WaveNumber);
 		UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), WaveSubsystem->CurrentWaveNumber);
-
-		GameMode->CurrentWaveNumberHandle.Broadcast(WaveSubsystem->CurrentWaveNumber);
 	}
 	else
 	{

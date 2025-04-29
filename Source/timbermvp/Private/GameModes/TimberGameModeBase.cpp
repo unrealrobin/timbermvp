@@ -127,35 +127,6 @@ void ATimberGameModeBase::InitializeGameState()
 				SpawnDummyForTutorial();
 			}
 		}
-		//Game Demo starting at Mid-Game
-		else if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::MidGameDemo)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Mid Game Demo Game State."))
-			USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
-			if (SaveLoadSubsystem)
-			{
-				//Loading the Game with Wave 9 Builds
-				SaveLoadSubsystem->LoadGame();
-
-				//Calling to Redraw the Path Trace next tick, after all the building components are built.
-				
-
-				//Set to Tutorial Complete / Ensures HUD Knows to Display all Widgets
-				DieRobotGameState->ChangeTutorialGameState(ETutorialState::TutorialComplete);
-				
-				//Setting Wave Number for GDC Mid Game Demo
-				GetWaveGameInstanceSubsystem()->SetCurrentWaveNumber(9);
-
-				//TODO:: Currently Unused, But we can use this later to increase enemy health based on wave #.
-				//This broadcasts to Enemy Characters the current Wave Number.
-				CurrentWaveNumberHandle.Broadcast(GetWaveGameInstanceSubsystem()->CurrentWaveNumber);
-				UE_LOG(LogTemp, Warning, TEXT("Broadcasted Current Wave Number: %d. "), GetWaveGameInstanceSubsystem()->CurrentWaveNumber)
-				
-				//Load all Game Assets
-				//Set Inventory to a reasonable rate
-				//Set the Wave to the correct Wave
-			}
-		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("GameModeBase - No GameState Set."))

@@ -122,6 +122,9 @@ public:
 	UPROPERTY()
 	int TimeBetweenWaves = 120; //2 minutes
 
+	UPROPERTY()
+	bool bIsWaveActive = false;
+
 	//Time Remaining to start of next wave.
 	UPROPERTY(BlueprintReadOnly)
 	int TimeToNextWave = 0;

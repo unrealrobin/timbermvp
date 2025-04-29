@@ -115,6 +115,7 @@ void UWaveGameInstanceSubsystem::GetGarageDoor()
 
 void UWaveGameInstanceSubsystem::StartWave()
 {
+	bIsWaveActive = true;
 	PlayWaveStartSound();
 
 	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
@@ -237,6 +238,12 @@ void UWaveGameInstanceSubsystem::EarlyStartWave()
 {
 	//If the Timer is active, but player wants to start the wave early...
 	//Ensures we don't Start a wave, then the timer goes off and starts the same wave.
+	if (bIsWaveActive)
+	{
+		//Don't start a wave if the current wave is active.
+		return;
+	}
+	
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimeToNextWaveHandle))
 	{
 		//Clears the Timer
@@ -389,6 +396,9 @@ void UWaveGameInstanceSubsystem::EndWave()
 	{
 		SaveLoadSubsystem->SaveCurrentGame();
 	}
+
+	//Resetting to inactive wave
+	bIsWaveActive = false;
 	
 	//Start Timer for Next Wave
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 

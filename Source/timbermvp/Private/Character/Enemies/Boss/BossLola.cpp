@@ -6,6 +6,7 @@
 #include "AI/BossAIControllerBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BuildSystem/BuildableBase.h"
+#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/Enemies/FloaterDrones.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -39,7 +40,7 @@ void ABossLola::BeginPlay()
 	&ABossLola::RandomizeDroneVulnerability, RandomizationTime, true );
 
 	//Setting Max Walk Speed for Lola
-	GetCharacterMovement()->MaxWalkSpeed = 100.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 
 	//Get All Collision Components for handling change in damage state
 	GetAllCapsuleComponents();
@@ -275,12 +276,13 @@ void ABossLola::DemolishBuildable()
 	if (SweepHitActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Lola - Sweep Hit Actor Found. Demolishing Buildable."));
-		ABuildableBase* Buildable = Cast<ABuildableBase>(SweepHitActor);
+		ATimberBuildingComponentBase* Buildable = Cast<ATimberBuildingComponentBase>(SweepHitActor);
 		if (Buildable)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Lola - Buildable Destroyed. Sweep Hit Cleared."));
-			Buildable->Destroy();
+			float BuildableHealth = Buildable->ComponentDurability;
+			Buildable->BuildingComponentTakeDamage(BuildableHealth, this);
 			SweepHitActor = nullptr;
+			UE_LOG(LogTemp, Warning, TEXT("Lola - Buildable Destroyed. Sweep Hit Cleared."));
 		}
 	}
 }

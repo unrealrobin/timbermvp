@@ -406,6 +406,7 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 	if (Seeda && SaveGameInstance)
 	{
 		SaveGameInstance->SeedaData.SeedaLocation = Seeda->GetActorLocation();
+		UE_LOG(LogTemp, Warning, TEXT("Saved Seeda Location: %s"), *Seeda->GetActorLocation().ToString());
 		SaveGameInstance->SeedaData.SeedaRotation = Seeda->GetActorRotation();
 		SaveGameInstance->SeedaData.SeedaHealth = Seeda->CurrentHealth;
 	}
@@ -553,24 +554,28 @@ void USaveLoadSubsystem::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 {
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()));
 
-	if (Seeda)
+	if (!Seeda)
 	{
-		Seeda->Destroy();
-	}
+		check(SeedaClass);
 
-	check(SeedaClass);
-	if (SeedaClass)
-	{
-		//TODO:: If seeda gets destroyed, we will not be able to get the class through the reference. There will be no Seeda to find.
-
-		FVector HardCodeSeedaLocation = FVector(2370.000000,1580.000000,130.000000);
+		//This is the load situation if Seeda Was destroyed.
 		
 		FActorSpawnParameters SpawnParams;
-		GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass,
-			HardCodeSeedaLocation,
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		AActor* SeedaActor = GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass,
+			LoadGameInstance->SeedaData.SeedaLocation,
 			LoadGameInstance->SeedaData.SeedaRotation,
 			SpawnParams);
-		
+		UE_LOG(LogTemp, Warning, TEXT("Spawned Seeda Location: %s"), *LoadGameInstance->SeedaData.SeedaLocation.ToString());
+		if (SeedaActor)
+		{
+			//SeedaActor->SetActorLocation(LoadGameInstance->SeedaData.SeedaLocation);
+			UE_LOG(LogTemp, Warning, TEXT("Set Seeda Location: %s"), *LoadGameInstance->SeedaData.SeedaLocation.ToString());
+		}
+	}
+	else
+	{
+		Seeda->SetActorLocation(LoadGameInstance->SeedaData.SeedaLocation);
 	}
 
 }

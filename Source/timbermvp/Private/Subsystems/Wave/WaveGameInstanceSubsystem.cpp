@@ -120,8 +120,12 @@ void UWaveGameInstanceSubsystem::StartWave()
 	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
 	if (SaveLoadSubsystem)
 	{
+		//This saves all builds/Inventory stats right before a wave is started.
 		SaveLoadSubsystem->SaveCurrentGame();
 	}
+
+	//Timer to allow SFX to play before actually start wave.
+	//TODO:: Test Opening lab doors here.
 	
 	FTimerHandle WaveDelayHandle;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -176,11 +180,11 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 		if(WaveCompositionRow->BossEnemy)
 		{
 			BossToSpawn = WaveCompositionRow->BossEnemy;
-			UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Boss Enemy Found"));
+			//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Boss Enemy Found"));
 			TotalEnemiesToSpawn += 1;
 		}
 		//Enemies to SpawnArray is the Array in the Data Table of Data Assets containing which enemy to spawn and how many of that enemy to spawn
-		//If there is an Array there with atleast 1 entry, we compose the table.
+		//If there is an Array there with at least 1 entry, we compose the table.
 		if(WaveCompositionRow->EnemiesToSpawnArray.Num() > 0)
 		{
 			//For Every Data Asset ...
@@ -202,7 +206,7 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 			//Shuffle the array.
 			ShuffleEnemiesToSpawn();
 			
-			UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
+			//UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
 		}
 	}
 }
@@ -220,6 +224,13 @@ void UWaveGameInstanceSubsystem::ShuffleEnemiesToSpawn()
 			Swap(EnemiesToSpawn[i], EnemiesToSpawn[RandomIndex]);
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies Start-------------------"));
+	for (TSubclassOf<ATimberEnemyCharacter> Enemy: EnemiesToSpawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Class: %s"), *Enemy->GetName());
+	}
+	UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies End-------------------"));
 }
 
 void UWaveGameInstanceSubsystem::EarlyStartWave()
@@ -262,26 +273,31 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 	
 	//We need to adjust the Index used based on whether a boss is or isn't spawned. If we dont, then Total Enemies To Spawn will overflow the EnemiesToSpawn Array which
 	//doesn't include the boss. So if Enemies to Spawn = 20 and Boss = 1, it can try to find EnemiesToSpawn[21] which would overflow, so we adjust that index whether the boss has been spawned.
+	//Always starts at TotalEnemiesSpawned, but needs to adjust first if boss was spawned, by subtracting 1
 	int ArrayIndex;
 	if (BossSpawned)
 	{
+		//TotalEnemiesToSpawn = 1
 		ArrayIndex = TotalEnemiesSpawned -1;
 	}
 	else
 	{
 		//This keeps the ArrayIndex Incremented and not starting over.
 		ArrayIndex = TotalEnemiesSpawned;
-		UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
+		//UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
 	}
 	
 	for(int i = 0; i < RandomNumberOfEnemiesToSpawnAtOnce; i++)
 	{
+		//We need to reset this because we adjust TotalEnemiesSpawned inside of SpawnEnemy()
+		ArrayIndex = TotalEnemiesSpawned;
 		/*
 		 * TotalEnemiesToSpawn - Decided in Composition, takes Boss into Account.
 		 * TotalEnemiesSpawned - Incremented in SpawnEnemy()
 		 */
 		if(TotalEnemiesSpawned < TotalEnemiesToSpawn)
 		{
+			//UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy at Array Index: %d"), ArrayIndex);
 			SpawnEnemy(EnemiesToSpawn[ArrayIndex], GetRandomStandardSpawnPointLocation());
 		}
 		else
@@ -316,11 +332,13 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AActor* Actor = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Location, FRotator::ZeroRotator, SpawnParameters);
+	UE_LOG(LogTemp, Warning, TEXT("Spawned Actor: %s"), *Actor->GetName());
 	if(Cast<ATimberEnemyCharacter>(Actor))
 	{
 		SpawnedEnemies.Add(Cast<ATimberEnemyCharacter>(Actor));
 		TotalEnemiesSpawned += 1;
-		UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
+		//UE_LOG(LogTemp, Warning, TEXT("Incremented Array Index + 1"));
+		//UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
 	}
 
 	//If we spawn a boss bind to its delegate.

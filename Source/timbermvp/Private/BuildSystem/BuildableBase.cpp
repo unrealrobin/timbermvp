@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "BuildSystem/BuildableBase.h"
@@ -65,7 +65,9 @@ void ABuildableBase::HandleDeletionOfBuildable()
 
 FGuid ABuildableBase::GetGUID()
 {
-	return GUID;
+
+		return GUID;
+	
 }
 
 void ABuildableBase::SetGUID(FGuid NewGUID)

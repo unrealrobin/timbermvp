@@ -38,7 +38,7 @@ void UWaveGameInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection
 void UWaveGameInstanceSubsystem::SetCurrentWaveNumber(int InWaveNumber)
 {
 	CurrentWaveNumber = InWaveNumber;
-	CurrentWaveHandle.Broadcast(InWaveNumber);
+	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
 	UE_LOG(LogTemp, Warning, TEXT("Set Wave Number to: %d"), InWaveNumber);
 }
 
@@ -115,13 +115,18 @@ void UWaveGameInstanceSubsystem::GetGarageDoor()
 
 void UWaveGameInstanceSubsystem::StartWave()
 {
+	bIsWaveActive = true;
 	PlayWaveStartSound();
 
 	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
 	if (SaveLoadSubsystem)
 	{
+		//This saves all builds/Inventory stats right before a wave is started.
 		SaveLoadSubsystem->SaveCurrentGame();
 	}
+
+	//Timer to allow SFX to play before actually start wave.
+	//TODO:: Test Opening lab doors here.
 	
 	FTimerHandle WaveDelayHandle;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -176,11 +181,11 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 		if(WaveCompositionRow->BossEnemy)
 		{
 			BossToSpawn = WaveCompositionRow->BossEnemy;
-			UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Boss Enemy Found"));
+			//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - ComposeWaveFromDataTable() - Boss Enemy Found"));
 			TotalEnemiesToSpawn += 1;
 		}
 		//Enemies to SpawnArray is the Array in the Data Table of Data Assets containing which enemy to spawn and how many of that enemy to spawn
-		//If there is an Array there with atleast 1 entry, we compose the table.
+		//If there is an Array there with at least 1 entry, we compose the table.
 		if(WaveCompositionRow->EnemiesToSpawnArray.Num() > 0)
 		{
 			//For Every Data Asset ...
@@ -202,7 +207,7 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 			//Shuffle the array.
 			ShuffleEnemiesToSpawn();
 			
-			UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
+			//UE_LOG(LogTemp, Warning, TEXT("Number of EnemiesToSpawn: %d"), EnemiesToSpawn.Num());
 		}
 	}
 }
@@ -220,12 +225,25 @@ void UWaveGameInstanceSubsystem::ShuffleEnemiesToSpawn()
 			Swap(EnemiesToSpawn[i], EnemiesToSpawn[RandomIndex]);
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies Start-------------------"));
+	for (TSubclassOf<ATimberEnemyCharacter> Enemy: EnemiesToSpawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Class: %s"), *Enemy->GetName());
+	}
+	UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies End-------------------"));
 }
 
 void UWaveGameInstanceSubsystem::EarlyStartWave()
 {
 	//If the Timer is active, but player wants to start the wave early...
 	//Ensures we don't Start a wave, then the timer goes off and starts the same wave.
+	if (bIsWaveActive)
+	{
+		//Don't start a wave if the current wave is active.
+		return;
+	}
+	
 	if (GetWorld()->GetTimerManager().IsTimerActive(TimeToNextWaveHandle))
 	{
 		//Clears the Timer
@@ -262,26 +280,35 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 	
 	//We need to adjust the Index used based on whether a boss is or isn't spawned. If we dont, then Total Enemies To Spawn will overflow the EnemiesToSpawn Array which
 	//doesn't include the boss. So if Enemies to Spawn = 20 and Boss = 1, it can try to find EnemiesToSpawn[21] which would overflow, so we adjust that index whether the boss has been spawned.
-	int ArrayIndex;
-	if (BossSpawned)
-	{
-		ArrayIndex = TotalEnemiesSpawned -1;
-	}
-	else
-	{
-		//This keeps the ArrayIndex Incremented and not starting over.
-		ArrayIndex = TotalEnemiesSpawned;
-		UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
-	}
+	//Always starts at TotalEnemiesSpawned, but needs to adjust first if boss was spawned, by subtracting 1
 	
 	for(int i = 0; i < RandomNumberOfEnemiesToSpawnAtOnce; i++)
 	{
+		int ArrayIndex;
+		if (BossSpawned)
+		{
+			//TotalEnemiesToSpawn = 1
+			ArrayIndex = TotalEnemiesSpawned -1;
+		}
+		else
+		{
+			//This keeps the ArrayIndex Incremented and not starting over.
+			ArrayIndex = TotalEnemiesSpawned;
+			//UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
+		}
 		/*
-		 * TotalEnemiesToSpawn - Decided in Composition, takes Boss into Account.
+		 * TotalEnemiesToSpawn - Decided in Composition, if Boss, Includes Boss.
 		 * TotalEnemiesSpawned - Incremented in SpawnEnemy()
+		 *
+		 * Ex. 5 Basic 1 Boss
+		 * Iteration Starts at 0, but TotalEnemiesSpawned is 1
+		 * Iteration is 0 on boss because always set Array Index to TotalEnemiesSpawned - 1
+		 * Otherwise it is just TotalEnemiesSpawned.
+		 * We use Less than to offset by 1 because iteration starts at 0.
 		 */
 		if(TotalEnemiesSpawned < TotalEnemiesToSpawn)
 		{
+			//UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy at Array Index: %d"), ArrayIndex);
 			SpawnEnemy(EnemiesToSpawn[ArrayIndex], GetRandomStandardSpawnPointLocation());
 		}
 		else
@@ -316,11 +343,13 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AActor* Actor = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Location, FRotator::ZeroRotator, SpawnParameters);
+	UE_LOG(LogTemp, Warning, TEXT("Spawned Actor: %s"), *Actor->GetName());
 	if(Cast<ATimberEnemyCharacter>(Actor))
 	{
 		SpawnedEnemies.Add(Cast<ATimberEnemyCharacter>(Actor));
 		TotalEnemiesSpawned += 1;
-		UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
+		//UE_LOG(LogTemp, Warning, TEXT("Incremented Array Index + 1"));
+		//UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
 	}
 
 	//If we spawn a boss bind to its delegate.
@@ -371,6 +400,9 @@ void UWaveGameInstanceSubsystem::EndWave()
 	{
 		SaveLoadSubsystem->SaveCurrentGame();
 	}
+
+	//Resetting to inactive wave
+	bIsWaveActive = false;
 	
 	//Start Timer for Next Wave
 	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
@@ -380,7 +412,7 @@ void UWaveGameInstanceSubsystem::EndWave()
 
 void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 {
-	//Ensures if player kills full array before end of spawning, wave won't end early.
+	//Ensures if player kills a full array before the end of spawning, wave won't end early.
 	bAllEnemiesSpawned = false;
 
 	//Reset Wave Data

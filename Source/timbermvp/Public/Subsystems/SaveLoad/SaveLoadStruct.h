@@ -70,6 +70,10 @@ struct FBuildableData
 	UPROPERTY()
 	FGuid ParentBuildableGUID;
 
+	/*Used for Deletions of Traps.*/
+	UPROPERTY()
+	EBuildingComponentTrapDirection TrapDirection = EBuildingComponentTrapDirection::Default;
+
 	/*Teleporter Pairing*/
 	UPROPERTY()
 	FGuid TeleportPairGUID;

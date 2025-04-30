@@ -6,14 +6,22 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
-void UTimberDeathWidget::NativePreConstruct()
+void UTimberDeathWidget::SetLastCompletedWave(int CurrentWaveNumber)
 {
-	Super::NativePreConstruct();
+	UE_LOG(LogTemp, Warning, TEXT("Death Widget Wave Number Updated: %d"), CurrentWaveNumber);
+	LastCompletedWave = CurrentWaveNumber;
+	SetLastCompletedWaveText();
+}
 
-	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	if (GameMode)
+void UTimberDeathWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+	if (WaveSubsystem)
 	{
-		LastCompletedWave = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CurrentWaveNumber;
+		WaveSubsystem->CurrentWaveHandle.AddDynamic(this, &UTimberDeathWidget::SetLastCompletedWave);
+		UE_LOG(LogTemp, Warning, TEXT("Death Widget Bound to Wave Subsystem."));
 	}
 }
 

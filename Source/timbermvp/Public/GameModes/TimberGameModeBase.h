@@ -31,14 +31,12 @@ class TIMBERMVP_API ATimberGameModeBase : public AGameModeBase
 
 public:
 	/* Delegate Signature*/
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCurrentWaveNumberHandle, float, CurrentWaveNumber);
 	DECLARE_DYNAMIC_DELEGATE(FSwitchToStandardUI);
 	DECLARE_DYNAMIC_DELEGATE(FEnableStandardInputMappingContext);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterInitialization);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSeedaSpawn, AActor*, Seeda);
 
 	/* Delegate Handle */
-	FCurrentWaveNumberHandle CurrentWaveNumberHandle;
 	FSwitchToStandardUI SwitchToStandardUI;
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	FOnCharacterInitialization OnCharacterInitialization;

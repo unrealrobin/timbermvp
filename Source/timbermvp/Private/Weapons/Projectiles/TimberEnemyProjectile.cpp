@@ -116,9 +116,12 @@ bool ATimberEnemyProjectile::IsActorCurrentTarget(AActor* OtherActor)
 	//Double Get Owner because most projectiles file from Gun, but we need GunOwner
 	// Projectile -> Gun -> GunOwner
 	if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner()))
-	if (OtherActor == Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget)
 	{
-		return true;
+		if (OtherActor == EnemyCharacter->CurrentTarget)
+		{
+			return true;
+		}
+		
 	}
 
 	return false;

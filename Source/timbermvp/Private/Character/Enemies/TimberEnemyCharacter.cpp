@@ -43,13 +43,6 @@ void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* Listening to Delegate Broadcast from TimberGameMode */
-	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-	if (GameMode)
-	{
-		GameMode->CurrentWaveNumberHandle.AddDynamic(this, &ATimberEnemyCharacter::UpdateCurrentWaveNumber);
-	}
-
 	//Enemies can walk up slopes of 56 degrees.
 	GetCharacterMovement()->SetWalkableFloorAngle(56.0f);
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;

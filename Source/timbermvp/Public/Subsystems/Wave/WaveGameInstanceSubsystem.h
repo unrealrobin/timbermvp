@@ -22,7 +22,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 1;
+	int CurrentWaveNumber = 3;
 	
 	void SetCurrentWaveNumber(int InWaveNumber);
 
@@ -39,6 +39,8 @@ public:
 	FTimeToNextWaveSecondsHandle TimeToNextWaveSecondsHandle;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandleWaveComplete, int, CompletedWaveNumber);
 	FHandleWaveComplete HandleWaveComplete;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, AActor*, BossActor);
+	FOnBossSpawned OnBossSpawned;
 
 	/* Data Table */
 	UFUNCTION()
@@ -74,6 +76,8 @@ public:
 	void ComposeWaveFromDataTable();
 	UFUNCTION()
 	void HandleBossSpawn();
+	UFUNCTION()
+	void SpawnBoss(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UFUNCTION()
 	void SpawnPartOfWave();
 	UFUNCTION()

@@ -11,6 +11,7 @@
 #include "TimberHUDBase.generated.h"
 
 
+class UBossHealthBar;
 /**
  * 
  */
@@ -20,14 +21,18 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 
 public:
+	
 	//void SeedaBinding();
 	virtual void BeginPlay() override;
 
-	void InitializeWidgets();
+	
 	UFUNCTION()
 	void UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead);
+
+	void InitializeWidgets();
 	void CharacterAndControllerBindings();
 	void GameModeBindings();
+	void BindToWaveSubsystem();
 	
 	UFUNCTION()
 	void UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed);
@@ -96,6 +101,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* KBM_BuildControlsWidget;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> BossHealthBarWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* BossHealthBarWidget;
+	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
 	
@@ -156,7 +167,8 @@ private:
 	void GetRootWidgetChildrenWidgets();
 
 	UUserWidget* GetWidgetByClassName(FString ClassName);
-
+	UUserWidget* CreateVisibleWidget(const TSubclassOf<UUserWidget>& Class, int32 ZOrder);
+	UUserWidget* CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetClass, int32 ZOrder);
 	void HideWidget(UUserWidget* Widget);
 	void ShowWidget(UUserWidget* Widget);
 	void HideAllChildWidgets(TArray<UUserWidget*> Widgets);
@@ -165,8 +177,13 @@ private:
 	void ShowPlayerHealthWidget();
 	void ShowSeedaHealthWidget();
 	void ShowWaveDataWidget();
+
+	UFUNCTION()
+	void HandleBossSpawned(AActor* BossActor);
 	
 };
+
+
 
 
 

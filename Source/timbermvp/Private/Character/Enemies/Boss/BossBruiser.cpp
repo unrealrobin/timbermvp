@@ -20,6 +20,8 @@ ABossBruiser::ABossBruiser()
 	WhirlwindRightCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 	WhirlwindLeftCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 	RightArmCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleBHandSlapOverlap);
+
+	BossTechnicalName = "8RU153R";
 }
 
 // Called when the game starts or when spawned

@@ -332,12 +332,38 @@ void UWaveGameInstanceSubsystem::HandleBossSpawn()
 		OpenBossDoor();
 		
 		//Spawn the Boss.
-		SpawnEnemy(BossToSpawn, BossSpawnPointLocation);
+		//SpawnEnemy(BossToSpawn, BossSpawnPointLocation);
+		SpawnBoss(BossToSpawn, BossSpawnPointLocation);
 		
 	}
 }
 
-void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location)
+void UWaveGameInstanceSubsystem::SpawnBoss(TSubclassOf<AActor> ActorToSpawn, FVector Location)
+{
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	AActor* Actor = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Location, FRotator::ZeroRotator, SpawnParameters);
+	UE_LOG(LogTemp, Warning, TEXT("Spawned Boss: %s"), *Actor->GetName());
+	if(Cast<ATimberEnemyCharacter>(Actor))
+	{
+		SpawnedEnemies.Add(Cast<ATimberEnemyCharacter>(Actor));
+		TotalEnemiesSpawned += 1;
+		if (ABossBase* Boss = Cast<ABossBase>(Actor))
+		{
+			//Handles Garage Door Closing on Death
+			BindToBossDelegate(Boss);
+			BossSpawned = true;
+
+			//Broadcast to HUD to show Boss Health Bar - Passing Ref to Boss Instance
+			OnBossSpawned.Broadcast(Boss);
+		}
+	}
+
+	
+}
+
+void UWaveGameInstanceSubsystem::  SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location)
 {
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -350,14 +376,6 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 		TotalEnemiesSpawned += 1;
 		//UE_LOG(LogTemp, Warning, TEXT("Incremented Array Index + 1"));
 		//UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
-	}
-
-	//If we spawn a boss bind to its delegate.
-	if (Cast<ABossBase>(Actor))
-	{
-		//Handles Garage Door Closing on Death
-		BindToBossDelegate(Cast<ABossBase>(Actor));
-		BossSpawned = true;
 	}
 }
 

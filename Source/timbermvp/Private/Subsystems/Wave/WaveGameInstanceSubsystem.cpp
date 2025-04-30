@@ -412,7 +412,7 @@ void UWaveGameInstanceSubsystem::EndWave()
 
 void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 {
-	//Ensures if player kills full array before end of spawning, wave won't end early.
+	//Ensures if player kills a full array before the end of spawning, wave won't end early.
 	bAllEnemiesSpawned = false;
 
 	//Reset Wave Data

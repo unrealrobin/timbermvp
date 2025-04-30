@@ -1,12 +1,9 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries. 
 
 
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/TimberSeeda.h"
 #include "Controller/TimberPlayerController.h"
-#include "BuildSystem/Constructs/PowerPlate.h"
-#include "BuildSystem/Constructs/TeleportConstruct.h"
-#include "BuildSystem/Ramps/RampBase.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
@@ -264,9 +261,9 @@ void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 	{
 		PlayDeathAnimation();
 		//Broadcast to HUD to Update Death UI Reason Text
-		
 		//Player Controller && HUD is Subscribed to this Delegate
 		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDeadNow);
+		
 	}
 }
 

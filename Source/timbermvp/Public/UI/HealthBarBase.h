@@ -17,7 +17,7 @@ class TIMBERMVP_API UHealthBarBase : public UUserWidget
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	FName DisplayName = "SET_BOSS_NAME";
+	FName DisplayName = "ACTOR_NAME";
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI)
 	AActor* ActorReference = nullptr;

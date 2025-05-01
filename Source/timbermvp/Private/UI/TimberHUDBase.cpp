@@ -42,7 +42,7 @@ void ATimberHUDBase::InitializeWidgets()
 
 	/*Initialized Hidden*/
 	BuildMenuWidget = CreateHiddenWidget(BuildMenuWidgetClass, 10);
-	AmmoCounterWidget = CreateHiddenWidget(AmmoCounterWidgetClass, 1);
+	//AmmoCounterWidget = CreateHiddenWidget(AmmoCounterWidgetClass, 1);
 	KBM_MovementControlsWidget = CreateHiddenWidget(KBM_MovementControlsWidgetClass, 2);
 	KBM_CombatControlsWidget = CreateHiddenWidget(KBM_CombatControlsWidgetClass, 2);
 	KBM_BuildControlsWidget = CreateHiddenWidget(KBM_BuildControlWidgetClass, 2);
@@ -76,7 +76,7 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::CloseBuildPanelMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
-		TimberPlayerController->ShowAmmoCounter.AddDynamic(this, &ATimberHUDBase::HandleAmmoCounterVisibility);
+		//TimberPlayerController->ShowAmmoCounter.AddDynamic(this, &ATimberHUDBase::HandleAmmoCounterVisibility);
 
 		TimberCharacter = Cast<ATimberPlayableCharacter>(
 			TimberPlayerController->GetCharacter());
@@ -352,15 +352,10 @@ void ATimberHUDBase::HandleAmmoCounterVisibility(bool bShouldShowAmmoCounter)
 		if (bShouldShowAmmoCounter)
 		{
 			AmmoCounterWidget->SetVisibility(ESlateVisibility::Visible);
-			if (GEngine)
-			{
-				//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Showing Ammo Counter");
-			}
 		}
 		else
 		{
 			AmmoCounterWidget->SetVisibility(ESlateVisibility::Hidden);
-			//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Hiding Ammo Counter");
 		}
 	}
 }

@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "Controller/TimberPlayerController.h"
@@ -326,7 +326,7 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponThreeInstance);
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
 		WeaponState.Broadcast(EWeaponState::RangedEquipped);
-		ShowAmmoCounter.Broadcast(true);
+		/*ShowAmmoCounter.Broadcast(true);*/
 
 		if (TimberCharacter->WeaponThreeInstance)
 		{
@@ -419,11 +419,11 @@ void ATimberPlayerController::UnEquipWeapon() const
 
 void ATimberPlayerController::HandleWeaponEquip() const
 {
-	//If we un-equipped the Ranged Weapon, we need to Hide the Ammo Counter.
-	if (Cast<ATimberWeaponRangedBase>(TimberCharacter->GetCurrentlyEquippedWeapon()))
+	
+	/*if (Cast<ATimberWeaponRangedBase>(TimberCharacter->GetCurrentlyEquippedWeapon()))
 	{
 		ShowAmmoCounter.Broadcast(false);
-	}
+	}*/
 }
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)

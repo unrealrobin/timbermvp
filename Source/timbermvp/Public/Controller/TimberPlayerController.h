@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -40,7 +40,7 @@ public:
 
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShouldShowAmmoCounter, bool, bShouldShowAmmoCounter);
+	//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShouldShowAmmoCounter, bool, bShouldShowAmmoCounter);
 	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
@@ -50,8 +50,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
-	UPROPERTY(BlueprintAssignable)
-	FShouldShowAmmoCounter ShowAmmoCounter;
+	/*UPROPERTY(BlueprintAssignable)
+	FShouldShowAmmoCounter ShowAmmoCounter;*/
 	
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)

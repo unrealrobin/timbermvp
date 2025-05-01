@@ -107,6 +107,9 @@ void ATimberHUDBase::SeedaBindings()
 		ATimberSeeda* Seeda = GameMode->Seeda;
 		if (Seeda)
 		{
+			//Bind to seeda Begin play
+			// Get Actor Ref to store on Seeda Health Widget.
+			
 			Seeda->OnSeedaDeathUI.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed);
 			UE_LOG(LogTemp, Warning, TEXT("Successfully Bound to Seeda Death UI Reason Delegate."))
 		}

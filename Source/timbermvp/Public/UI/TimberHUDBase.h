@@ -25,11 +25,14 @@ public:
 	//void SeedaBinding();
 	virtual void BeginPlay() override;
 
+	void InitializeWidgets();
 	
 	UFUNCTION()
 	void UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead);
 
-	void InitializeWidgets();
+	UFUNCTION()
+	void ToggleSettingsPanelWidget();
+	
 	void CharacterAndControllerBindings();
 	void GameModeBindings();
 	void BindToWaveSubsystem();
@@ -37,75 +40,63 @@ public:
 	UFUNCTION()
 	void UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed);
 	
-	void SeedaBindings();
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
-
-	/*Delegate Handles*/
+	
 	UPROPERTY()
 	FIsBuildMenuOpen bIsBuildMenuOpen;
 
-	//To Be Set on BP_TimberHUDBase
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> RootWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* RootWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> BuildMenuWidgetClass;
-
-	//Set In Blueprints
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* BuildMenuWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> DeathWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* DeathWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> DeleteBuildingComponentWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* DeleteBuildingComponentWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> SeedaOverlapWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* SeedaOverlapWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> AmmoCounterWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* AmmoCounterWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> KBM_MovementControlsWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* KBM_MovementControlsWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> KBM_CombatControlsWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* KBM_CombatControlsWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	TSubclassOf<UUserWidget> KBM_BuildControlWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* KBM_BuildControlsWidget;
+	/*
+	 * Widget Classes
+	 * Set in BP on BP_TimberHUDBase
+	 */
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> RootWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> BuildMenuWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> DeathWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> DeleteBuildingComponentWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> SeedaOverlapWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> AmmoCounterWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> KBM_MovementControlsWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> KBM_CombatControlsWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> KBM_BuildControlWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> BossHealthBarWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> SettingsPanelWidgetClass;
 
+	//Widget References
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* RootWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* BuildMenuWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* DeathWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* DeleteBuildingComponentWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* SeedaOverlapWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* AmmoCounterWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_MovementControlsWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_CombatControlsWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_BuildControlsWidget;
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* BossHealthBarWidget;
+	UPROPERTY(VisibleAnywhere)
+	UUserWidget* SettingsPanelWidget;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
@@ -177,7 +168,7 @@ private:
 	void ShowPlayerHealthWidget();
 	void ShowSeedaHealthWidget();
 	void ShowWaveDataWidget();
-
+	void SeedaBindings();
 	UFUNCTION()
 	void HandleBossSpawned(AActor* BossActor);
 	

@@ -100,6 +100,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
 	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
 	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
+	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
 }
 
 void ATimberPlayerController::PerformReticuleAlignment_Raycast()
@@ -498,7 +499,6 @@ void ATimberPlayerController::OpenBuildModeSelectionMenu()
 {
 	//Broadcast to the HUD to Open the Build Menu
 	IsBuildPanelOpen.Broadcast(true);
-	
 }
 
 void ATimberPlayerController::HandleExitBuildMode()
@@ -523,6 +523,16 @@ void ATimberPlayerController::ExitBuildMode(const FInputActionValue& Value)
 	 */
 	
 	HandleExitBuildMode();
+}
+
+void ATimberPlayerController::ToggleSettingsPanel(const FInputActionValue& Value)
+{
+	if (TimberCharacter->CharacterState == ECharacterState::Standard)
+	{
+		//The HUD will no whether or not the visibility of the settings panel is set to true or false. And will toggle beteern them.
+		ToggleSettingsPanel_DelegateHandle.Broadcast();
+		//Just letting the HUD know that the player pressed this button while out of Build Mode.
+	}
 }
 
 void ATimberPlayerController::HandleControllerExitBuildMode()

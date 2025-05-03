@@ -35,6 +35,8 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSettingsPanelToggle);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
 
@@ -45,11 +47,10 @@ public:
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
-	UPROPERTY(BlueprintAssignable)
 	FOnBuildMenuToggle IsBuildPanelOpen;
-	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
+	FOnSettingsPanelToggle ToggleSettingsPanel_DelegateHandle;
 	/*UPROPERTY(BlueprintAssignable)
 	FShouldShowAmmoCounter ShowAmmoCounter;*/
 	
@@ -90,6 +91,8 @@ public:
 	UInputAction* ReloadWeaponInputAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ExitBuildModeAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ToggleSettingsPanelAction;
 
 	/*Player Controls*/
 	UFUNCTION()
@@ -130,6 +133,8 @@ public:
 	void ReloadWeapon(const FInputActionValue& Value);
 	UFUNCTION()
 	void ExitBuildMode(const FInputActionValue& Value);
+	UFUNCTION()
+	void ToggleSettingsPanel(const FInputActionValue& Value);
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

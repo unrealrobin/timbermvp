@@ -48,6 +48,7 @@ void ATimberHUDBase::InitializeWidgets()
 	KBM_BuildControlsWidget = CreateHiddenWidget(KBM_BuildControlWidgetClass, 2);
 	DeathWidget = CreateHiddenWidget(DeathWidgetClass, 100);
 	BossHealthBarWidget = CreateHiddenWidget(BossHealthBarWidgetClass, 2);
+	SettingsPanelWidget = CreateHiddenWidget(SettingsPanelWidgetClass, 10);
 }
 
 UUserWidget* ATimberHUDBase::CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetClass, int32 ZOrder)
@@ -76,6 +77,7 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::CloseBuildPanelMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
+		TimberPlayerController->ToggleSettingsPanel_DelegateHandle.AddDynamic(this, &ATimberHUDBase::ToggleSettingsPanelWidget);
 		//TimberPlayerController->ShowAmmoCounter.AddDynamic(this, &ATimberHUDBase::HandleAmmoCounterVisibility);
 
 		TimberCharacter = Cast<ATimberPlayableCharacter>(
@@ -107,9 +109,6 @@ void ATimberHUDBase::SeedaBindings()
 		ATimberSeeda* Seeda = GameMode->Seeda;
 		if (Seeda)
 		{
-			//Bind to seeda Begin play
-			// Get Actor Ref to store on Seeda Health Widget.
-			
 			Seeda->OnSeedaDeathUI.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed);
 			UE_LOG(LogTemp, Warning, TEXT("Successfully Bound to Seeda Death UI Reason Delegate."))
 		}
@@ -135,6 +134,30 @@ void ATimberHUDBase::UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead)
 				TimberDeathWidget->DeathReason = EDeathReason::KipDestroyed;
 				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::KipDestroyed);
 			}
+		}
+	}
+}
+
+void ATimberHUDBase::ToggleSettingsPanelWidget()
+{
+	if (SettingsPanelWidget)
+	{
+		//Toggle based on visibility.
+		SettingsPanelWidget->IsVisible() ? HideWidget(SettingsPanelWidget) : ShowWidget(SettingsPanelWidget);
+
+		if (SettingsPanelWidget->IsVisible())
+		{
+			FInputModeGameAndUI GameAndUIInputMode;
+			TimberPlayerController->SetInputMode(GameAndUIInputMode);
+			TimberPlayerController->SetFocusedUserWidget(SettingsPanelWidget);
+			TimberPlayerController->SetMouseLocation(GetCenterOfScreen().X, GetCenterOfScreen().Y);
+			TimberPlayerController->EnableCursor();
+		}
+		else
+		{
+			FInputModeGameOnly GameOnlyInputMode;
+			TimberPlayerController->SetInputMode(GameOnlyInputMode);
+			TimberPlayerController->DisableCursor();
 		}
 	}
 }
@@ -210,7 +233,6 @@ void ATimberHUDBase::ShowWidget(UUserWidget* Widget)
 
 void ATimberHUDBase::OpenBuildPanelMenu()
 {
-	
 	if (BuildMenuWidget)
 	{
 		BuildMenuWidget->SetVisibility(ESlateVisibility::Visible);

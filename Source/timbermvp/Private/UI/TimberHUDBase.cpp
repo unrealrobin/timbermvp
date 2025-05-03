@@ -212,6 +212,33 @@ void ATimberHUDBase::HideWidget(UUserWidget* Widget)
 	}
 }
 
+void ATimberHUDBase::ShowWidget(UUserWidget* Widget)
+{
+	if (Widget)
+	{
+		Widget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void ATimberHUDBase::SetWidgetToFocus(UUserWidget* Widget)
+{
+	//We want both the Game and UI to be focused because the player should still be able to move while the UI is open.
+	//We also want cursor availability.
+	FInputModeGameAndUI GameAndWidgetInputMode;
+	
+	TimberPlayerController->SetInputMode(GameAndWidgetInputMode);
+	TimberPlayerController->EnableCursor();
+	Widget->SetFocus();
+}
+
+void ATimberHUDBase::SetGameToFocus()
+{
+	//Setting the InputMode back to Game Only. Input mode is Changed in the Widget Blueprint in Event Preconstruct.
+	FInputModeGameOnly GameOnlyInputMode;
+	TimberPlayerController->SetInputMode(GameOnlyInputMode);
+	TimberPlayerController->DisableCursor();
+}
+
 void ATimberHUDBase::HideAllChildWidgets(TArray<UUserWidget*> Widgets)
 {
 	if (Widgets.Num() > 0)
@@ -223,12 +250,13 @@ void ATimberHUDBase::HideAllChildWidgets(TArray<UUserWidget*> Widgets)
 	}
 }
 
-void ATimberHUDBase::ShowWidget(UUserWidget* Widget)
+void ATimberHUDBase::ShowAllGameWidgets()
 {
-	if (Widget)
-	{
-		Widget->SetVisibility(ESlateVisibility::Visible);
-	}
+	ShowCrossHairWidget();
+	ShowInventoryPanelWidget();
+	ShowPlayerHealthWidget();
+	ShowSeedaHealthWidget();
+	ShowWaveDataWidget();
 }
 
 void ATimberHUDBase::OpenBuildPanelMenu()
@@ -236,8 +264,8 @@ void ATimberHUDBase::OpenBuildPanelMenu()
 	if (BuildMenuWidget)
 	{
 		BuildMenuWidget->SetVisibility(ESlateVisibility::Visible);
+		
 		FInputModeGameAndUI GameAndUIInputMode;
-
 		//We may need to adjust this for focusing.
 		TimberPlayerController->SetInputMode(GameAndUIInputMode);
 		TimberPlayerController->SetFocusedUserWidget(BuildMenuWidget);
@@ -286,14 +314,6 @@ FVector2d ATimberHUDBase::GetViewportSize()
 	return FVector2d(ViewportSizeX, ViewportSizeY);
 }
 
-void ATimberHUDBase::ShowAllGameWidgets()
-{
-	ShowCrossHairWidget();
-	ShowInventoryPanelWidget();
-	ShowPlayerHealthWidget();
-	ShowSeedaHealthWidget();
-	ShowWaveDataWidget();
-}
 
 void ATimberHUDBase::SwitchToDeathUI()
 {
@@ -308,6 +328,8 @@ void ATimberHUDBase::SwitchToDeathUI()
 	{
 		DeathWidget->AddToViewport(1);
 		DeathWidget->SetVisibility(ESlateVisibility::Visible);
+
+		SetWidgetToFocus(DeathWidget);
 	}
 }
 
@@ -322,6 +344,8 @@ void ATimberHUDBase::SwitchToGameUI()
 	{
 		RootWidget->AddToViewport(1);
 	}
+
+	SetGameToFocus();
 }
 
 void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY)

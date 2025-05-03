@@ -131,6 +131,12 @@ public:
 protected:
 	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter;
+
+	UFUNCTION()
+	void SetWidgetToFocus(UUserWidget* Widget);
+
+	UFUNCTION()
+	void SetGameToFocus();
 	
 	/*Delegate Listeners*/
 	UFUNCTION()
@@ -160,6 +166,7 @@ private:
 	UUserWidget* GetWidgetByClassName(FString ClassName);
 	UUserWidget* CreateVisibleWidget(const TSubclassOf<UUserWidget>& Class, int32 ZOrder);
 	UUserWidget* CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetClass, int32 ZOrder);
+	
 	void HideWidget(UUserWidget* Widget);
 	void ShowWidget(UUserWidget* Widget);
 	void HideAllChildWidgets(TArray<UUserWidget*> Widgets);
@@ -169,6 +176,7 @@ private:
 	void ShowSeedaHealthWidget();
 	void ShowWaveDataWidget();
 	void SeedaBindings();
+	
 	UFUNCTION()
 	void HandleBossSpawned(AActor* BossActor);
 	

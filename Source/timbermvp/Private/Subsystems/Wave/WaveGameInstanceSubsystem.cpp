@@ -363,7 +363,7 @@ void UWaveGameInstanceSubsystem::SpawnBoss(TSubclassOf<AActor> ActorToSpawn, FVe
 	
 }
 
-void UWaveGameInstanceSubsystem::  SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location)
+void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location)
 {
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -392,40 +392,9 @@ void UWaveGameInstanceSubsystem::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy
 		//Only counting Basic Enemies
 		if(TotalEnemiesKilled == TotalEnemiesToSpawn && bAllEnemiesSpawned)
 		{
-			EndWave();
+			EndWave(EWaveStopReason::Success);
 		}
 	}
-}
-
-void UWaveGameInstanceSubsystem::EndWave()
-{
-	PlayWaveEndSound();
-
-	//Broadcasts the Completed Wave Number
-	HandleWaveComplete.Broadcast(CurrentWaveNumber);
-	
-	//Process of Closing Doors
-	CloseLabDoorHandle.Broadcast();
-	
-	//Resetting the wave Data.
-	ResetWaveEnemies();
-	
-	//Increment Wave - HUD Will always show UPCOMING wave.
-	IncrementWave();
-	
-	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
-	if(SaveLoadSubsystem)
-	{
-		SaveLoadSubsystem->SaveCurrentGame();
-	}
-
-	//Resetting to inactive wave
-	bIsWaveActive = false;
-	
-	//Start Timer for Next Wave
-	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
-	TimeBetweenWaves, false);
-	GetWorld()->GetTimerManager().SetTimer(UpdatedTimeToNextWaveTimerHandle, this, &UWaveGameInstanceSubsystem::UpdateTimeToNextWave, 1.f, true);
 }
 
 void UWaveGameInstanceSubsystem::ResetWaveEnemies()
@@ -567,13 +536,71 @@ void UWaveGameInstanceSubsystem::PlayBossSpawnSound()
 	}
 }
 
-void UWaveGameInstanceSubsystem::FullStop()
+void UWaveGameInstanceSubsystem::SuccessfulWaveEnd()
 {
-	//This acts as a full stop for all Wave Spawning things.
+	PlayWaveEndSound();
+		
+	//Broadcasts the Completed Wave Number
+	HandleWaveComplete.Broadcast(CurrentWaveNumber);
+		
+	//Process of Closing Doors
+	CloseLabDoorHandle.Broadcast();
+		
+	//Resetting the wave Data.
+	ResetWaveEnemies();
+	IncrementWave();
 	
-	//This ends the wave and handles some other cleanup but also starts new timers for next wave.
-	EndWave();
-	//Stops all ongoing timers for spawning enemies and incrementing waves.
+	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+	if(SaveLoadSubsystem)
+	{
+		SaveLoadSubsystem->SaveCurrentGame();
+	}
+
+	//Resetting to inactive wave
+	bIsWaveActive = false;
+	
+	//Start Timer for Next Wave
+	GetWorld()->GetTimerManager().SetTimer(TimeToNextWaveHandle, this, &UWaveGameInstanceSubsystem::StartWave, 
+										   TimeBetweenWaves, false);
+	GetWorld()->GetTimerManager().SetTimer(UpdatedTimeToNextWaveTimerHandle, this, &UWaveGameInstanceSubsystem::UpdateTimeToNextWave, 1.f, true);
+}
+
+void UWaveGameInstanceSubsystem::EndWave(EWaveStopReason WaveStopReason)
+{
+
+	if (WaveStopReason == EWaveStopReason::Success)
+	{
+		SuccessfulWaveEnd();
+	}
+	else if (WaveStopReason == EWaveStopReason::Failure)
+	{
+		//the player dies during wave, before completion of wave.
+		FailWave();
+	}
+	else if (WaveStopReason == EWaveStopReason::LevelSwitch)
+	{
+		//Handles situations where the player leaves the game mid wave or other catchall situations.
+		bIsWaveActive = false;
+
+		CloseLabDoorHandle.Broadcast();
+
+		ResetWaveEnemies();
+
+		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	}
+}
+
+void UWaveGameInstanceSubsystem::FailWave()
+{
+	//Reset Active Wave Var (Used to be able to start a new wave)
+	bIsWaveActive = false;
+	
+	//Close All Doors.
+	CloseLabDoorHandle.Broadcast();
+
+	ResetWaveEnemies();
+
+	//Clears all timers for the Wave.
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 

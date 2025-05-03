@@ -9,6 +9,14 @@
 class AGarageDoorBase;
 class ATimberEnemyCharacter;
 
+UENUM(BlueprintType)
+enum class EWaveStopReason : uint8
+{
+	Success,
+	Failure,
+	LevelSwitch
+};
+
 /**
  * 
  */
@@ -83,13 +91,17 @@ public:
 	UFUNCTION()
 	void SpawnWave();
 	UFUNCTION()
-	void EndWave();
-	UFUNCTION()
 	void IncrementWave();
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UFUNCTION()
 	void EarlyStartWave();
+	UFUNCTION()
+	void EndWave(EWaveStopReason WaveStopReason);
+	UFUNCTION()
+	void FailWave();
+	UFUNCTION()
+	void SuccessfulWaveEnd();
 	
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
@@ -115,6 +127,7 @@ public:
 	TArray<ATimberEnemyCharacter*> SpawnedEnemies;
 	UFUNCTION()
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
+	
 	UFUNCTION()
 	void ResetWaveEnemies();
 	UPROPERTY()
@@ -153,9 +166,6 @@ public:
 	void PlayWaveStartSound();
 	void PlayWaveEndSound();
 	void PlayBossSpawnSound();
-
-	/*Level Switching*/
-	void FullStop();
 };
 
 

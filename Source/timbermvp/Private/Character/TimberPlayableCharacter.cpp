@@ -186,6 +186,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 	if (BuildSystemManager)
 	{
 		TSubclassOf<ABuildableBase> ActiveBuildableClass = BuildSystemManager->GetActiveBuildableClass();
+		
 		if (bHits && ActiveBuildableClass)
 		{
 			/* Hit Something/Anything */

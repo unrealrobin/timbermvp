@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -128,13 +128,14 @@ public:
 	void HandleRampPlacement(FHitResult FirstHitBuildingComponentHitResult);
 	UFUNCTION()
 	void HandleFloorEdgeSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult);
-	
 	UFUNCTION()
 	void HandleBuildingComponentSnapping(FHitResult HitResult);
 	void MoveBuildable(
 		FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation
 			= FRotator::ZeroRotator);
 	void RotateBuildingComponent();
+	void MakeBuildableFinalizable(ABuildableBase* Buildable);
+	void MakeBuildableNotFinalizable(ABuildableBase* Buildable);
 	
 	/*Used for Trap Placement*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Placement")

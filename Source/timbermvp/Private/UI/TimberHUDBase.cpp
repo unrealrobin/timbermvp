@@ -17,6 +17,7 @@ void ATimberHUDBase::BindToWaveSubsystem()
 	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 	if (WaveSubsystem)
 	{
+		//Broadcast from Wave Subsytem when Boss is spawned, passes in a ref to the spawned boss.
 		WaveSubsystem->OnBossSpawned.AddDynamic(this, &ATimberHUDBase::HandleBossSpawned);
 	}
 }
@@ -112,6 +113,20 @@ void ATimberHUDBase::SeedaBindings()
 			Seeda->OnSeedaDeathUI.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed);
 			UE_LOG(LogTemp, Warning, TEXT("Successfully Bound to Seeda Death UI Reason Delegate."))
 		}
+	}
+}
+
+void ATimberHUDBase::HandleBossDeath()
+{
+	//Make Boss Health Bar Hidden
+	if (BossHealthBarWidget)
+	{
+		if (Cast<UBossHealthBar>(BossHealthBarWidget))
+		{
+			//When the widget is Hidden, it still ticks. So we clear the BossActor ref to prevent all tick functionality that handles Health Updates.
+			Cast<UBossHealthBar>(BossHealthBarWidget)->BossActor = nullptr;
+		}
+		HideWidget(BossHealthBarWidget);
 	}
 }
 
@@ -561,6 +576,17 @@ void ATimberHUDBase::HandleBossSpawned(AActor* BossActor)
 		BossHealthBar->BossDisplayName = Boss->BossTechnicalName;
 
 		ShowWidget(BossHealthBar);
+
+		if (Boss->OnBossDeath.IsBound())
+		{
+			//Ensuring we dont have any bound functions to any bosses.
+			Boss->OnBossDeath.RemoveDynamic(this, &ATimberHUDBase::HandleBossDeath);
+
+			//Rebinding to the current boss.
+			//When boss dies, we make the boss Health Bar Hidden.
+			Boss->OnBossDeath.AddDynamic(this, &ATimberHUDBase::HandleBossDeath);
+			
+		}
 	}
 }
 

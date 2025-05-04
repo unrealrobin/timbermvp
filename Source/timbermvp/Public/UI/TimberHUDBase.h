@@ -176,6 +176,9 @@ private:
 	void ShowSeedaHealthWidget();
 	void ShowWaveDataWidget();
 	void SeedaBindings();
+
+	UFUNCTION()
+	void HandleBossDeath();
 	
 	UFUNCTION()
 	void HandleBossSpawned(AActor* BossActor);

@@ -43,6 +43,9 @@ void ABossBase::Tick(float DeltaTime)
 
 void ABossBase::BroadcastDeathDelegate(AActor* DestroyedActor)
 {
+
+	//TODO:: Need to call the HUD somehow and tell it to remove the boss Health Bar widget
+	
 	OnBossDeath.Broadcast();
 	UE_LOG(LogTemp, Warning, TEXT("BossBase - Broadcasting Boss Death."));
 }

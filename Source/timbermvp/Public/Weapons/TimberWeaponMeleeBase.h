@@ -29,8 +29,13 @@ protected:
 	ATimberPlayableCharacter* WeaponInstigator;
 
 public:
-	// Called every frames
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Weapons")
+	float MaxWeaponEnergy = 100.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Weapons")
+	float CurrentWeaponEnergy = 100.0f;
 
 	/*Collision Component*/
 	UPROPERTY(EditAnywhere, Category="Components")

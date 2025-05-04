@@ -13,6 +13,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "States/PlayerStateBase.h"
 #include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
+#include "Weapons/TimberWeaponMeleeBase.h"
+#include "Weapons/TimberWeaponRangedBase.h"
 
 
 FString USaveLoadSubsystem::GetSaveSlot()
@@ -552,6 +554,18 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 	                PS->MainInventory->NumberOfParts,
 	                PS->MainInventory->NumberOfMechanism,
 	                PS->MainInventory->NumberOfUniques);
+			}
+
+			//Ensuring weapons are loaded
+			if (ATimberWeaponRangedBase* RangedWeapon = Cast<ATimberWeaponRangedBase>(TimberCharacter->WeaponThreeInstance))
+			{
+				//Loading the Ammo of the Weapon
+				RangedWeapon->CurrentAmmo = RangedWeapon->MaxAmmo;
+			}
+			//Ensuring Sword energy is at 100%
+			if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(TimberCharacter->WeaponOneInstance))
+			{
+				MeleeWeapon->CurrentWeaponEnergy = MeleeWeapon->MaxWeaponEnergy;
 			}
 		}
 	}

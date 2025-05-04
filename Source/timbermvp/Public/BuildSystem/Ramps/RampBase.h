@@ -1,5 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
-
+﻿// Property of Paracosm Industries. 
 #pragma once
 
 #include "CoreMinimal.h"
@@ -20,12 +19,16 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
 
+	bool bIsProxy = false;
+
+	bool bIsRampProxyBlocked();
+	
 	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
 	UStaticMeshComponent* StaticMesh;
@@ -35,4 +38,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
 	USceneComponent* HorizontalCenterSnap;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ramp Component")
+	USceneComponent* CenterRampLocation;
 };

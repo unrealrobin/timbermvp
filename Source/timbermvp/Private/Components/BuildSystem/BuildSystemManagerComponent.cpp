@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
@@ -847,54 +847,7 @@ void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBas
 	BuildingComponent->SetActorEnableCollision(false);
 }
 
-void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildingComponentHitResult)
-{
-	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
-	ARampBase* ActiveRampComponentProxy = Cast<ARampBase>(BuildableProxyInstance);
-	//LOCATION PLACEMENT OF THE RAMP
-	if (BuildingComponent && ActiveRampComponentProxy)
-	{
-		if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Vertical)
-		{
-			USceneComponent* BCSnapComponent = GetClosestFaceSnapPoint(FirstHitBuildingComponentHitResult);
-			//UE_LOG(LogTemp, Warning, TEXT("Closest Ramp Snap Point: %s"), *BCSnapComponent->GetName());
-			// Snap Ramps Vertical Snap to the Building Components Vertical Center Snap
-			FVector RampSnapLocation = ActiveRampComponentProxy->VerticalCenterSnap->GetComponentLocation();
-			if (BCSnapComponent)
-			{
-				FRotator SnapRotation = BCSnapComponent->GetComponentRotation();
-				ActiveRampComponentProxy->SetActorRotation(SnapRotation);
-				FVector BCSnapLocation = BCSnapComponent->GetComponentLocation();
-				//Finding the Difference between the location of the Ramps Center Snap and the Building Components Center Snap
-				//Target Location Minus Current Location
-				FVector OffsetVector = BCSnapLocation - RampSnapLocation;
-				//Moving the Ramp to the Building Components Center Snap
-				ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
-			}
-			
-			MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
-			ActiveRampComponentProxy->bCanBuildableBeFinalized = true;
-		}
-		else if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Horizontal)
-		{
-			// Snap Ramps Horizontal Snap to the Building Components Horizontal Center Snap
-			FVector RampHorizontalCenterSnap = ActiveRampComponentProxy->HorizontalCenterSnap->GetComponentLocation();
-			FVector HitBuildingCenterSnap = BuildingComponent->CenterSnap->GetComponentLocation();
-			FVector OffsetVector = HitBuildingCenterSnap - RampHorizontalCenterSnap;
-			ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
-			MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
-			ActiveRampComponentProxy->bCanBuildableBeFinalized = true;
 
-		}
-	}
-	else //Hit but not a building Component that is snappable.
-	{
-		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-		ActiveRampComponentProxy->SetActorLocation(FirstHitBuildingComponentHitResult.ImpactPoint);
-		ActiveRampComponentProxy->bCanBuildableBeFinalized = false;
-
-	}
-}
 
 USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResult HitResult)
 {
@@ -1161,6 +1114,18 @@ void UBuildSystemManagerComponent::RotateBuildingComponent()
 		//Updating FinalSpawnRotation after Player Rotates Component
 		FinalSpawnRotation = SavedRotation;
 	}
+}
+
+void UBuildSystemManagerComponent::MakeBuildableFinalizable(ABuildableBase* Buildable)
+{
+	Buildable->bCanBuildableBeFinalized = true;
+	MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
+}
+
+void UBuildSystemManagerComponent::MakeBuildableNotFinalizable(ABuildableBase* Buildable)
+{
+	Buildable->bCanBuildableBeFinalized = false;
+	MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
 }
 
 void UBuildSystemManagerComponent::SetActiveBuildingComponentClass(TSubclassOf<AActor> BuildingComponentClass)
@@ -1452,6 +1417,64 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 	}
 }
 
+void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildingComponentHitResult)
+{
+	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
+	ARampBase* ActiveRampComponentProxy = Cast<ARampBase>(BuildableProxyInstance);
+	//LOCATION PLACEMENT OF THE RAMP
+	if (ActiveRampComponentProxy)
+	{
+		if (BuildingComponent)
+		{
+			if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Vertical)
+			{
+				USceneComponent* BCSnapComponent = GetClosestFaceSnapPoint(FirstHitBuildingComponentHitResult);
+				//UE_LOG(LogTemp, Warning, TEXT("Closest Ramp Snap Point: %s"), *BCSnapComponent->GetName());
+				// Snap Ramps Vertical Snap to the Building Components Vertical Center Snap
+				FVector RampSnapLocation = ActiveRampComponentProxy->VerticalCenterSnap->GetComponentLocation();
+				if (BCSnapComponent)
+				{
+					FRotator SnapRotation = BCSnapComponent->GetComponentRotation();
+					ActiveRampComponentProxy->SetActorRotation(SnapRotation);
+					FVector BCSnapLocation = BCSnapComponent->GetComponentLocation();
+					//Finding the Difference between the location of the Ramps Center Snap and the Building Components Center Snap
+					//Target Location Minus Current Location
+					FVector OffsetVector = BCSnapLocation - RampSnapLocation;
+					//Moving the Ramp to the Building Components Center Snap
+					ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
+				}
+				MakeBuildableFinalizable(ActiveRampComponentProxy);
+				/*MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
+				ActiveRampComponentProxy->bCanBuildableBeFinalized = true;*/
+			}
+			else if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Horizontal)
+			{
+				// Snap Ramps Horizontal Snap to the Building Components Horizontal Center Snap
+				FVector RampHorizontalCenterSnap = ActiveRampComponentProxy->HorizontalCenterSnap->GetComponentLocation();
+				FVector HitBuildingCenterSnap = BuildingComponent->CenterSnap->GetComponentLocation();
+				FVector OffsetVector = HitBuildingCenterSnap - RampHorizontalCenterSnap;
+				ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
+				/*MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
+				ActiveRampComponentProxy->bCanBuildableBeFinalized = true;*/
+				MakeBuildableFinalizable(ActiveRampComponentProxy);
+
+			}
+		}
+		else //Hit but not a building Component that is snappable.
+		{
+			ActiveRampComponentProxy->SetActorLocation(FirstHitBuildingComponentHitResult.ImpactPoint);
+			/*MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
+			ActiveRampComponentProxy->bCanBuildableBeFinalized = false;*/
+			MakeBuildableFinalizable(ActiveRampComponentProxy);
+		}
+
+		bool IsRampBlocked = ActiveRampComponentProxy->bIsRampProxyBlocked();
+		if (IsRampBlocked)
+		{
+			MakeBuildableNotFinalizable(ActiveRampComponentProxy);
+		}
+	}
+}
 
 
 

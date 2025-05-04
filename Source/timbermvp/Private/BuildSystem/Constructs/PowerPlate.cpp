@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries. 
 
 
 #include "BuildSystem/Constructs/PowerPlate.h"
@@ -85,7 +85,7 @@ void APowerPlate::HitBoxBeginOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PowerPlate HitBoxBeginOverlap"));
+	//UE_LOG(LogTemp, Warning, TEXT("PowerPlate HitBoxBeginOverlap"));
 
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (TimberCharacter)
@@ -103,7 +103,7 @@ void APowerPlate::HitBoxBeginOverlap(
 void APowerPlate::HitBoxEndOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PowerPlate HitBoxEndOverlap"));
+	//UE_LOG(LogTemp, Warning, TEXT("PowerPlate HitBoxEndOverlap"));
 
 	ATimberPlayableCharacter* TimberCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (TimberCharacter)

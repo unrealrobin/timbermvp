@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries. 
 
 
 #include "BuildSystem/Traps/ElectroStaticPulseTrap.h"
@@ -123,7 +123,7 @@ void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
 {
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
 
-	UE_LOG(LogTemp, Warning, TEXT("HandlePulseBoxOverlap - %ls"), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("HandlePulseBoxOverlap - %ls"), *OtherActor->GetName());
 
 	//Apply Initial Damage to Enemy.
 	if (Enemy)

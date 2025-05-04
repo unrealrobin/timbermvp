@@ -586,14 +586,14 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 	{
 		if (TimberCharacter->HoveredBuildingComponent->BuildableType == EBuildableType::Environment)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
+			//UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
 			return;
 		}
 		
 		if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 		{
 			//When the Buildable is Deleted by the Player, it will drop the cost of the buildable.
-			UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
 			
 			TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
 
@@ -632,7 +632,7 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 			if (TimberCharacter->WeaponThreeInstance && TimberCharacter->WeaponThreeInstance->CurrentAmmo == 
 			TimberCharacter->WeaponThreeInstance->MaxAmmo)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
+				//UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
 				return;
 			}
 			
@@ -682,7 +682,7 @@ void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& V
 			if(HoveredIconDataAsset)
 			{
 				TSubclassOf<ABuildableBase> BuildingComponentClassName = HoveredIconDataAsset->BuildingComponentClass;
-				UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
+				//UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
 				if(TimberCharacter)
 				{
 					TimberCharacter->BuildSystemManager->SetActiveBuildingComponentClass(BuildingComponentClassName);

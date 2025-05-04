@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "BuildSystem/Traps/SpikeTrap.h"
@@ -88,7 +88,7 @@ void ASpikeTrap::ApplyDamageToActorsInHitBox()
 				
 				EnemyCharacter->TakeDamage(SpikeDamage, this);
 				//GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
-				UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
+				//UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
 			}
 		}
 	}
@@ -162,5 +162,5 @@ void ASpikeTrap::PlaySpikeOutTimeline_Reverse()
 void ASpikeTrap::EndSpikeTrapCooldown()
 {
 	IsSpikeOnCooldown = false;
-	UE_LOG(LogTemp, Warning, TEXT("Spike Cooldown Finished."));
+	//UE_LOG(LogTemp, Warning, TEXT("Spike Cooldown Finished."));
 }

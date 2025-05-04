@@ -162,39 +162,13 @@ void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 
 void ATimberEnemyCharacter::OnDeath_HandleCollision()
 {
-	//Disable Collision
-	/*TArray<USceneComponent*> CollisionComponents;
-	GetRootComponent()->GetChildrenComponents(true, CollisionComponents);
-	CollisionComponents.Add(GetRootComponent());
-	for (USceneComponent* Component : CollisionComponents)
-	{
-		if (UShapeComponent* ShapeComponent = Cast<UShapeComponent>(Component))
-		{
-			/*Remove All Collisions but don't fall through the map.#1#
-			ShapeComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-			ShapeComponent->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-			ShapeComponent->SetCanEverAffectNavigation(false);
-			ShapeComponent->bFillCollisionUnderneathForNavmesh = true;
-		}
-		else if (UStaticMeshComponent* StaticMesh = Cast<UStaticMeshComponent>(Component))
-		{
-			StaticMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-			StaticMesh->SetCanEverAffectNavigation(false);
-			StaticMesh->bFillCollisionUnderneathForNavmesh = true;
-		}
-		//UE_LOG(LogTemp, Warning, TEXT("Collision Disabled for a Single Component"));
-	}*/
-
-	/*
-	 * Blocks: Static, Dynamic, BuildingComponent,InvisWall
-	 */
 	GetCapsuleComponent()->SetCollisionProfileName("DR_DeadCharacter");
 
 }
 
 void ATimberEnemyCharacter::OnDeath_DropLoot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed. Dropping Loot."))
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed. Dropping Loot."))
 	//Get the Loot Table
 	if (LootTable)
 	{
@@ -250,48 +224,7 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 	}
 }
 
-/*void ATimberEnemyCharacter::SpawnLoot(TSubclassOf<AEnemyLootDropBase> LootDropClass)
-{
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	
-	FVector ActorLocation = GetActorLocation();
-	FVector AdjustedLocation = FVector(FMath::RandRange(ActorLocation.X - 50, ActorLocation.X + 50), FMath::RandRange
-	(ActorLocation.Y - 50, ActorLocation.Y + 50), ActorLocation.Z);
 
-	AActor* LootItem = GetWorld()->SpawnActor<AEnemyLootDropBase>(LootDropClass,
-		AdjustedLocation,
-		GetActorRotation(), 
-		SpawnParams);
-
-	//CHeck here for Tutorial State , if Tutorial State = Combat1 - Handle Special Collisions
-	ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-	if (DieRobotGameStateBase && DieRobotGameStateBase->TutorialState == ETutorialState::Combat1)
-	{
-		AEnemyLootDropBase* LootDropBase = Cast<AEnemyLootDropBase>(LootItem);
-		if (LootDropBase)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Spawning Loot Item During Combat1 Tutorial Stage."))
-		}
-	}
-}*/
-
-/*void ATimberEnemyCharacter::HandleDropHealthLoot(TSubclassOf<AEnemyLootDropBase> HealthDropClass)
-{
-	float RandomNumber = FMath::RandRange(0, 100);
-
-	//If the class is a HealthDropMax, it will drop a health drop that will set the player's health to max.
-	if (RandomNumber <= MaxHealthDropChance && HealthDropClass->IsChildOf(ALootHealthDropMax::StaticClass()))
-	{
-		SpawnLoot(HealthDropClass);
-	}
-	//if the class is a HealthDrop, it will drop a health drop that will give the player health.
-	else if (RandomNumber <= HealthDropChance && HealthDropClass->IsChildOf(ALootHealthDrop::StaticClass()))
-	{
-		SpawnLoot(HealthDropClass);
-	}
-}*/
 
 void ATimberEnemyCharacter::HandleEnemyDeath()
 {
@@ -392,11 +325,11 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor)
 		ECC_Visibility,
 		Sphere );
 
-	UE_LOG(LogTemp, Warning, TEXT("Swept for Actor."))
+	//UE_LOG(LogTemp, Warning, TEXT("Swept for Actor."))
 	
 	if (bHit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Actor Type Found In Array"));
+		//UE_LOG(LogTemp, Warning, TEXT("Actor Type Found In Array"));
 		for (FHitResult Hit : HitResults)
 		{
 			if (Hit.GetActor()->IsA(ActorToSweepFor))

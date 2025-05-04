@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "Controller/TimberPlayerController.h"
@@ -100,6 +100,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
 	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
 	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
+	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
 }
 
 void ATimberPlayerController::PerformReticuleAlignment_Raycast()
@@ -326,7 +327,7 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponThreeInstance);
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
 		WeaponState.Broadcast(EWeaponState::RangedEquipped);
-		ShowAmmoCounter.Broadcast(true);
+		/*ShowAmmoCounter.Broadcast(true);*/
 
 		if (TimberCharacter->WeaponThreeInstance)
 		{
@@ -419,11 +420,11 @@ void ATimberPlayerController::UnEquipWeapon() const
 
 void ATimberPlayerController::HandleWeaponEquip() const
 {
-	//If we un-equipped the Ranged Weapon, we need to Hide the Ammo Counter.
-	if (Cast<ATimberWeaponRangedBase>(TimberCharacter->GetCurrentlyEquippedWeapon()))
+	
+	/*if (Cast<ATimberWeaponRangedBase>(TimberCharacter->GetCurrentlyEquippedWeapon()))
 	{
 		ShowAmmoCounter.Broadcast(false);
-	}
+	}*/
 }
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
@@ -498,7 +499,6 @@ void ATimberPlayerController::OpenBuildModeSelectionMenu()
 {
 	//Broadcast to the HUD to Open the Build Menu
 	IsBuildPanelOpen.Broadcast(true);
-	
 }
 
 void ATimberPlayerController::HandleExitBuildMode()
@@ -523,6 +523,16 @@ void ATimberPlayerController::ExitBuildMode(const FInputActionValue& Value)
 	 */
 	
 	HandleExitBuildMode();
+}
+
+void ATimberPlayerController::ToggleSettingsPanel(const FInputActionValue& Value)
+{
+	if (TimberCharacter->CharacterState == ECharacterState::Standard)
+	{
+		//The HUD will no whether or not the visibility of the settings panel is set to true or false. And will toggle beteern them.
+		ToggleSettingsPanel_DelegateHandle.Broadcast();
+		//Just letting the HUD know that the player pressed this button while out of Build Mode.
+	}
 }
 
 void ATimberPlayerController::HandleControllerExitBuildMode()
@@ -576,14 +586,14 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 	{
 		if (TimberCharacter->HoveredBuildingComponent->BuildableType == EBuildableType::Environment)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
+			//UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
 			return;
 		}
 		
 		if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 		{
 			//When the Buildable is Deleted by the Player, it will drop the cost of the buildable.
-			UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
 			
 			TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
 
@@ -622,7 +632,7 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 			if (TimberCharacter->WeaponThreeInstance && TimberCharacter->WeaponThreeInstance->CurrentAmmo == 
 			TimberCharacter->WeaponThreeInstance->MaxAmmo)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
+				//UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
 				return;
 			}
 			
@@ -672,7 +682,7 @@ void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& V
 			if(HoveredIconDataAsset)
 			{
 				TSubclassOf<ABuildableBase> BuildingComponentClassName = HoveredIconDataAsset->BuildingComponentClass;
-				UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
+				//UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
 				if(TimberCharacter)
 				{
 					TimberCharacter->BuildSystemManager->SetActiveBuildingComponentClass(BuildingComponentClassName);

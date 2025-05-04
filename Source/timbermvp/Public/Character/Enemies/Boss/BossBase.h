@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 #pragma once
 
@@ -14,6 +14,9 @@ class TIMBERMVP_API ABossBase : public ATimberEnemyCharacter
 public:
 	// Sets default values for this character's properties
 	ABossBase();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boss Info")
+	FName BossTechnicalName = "SET_BOSS_TECHNICAL_NAME";
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeath);

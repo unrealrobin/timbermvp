@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -35,23 +35,24 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSettingsPanelToggle);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
 
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShouldShowAmmoCounter, bool, bShouldShowAmmoCounter);
+	//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShouldShowAmmoCounter, bool, bShouldShowAmmoCounter);
 	
 	/*DelegateHandles*/
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponStateChange WeaponState;
-	UPROPERTY(BlueprintAssignable)
 	FOnBuildMenuToggle IsBuildPanelOpen;
-	UPROPERTY(BlueprintAssignable)
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
-	UPROPERTY(BlueprintAssignable)
-	FShouldShowAmmoCounter ShowAmmoCounter;
+	FOnSettingsPanelToggle ToggleSettingsPanel_DelegateHandle;
+	/*UPROPERTY(BlueprintAssignable)
+	FShouldShowAmmoCounter ShowAmmoCounter;*/
 	
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -90,6 +91,8 @@ public:
 	UInputAction* ReloadWeaponInputAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ExitBuildModeAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ToggleSettingsPanelAction;
 
 	/*Player Controls*/
 	UFUNCTION()
@@ -130,6 +133,8 @@ public:
 	void ReloadWeapon(const FInputActionValue& Value);
 	UFUNCTION()
 	void ExitBuildMode(const FInputActionValue& Value);
+	UFUNCTION()
+	void ToggleSettingsPanel(const FInputActionValue& Value);
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

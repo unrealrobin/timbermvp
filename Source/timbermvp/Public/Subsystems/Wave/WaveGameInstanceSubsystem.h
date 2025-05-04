@@ -9,6 +9,14 @@
 class AGarageDoorBase;
 class ATimberEnemyCharacter;
 
+UENUM(BlueprintType)
+enum class EWaveStopReason : uint8
+{
+	Success,
+	Failure,
+	LevelSwitch
+};
+
 /**
  * 
  */
@@ -22,7 +30,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 1;
+	int CurrentWaveNumber = 3;
 	
 	void SetCurrentWaveNumber(int InWaveNumber);
 
@@ -39,6 +47,8 @@ public:
 	FTimeToNextWaveSecondsHandle TimeToNextWaveSecondsHandle;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandleWaveComplete, int, CompletedWaveNumber);
 	FHandleWaveComplete HandleWaveComplete;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, AActor*, BossActor);
+	FOnBossSpawned OnBossSpawned;
 
 	/* Data Table */
 	UFUNCTION()
@@ -75,17 +85,23 @@ public:
 	UFUNCTION()
 	void HandleBossSpawn();
 	UFUNCTION()
+	void SpawnBoss(TSubclassOf<AActor> ActorToSpawn, FVector Location);
+	UFUNCTION()
 	void SpawnPartOfWave();
 	UFUNCTION()
 	void SpawnWave();
-	UFUNCTION()
-	void EndWave();
 	UFUNCTION()
 	void IncrementWave();
 	UFUNCTION()
 	void SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FVector Location);
 	UFUNCTION()
 	void EarlyStartWave();
+	UFUNCTION()
+	void EndWave(EWaveStopReason WaveStopReason);
+	UFUNCTION()
+	void FailWave();
+	UFUNCTION()
+	void SuccessfulWaveEnd();
 	
 	UPROPERTY()
 	TArray<TSubclassOf<ATimberEnemyCharacter>> EnemiesToSpawn;
@@ -111,6 +127,7 @@ public:
 	TArray<ATimberEnemyCharacter*> SpawnedEnemies;
 	UFUNCTION()
 	void CheckArrayForEnemy(ATimberEnemyCharacter* Enemy);
+	
 	UFUNCTION()
 	void ResetWaveEnemies();
 	UPROPERTY()
@@ -149,9 +166,6 @@ public:
 	void PlayWaveStartSound();
 	void PlayWaveEndSound();
 	void PlayBossSpawnSound();
-
-	/*Level Switching*/
-	void FullStop();
 };
 
 

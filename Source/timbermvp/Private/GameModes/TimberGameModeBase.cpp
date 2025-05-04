@@ -223,13 +223,15 @@ void ATimberGameModeBase::PlayerIsInitialized()
 	}
 }
 
+//Switches to the Main Menu Level from Game Play Level.
 void ATimberGameModeBase::SwitchToMainMenu()
 {
 	//Stopping the Subsystem from continuing to spawn enemies.
 	UWaveGameInstanceSubsystem* WaveGameInstanceSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 	if (WaveGameInstanceSubsystem)
 	{
-		WaveGameInstanceSubsystem->FullStop();
+		//Whenever you switch to the main menu, you assume the player is either dead or has quit the game and has saved any progress they want to keep.
+		WaveGameInstanceSubsystem->EndWave(EWaveStopReason::LevelSwitch);
 	}
 	
 	//Handles Switching Levels.

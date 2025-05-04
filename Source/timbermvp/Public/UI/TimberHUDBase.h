@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -11,6 +11,7 @@
 #include "TimberHUDBase.generated.h"
 
 
+class UBossHealthBar;
 /**
  * 
  */
@@ -20,81 +21,82 @@ class TIMBERMVP_API ATimberHUDBase : public AHUD
 	GENERATED_BODY()
 
 public:
+	
 	//void SeedaBinding();
 	virtual void BeginPlay() override;
 
 	void InitializeWidgets();
+	
 	UFUNCTION()
 	void UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead);
+
+	UFUNCTION()
+	void ToggleSettingsPanelWidget();
+	
 	void CharacterAndControllerBindings();
 	void GameModeBindings();
+	void BindToWaveSubsystem();
 	
 	UFUNCTION()
 	void UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed);
 	
-	void SeedaBindings();
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
-
-	/*Delegate Handles*/
+	
 	UPROPERTY()
 	FIsBuildMenuOpen bIsBuildMenuOpen;
 
-	//To Be Set on BP_TimberHUDBase
+	/*
+	 * Widget Classes
+	 * Set in BP on BP_TimberHUDBase
+	 */
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> RootWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* RootWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> BuildMenuWidgetClass;
-
-	//Set In Blueprints
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* BuildMenuWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> DeathWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* DeathWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> DeleteBuildingComponentWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* DeleteBuildingComponentWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> SeedaOverlapWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* SeedaOverlapWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> AmmoCounterWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* AmmoCounterWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> KBM_MovementControlsWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* KBM_MovementControlsWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> KBM_CombatControlsWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly)
-	UUserWidget* KBM_CombatControlsWidget;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> KBM_BuildControlWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> BossHealthBarWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> SettingsPanelWidgetClass;
 
+	//Widget References
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* RootWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* BuildMenuWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* DeathWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* DeleteBuildingComponentWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* SeedaOverlapWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* AmmoCounterWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_MovementControlsWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* KBM_CombatControlsWidget;
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* KBM_BuildControlsWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* BossHealthBarWidget;
+	UPROPERTY(VisibleAnywhere)
+	UUserWidget* SettingsPanelWidget;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;
@@ -129,6 +131,12 @@ public:
 protected:
 	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter;
+
+	UFUNCTION()
+	void SetWidgetToFocus(UUserWidget* Widget);
+
+	UFUNCTION()
+	void SetGameToFocus();
 	
 	/*Delegate Listeners*/
 	UFUNCTION()
@@ -156,7 +164,9 @@ private:
 	void GetRootWidgetChildrenWidgets();
 
 	UUserWidget* GetWidgetByClassName(FString ClassName);
-
+	UUserWidget* CreateVisibleWidget(const TSubclassOf<UUserWidget>& Class, int32 ZOrder);
+	UUserWidget* CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetClass, int32 ZOrder);
+	
 	void HideWidget(UUserWidget* Widget);
 	void ShowWidget(UUserWidget* Widget);
 	void HideAllChildWidgets(TArray<UUserWidget*> Widgets);
@@ -165,8 +175,17 @@ private:
 	void ShowPlayerHealthWidget();
 	void ShowSeedaHealthWidget();
 	void ShowWaveDataWidget();
+	void SeedaBindings();
+
+	UFUNCTION()
+	void HandleBossDeath();
+	
+	UFUNCTION()
+	void HandleBossSpawned(AActor* BossActor);
 	
 };
+
+
 
 
 

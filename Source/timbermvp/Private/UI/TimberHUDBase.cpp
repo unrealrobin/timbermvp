@@ -5,9 +5,22 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Character/TimberSeeda.h"
+#include "Character/Enemies/Boss/BossBase.h"
 #include "GameModes/TimberGameModeBase.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "UI/BossHealthBar.h"
 #include "UI/Death/TimberDeathWidget.h"
 
+
+void ATimberHUDBase::BindToWaveSubsystem()
+{
+	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+	if (WaveSubsystem)
+	{
+		//Broadcast from Wave Subsytem when Boss is spawned, passes in a ref to the spawned boss.
+		WaveSubsystem->OnBossSpawned.AddDynamic(this, &ATimberHUDBase::HandleBossSpawned);
+	}
+}
 
 void ATimberHUDBase::BeginPlay()
 {
@@ -20,79 +33,39 @@ void ATimberHUDBase::BeginPlay()
 	//Binding to Tutorial States
 	InitializeTutorialStateBinding();
 	HandleTutorialStateChanges(GetTutorialState());
-
+	BindToWaveSubsystem();
 }
 
 void ATimberHUDBase::InitializeWidgets()
 {
-	if (RootWidgetClass)
-	{
-		RootWidget = CreateWidget<UUserWidget>(GetWorld(), RootWidgetClass);
-		if (RootWidget)
-		{
-			RootWidget->AddToViewport(1);
-		}
-	}
-	if (BuildMenuWidgetClass)
-	{
-		BuildMenuWidget = CreateWidget<UUserWidget>(GetWorld(), BuildMenuWidgetClass);
-		if (BuildMenuWidget)
-		{
-			//Creates the BuildMenuWidget and sets it to hidden. This is good because it can load all its data in the background before even showing it.
-			BuildMenuWidget->AddToViewport(10);
-			BuildMenuWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
-	if (AmmoCounterWidgetClass)
-	{
-		AmmoCounterWidget = CreateWidget<UUserWidget>(GetWorld(), AmmoCounterWidgetClass);
-		if (AmmoCounterWidget)
-		{
-			//Positioning of Widget handles on Canvas Panel in the Widget Blueprint.
-			AmmoCounterWidget->AddToViewport(1);
-			AmmoCounterWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
+	/*Initialized Visible*/
+	RootWidget = CreateVisibleWidget(RootWidgetClass, 1);
 
-	if (KBM_MovementControlsWidgetClass)
-	{
-		KBM_MovementControlsWidget = CreateWidget<UUserWidget>(GetWorld(), KBM_MovementControlsWidgetClass);
-		if (KBM_MovementControlsWidget)
-		{
-			KBM_MovementControlsWidget->AddToViewport(2);
-			KBM_MovementControlsWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
+	/*Initialized Hidden*/
+	BuildMenuWidget = CreateHiddenWidget(BuildMenuWidgetClass, 10);
+	//AmmoCounterWidget = CreateHiddenWidget(AmmoCounterWidgetClass, 1);
+	KBM_MovementControlsWidget = CreateHiddenWidget(KBM_MovementControlsWidgetClass, 2);
+	KBM_CombatControlsWidget = CreateHiddenWidget(KBM_CombatControlsWidgetClass, 2);
+	KBM_BuildControlsWidget = CreateHiddenWidget(KBM_BuildControlWidgetClass, 2);
+	DeathWidget = CreateHiddenWidget(DeathWidgetClass, 100);
+	BossHealthBarWidget = CreateHiddenWidget(BossHealthBarWidgetClass, 2);
+	SettingsPanelWidget = CreateHiddenWidget(SettingsPanelWidgetClass, 10);
+}
 
-	if (KBM_CombatControlsWidgetClass)
+UUserWidget* ATimberHUDBase::CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetClass, int32 ZOrder)
+{
+	if (WidgetClass)
 	{
-		KBM_CombatControlsWidget = CreateWidget<UUserWidget>(GetWorld(), KBM_CombatControlsWidgetClass);
-		if (KBM_CombatControlsWidget)
+		UUserWidget* HiddenWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
+		if (HiddenWidget)
 		{
-			KBM_CombatControlsWidget->AddToViewport(2);
-			KBM_CombatControlsWidget->SetVisibility(ESlateVisibility::Hidden);
+			HiddenWidget->AddToViewport(ZOrder);
+			HiddenWidget->SetVisibility(ESlateVisibility::Hidden);
+			return HiddenWidget;
 		}
 	}
-
-	if (KBM_BuildControlWidgetClass)
-	{
-		KBM_BuildControlsWidget = CreateWidget<UUserWidget>(GetWorld(), KBM_BuildControlWidgetClass);
-		if (KBM_BuildControlsWidget)
-		{
-			KBM_BuildControlsWidget->AddToViewport(2);
-			KBM_BuildControlsWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
-
-	if (DeathWidgetClass)
-	{
-		DeathWidget = CreateWidget<UUserWidget>(GetWorld(), DeathWidgetClass);
-		if (DeathWidget)
-		{
-			DeathWidget->AddToViewport(100);
-			DeathWidget->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
+	//UE_LOG(LogTemp, Error, TEXT("Failed to create widget: %s"), *WidgetClass->GetName());
+	return nullptr;
 }
 
 void ATimberHUDBase::CharacterAndControllerBindings()
@@ -105,7 +78,8 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::CloseBuildPanelMenu);
 		TimberPlayerController->HandleDeathUI_DelegateHandle.BindUFunction(this, FName("SwitchToDeathUI"));
-		TimberPlayerController->ShowAmmoCounter.AddDynamic(this, &ATimberHUDBase::HandleAmmoCounterVisibility);
+		TimberPlayerController->ToggleSettingsPanel_DelegateHandle.AddDynamic(this, &ATimberHUDBase::ToggleSettingsPanelWidget);
+		//TimberPlayerController->ShowAmmoCounter.AddDynamic(this, &ATimberHUDBase::HandleAmmoCounterVisibility);
 
 		TimberCharacter = Cast<ATimberPlayableCharacter>(
 			TimberPlayerController->GetCharacter());
@@ -142,11 +116,30 @@ void ATimberHUDBase::SeedaBindings()
 	}
 }
 
+void ATimberHUDBase::HandleBossDeath()
+{
+	//Make Boss Health Bar Hidden
+	if (BossHealthBarWidget)
+	{
+		if (Cast<UBossHealthBar>(BossHealthBarWidget))
+		{
+			//When the widget is Hidden, it still ticks. So we clear the BossActor ref to prevent all tick functionality that handles Health Updates.
+			Cast<UBossHealthBar>(BossHealthBarWidget)->BossActor = nullptr;
+		}
+		HideWidget(BossHealthBarWidget);
+	}
+}
+
 void ATimberHUDBase::UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Death Delegate Received to Hud from Kip."));
 	if (bIsPlayerDead)
 	{
+		if (BossHealthBarWidget && BossHealthBarWidget->IsVisible())
+		{
+			HideWidget(BossHealthBarWidget);
+		}
+		
 		if (DeathWidget)
 		{
 			UTimberDeathWidget* TimberDeathWidget = Cast<UTimberDeathWidget>(DeathWidget);
@@ -156,6 +149,30 @@ void ATimberHUDBase::UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead)
 				TimberDeathWidget->DeathReason = EDeathReason::KipDestroyed;
 				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::KipDestroyed);
 			}
+		}
+	}
+}
+
+void ATimberHUDBase::ToggleSettingsPanelWidget()
+{
+	if (SettingsPanelWidget)
+	{
+		//Toggle based on visibility.
+		SettingsPanelWidget->IsVisible() ? HideWidget(SettingsPanelWidget) : ShowWidget(SettingsPanelWidget);
+
+		if (SettingsPanelWidget->IsVisible())
+		{
+			FInputModeGameAndUI GameAndUIInputMode;
+			TimberPlayerController->SetInputMode(GameAndUIInputMode);
+			TimberPlayerController->SetFocusedUserWidget(SettingsPanelWidget);
+			TimberPlayerController->SetMouseLocation(GetCenterOfScreen().X, GetCenterOfScreen().Y);
+			TimberPlayerController->EnableCursor();
+		}
+		else
+		{
+			FInputModeGameOnly GameOnlyInputMode;
+			TimberPlayerController->SetInputMode(GameOnlyInputMode);
+			TimberPlayerController->DisableCursor();
 		}
 	}
 }
@@ -210,6 +227,33 @@ void ATimberHUDBase::HideWidget(UUserWidget* Widget)
 	}
 }
 
+void ATimberHUDBase::ShowWidget(UUserWidget* Widget)
+{
+	if (Widget)
+	{
+		Widget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void ATimberHUDBase::SetWidgetToFocus(UUserWidget* Widget)
+{
+	//We want both the Game and UI to be focused because the player should still be able to move while the UI is open.
+	//We also want cursor availability.
+	FInputModeGameAndUI GameAndWidgetInputMode;
+	
+	TimberPlayerController->SetInputMode(GameAndWidgetInputMode);
+	TimberPlayerController->EnableCursor();
+	Widget->SetFocus();
+}
+
+void ATimberHUDBase::SetGameToFocus()
+{
+	//Setting the InputMode back to Game Only. Input mode is Changed in the Widget Blueprint in Event Preconstruct.
+	FInputModeGameOnly GameOnlyInputMode;
+	TimberPlayerController->SetInputMode(GameOnlyInputMode);
+	TimberPlayerController->DisableCursor();
+}
+
 void ATimberHUDBase::HideAllChildWidgets(TArray<UUserWidget*> Widgets)
 {
 	if (Widgets.Num() > 0)
@@ -221,22 +265,22 @@ void ATimberHUDBase::HideAllChildWidgets(TArray<UUserWidget*> Widgets)
 	}
 }
 
-void ATimberHUDBase::ShowWidget(UUserWidget* Widget)
+void ATimberHUDBase::ShowAllGameWidgets()
 {
-	if (Widget)
-	{
-		Widget->SetVisibility(ESlateVisibility::Visible);
-	}
+	ShowCrossHairWidget();
+	ShowInventoryPanelWidget();
+	ShowPlayerHealthWidget();
+	ShowSeedaHealthWidget();
+	ShowWaveDataWidget();
 }
 
 void ATimberHUDBase::OpenBuildPanelMenu()
 {
-	
 	if (BuildMenuWidget)
 	{
 		BuildMenuWidget->SetVisibility(ESlateVisibility::Visible);
+		
 		FInputModeGameAndUI GameAndUIInputMode;
-
 		//We may need to adjust this for focusing.
 		TimberPlayerController->SetInputMode(GameAndUIInputMode);
 		TimberPlayerController->SetFocusedUserWidget(BuildMenuWidget);
@@ -285,14 +329,6 @@ FVector2d ATimberHUDBase::GetViewportSize()
 	return FVector2d(ViewportSizeX, ViewportSizeY);
 }
 
-void ATimberHUDBase::ShowAllGameWidgets()
-{
-	ShowCrossHairWidget();
-	ShowInventoryPanelWidget();
-	ShowPlayerHealthWidget();
-	ShowSeedaHealthWidget();
-	ShowWaveDataWidget();
-}
 
 void ATimberHUDBase::SwitchToDeathUI()
 {
@@ -307,6 +343,8 @@ void ATimberHUDBase::SwitchToDeathUI()
 	{
 		DeathWidget->AddToViewport(1);
 		DeathWidget->SetVisibility(ESlateVisibility::Visible);
+
+		SetWidgetToFocus(DeathWidget);
 	}
 }
 
@@ -321,6 +359,8 @@ void ATimberHUDBase::SwitchToGameUI()
 	{
 		RootWidget->AddToViewport(1);
 	}
+
+	SetGameToFocus();
 }
 
 void ATimberHUDBase::ShowDeleteBuildingComponentWidget(float ViewportLocationX, float ViewportLocationY)
@@ -373,15 +413,10 @@ void ATimberHUDBase::HandleAmmoCounterVisibility(bool bShouldShowAmmoCounter)
 		if (bShouldShowAmmoCounter)
 		{
 			AmmoCounterWidget->SetVisibility(ESlateVisibility::Visible);
-			if (GEngine)
-			{
-				//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Showing Ammo Counter");
-			}
 		}
 		else
 		{
 			AmmoCounterWidget->SetVisibility(ESlateVisibility::Hidden);
-			//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Green, "Hiding Ammo Counter");
 		}
 	}
 }
@@ -487,6 +522,22 @@ UUserWidget* ATimberHUDBase::GetWidgetByClassName(FString ClassName)
 	return nullptr;
 }
 
+UUserWidget* ATimberHUDBase::CreateVisibleWidget(const TSubclassOf<UUserWidget>& WidgetClass, int32 ZOrder)
+{
+	if (WidgetClass)
+	{
+		UUserWidget* VisibleWidget = CreateWidget<UUserWidget>(GetWorld(), WidgetClass);
+		if (VisibleWidget)
+		{
+			VisibleWidget->AddToViewport(ZOrder);
+			VisibleWidget->SetVisibility(ESlateVisibility::Visible);
+			return VisibleWidget;
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("Failed to create widget: %s"), *WidgetClass->GetName());
+	return nullptr;
+}
+
 void ATimberHUDBase::ShowPlayerHealthWidget()
 {
 	//TODO::Chance this to the correct name of the Inventory Panel Widget
@@ -510,6 +561,33 @@ void ATimberHUDBase::ShowWaveDataWidget()
 	FString WaveDataWidgetClassName = "W_WaveInfo_C";
 	UUserWidget* Widget = GetWidgetByClassName(WaveDataWidgetClassName);
 	ShowWidget(Widget);
+}
+
+void ATimberHUDBase::HandleBossSpawned(AActor* BossActor)
+{
+	ABossBase* Boss = Cast<ABossBase>(BossActor);
+	UBossHealthBar* BossHealthBar = Cast<UBossHealthBar>(BossHealthBarWidget);
+	if (Boss && BossHealthBar)
+	{
+		//Setting Ref to Boss Actor Instance on Healthbar Widget
+		BossHealthBar->BossActor = Boss;
+
+		//Setting Boss Name on Health Bar Widget
+		BossHealthBar->BossDisplayName = Boss->BossTechnicalName;
+
+		ShowWidget(BossHealthBar);
+
+		if (Boss->OnBossDeath.IsBound())
+		{
+			//Ensuring we dont have any bound functions to any bosses.
+			Boss->OnBossDeath.RemoveDynamic(this, &ATimberHUDBase::HandleBossDeath);
+
+			//Rebinding to the current boss.
+			//When boss dies, we make the boss Health Bar Hidden.
+			Boss->OnBossDeath.AddDynamic(this, &ATimberHUDBase::HandleBossDeath);
+			
+		}
+	}
 }
 
 void ATimberHUDBase::ShowInventoryPanelWidget()

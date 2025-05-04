@@ -17,6 +17,8 @@ ABossLola::ABossLola()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	LolaInitializeComponents();
+
+	BossTechnicalName = "L0L4";
 }
 
 void ABossLola::BeginPlay()

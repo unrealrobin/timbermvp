@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.	
 
 #pragma once
 
@@ -8,6 +8,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class UCombatComponent;
 enum class ETutorialState : uint8;
 class ABuildableBase;
 class UInventoryObject;
@@ -73,12 +74,12 @@ public:
 	UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	USpringArmComponent* CameraSpringArm;
-	USpringArmComponent* GetSpringArmComponent() { return CameraSpringArm; }
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System")
 	UBuildSystemManagerComponent* BuildSystemManager;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
 	UInventoryManagerComponent* InventoryManager;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat Component")
+	UCombatComponent* CombatComponent;
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
 	float MaxRunSpeed = 2000.f;
@@ -87,34 +88,44 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* DeathMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
-	UAnimMontage* ReloadMontage;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
-	UAnimMontage* EquipWeaponMontage;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* TutorialWakeMontage;
-	
-	UFUNCTION()
-	void PlayEquipWeaponMontage(FName SectionName);
+
 	UFUNCTION()
 	void StopAllAnimMontages();
 	UFUNCTION()
 	void PlayWakeAnimationMontage();
 
-	
 	/*Animation Properties*/
 	//TODO:: Tentatively not needed. Was used in Anim BP
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
 	bool IsNowJumping = false;
 
+	
+	/*Combat*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* ReloadMontage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* EquipWeaponMontage;
+	UFUNCTION()
+	void PlayEquipWeaponMontage(FName SectionName);
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
+	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
+	
 	/*Weapon Slots*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
-	TSubclassOf<ATimberWeaponBase> WeaponOne;
+	TSubclassOf<ATimberWeaponBase> RangedWeaponClass;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
-	ATimberWeaponMeleeBase* WeaponOneInstance;
+	ATimberWeaponMeleeBase* RangedWeaponInstance;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponTwo;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
 	ATimberWeaponMeleeBase* WeaponTwoInstance;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
 	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
@@ -145,8 +156,9 @@ public:
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
-
+	
 	bool HandleShowDeleteWidget();
+	
 	UFUNCTION()
 	void ResetDeleteIcon();
 	
@@ -196,12 +208,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
-	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
-
 	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION()

@@ -9,6 +9,7 @@
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
+#include "Components/Combat/CombatComponent.h"
 #include "Data/DataAssets/BuildComponentDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -27,7 +28,7 @@ void ATimberPlayerController::BeginPlay()
 		GetLocalPlayer());
 
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
-	TimberCharacterSpringArmComponent = TimberCharacter->GetSpringArmComponent();
+	TimberCharacterSpringArmComponent = TimberCharacter->CameraSpringArm;
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	EnableStandardKeyboardInput();
 	
@@ -77,11 +78,9 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(
 		InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
 	EnhancedInputComponent->BindAction(
-		EquipWeaponOneAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponOne);
+		EquipMeleeWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipMeleeWeapon);
 	EnhancedInputComponent->BindAction(
-		EquipWeaponTwoAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponTwo);
-	EnhancedInputComponent->BindAction(
-		EquipWeaponThreeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipWeaponThree);
+		EquipRangedWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipRangedWeapon);
 	EnhancedInputComponent->BindAction(
 		StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
 	EnhancedInputComponent->BindAction(
@@ -293,8 +292,8 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 	}
 }
 
-/*Sword*/
-void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
+/*Melee*/
+void ATimberPlayerController::EquipMeleeWeapon(const FInputActionValue& Value)
 {
 	if (TimberCharacter)
 	{
@@ -304,30 +303,37 @@ void ATimberPlayerController::EquipWeaponOne(const FInputActionValue& Value)
 		HandleExitBuildMode();
 		
 		//Notify Will call the actual Equip Weapon function that Moves the weapons to each socket in the ABP
+		//Call for Animation
 		TimberCharacter->PlayEquipWeaponMontage("EquipSword");
-		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponOneInstance);
+
+		//Can be set in 1 Equip Function on Combat Component.
+		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->RangedWeaponInstance);
 
 		//Setting New WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::MeleeWeaponEquipped);
-		WeaponState.Broadcast(EWeaponState::MeleeWeaponEquipped);
+
+		//Confirm Need or this Broadcast
+		//WeaponState.Broadcast(EWeaponState::MeleeWeaponEquipped);
 
 	}
 }
 
 /*Rifle*/
-void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
+void ATimberPlayerController::EquipRangedWeapon(const FInputActionValue& Value)
 {
+	//Input action Function Call for Equipping Weapon.
+	//Remap to 1 Key.
+
+	//We want to change WeaponthreeInstance call to use RangedWeapon Ref on COmbat Component of character.
 	if (TimberCharacter)
 	{
 		UnEquipWeapon();
-
-		HandleExitBuildMode();
 		
+		HandleExitBuildMode();
+
+		//Equip Animation
 		TimberCharacter->PlayEquipWeaponMontage("EquipGun");
-		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->WeaponThreeInstance);
-		TimberCharacter->SetCurrentWeaponState(EWeaponState::RangedEquipped);
-		WeaponState.Broadcast(EWeaponState::RangedEquipped);
-		/*ShowAmmoCounter.Broadcast(true);*/
+		
 
 		if (TimberCharacter->WeaponThreeInstance)
 		{
@@ -341,46 +347,6 @@ void ATimberPlayerController::EquipWeaponThree(const FInputActionValue& Value)
 		}
 	}
 
-}
-
-void ATimberPlayerController::EquipWeaponTwo(const FInputActionValue& Value)
-{
-	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
-
-	check(TimberCharacter);
-
-	UnEquipWeapon();
-
-	HandleExitBuildMode();
-	TimberCharacter->SetCurrentWeaponState(EWeaponState::ChainsawEquipped);
-	WeaponState.Broadcast(EWeaponState::ChainsawEquipped);
-	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = Cast<ATimberPlayableCharacter>(GetPawn());
-	SpawnParams.Instigator = GetPawn();  
-	//Socket Rotation and Location
-	const FVector HandSocketLocation = TimberCharacter->GetMesh()->GetSocketLocation("ChainSawSocket");
-	const FRotator HandSocketRotation = TimberCharacter->GetMesh()->GetSocketRotation("ChainSawSocket");
-
-	FTransform SocketWorldTransform = TimberCharacter->GetMesh()->GetSocketTransform("ChainSawSocket", RTS_World);
-	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
-	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
-
-	//Spawn the Actor
-	ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>(
-		TimberCharacter->WeaponTwo,
-		SocketWorldLocation, SocketWorldRotation, SpawnParams);
-
-	//Attach Actor to the Socket Location
-	SpawnedActor->AttachToComponent(
-		TimberCharacter->GetMesh(),
-		FAttachmentTransformRules::SnapToTargetIncludingScale, "ChainSawSocket");
-
-	//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-	TimberCharacter->WeaponTwoInstance = SpawnedActor;
-	TimberCharacter->SetCurrentlyEquippedWeapon(SpawnedActor);
-	//Set Leeroy on the Owner of the Weapon so we can Reference the Owner from the Weapon.
-	SpawnedActor->SetOwner(TimberCharacter);
 }
 
 void ATimberPlayerController::DisableAllKeyboardInput()
@@ -401,7 +367,18 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 void ATimberPlayerController::UnEquipWeapon() const
 {
 	//If a weapon is equipped, we need to un-equip it.
-	if (TimberCharacter->GetCurrentlyEquippedWeapon())
+	if (TimberCharacter->CombatComponent->GetCurrentlyEquippedWeapon())
+	{
+		//Stops any reloading Montages or shooting montages from playing.
+		TimberCharacter->StopAllAnimMontages();
+
+		//TODO:: Testing running this from the Anim Graph
+		//TimberCharacter->CombatComponent->UnEquipAllWeapons();
+	}
+
+
+	
+	/*if (TimberCharacter->GetCurrentlyEquippedWeapon())
 	{
 		//Stops any reloading Montages or shooting montages from playing.
 		TimberCharacter->StopAllAnimMontages();
@@ -414,8 +391,9 @@ void ATimberPlayerController::UnEquipWeapon() const
 		
 		//Setting WeaponState on Character
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
+		
 		WeaponState.Broadcast(EWeaponState::Unequipped);
-	}
+	}*/
 }
 
 void ATimberPlayerController::HandleWeaponEquip() const
@@ -438,7 +416,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 				if (CanAttackAgain && TimberCharacter->bIsSwordFullyEquipped)
 				{
 					//UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Sword Attack Montage"));
-					TimberCharacter->WeaponOneInstance->HandlePlayAttackMontage();
+					TimberCharacter->RangedWeaponInstance->HandlePlayAttackMontage();
 					CanAttackAgain = false;
 				}
 			}

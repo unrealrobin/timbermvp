@@ -66,11 +66,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UInputAction* InteractAction;
 	UPROPERTY(EditAnywhere)
-	UInputAction* EquipWeaponOneAction;
+	UInputAction* EquipMeleeWeaponAction;
 	UPROPERTY(EditAnywhere)
-	UInputAction* EquipWeaponTwoAction;
-	UPROPERTY(EditAnywhere)
-	UInputAction* EquipWeaponThreeAction;
+	UInputAction* EquipRangedWeaponAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* StandardAction;
 	UPROPERTY(EditAnywhere)
@@ -94,7 +92,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UInputAction* ToggleSettingsPanelAction;
 
-	/*Player Controls*/
+	/*Player Input Functions*/
 	UFUNCTION()
 	void Move(const FInputActionValue& Value);
 	UFUNCTION()
@@ -107,14 +105,6 @@ public:
 	void CharacterJump(const FInputActionValue& Value);
 	UFUNCTION()
 	void Interact(const FInputActionValue& Value);
-	UFUNCTION()
-	void EquipWeaponOne(const FInputActionValue& Value);
-	UFUNCTION()
-	void EquipWeaponTwo(const FInputActionValue& Value);
-	UFUNCTION()
-	void EquipWeaponThree(const FInputActionValue& Value);
-	UFUNCTION()
-	void StandardAttack(const FInputActionValue& Value);
 	UFUNCTION()
 	void EnterBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
@@ -130,11 +120,29 @@ public:
 	UFUNCTION()
 	void SelectBCIcon_Controller(const FInputActionValue& Value);
 	UFUNCTION()
-	void ReloadWeapon(const FInputActionValue& Value);
-	UFUNCTION()
 	void ExitBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
 	void ToggleSettingsPanel(const FInputActionValue& Value);
+
+	/* COMBAT */
+	UFUNCTION()
+	void EquipRangedWeapon(const FInputActionValue& Value);
+	UFUNCTION()
+	void EquipMeleeWeapon(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void StandardAttack(const FInputActionValue& Value);
+	UFUNCTION()
+	void ReloadWeapon(const FInputActionValue& Value);
+	void HandleWeaponEquip() const;
+	UFUNCTION()
+	void UnEquipWeapon() const;
+
+	/* Reticule Alignment*/
+	//Raycast to align the reticule to the hit location.
+	FVector ReticuleHitLocation;
+	UFUNCTION()
+	void PerformReticuleAlignment_Raycast();
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;
@@ -159,14 +167,7 @@ public:
 	//This needs to be public because it gets called on the BP version of this class.
 	UFUNCTION(BlueprintCallable)
 	void EnableStandardKeyboardInput();
-	void HandleWeaponEquip() const;
-
-	/* Reticule Alignment*/
-	//Raycast to align the reticule to the hit location.
-	FVector ReticuleHitLocation;
-	UFUNCTION()
-	void PerformReticuleAlignment_Raycast();
-
+	
 	/* Get-Set */
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetFocusedUserWidget(UUserWidget* Widget) { FocusedWidget = Cast<UBuildingComponent>(Widget); }
@@ -244,9 +245,6 @@ private:
 	TObjectPtr<UInputMappingContext> BuildModeInputMappingContext;
 
 	void DisableAllKeyboardInput();
-
-	UFUNCTION()
-	void UnEquipWeapon() const;
 
 	UFUNCTION()
 	void InitializeTutorialStateBinding();

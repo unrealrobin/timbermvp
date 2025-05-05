@@ -563,7 +563,7 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 				RangedWeapon->CurrentAmmo = RangedWeapon->MaxAmmo;
 			}
 			//Ensuring Sword energy is at 100%
-			if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(TimberCharacter->WeaponOneInstance))
+			if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(TimberCharacter->RangedWeaponInstance))
 			{
 				MeleeWeapon->CurrentWeaponEnergy = MeleeWeapon->MaxWeaponEnergy;
 			}

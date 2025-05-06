@@ -18,18 +18,40 @@ public:
 	// Sets default values for this actor's properties
 	ATimberWeaponBase();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	//Used for Sword Only. Ranged Damage based on Projectile + Modifiers
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Details")
-	float BaseWeaponDamage = 35.0f;
+	virtual void Tick(float DeltaTime) override;
+	
+	UPROPERTY(EditAnywhere, Category="Weapon Components")
+	UStaticMeshComponent* StaticMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
 	UAnimMontage* AttackMontage;
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
+	void RegeneratePower(float DeltaTime, float RegenerationRate);
+
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	bool bUsesPower = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	float PowerRegenerationPerSecond = 10.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Power")
+	float CurrentPower = 100.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Power")
+	float MinPower = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	float MaxPower = 100.0f;
+
+	//Used for Sword Only. Ranged Damage based on Projectile + Modifiers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Details")
+	float BaseWeaponDamage = 35.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float DamageModifierValue = 1.0f;
@@ -38,12 +60,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Details")
 	float TotalWeaponDamage = BaseWeaponDamage * DamageModifierValue;
 	
-	UPROPERTY(EditAnywhere, Category="Weapon Components")
-	UStaticMeshComponent* StaticMesh;
-
+	UPROPERTY(VisibleAnywhere, Category="Attack Info")
+	TArray<AActor*> ActorsToIgnore;
+	
 	/*UFUNCTION()
 	virtual float GetWeaponBaseDamage() const { return BaseWeaponDamage; }*/
 
-	UPROPERTY(VisibleAnywhere, Category="Attack Info")
-	TArray<AActor*> ActorsToIgnore;
 };

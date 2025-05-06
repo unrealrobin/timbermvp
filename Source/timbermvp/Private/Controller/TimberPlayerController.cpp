@@ -388,7 +388,8 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 {
 	if (TimberCharacter && TimberCharacter->CombatComponent)
 	{
-		TimberCharacter->CombatComponent->HandleStandardAttack();
+		TimberCharacter->CombatComponent->HandlePrimaryAbility();
+		
 	}
 	/*if (TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
 	{

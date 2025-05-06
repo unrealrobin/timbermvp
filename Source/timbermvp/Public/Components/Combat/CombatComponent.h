@@ -16,6 +16,22 @@ enum class EOwnerWeaponState : uint8
 	Default UMETA(DisplayName = "Default")
 };
 
+USTRUCT(BlueprintType)
+struct FAbilityContext
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
+	AActor* Instigator = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
+	ATimberWeaponBase* WeaponInstance = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
+	FVector TargetLocation = FVector::ZeroVector;
+};
+
 class ATimberPlayableCharacter;
 class ATimberWeaponRangedBase;
 class ATimberWeaponMeleeBase;
@@ -52,7 +68,8 @@ protected:
 	
 	void EquipWeapon(ATimberWeaponBase* WeaponInstance, FName EquippedWeaponSocketName);
 	void UnEquipWeapon(ATimberWeaponBase* WeaponInstance, FName UnEquipSocketName);
-	
+
+	FAbilityContext GenerateCurrentAbilityContext();
 
 public:
 
@@ -62,25 +79,26 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
 	ATimberWeaponMeleeBase* MeleeWeaponInstance = nullptr;
 	
-	void UnEquipCurrentlyEquippedWeapon();
 
 	UFUNCTION(BlueprintCallable)
 	void EquipMelee();
-	
 	UFUNCTION(BlueprintCallable)
 	void EquipRanged();
+	
 	void SpawnRangedWeapon();
 	void SpawnMeleeWeapon();
 	void UnEquipAllWeapons();
+	void UnEquipCurrentlyEquippedWeapon();
 	void UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState);
-	void HandleStandardAttack();
+	void HandlePrimaryAbility();
 	void ReloadRangedWeapon();
 
 	bool bIsEquipMontagePlaying = false;
-	void PlayEquipWeaponMontage(FName MontageSectionName);
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bCanMeleeAttack = true;
+	
+	void PlayEquipWeaponMontage(FName MontageSectionName);
 	
 	/*Socket Names Set on SKM of Kip. Can be Overwritten.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Sockets")
@@ -107,10 +125,19 @@ private:
 	
 	UPROPERTY()
 	bool bIsRifleEquipped = false;
+	
 	UPROPERTY()
 	bool bIsMeleeEquipped = false;
 	
 	UFUNCTION()
 	void SendWeaponStateToOwnerAnimInstance();
+
+	bool bHasEnoughPower(float AbilityCost, float CurrentWeaponPower);
+
+	void ConsumePower(ATimberWeaponBase* WeaponInstance, float AmountToConsume);
+
+	//void InitializeWeaponPrimaryAbility(ATimberWeaponBase* WeaponInstance, FAbilityContext& Context);
+
+	//void InitializeWeaponSecondaryAbility(ATimberWeaponBase* WeaponInstance, FAbilityContext& Context);
 	
 };

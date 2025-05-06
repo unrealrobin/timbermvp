@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "Weapons/TimberWeaponBase.h"
@@ -20,8 +20,27 @@ ATimberWeaponBase::ATimberWeaponBase()
 	StaticMesh->SetCollisionProfileName("AestheticMeshOnly");
 }
 
+void ATimberWeaponBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bUsesPower)
+	{
+		RegeneratePower(DeltaTime, PowerRegenerationPerSecond);
+	}
+}
+
 // Called when the game starts or when spawned
 void ATimberWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+void ATimberWeaponBase::RegeneratePower(float DeltaTime, float RegenerationRate)
+{
+	//Scales the Regeneration Rate by the Time between Frames (Delta Time)
+	CurrentPower += DeltaTime * RegenerationRate;
+	CurrentPower = FMath::Clamp(CurrentPower, 0, MaxPower);
+}
+
+

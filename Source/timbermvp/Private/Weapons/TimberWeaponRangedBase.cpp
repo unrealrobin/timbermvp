@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -204,3 +204,38 @@ void ATimberWeaponRangedBase::ReloadWeapon()
 	CurrentAmmo = MaxAmmo;
 	bIsReloading = false;
 }
+
+void ATimberWeaponRangedBase::Execute_BasicProjectile(FAbilityContext Context)
+{
+	FireRangedWeapon(Context.TargetLocation);
+}
+
+void ATimberWeaponRangedBase::Execute_Knockback(FAbilityContext Context)
+{
+	//TODO:: Create Knockback Logic for Weapon
+}
+
+//FAbility Struct Execute Function
+void FRangedAbilityData::Execute(FAbilityContext Context) const
+{
+
+	ATimberWeaponRangedBase* RangedWeapon = Cast<ATimberWeaponRangedBase>(Context.WeaponInstance);
+	if (RangedWeapon)
+	{
+		switch (AbilityType)
+		{
+		case EAbilityType::BasicProjectile:
+			Cast<ATimberWeaponRangedBase>(Context.WeaponInstance)->Execute_BasicProjectile(Context);
+			break;
+		case EAbilityType::Knockback:
+			break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("TimberWeaponRangedBase.cpp - FRangedAbilityData::Execute() - RangedWeapon is not valid."));
+	}
+}
+

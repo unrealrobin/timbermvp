@@ -5,6 +5,7 @@
 
 #include "Character/TimberAnimInstance.h"
 #include "Character/TimberPlayableCharacter.h"
+#include "UObject/FastReferenceCollector.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -251,6 +252,29 @@ void UCombatComponent::SendWeaponStateToOwnerAnimInstance()
 	}
 }
 
+bool UCombatComponent::bHasEnoughPower(float AbilityCost, float CurrentWeaponPower)
+{
+	bool HasEnoughPower = AbilityCost < CurrentWeaponPower ? true : false;
+
+	return HasEnoughPower;
+}
+
+void UCombatComponent::ConsumePower(ATimberWeaponBase* WeaponInstance, float AmountToConsume)
+{
+	if (WeaponInstance)
+	{
+		if (bHasEnoughPower(AmountToConsume, WeaponInstance->CurrentPower))
+		{
+			WeaponInstance->CurrentPower -= AmountToConsume;
+			UE_LOG(LogTemp, Warning, TEXT("Consumed: %f, Remaining Power: %f"), AmountToConsume, WeaponInstance->CurrentPower);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Not Enough Power to Consume."));
+		}
+	}
+}
+
 void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState)
 {
 	CurrentWeaponState = NewWeaponState;
@@ -259,14 +283,12 @@ void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState
 	SendWeaponStateToOwnerAnimInstance();
 }
 
-void UCombatComponent::HandleStandardAttack()
+void UCombatComponent::HandlePrimaryAbility()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Handling Standard Attack."));
+	UE_LOG(LogTemp, Warning, TEXT("Initiating Primary Ability"));
 	//Basic LMB Attack for any / all weapons. Called from Player Controller Input Mapping Subsystem
 	switch (CurrentWeaponState)
 	{
-		case EOwnerWeaponState::Unequipped:
-		break;
 		case EOwnerWeaponState::MeleeWeaponEquipped:
 			if (MeleeWeaponInstance && bIsMeleeEquipped && bCanMeleeAttack)
 			{
@@ -275,17 +297,30 @@ void UCombatComponent::HandleStandardAttack()
 				MeleeWeaponInstance->PerformStandardAttack();
 			}
 			break;
-	case EOwnerWeaponState::RangedWeaponEquipped:
-		if (RangedWeaponInstance && bIsRifleEquipped)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Handling Ranged Attack/"));
-			//Needs a hit location to fire at.
-			//We can perform a Raycast here for 1 Frame to get a Hit Location.
-			RangedWeaponInstance->FireRangedWeapon(GetProjectileTargetLocation());
-		}
-		break;
-	case EOwnerWeaponState::Default:
-		break;
+		
+		case EOwnerWeaponState::RangedWeaponEquipped:
+			if (RangedWeaponInstance && bIsRifleEquipped)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Attempting Ranged Primary Ability."));
+				//Needs a hit location to fire at.
+				//We can perform a Raycast here for 1 Frame to get a Hit Location.
+				//RangedWeaponInstance->FireRangedWeapon(GetProjectileTargetLocation());
+				//Checking if ability is affordable.
+				if (bHasEnoughPower(RangedWeaponInstance->PrimaryAbility.AbilityPowerCost, RangedWeaponInstance->CurrentPower))
+				{
+					//Initiating the Primary Abilities Execute Logic Flow.
+					RangedWeaponInstance->PrimaryAbility.Execute(GenerateCurrentAbilityContext());
+					
+					//Charging for Ability from Power.
+					ConsumePower(RangedWeaponInstance, RangedWeaponInstance->PrimaryAbility.AbilityPowerCost);
+				}
+			}
+			break;
+		
+		case EOwnerWeaponState::Unequipped:
+			break;
+		case EOwnerWeaponState::Default:
+			break;
 	}
 	
 }
@@ -318,6 +353,19 @@ void UCombatComponent::PlayEquipWeaponMontage(FName MontageSectionName)
 	{
 		AnimUser->PlayWeaponEquipAnimationMontage(MontageSectionName);
 	}
+}
+
+FAbilityContext UCombatComponent::GenerateCurrentAbilityContext()
+{
+	FAbilityContext CurrentAbilityContext;
+	
+	CurrentAbilityContext.Instigator = OwningCharacter;
+
+	CurrentAbilityContext.WeaponInstance = CurrentlyEquippedWeapon;
+
+	CurrentAbilityContext.TargetLocation = GetProjectileTargetLocation();
+
+	return CurrentAbilityContext;
 }
 
 

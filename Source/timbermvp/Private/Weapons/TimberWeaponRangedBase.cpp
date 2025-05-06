@@ -45,12 +45,14 @@ void ATimberWeaponRangedBase::Tick(float DeltaTime)
 
 void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 {
+	UE_LOG(LogTemp, Warning, TEXT("In Fire Ranged Weapon"));
 	if (bIsFireOnCooldown == false && CurrentAmmo > 0 && bIsReloading == false)
 	{
 		if (WeaponOwner && GetWorld())
 		{
 			if (ProjectileType)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Spawning Projectile."));
 				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
 				//FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 

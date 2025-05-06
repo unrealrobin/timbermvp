@@ -66,7 +66,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AI_FireRangedWeapon();
-
+	
+	/*Reloading*/
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Weapon")
 	bool bIsReloading = false;
 

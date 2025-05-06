@@ -84,6 +84,58 @@ void UCombatComponent::SpawnWeaponAtSocketLocation(TSubclassOf<ATimberWeaponBase
 	
 }
 
+FVector UCombatComponent::GetProjectileTargetLocation()
+{
+	/*
+	 * Performs Raycast from the camera to the center of the screen and aligns the reticule to the hit location.
+	 */
+	FVector CameraLocation;
+	FVector CameraDirection;
+
+	int ViewportSizeX;
+	int ViewportSizeY;
+
+	if (APlayerController* PC = Cast<APlayerController>(OwningCharacter->GetController()))
+	{
+		PC->GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+		FVector2d ScreenCenter = FVector2d(ViewportSizeX * 0.5f, ViewportSizeY * 0.5f);
+
+		/*
+		* The Camera is the screen as you see it.
+		* Line Trace goes from the center of the screen (where reticule should be) out to the world by X (10,000.f) units.
+		* Expensive, but that's why we only want 1 hit result.
+		*/
+		if (PC->DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, CameraLocation, CameraDirection))
+		{
+			if (CameraDirection.Normalize())
+			{
+				FHitResult HitResult;
+				FVector End = CameraLocation + (CameraDirection * 3000.f);
+				
+				FCollisionQueryParams QueryParams;
+				QueryParams.AddIgnoredActor(OwningCharacter);
+				QueryParams.AddIgnoredActor(CurrentlyEquippedWeapon);
+				bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, End, ECC_Visibility);
+
+				/* Here we handle how to adjust Raycast End for UpClose Targets.*/
+				if (bHit)
+				{
+					//If the Target Object is closer than 500 Units. Only Adjusting for Close Targets.
+					if (FVector::Dist(HitResult.ImpactPoint, CameraLocation) < ProjectileAlignmentAdjustmentDistance)
+					{
+						return HitResult.ImpactPoint;
+					}
+					return End;
+				}
+				return End;
+			}
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Could not Retrieve Controller from Owner."));
+	return FVector::ZeroVector;
+}
+
 void UCombatComponent::EquipWeapon(ATimberWeaponBase* WeaponInstance, FName EquippedWeaponSocketName)
 {
 	if (WeaponInstance)
@@ -92,13 +144,20 @@ void UCombatComponent::EquipWeapon(ATimberWeaponBase* WeaponInstance, FName Equi
 
 		CurrentlyEquippedWeapon = WeaponInstance;
 
-		if (Cast<ATimberWeaponRangedBase>(CurrentlyEquippedWeapon))
+		if (ATimberWeaponRangedBase* RangedWeapon = Cast<ATimberWeaponRangedBase>(CurrentlyEquippedWeapon))
 		{
 			UpdateCurrentWeaponState(EOwnerWeaponState::RangedWeaponEquipped);
+
+			//Clean up of Reloading State during Ranged Equip.
+			RangedWeapon->bIsReloading = false;
+			Cast<UTimberAnimInstance>(OwningCharacter->GetMesh()->GetAnimInstance())->bIsReloading = false;
+			bIsRifleEquipped = true;
 		}
 		else if (Cast<ATimberWeaponMeleeBase>(CurrentlyEquippedWeapon))
 		{
 			UpdateCurrentWeaponState(EOwnerWeaponState::MeleeWeaponEquipped);
+			bIsMeleeEquipped = true;
+			bCanMeleeAttack = true;
 		}
 		else
 		{
@@ -116,6 +175,17 @@ void UCombatComponent::UnEquipWeapon(ATimberWeaponBase* WeaponInstance, FName Un
 	//Place the Ranged Weapon on the Owners UnEquipped Ranged Socket Location
 	if (WeaponInstance)
 	{
+		if (WeaponInstance == RangedWeaponInstance)
+		{
+			bIsRifleEquipped = false;
+		}
+		else if (WeaponInstance == MeleeWeaponInstance)
+		{
+			bIsMeleeEquipped = false;
+		}
+
+		CurrentlyEquippedWeapon = nullptr;
+		
 		WeaponInstance->AttachToComponent(OwningCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, 
 		UnEquipSocketName);
 
@@ -123,25 +193,51 @@ void UCombatComponent::UnEquipWeapon(ATimberWeaponBase* WeaponInstance, FName Un
 	}
 }
 
+void UCombatComponent::UnEquipCurrentlyEquippedWeapon()
+{
+	//Default is a catch-all, potentially not even possible to achieve.
+	if (CurrentWeaponState == EOwnerWeaponState::Default || CurrentWeaponState == EOwnerWeaponState::Unequipped)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Combat Component - UnEquipCurrentlyEquippedWeapon() - No Weapon to UnEquip"));
+		return;
+	}
+
+	if (CurrentWeaponState == EOwnerWeaponState::RangedWeaponEquipped && RangedWeaponInstance)
+	{
+		UnEquipWeapon(RangedWeaponInstance, UnEquippedRangeSocket);
+	}
+	else if (CurrentWeaponState == EOwnerWeaponState::MeleeWeaponEquipped && MeleeWeaponInstance)
+	{
+		UnEquipWeapon(MeleeWeaponInstance, UnEquippedMeleeSocket);
+	}
+}
+
 void UCombatComponent::EquipMelee()
 {
 	if (CurrentlyEquippedWeapon)
 	{
-		UnEquipAllWeapons();
+		UnEquipCurrentlyEquippedWeapon();
 	}
 	
 	EquipWeapon(MeleeWeaponInstance, EquippedMeleeSocket);
+	bIsEquipMontagePlaying = false;
 }
 
 void UCombatComponent::EquipRanged()
 {
 	if (CurrentlyEquippedWeapon)
 	{
-		UnEquipAllWeapons();
+		UnEquipCurrentlyEquippedWeapon();
 	}
 	EquipWeapon(RangedWeaponInstance, EquippedRangeSocket);
+	bIsEquipMontagePlaying = false;
 }
 
+void UCombatComponent::UnEquipAllWeapons()
+{
+	UnEquipWeapon(MeleeWeaponInstance, UnEquippedMeleeSocket);
+	UnEquipWeapon(RangedWeaponInstance, UnEquippedRangeSocket);
+}
 
 void UCombatComponent::SendWeaponStateToOwnerAnimInstance()
 {
@@ -155,12 +251,6 @@ void UCombatComponent::SendWeaponStateToOwnerAnimInstance()
 	}
 }
 
-void UCombatComponent::UnEquipAllWeapons()
-{
-	UnEquipWeapon(MeleeWeaponInstance, UnEquippedMeleeSocket);
-	UnEquipWeapon(RangedWeaponInstance, UnEquippedRangeSocket);
-}
-
 void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState)
 {
 	CurrentWeaponState = NewWeaponState;
@@ -168,4 +258,68 @@ void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState
 	// We can do any broadcasts needed or value changes directly from here.
 	SendWeaponStateToOwnerAnimInstance();
 }
+
+void UCombatComponent::HandleStandardAttack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Handling Standard Attack."));
+	//Basic LMB Attack for any / all weapons. Called from Player Controller Input Mapping Subsystem
+	switch (CurrentWeaponState)
+	{
+		case EOwnerWeaponState::Unequipped:
+		break;
+		case EOwnerWeaponState::MeleeWeaponEquipped:
+			if (MeleeWeaponInstance && bIsMeleeEquipped && bCanMeleeAttack)
+			{
+				bCanMeleeAttack = false;
+				//Standard attack on the Melee Weapon
+				MeleeWeaponInstance->PerformStandardAttack();
+			}
+			break;
+	case EOwnerWeaponState::RangedWeaponEquipped:
+		if (RangedWeaponInstance && bIsRifleEquipped)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Handling Ranged Attack/"));
+			//Needs a hit location to fire at.
+			//We can perform a Raycast here for 1 Frame to get a Hit Location.
+			RangedWeaponInstance->FireRangedWeapon(GetProjectileTargetLocation());
+		}
+		break;
+	case EOwnerWeaponState::Default:
+		break;
+	}
+	
+}
+
+void UCombatComponent::ReloadRangedWeapon()
+{
+	if (CurrentWeaponState == EOwnerWeaponState::RangedWeaponEquipped && CurrentlyEquippedWeapon == RangedWeaponInstance)
+	{
+		if (UTimberAnimInstance* Anim = Cast<UTimberAnimInstance>(OwningCharacter->GetMesh()->GetAnimInstance()))
+		{
+			if (!RangedWeaponInstance->bIsReloading && !Anim->bIsReloading)
+			{
+				if (RangedWeaponInstance->CurrentAmmo != RangedWeaponInstance->MaxAmmo)
+				{
+					Anim->bIsReloading = true;
+					RangedWeaponInstance->PlayReloadMontage();
+				}
+			}
+		}
+		
+	}
+}
+
+void UCombatComponent::PlayEquipWeaponMontage(FName MontageSectionName)
+{
+	bIsEquipMontagePlaying = true;
+
+	//Need to call the PlayEquipWeaponMontage on the Player Character but want to avoid Coupling/Casting to that specific Character.
+	if (ICombatComponentAnimUser* AnimUser = Cast<ICombatComponentAnimUser>(OwningCharacter))
+	{
+		AnimUser->PlayWeaponEquipAnimationMontage(MontageSectionName);
+	}
+}
+
+
+
 

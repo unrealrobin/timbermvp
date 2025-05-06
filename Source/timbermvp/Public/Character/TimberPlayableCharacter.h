@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/TimberCharacterBase.h"
+#include "Interfaces/CombatComponentAnimUser.h"
 #include "States/PlayerStateBase.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
@@ -22,15 +23,6 @@ class UCameraComponent;
 class UInventoryManagerComponent;
 
 UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Unequipped UMETA(DisplayName = "None"),
-	MeleeWeaponEquipped UMETA(DisplayName = "MeleeWeaponEquipped"),
-	ChainsawEquipped UMETA(DisplayName = "ChainsawEquipped"),
-	RangedEquipped UMETA(DisplayName = "RangedEquipped"),
-};
-
-UENUM(BlueprintType)
 enum class ECharacterState: uint8
 {
 	Standard UMETA(DisplayName = "Standard"),
@@ -41,7 +33,7 @@ enum class ECharacterState: uint8
  * 
  */
 UCLASS()
-class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
+class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase, public ICombatComponentAnimUser
 {
 	GENERATED_BODY()
 
@@ -53,15 +45,16 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHandleRemoveDeleteIcon);
-
 	
 	//Delegate Handles
 	FOnCharacterInitialization OnCharacterInitialization;
 	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
 	FHandleSpawnDeleteIconLocation HandleSpawnDeleteIconLocation_DelegateHandle;
 	FHandleRemoveDeleteIcon HandleRemoveDeleteIcon_DelegateHandle;
-	
 
+	/*Interface Overrides*/
+	virtual void PlayWeaponEquipAnimationMontage(FName SectionName) override;
+	
 	//CharacterState
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")
 	ECharacterState CharacterState = ECharacterState::Standard;
@@ -99,7 +92,6 @@ public:
 	//TODO:: Tentatively not needed. Was used in Anim BP
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
 	bool IsNowJumping = false;
-
 	
 	/*Combat*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
@@ -109,14 +101,11 @@ public:
 	UFUNCTION()
 	void PlayEquipWeaponMontage(FName SectionName);
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
-	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
-
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
 	
 	/*Weapon Slots*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> RangedWeaponClass;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
 	ATimberWeaponMeleeBase* RangedWeaponInstance;
@@ -129,10 +118,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
 	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	ATimberWeaponRangedBase* WeaponThreeInstance;
+	ATimberWeaponRangedBase* WeaponThreeInstance;*/
 
 	/* Weapon Spawning*/
-	UFUNCTION()
+	/*UFUNCTION()
 	void SpawnMeleeWeapon();
 	UFUNCTION()
 	void SpawnRangedWeapon();
@@ -141,16 +130,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip);
 	UFUNCTION(BlueprintCallable)
-	void UnEquipBothWeapons();
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
+	void UnEquipBothWeapons();*/
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
 	bool bIsSwordFullyEquipped = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
 	bool bIsRifleFullyEquipped = false;
+	*/
 	
-	/*Getters & Setters*/
-	EWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
-	void SetCurrentWeaponState(EWeaponState NewWeaponState);
-	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
+	
+	//void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
 	void HandleRaycastHitConditions(bool bHits);
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 

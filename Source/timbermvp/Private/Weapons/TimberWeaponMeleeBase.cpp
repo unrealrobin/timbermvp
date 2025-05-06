@@ -189,6 +189,9 @@ void ATimberWeaponMeleeBase::HandlePlayAttackMontage()
 			//Checking binding so we dont double bind the delegate on subsequence attacks.
 			if (!BlendingOutDelegate.IsBound())
 			{
+				//Creating a delegate to the BlendingOut function to reset the CanAttackAgain bool on the Player Controller.
+				//For any reason of blending out, we revert the CanAttackAgain bool to true.
+				//Either Animation Completed or interrupted.
 				BlendingOutDelegate.BindUObject(this, &ATimberWeaponMeleeBase::HandleAttackMontageInterrupted, false);
 				CharacterAnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, AttackMontage);
 			}

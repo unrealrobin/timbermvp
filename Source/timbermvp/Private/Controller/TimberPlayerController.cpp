@@ -102,11 +102,11 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
 }
 
-void ATimberPlayerController::PerformReticuleAlignment_Raycast()
+/*void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 {
 	/*
 	 * Performs Raycast from the camera to the center of the screen and aligns the reticule to the hit location.
-	 */
+	 #1#
 	FVector CameraLocation;
 	FVector CameraDirection;
 
@@ -120,7 +120,7 @@ void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 	 * Camera is the screen as you see it.
 	 * Line Trace goes from the center of the screen (where reticule should be) out to the world by X (10,000.f) units.
 	 * Expensive, but that's why we only want 1 hit result.
-	 */
+	 #1#
 	if (DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, CameraLocation, CameraDirection))
 	{
 		if (CameraDirection.Normalize())
@@ -152,7 +152,7 @@ void ATimberPlayerController::PerformReticuleAlignment_Raycast()
 			//DrawDebugSphere(GetWorld(), ReticuleHitLocation, 10.f, 12, FColor::Green, false, 0.1f);
 		}
 	}
-}
+}*/
 
 void ATimberPlayerController::EnableCursor()
 {
@@ -295,26 +295,21 @@ void ATimberPlayerController::Interact(const FInputActionValue& Value)
 /*Melee*/
 void ATimberPlayerController::EquipMeleeWeapon(const FInputActionValue& Value)
 {
-	if (TimberCharacter)
+	if (TimberCharacter && TimberCharacter->CombatComponent && TimberCharacter->CombatComponent->GetCurrentWeaponState() != EOwnerWeaponState::MeleeWeaponEquipped)
 	{
-		UnEquipWeapon();
+		if (TimberCharacter->CombatComponent->bIsEquipMontagePlaying)
+		{
+			return;
+		}
+		
+		TimberCharacter->CombatComponent->UnEquipCurrentlyEquippedWeapon();
 		
 		//Equipping a Weapon takes the player out of Build Mode.
 		HandleExitBuildMode();
-		
-		//Notify Will call the actual Equip Weapon function that Moves the weapons to each socket in the ABP
-		//Call for Animation
-		TimberCharacter->PlayEquipWeaponMontage("EquipSword");
 
-		//Can be set in 1 Equip Function on Combat Component.
-		TimberCharacter->SetCurrentlyEquippedWeapon(TimberCharacter->RangedWeaponInstance);
-
-		//Setting New WeaponState on Character
-		TimberCharacter->SetCurrentWeaponState(EWeaponState::MeleeWeaponEquipped);
-
-		//Confirm Need or this Broadcast
-		//WeaponState.Broadcast(EWeaponState::MeleeWeaponEquipped);
-
+		//Notify calls actual equip logic on CombatComponent->EquipMelee()
+		//TimberCharacter->PlayEquipWeaponMontage("EquipSword");
+		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipSword");
 	}
 }
 
@@ -323,28 +318,24 @@ void ATimberPlayerController::EquipRangedWeapon(const FInputActionValue& Value)
 {
 	//Input action Function Call for Equipping Weapon.
 	//Remap to 1 Key.
-
-	//We want to change WeaponthreeInstance call to use RangedWeapon Ref on COmbat Component of character.
-	if (TimberCharacter)
+	
+	if (TimberCharacter && TimberCharacter->CombatComponent && 
+	TimberCharacter->CombatComponent->GetCurrentWeaponState() != EOwnerWeaponState::RangedWeaponEquipped)
 	{
-		UnEquipWeapon();
+
+		if (TimberCharacter->CombatComponent->bIsEquipMontagePlaying)
+		{
+			return;
+		}
+		
+		TimberCharacter->CombatComponent->UnEquipCurrentlyEquippedWeapon();
 		
 		HandleExitBuildMode();
 
 		//Equip Animation
-		TimberCharacter->PlayEquipWeaponMontage("EquipGun");
+		//TimberCharacter->PlayEquipWeaponMontage("EquipGun");
+		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipGun");
 		
-
-		if (TimberCharacter->WeaponThreeInstance)
-		{
-			TimberCharacter->WeaponThreeInstance->bIsReloading = false;
-			UTimberAnimInstance* AnimInstance = Cast<UTimberAnimInstance>(TimberCharacter->GetMesh()->GetAnimInstance());
-			if (AnimInstance)
-			{
-				AnimInstance->bIsReloading = false;
-			}
-			UE_LOG(LogTemp, Warning, TEXT("Controller - Equip Weapon Three - BIsReloading Set to False"));
-		}
 	}
 
 }
@@ -364,19 +355,16 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 	}
 }
 
-void ATimberPlayerController::UnEquipWeapon() const
+/*void ATimberPlayerController::UnEquipWeapon() const
 {
 	//If a weapon is equipped, we need to un-equip it.
 	if (TimberCharacter->CombatComponent->GetCurrentlyEquippedWeapon())
 	{
 		//Stops any reloading Montages or shooting montages from playing.
 		TimberCharacter->StopAllAnimMontages();
-
-		//TODO:: Testing running this from the Anim Graph
-		//TimberCharacter->CombatComponent->UnEquipAllWeapons();
+		
+		TimberCharacter->CombatComponent->UnEquipAllWeapons();
 	}
-
-
 	
 	/*if (TimberCharacter->GetCurrentlyEquippedWeapon())
 	{
@@ -393,21 +381,16 @@ void ATimberPlayerController::UnEquipWeapon() const
 		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
 		
 		WeaponState.Broadcast(EWeaponState::Unequipped);
-	}*/
-}
-
-void ATimberPlayerController::HandleWeaponEquip() const
-{
-	
-	/*if (Cast<ATimberWeaponRangedBase>(TimberCharacter->GetCurrentlyEquippedWeapon()))
-	{
-		ShowAmmoCounter.Broadcast(false);
-	}*/
-}
+	}#1#
+}*/
 
 void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 {
-	if (TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
+	if (TimberCharacter && TimberCharacter->CombatComponent)
+	{
+		TimberCharacter->CombatComponent->HandleStandardAttack();
+	}
+	/*if (TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
 	{
 		switch (TimberCharacter->GetCurrentWeaponState())
 		{
@@ -443,7 +426,7 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			}
 			break;
 		}
-	}
+	}*/
 }
 
 /*Build System Controls*/
@@ -461,8 +444,8 @@ void ATimberPlayerController::EnterBuildMode(const FInputActionValue& Value)
 			//Adding IMC for BuildMode - OverWrites on the overwritten Standard IMC
 			Subsystem->AddMappingContext(BuildModeInputMappingContext, 2);
 		}
-		
-		UnEquipWeapon();
+		TimberCharacter->CombatComponent->UnEquipAllWeapons();
+
 		EnableCursor();
 
 		//Deletes Lingering Proxies
@@ -589,7 +572,8 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 	{
 		EnableCursor();
 		DisableAllKeyboardInput();
-		UnEquipWeapon();
+		
+		TimberCharacter->CombatComponent->UnEquipAllWeapons();
 
 		//Subscribed on the HUD to Show the Death UI
 		HandleDeathUI_DelegateHandle.Execute();
@@ -598,29 +582,10 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 
 void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 {
-	if (TimberCharacter->GetCurrentWeaponState() ==  EWeaponState::RangedEquipped
-		&& TimberCharacter->CharacterState == ECharacterState::Standard)
+	if (TimberCharacter && TimberCharacter->CombatComponent)
 	{
-		UTimberAnimInstance* AnimInstance = Cast<UTimberAnimInstance>(TimberCharacter->GetMesh()->GetAnimInstance());
-
-		//If not already reloading
-		if (AnimInstance && AnimInstance->bIsReloading == false)
-		{
-			//If not at MaxAmmo
-			if (TimberCharacter->WeaponThreeInstance && TimberCharacter->WeaponThreeInstance->CurrentAmmo == 
-			TimberCharacter->WeaponThreeInstance->MaxAmmo)
-			{
-				//UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - Reload() - Ammo already at Max Ammo."))
-				return;
-			}
-			
-			AnimInstance->bIsReloading = true;
-			TimberCharacter->WeaponThreeInstance->PlayReloadMontage();
-		}
-		
-		
+		TimberCharacter->CombatComponent->ReloadRangedWeapon();
 	}
-	
 }
 
 /* Controller Only */

@@ -7,6 +7,7 @@
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/TimberSeeda.h"
+#include "Components/Combat/CombatComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
@@ -557,13 +558,13 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			}
 
 			//Ensuring weapons are loaded
-			if (ATimberWeaponRangedBase* RangedWeapon = Cast<ATimberWeaponRangedBase>(TimberCharacter->WeaponThreeInstance))
+			if (ATimberWeaponRangedBase* RangedWeapon = TimberCharacter->CombatComponent->RangedWeaponInstance)
 			{
 				//Loading the Ammo of the Weapon
 				RangedWeapon->CurrentAmmo = RangedWeapon->MaxAmmo;
 			}
 			//Ensuring Sword energy is at 100%
-			if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(TimberCharacter->RangedWeaponInstance))
+			if (ATimberWeaponMeleeBase* MeleeWeapon = TimberCharacter->CombatComponent->MeleeWeaponInstance)
 			{
 				MeleeWeapon->CurrentWeaponEnergy = MeleeWeapon->MaxWeaponEnergy;
 			}

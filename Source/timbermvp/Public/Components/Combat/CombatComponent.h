@@ -50,28 +50,37 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon")
 	TSubclassOf<ATimberWeaponBase> MeleeWeaponClass;
 	
-	/*Weapon Instances*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
-	ATimberWeaponRangedBase* RangedWeaponInstance = nullptr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
-	ATimberWeaponMeleeBase* MeleeWeaponInstance = nullptr;
-	
 	void EquipWeapon(ATimberWeaponBase* WeaponInstance, FName EquippedWeaponSocketName);
 	void UnEquipWeapon(ATimberWeaponBase* WeaponInstance, FName UnEquipSocketName);
 	
 
 public:
 
+	/*Weapon Instances*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
+	ATimberWeaponRangedBase* RangedWeaponInstance = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
+	ATimberWeaponMeleeBase* MeleeWeaponInstance = nullptr;
+	
+	void UnEquipCurrentlyEquippedWeapon();
+
 	UFUNCTION(BlueprintCallable)
 	void EquipMelee();
 	
 	UFUNCTION(BlueprintCallable)
 	void EquipRanged();
-	
 	void SpawnRangedWeapon();
 	void SpawnMeleeWeapon();
 	void UnEquipAllWeapons();
 	void UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState);
+	void HandleStandardAttack();
+	void ReloadRangedWeapon();
+
+	bool bIsEquipMontagePlaying = false;
+	void PlayEquipWeaponMontage(FName MontageSectionName);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bCanMeleeAttack = true;
 	
 	/*Socket Names Set on SKM of Kip. Can be Overwritten.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Sockets")
@@ -83,13 +92,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Sockets")
 	FName EquippedRangeSocket = "EquippedRangeSocket";
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Targeting")
+	float ProjectileAlignmentAdjustmentDistance = 500.0f;
+
 	FORCEINLINE ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
+	FORCEINLINE EOwnerWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
 	
 private:
 	
 	UFUNCTION()
 	void SpawnWeaponAtSocketLocation(TSubclassOf<ATimberWeaponBase> WeaponClassToSpawn, FName SocketName);
 
+	FVector GetProjectileTargetLocation();
+	
 	UPROPERTY()
 	bool bIsRifleEquipped = false;
 	UPROPERTY()

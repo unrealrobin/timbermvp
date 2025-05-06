@@ -32,8 +32,6 @@ public:
 	virtual void BeginPlay() override;
 
 	/*Delegates*/
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChange, EWeaponState, NewState);
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
 	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSettingsPanelToggle);
@@ -45,8 +43,6 @@ public:
 	//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShouldShowAmmoCounter, bool, bShouldShowAmmoCounter);
 	
 	/*DelegateHandles*/
-	UPROPERTY(BlueprintAssignable)
-	FOnWeaponStateChange WeaponState;
 	FOnBuildMenuToggle IsBuildPanelOpen;
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
@@ -129,20 +125,18 @@ public:
 	void EquipRangedWeapon(const FInputActionValue& Value);
 	UFUNCTION()
 	void EquipMeleeWeapon(const FInputActionValue& Value);
-	
 	UFUNCTION()
 	void StandardAttack(const FInputActionValue& Value);
 	UFUNCTION()
 	void ReloadWeapon(const FInputActionValue& Value);
-	void HandleWeaponEquip() const;
-	UFUNCTION()
-	void UnEquipWeapon() const;
+	/*UFUNCTION()
+	void UnEquipWeapon() const;*/
 
-	/* Reticule Alignment*/
+	/*/* Reticule Alignment#1#
 	//Raycast to align the reticule to the hit location.
 	FVector ReticuleHitLocation;
 	UFUNCTION()
-	void PerformReticuleAlignment_Raycast();
+	void PerformReticuleAlignment_Raycast();*/
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

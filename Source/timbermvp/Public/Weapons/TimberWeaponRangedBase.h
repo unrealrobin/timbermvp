@@ -18,7 +18,7 @@ enum class EAbilityType : uint8
 	Knockback
 };
 
-//Declerations for Struct
+//Declarations for Struct
 class ATimberWeaponRangedBase;
 
 USTRUCT(BlueprintType)
@@ -37,6 +37,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AbilityPowerCost = 0.0f;
 
+	/*Implemented in TimberWeaponRangedBase.Cpp*/
 	void Execute(FAbilityContext Context) const;
 	
 };
@@ -50,8 +51,7 @@ public:
 	ATimberWeaponRangedBase();
 	
 	virtual void Tick(float DeltaTime) override;
-
-	/*Sound*/
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
 	USoundCue* FiringSound;
 
@@ -62,19 +62,28 @@ public:
 	TSubclassOf<ATimberProjectileBase> ProjectileType;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 	
+	virtual void BeginPlay() override;
+	void ClearPowerCooldown();
+
 	FTimerHandle TimeBetweenShotsHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	float TimeBetweenProjectiles = 0.1f;
-
+	
 	//Default false, shot turns to true, timer turns back to false.
 	bool bIsFireOnCooldown = false;
 
 	UFUNCTION()
 	void ResetFiringCooldown();
+
+	/* After Depleting Power, Weapon must Cool down*/
+	FTimerHandle PowerDepletedHandle;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	float PowerDepletedCooldownTime = 2.0f;
+
+	
 
 public:
 	UPROPERTY(VisibleAnywhere, Category = Owner)
@@ -106,6 +115,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Weapon")
 	bool bIsReloading = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo")
+	bool bIsPowerWeaponCooldown = false;
+
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void ReloadWeapon();
 
@@ -115,7 +127,7 @@ public:
 	UFUNCTION()
 	void HandleReloadMontageInterruption(UAnimMontage* Montage, bool bInterrupted);
 
-	/*Abilities & Ability Logic*/
+	/*Weapon Abilities & Ability Logic*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta=(TitleProperty="AbilityName") )
 	TArray<FRangedAbilityData> RangedAbilitiesArray;

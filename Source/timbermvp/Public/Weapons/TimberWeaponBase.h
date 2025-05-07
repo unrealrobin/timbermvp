@@ -38,6 +38,9 @@ public:
 	bool bUsesPower = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	bool bIsReloadable = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	float PowerRegenerationPerSecond = 10.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Power")

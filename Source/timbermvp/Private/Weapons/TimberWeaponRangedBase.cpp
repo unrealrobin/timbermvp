@@ -31,12 +31,6 @@ void ATimberWeaponRangedBase::BeginPlay()
 	CurrentAmmo = MaxAmmo;
 }
 
-void ATimberWeaponRangedBase::ResetFiringCooldown()
-{
-	GetWorld()->GetTimerManager().ClearTimer(TimeBetweenShotsHandle);
-	bIsFireOnCooldown = false;
-}
-
 // Called every frame
 void ATimberWeaponRangedBase::Tick(float DeltaTime)
 {
@@ -52,56 +46,56 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 		{
 			if (ProjectileType)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Spawning Projectile."));
 				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
-				//FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
-
-				//This is the updated Rotation based on the raycast using the HitResult from the Screen Space. (More Accurate.)
-				FRotator AimRotation = (TargetLocation - ProjectileSpawnLocation).Rotation();
-
-				// Add Spawn Params for Projectile Owner and Instigator
+				FRotator ProjectileAimRotation = (TargetLocation - ProjectileSpawnLocation).Rotation();
+				
 				FActorSpawnParameters SpawnParams;
-				// Print the owner of the weapon
-				//UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
 				SpawnParams.Owner = WeaponOwner;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				//UE_LOG(LogTemp, Warning, TEXT("Attempting to Spawn Projectile."));
-
-		
-				//Deffering spawn to set all ownership first.		
-				FTransform ProjectileSpawnTransform = FTransform(AimRotation, ProjectileSpawnLocation);
+				
+				FTransform ProjectileSpawnTransform = FTransform(ProjectileAimRotation, ProjectileSpawnLocation);
 				ATimberPlayerProjectile* Projectile = GetWorld()->SpawnActorDeferred<ATimberPlayerProjectile>(
 					ProjectileType,
 					ProjectileSpawnTransform, this);
-
 				Projectile->PlayerProjectileOwner = Cast<ATimberPlayableCharacter>(WeaponOwner);
-
 				Projectile->FinishSpawning(ProjectileSpawnTransform);
 
 				if (Projectile)
 				{
 					//Setting Timer to next shot
-					
 					GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, 
 					&ATimberWeaponRangedBase::ResetFiringCooldown, TimeBetweenProjectiles, false);
-
 					//Setting Firing to on Cooldown
 					bIsFireOnCooldown = true;
-
-					//Removing Ammo from Available Ammo
-					CurrentAmmo--;
-					
 					//Playing firing sounds
 					UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, ProjectileSpawnLocation);
-					
 					Projectile->SetOwner(this);
+					//Removing Ammo from Available Ammo
+			
+					if (!bUsesPower)
+					{
+						CurrentAmmo--;
+					}
+					else
+					{
+						if (CurrentPower <= 1)
+						{
+							bIsPowerWeaponCooldown = true;
+							GetWorld()->GetTimerManager().SetTimer(PowerDepletedHandle, this, &ATimberWeaponRangedBase::ClearPowerCooldown, PowerDepletedCooldownTime, false);
+						}
+					}
+
 					
+
+					//If a Weapon uses Power, Power usage is handled in CombatComponent.
 				}
 			}
 		}
 	}
 
-	if (CurrentAmmo == 0)
+	//TODO:: Can we remove this cast? Reload is on the Players Combat Component
+	//TODO:: Tentatively Removing ammo and using Power as projectile Control.
+	if (!bUsesPower && CurrentAmmo == 0)
 	{
 		ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(Cast<ATimberPlayableCharacter>(GetOwner())->GetController());
 		if (PlayerController)
@@ -205,6 +199,21 @@ void ATimberWeaponRangedBase::ReloadWeapon()
 	bIsReloading = false;
 }
 
+void ATimberWeaponRangedBase::ClearPowerCooldown()
+{
+	if (bUsesPower)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(PowerDepletedHandle);
+		bIsPowerWeaponCooldown = false;
+	}
+}
+
+void ATimberWeaponRangedBase::ResetFiringCooldown()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimeBetweenShotsHandle);
+	bIsFireOnCooldown = false;
+}
+
 void ATimberWeaponRangedBase::Execute_BasicProjectile(FAbilityContext Context)
 {
 	FireRangedWeapon(Context.TargetLocation);
@@ -212,7 +221,7 @@ void ATimberWeaponRangedBase::Execute_BasicProjectile(FAbilityContext Context)
 
 void ATimberWeaponRangedBase::Execute_Knockback(FAbilityContext Context)
 {
-	//TODO:: Create Knockback Logic for Weapon
+	//TODO:: Create Knockback Logic for Weapon . 
 }
 
 //FAbility Struct Execute Function

@@ -306,11 +306,10 @@ void UCombatComponent::HandlePrimaryAbility()
 				//We can perform a Raycast here for 1 Frame to get a Hit Location.
 				//RangedWeaponInstance->FireRangedWeapon(GetProjectileTargetLocation());
 				//Checking if ability is affordable.
-				if (bHasEnoughPower(RangedWeaponInstance->PrimaryAbility.AbilityPowerCost, RangedWeaponInstance->CurrentPower))
+				if (bHasEnoughPower(RangedWeaponInstance->PrimaryAbility.AbilityPowerCost, RangedWeaponInstance->CurrentPower) && !RangedWeaponInstance->bIsPowerWeaponCooldown)
 				{
 					//Initiating the Primary Abilities Execute Logic Flow.
 					RangedWeaponInstance->PrimaryAbility.Execute(GenerateCurrentAbilityContext());
-					
 					//Charging for Ability from Power.
 					ConsumePower(RangedWeaponInstance, RangedWeaponInstance->PrimaryAbility.AbilityPowerCost);
 				}
@@ -329,6 +328,12 @@ void UCombatComponent::ReloadRangedWeapon()
 {
 	if (CurrentWeaponState == EOwnerWeaponState::RangedWeaponEquipped && CurrentlyEquippedWeapon == RangedWeaponInstance)
 	{
+		//If the Weapon Uses power, there is no reloading.
+		if (CurrentlyEquippedWeapon->bUsesPower)
+		{
+			return;
+		}
+		
 		if (UTimberAnimInstance* Anim = Cast<UTimberAnimInstance>(OwningCharacter->GetMesh()->GetAnimInstance()))
 		{
 			if (!RangedWeaponInstance->bIsReloading && !Anim->bIsReloading)

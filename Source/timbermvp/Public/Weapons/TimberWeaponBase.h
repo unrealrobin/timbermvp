@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TimberWeaponBase.generated.h"
 
+class UWeaponAbilityBase;
 class ATimberProjectileBase;
 class UBoxComponent;
 
@@ -19,6 +20,12 @@ public:
 	ATimberWeaponBase();
 
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Abilities")
+	TSubclassOf<UWeaponAbilityBase> PrimaryWeaponAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Abilities")
+	TSubclassOf<UWeaponAbilityBase> SecondaryWeaponAbility;
 	
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
 	UStaticMeshComponent* StaticMesh;
@@ -32,10 +39,20 @@ protected:
 	
 	void RegeneratePower(float DeltaTime, float RegenerationRate);
 
+	void ClearPowerCooldown();
+
+	FTimerHandle PowerCooldownTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	float PowerDepletedCooldownTime = 2.0f;
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	bool bUsesPower = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	bool bIsOnPowerCooldown = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	bool bIsReloadable = false;
@@ -65,6 +82,10 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, Category="Attack Info")
 	TArray<AActor*> ActorsToIgnore;
+	
+	void ConsumePower(float AmountToConsume);
+
+	void HandlePowerCooldown();
 	
 	/*UFUNCTION()
 	virtual float GetWeaponBaseDamage() const { return BaseWeaponDamage; }*/

@@ -8,6 +8,7 @@
 #include "UObject/FastReferenceCollector.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
+#include "Weapons/Abilities/WeaponAbilityBase.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
@@ -285,7 +286,28 @@ void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState
 
 void UCombatComponent::HandlePrimaryAbility()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Initiating Primary Ability"));
+	//Player wants the primary ability of the equipped weapon.
+	//What the current weapons prim. ability?
+	if (CurrentlyEquippedWeapon->PrimaryWeaponAbility)
+	{
+		const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
+
+		bool bIsAbilityValidated = ValidateWeaponAbility(PrimaryAbility);
+
+		if (bIsAbilityValidated)
+		{
+			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->PrimaryWeaponAbility;
+			UWeaponAbilityBase* Ability = NewObject<UWeaponAbilityBase>(this, AbilityClass);
+
+			if (Ability)
+			{
+				Ability->Execute(GenerateCurrentAbilityContext());
+			}
+		}
+	}
+
+	
+	/*UE_LOG(LogTemp, Warning, TEXT("Initiating Primary Ability"));
 	//Basic LMB Attack for any / all weapons. Called from Player Controller Input Mapping Subsystem
 	switch (CurrentWeaponState)
 	{
@@ -320,8 +342,48 @@ void UCombatComponent::HandlePrimaryAbility()
 			break;
 		case EOwnerWeaponState::Default:
 			break;
-	}
+	}*/
 	
+}
+
+bool UCombatComponent::ValidateWeaponAbility(const UWeaponAbilityBase* AbilityToValidate)
+{
+	switch (AbilityToValidate->ValidationType)
+	{
+	case EAbilityValidation::RequiresPower :
+		return ValidatePowerWeapon(AbilityToValidate);
+	case EAbilityValidation::AlwaysCastable:
+		return true;
+	case EAbilityValidation::RequiresAmmo:
+		break;
+	case EAbilityValidation::Default:
+		break;
+	}
+	return false;
+		
+}
+
+bool UCombatComponent::ValidatePowerWeapon(const UWeaponAbilityBase* AbilityToValidate)
+{
+	//Not Enough Power? On Cooldown? Not Valid.
+	if (!bHasEnoughPower(AbilityToValidate->PowerCost, CurrentlyEquippedWeapon->CurrentPower) || CurrentlyEquippedWeapon->bIsOnPowerCooldown)
+	{
+		return false;
+	}
+
+	//Time Between Projectiles Firing isn't complete?
+	ATimberWeaponRangedBase* RangedWeapon = Cast<ATimberWeaponRangedBase>(CurrentlyEquippedWeapon);
+	if (RangedWeapon)
+	{
+		if (AbilityToValidate->bNeedsProjectileData)
+		{
+			if (RangedWeapon->bIsFireOnCooldown)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 void UCombatComponent::ReloadRangedWeapon()
@@ -372,6 +434,7 @@ FAbilityContext UCombatComponent::GenerateCurrentAbilityContext()
 
 	return CurrentAbilityContext;
 }
+
 
 
 

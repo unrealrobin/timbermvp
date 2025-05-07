@@ -22,9 +22,11 @@ struct FAbilityContext
 	GENERATED_BODY()
 	
 public:
+	//The player/Character that initiated the ability
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
 	AActor* Instigator = nullptr;
-	
+
+	//The Weapon that initiated the ability
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
 	ATimberWeaponBase* WeaponInstance = nullptr;
 	
@@ -70,6 +72,8 @@ protected:
 	void UnEquipWeapon(ATimberWeaponBase* WeaponInstance, FName UnEquipSocketName);
 
 	FAbilityContext GenerateCurrentAbilityContext();
+
+	bool ValidateWeaponAbility(const UWeaponAbilityBase* AbilityToValidate);
 
 public:
 
@@ -135,6 +139,8 @@ private:
 	bool bHasEnoughPower(float AbilityCost, float CurrentWeaponPower);
 
 	void ConsumePower(ATimberWeaponBase* WeaponInstance, float AmountToConsume);
+
+	bool ValidatePowerWeapon(const UWeaponAbilityBase* AbilityToValidate);
 
 	//void InitializeWeaponPrimaryAbility(ATimberWeaponBase* WeaponInstance, FAbilityContext& Context);
 

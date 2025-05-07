@@ -3,6 +3,7 @@
 
 #include "Weapons/TimberWeaponRangedBase.h"
 #include "Character/TimberCharacterBase.h"
+#include "Components/BoxComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -29,6 +30,13 @@ void ATimberWeaponRangedBase::BeginPlay()
 
 	//Setting Ammo
 	CurrentAmmo = MaxAmmo;
+}
+
+void ATimberWeaponRangedBase::HandleFiringRate(float InTime)
+{
+	//Called from the Weapons Ability to Initiate Cooldown and Pass Data Up the chain to the combat component.
+	bIsFireOnCooldown = true;
+	GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, &ATimberWeaponRangedBase::ResetFiringCooldown, InTime, false);
 }
 
 // Called every frame
@@ -81,7 +89,7 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 						if (CurrentPower <= 1)
 						{
 							bIsPowerWeaponCooldown = true;
-							GetWorld()->GetTimerManager().SetTimer(PowerDepletedHandle, this, &ATimberWeaponRangedBase::ClearPowerCooldown, PowerDepletedCooldownTime, false);
+							//GetWorld()->GetTimerManager().SetTimer(PowerDepletedHandle, this, &ATimberWeaponRangedBase::ClearPowerCooldown, PowerDepletedCooldownTime, false);
 						}
 					}
 
@@ -199,14 +207,14 @@ void ATimberWeaponRangedBase::ReloadWeapon()
 	bIsReloading = false;
 }
 
-void ATimberWeaponRangedBase::ClearPowerCooldown()
+/*void ATimberWeaponRangedBase::ClearPowerCooldown()
 {
 	if (bUsesPower)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(PowerDepletedHandle);
 		bIsPowerWeaponCooldown = false;
 	}
-}
+}*/
 
 void ATimberWeaponRangedBase::ResetFiringCooldown()
 {
@@ -214,18 +222,36 @@ void ATimberWeaponRangedBase::ResetFiringCooldown()
 	bIsFireOnCooldown = false;
 }
 
-void ATimberWeaponRangedBase::Execute_BasicProjectile(FAbilityContext Context)
+/*void ATimberWeaponRangedBase::Execute_BasicProjectile(FAbilityContext Context)
 {
 	FireRangedWeapon(Context.TargetLocation);
-}
+}*/
 
+/*
 void ATimberWeaponRangedBase::Execute_Knockback(FAbilityContext Context)
 {
-	//TODO:: Create Knockback Logic for Weapon . 
+	//TODO:: Create Knockback Logic for Weapon .
+	FVector StartExtent = FVector(20.f, 20.f, 20.f);
+	FVector EndExtent = FVector(600.f, 300.f, 20.f);
+	float TravelDistance = 400.0f;
+	//Spawn a UBoxComponent that starts at the muzzle of the Weapon.
+	UBoxComponent* HitBox = NewObject<UBoxComponent>(this, UBoxComponent::StaticClass());
+	HitBox->SetBoxExtent(StartExtent);
+	HitBox->SetWorldLocation(ProjectileSpawnComponent->GetComponentLocation());
+	HitBox->RegisterComponent();
+	HitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	HitBox->SetCollisionProfileName("DR_HitEventOnly");
+		//The Box will gro from 20x20x20 to 600x300x20 over the spawn of 1 second.
+		//The box will travel in the Target Direction 400 units over .3 seconds.
+		// Bind a ApplyKnockBackEffect Delegate to OnHit.
+				//ApplyKnockBackEffect -
+					//Applies an Impulse Knockback - counter to the Direction of the Hit.
+					//Applies 15 Damamge to Each enemy Hit.
 }
+*/
 
 //FAbility Struct Execute Function
-void FRangedAbilityData::Execute(FAbilityContext Context) const
+/*void FRangedAbilityData::Execute(FAbilityContext Context) const
 {
 
 	ATimberWeaponRangedBase* RangedWeapon = Cast<ATimberWeaponRangedBase>(Context.WeaponInstance);
@@ -246,5 +272,5 @@ void FRangedAbilityData::Execute(FAbilityContext Context) const
 	{
 		UE_LOG(LogTemp, Error, TEXT("TimberWeaponRangedBase.cpp - FRangedAbilityData::Execute() - RangedWeapon is not valid."));
 	}
-}
+}*/
 

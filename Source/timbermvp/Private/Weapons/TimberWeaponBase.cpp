@@ -43,4 +43,29 @@ void ATimberWeaponBase::RegeneratePower(float DeltaTime, float RegenerationRate)
 	CurrentPower = FMath::Clamp(CurrentPower, 0, MaxPower);
 }
 
+void ATimberWeaponBase::ClearPowerCooldown()
+{
+	if (bUsesPower)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(PowerCooldownTimerHandle);
+		bIsOnPowerCooldown = false;
+	}
+}
+
+void ATimberWeaponBase::ConsumePower(float AmountToConsume)
+{
+	CurrentPower -= AmountToConsume;
+
+	if (CurrentPower < 1)
+	{
+		HandlePowerCooldown();
+	}
+}
+
+void ATimberWeaponBase::HandlePowerCooldown()
+{
+	bIsOnPowerCooldown = true;
+	GetWorld()->GetTimerManager().SetTimer(PowerCooldownTimerHandle, this, &ATimberWeaponBase::ClearPowerCooldown, PowerDepletedCooldownTime, false);
+}
+
 

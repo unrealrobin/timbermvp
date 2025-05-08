@@ -10,38 +10,6 @@
 class ATimberCharacterBase;
 class USoundCue;
 
-/*UENUM(BlueprintType)
-enum class EAbilityType : uint8
-{
-	None,
-	BasicProjectile,
-	Knockback
-};*/
-
-//Declarations for Struct
-/*class ATimberWeaponRangedBase;
-
-USTRUCT(BlueprintType)
-struct FRangedAbilityData
-{
-	GENERATED_BODY()
-	
-public:
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName AbilityName = FName("None");
-	
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EAbilityType AbilityType = EAbilityType::None;#1#
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float AbilityPowerCost = 0.0f;
-
-	/*Implemented in TimberWeaponRangedBase.Cpp#1#
-	void Execute(FAbilityContext Context) const;
-	
-};*/
-
 UCLASS()
 class TIMBERMVP_API ATimberWeaponRangedBase : public ATimberWeaponBase
 {
@@ -64,27 +32,14 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
-
 	
-	/*void ClearPowerCooldown();*/
-
 	FTimerHandle TimeBetweenShotsHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	float TimeBetweenProjectiles = 0.1f;
-	
-	
 
 	UFUNCTION()
 	void ResetFiringCooldown();
-
-	/*/* After Depleting Power, Weapon must Cool down#1#
-	FTimerHandle PowerDepletedHandle;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	float PowerDepletedCooldownTime = 2.0f;*/
-
-	
 
 public:
 	UPROPERTY(VisibleAnywhere, Category = Owner)
@@ -104,8 +59,9 @@ public:
 	 * Large is less accurate, small is more accurate.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Accuract")
-	int WeaponAccuracy = 20;
-	
+	int AIWeaponAccuracy = 20;
+
+	//TODO:: Functionality Moved to Ability & Combat System.
 	UFUNCTION()
 	void FireRangedWeapon(FVector TargetLocation);
 
@@ -130,19 +86,5 @@ public:
 
 	UFUNCTION()
 	void HandleReloadMontageInterruption(UAnimMontage* Montage, bool bInterrupted);
-
-	/*Weapon Abilities & Ability Logic*/
-
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities", meta=(TitleProperty="AbilityName") )
-	TArray<FRangedAbilityData> RangedAbilitiesArray;*/
-
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
-	FRangedAbilityData PrimaryAbility;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
-	FRangedAbilityData SecondaryAbility;*/
-
-	/*void Execute_BasicProjectile(FAbilityContext Context);*/
 	
-	/*void Execute_Knockback(FAbilityContext Context);*/
 };

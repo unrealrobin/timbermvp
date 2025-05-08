@@ -94,8 +94,9 @@ public:
 	void UnEquipAllWeapons();
 	void UnEquipCurrentlyEquippedWeapon();
 	void UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState);
-	void HandlePrimaryAbility();
 	void ReloadRangedWeapon();
+	void HandlePrimaryAbility();
+	void HandleSecondaryAbility();
 
 	bool bIsEquipMontagePlaying = false;
 	

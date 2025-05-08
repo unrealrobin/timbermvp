@@ -3,7 +3,6 @@
 
 #include "Weapons/TimberWeaponRangedBase.h"
 #include "Character/TimberCharacterBase.h"
-#include "Components/BoxComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -128,7 +127,7 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 				//Get Enemy Player Character
 				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 				FRotator RandomAimOffset = FRotator(
-					FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy), FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy), FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy));
+					FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy), FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy), FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy));
 
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this; //Weapon is owner of the projectile.
@@ -207,70 +206,11 @@ void ATimberWeaponRangedBase::ReloadWeapon()
 	bIsReloading = false;
 }
 
-/*void ATimberWeaponRangedBase::ClearPowerCooldown()
-{
-	if (bUsesPower)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(PowerDepletedHandle);
-		bIsPowerWeaponCooldown = false;
-	}
-}*/
-
 void ATimberWeaponRangedBase::ResetFiringCooldown()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimeBetweenShotsHandle);
 	bIsFireOnCooldown = false;
 }
 
-/*void ATimberWeaponRangedBase::Execute_BasicProjectile(FAbilityContext Context)
-{
-	FireRangedWeapon(Context.TargetLocation);
-}*/
 
-/*
-void ATimberWeaponRangedBase::Execute_Knockback(FAbilityContext Context)
-{
-	//TODO:: Create Knockback Logic for Weapon .
-	FVector StartExtent = FVector(20.f, 20.f, 20.f);
-	FVector EndExtent = FVector(600.f, 300.f, 20.f);
-	float TravelDistance = 400.0f;
-	//Spawn a UBoxComponent that starts at the muzzle of the Weapon.
-	UBoxComponent* HitBox = NewObject<UBoxComponent>(this, UBoxComponent::StaticClass());
-	HitBox->SetBoxExtent(StartExtent);
-	HitBox->SetWorldLocation(ProjectileSpawnComponent->GetComponentLocation());
-	HitBox->RegisterComponent();
-	HitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	HitBox->SetCollisionProfileName("DR_HitEventOnly");
-		//The Box will gro from 20x20x20 to 600x300x20 over the spawn of 1 second.
-		//The box will travel in the Target Direction 400 units over .3 seconds.
-		// Bind a ApplyKnockBackEffect Delegate to OnHit.
-				//ApplyKnockBackEffect -
-					//Applies an Impulse Knockback - counter to the Direction of the Hit.
-					//Applies 15 Damamge to Each enemy Hit.
-}
-*/
-
-//FAbility Struct Execute Function
-/*void FRangedAbilityData::Execute(FAbilityContext Context) const
-{
-
-	ATimberWeaponRangedBase* RangedWeapon = Cast<ATimberWeaponRangedBase>(Context.WeaponInstance);
-	if (RangedWeapon)
-	{
-		switch (AbilityType)
-		{
-		case EAbilityType::BasicProjectile:
-			Cast<ATimberWeaponRangedBase>(Context.WeaponInstance)->Execute_BasicProjectile(Context);
-			break;
-		case EAbilityType::Knockback:
-			break;
-		default:
-			break;
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("TimberWeaponRangedBase.cpp - FRangedAbilityData::Execute() - RangedWeapon is not valid."));
-	}
-}*/
 

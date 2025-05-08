@@ -346,6 +346,42 @@ void UCombatComponent::HandlePrimaryAbility()
 	
 }
 
+void UCombatComponent::HandleSecondaryAbility()
+{
+	//If there is a weapon and the weapon has a secondary ability.
+	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->SecondaryWeaponAbility)
+	{
+		//Get the default object of the secondary ability. (Grants access before making Instance)
+		const UWeaponAbilityBase* SecondaryAbility = CurrentlyEquippedWeapon->SecondaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
+
+		//Validate whether or not the Ability can be Fired.
+		bool bIsAbilityValidated = ValidateWeaponAbility(SecondaryAbility);
+
+		if (bIsAbilityValidated)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Secondary Ability is Validated."));
+			//Get the class of the Ability.
+			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->SecondaryWeaponAbility;
+			//Create an Instance of the Ability.
+			UWeaponAbilityBase* Ability = NewObject<UWeaponAbilityBase>(this, AbilityClass);
+
+			if (Ability)
+			{
+				//Run the Encapsulated Execute Function that runs the logic for the ability.
+				Ability->Execute(GenerateCurrentAbilityContext());
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Secondary skill could not be validated."));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Secondary Ability to Execute."));
+	}
+}
+
 bool UCombatComponent::ValidateWeaponAbility(const UWeaponAbilityBase* AbilityToValidate)
 {
 	switch (AbilityToValidate->ValidationType)

@@ -68,6 +68,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	UInputAction* StandardAction;
 	UPROPERTY(EditAnywhere)
+	UInputAction* SecondaryAction;
+	UPROPERTY(EditAnywhere)
 	UInputAction* ToggleBuildModeAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* RotateBuildingComponentAction;
@@ -126,7 +128,9 @@ public:
 	UFUNCTION()
 	void EquipMeleeWeapon(const FInputActionValue& Value);
 	UFUNCTION()
-	void StandardAttack(const FInputActionValue& Value);
+	void UsePrimaryAbility(const FInputActionValue& Value);
+	UFUNCTION()
+	void UseSecondaryAbility(const FInputActionValue& Value);
 	UFUNCTION()
 	void ReloadWeapon(const FInputActionValue& Value);
 	/*UFUNCTION()

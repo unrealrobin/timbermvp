@@ -6,7 +6,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Character/TimberAnimInstance.h"
 #include "UI/BuildingComponent.h"
-#include "Weapons/TimberWeaponMeleeBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Combat/CombatComponent.h"
@@ -15,8 +14,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "UI/TimberHUDBase.h"
-#include "Weapons/TimberWeaponBase.h"
-#include "Weapons/TimberWeaponRangedBase.h"
 
 class UDialogueManager;
 
@@ -68,91 +65,26 @@ void ATimberPlayerController::SetupInputComponent()
 
 	//Binding Move Function
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Move);
-	EnhancedInputComponent->BindAction(
-		MoveAction, ETriggerEvent::Completed, this, &ATimberPlayerController::MoveComplete);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ATimberPlayerController::MoveComplete);
 	EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookUp);
-	EnhancedInputComponent->BindAction(
-		LookRightAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookRight);
-	EnhancedInputComponent->BindAction(
-		JumpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::CharacterJump);
-	EnhancedInputComponent->BindAction(
-		InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
-	EnhancedInputComponent->BindAction(
-		EquipMeleeWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipMeleeWeapon);
-	EnhancedInputComponent->BindAction(
-		EquipRangedWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipRangedWeapon);
-	EnhancedInputComponent->BindAction(
-		StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::StandardAttack);
-	EnhancedInputComponent->BindAction(
-		ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EnterBuildMode);
-	EnhancedInputComponent->BindAction(
-		RotateBuildingComponentAction, ETriggerEvent::Triggered, this,
-		&ATimberPlayerController::RotateBuildingComponent);
-	EnhancedInputComponent->BindAction(
-		PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
-	EnhancedInputComponent->BindAction(
-		HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
-	EnhancedInputComponent->BindAction(
-		DeleteBuildingComponentAction, ETriggerEvent::Triggered, this,
-		&ATimberPlayerController::DeleteBuildingComponent);
+	EnhancedInputComponent->BindAction(LookRightAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookRight);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::CharacterJump);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
+	EnhancedInputComponent->BindAction(EquipMeleeWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipMeleeWeapon);
+	EnhancedInputComponent->BindAction(EquipRangedWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipRangedWeapon);
+	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::UsePrimaryAbility);
+	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::UseSecondaryAbility);
+	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EnterBuildMode);
+	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this,&ATimberPlayerController::RotateBuildingComponent);
+	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
+	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
+	EnhancedInputComponent->BindAction(DeleteBuildingComponentAction, ETriggerEvent::Triggered, this,&ATimberPlayerController::DeleteBuildingComponent);
 	EnhancedInputComponent->BindAction(ModifyCursorAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
 	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
 	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
 	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
 }
-
-/*void ATimberPlayerController::PerformReticuleAlignment_Raycast()
-{
-	/*
-	 * Performs Raycast from the camera to the center of the screen and aligns the reticule to the hit location.
-	 #1#
-	FVector CameraLocation;
-	FVector CameraDirection;
-
-	int ViewportSizeX;
-	int ViewportSizeY;
-	GetViewportSize(ViewportSizeX, ViewportSizeY);
-
-	FVector2d ScreenCenter(ViewportSizeX * 0.5f, ViewportSizeY * 0.5f);
-
-	/*
-	 * Camera is the screen as you see it.
-	 * Line Trace goes from the center of the screen (where reticule should be) out to the world by X (10,000.f) units.
-	 * Expensive, but that's why we only want 1 hit result.
-	 #1#
-	if (DeprojectScreenPositionToWorld(ScreenCenter.X, ScreenCenter.Y, CameraLocation, CameraDirection))
-	{
-		if (CameraDirection.Normalize())
-		{
-			FHitResult HitResult;
-			FVector End = CameraLocation + (CameraDirection * 3000.f);
-			FCollisionQueryParams QueryParams;
-			QueryParams.AddIgnoredActor(GetPawn());
-			QueryParams.AddIgnoredActor(TimberCharacter->GetCurrentlyEquippedWeapon());
-			if (GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, End, ECC_Visibility))
-			{
-				//If the Target Object is closer than 500 Units.
-				if (FVector::Dist(HitResult.ImpactPoint, CameraLocation) < 500.f)
-                {
-                    ReticuleHitLocation = End;
-                }
-                else
-                {
-					ReticuleHitLocation = End;
-                }
-			}
-			else
-			{
-				//Not Hit - Target is the End of the Line Trace.
-				ReticuleHitLocation = End;
-			}
-
-			//Reticule Location
-			//DrawDebugSphere(GetWorld(), ReticuleHitLocation, 10.f, 12, FColor::Green, false, 0.1f);
-		}
-	}
-}*/
 
 void ATimberPlayerController::EnableCursor()
 {
@@ -384,7 +316,7 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 	}#1#
 }*/
 
-void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
+void ATimberPlayerController::UsePrimaryAbility(const FInputActionValue& Value)
 {
 	if (TimberCharacter && TimberCharacter->CombatComponent)
 	{
@@ -428,6 +360,15 @@ void ATimberPlayerController::StandardAttack(const FInputActionValue& Value)
 			break;
 		}
 	}*/
+}
+
+void ATimberPlayerController::UseSecondaryAbility(const FInputActionValue& Value)
+{
+	if (TimberCharacter && TimberCharacter->CombatComponent)
+	{
+		TimberCharacter->CombatComponent->HandleSecondaryAbility();
+		
+	}
 }
 
 /*Build System Controls*/

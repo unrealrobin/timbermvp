@@ -21,9 +21,6 @@ public:
 	UBoxComponent* HitBox = nullptr;
 
 	UFUNCTION()
-	void HandleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION()
 	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	virtual void Execute(FAbilityContext Context) override;
@@ -38,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Knockback Details")
 	float ImpulseForce = 100.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Knockback Details")
+	float ImpulseForceZ = 0.4f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Knockback Details")
 	float KnockbackDuration = 1.0f;
 
@@ -65,7 +65,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Knockback Details")
 	float DamageAmount = 20.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Knockback Details")
+	float EnemyStunTime = 1.0f;
+
 private:
+	UPROPERTY()
+	TArray<AActor*> ActorsToIgnore;
+	
 	FTimerHandle BlastTimerHandle;
 
 	FAbilityContext LocalContext;

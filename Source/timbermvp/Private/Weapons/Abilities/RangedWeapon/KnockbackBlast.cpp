@@ -3,8 +3,10 @@
 
 #include "Weapons/Abilities/RangedWeapon/KnockbackBlast.h"
 
+#include "AI/TimberAiControllerBase.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "UObject/FastReferenceCollector.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -101,32 +103,48 @@ void UKnockbackBlast::IncrementBlastBox()
 	HandleDestructionCheck();
 }
 
-void UKnockbackBlast::HandleHit(
-	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-	const FHitResult& Hit)
-{
-	if (OtherActor)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("HitActor = %s"), *OtherActor->GetName());
-	}
-}
-
 void UKnockbackBlast::HandleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (OtherActor && !ActorsToIgnore.Contains(OtherActor))
 	{
+		ActorsToIgnore.Add(OtherActor);
 		UE_LOG(LogTemp, Warning, TEXT("HitActor = %s"), *OtherActor->GetName());
 		if (ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor))
 		{
-			FVector ImpulseDirection = HitBox->GetForwardVector();
-			ImpulseDirection.Z += 1.0f;
+			//Getting a Straight Line from Actor to Player & Flattening the Vector. (Straight Back Push Away from Player)
+			FVector ImpulseDirection = OtherActor->GetActorLocation() - LocalContext.Instigator->GetActorLocation();
+			ImpulseDirection.Z = 0.0f;
 			ImpulseDirection = ImpulseDirection.GetSafeNormal();
-			OtherComp->AddImpulse(ImpulseDirection * ImpulseForce);
+
+			//Adding a little verticality
+			ImpulseDirection.Z += ImpulseForceZ;
+			ImpulseDirection = ImpulseDirection.GetSafeNormal();
+
+			if (Enemy->GetController())
+			{
+				if (ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(Enemy->GetController()) )
+				{
+					if (AiController->GetBrainComponent())
+					{
+						AiController->GetBrainComponent()->StopLogic("Enemy Knocked back");
+						
+						FTimerHandle StunTimerHandle;
+						GetWorld()->GetTimerManager().SetTimer(StunTimerHandle, [this, AiController]()
+						{
+							AiController->GetBrainComponent()->RestartLogic();
+
+							//TODO:: We can add like a stun Animation Here to the enemy and set a var on the Controller to Stunned.
+						}, EnemyStunTime, false);
+					}
+
+				}
+			}
+			Enemy->GetCharacterMovement()->AddImpulse(ImpulseDirection * ImpulseForce, true);
 
 			Enemy->TakeDamage(DamageAmount, LocalContext.Instigator);
-			
+		
 		}
 	}
 }

@@ -72,8 +72,30 @@ void USFXManagerSubsystem::PlaySound(FName TrackName)
 	{
 		AudioComponent->RegisterComponentWithWorld(GetWorld());
 		AudioComponent->SetSound(MetaSound);
+		
+		AudioComponent->OnAudioFinishedNative.AddLambda([this, TrackName](UAudioComponent* AudioComponent)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("SFX Manager - Audio Finished Playing: %s. Lambda function Call."), *TrackName.ToString());
+			HandleAudioComponentCleanUp(AudioComponent, TrackName);
+		});
+		
+		AudioComponent->Play();
+	}
+}
 
-		//TODO::Add some way of cleaning up this AudioComponent reference after each time we finish the audio.
+void USFXManagerSubsystem::PlaySoundAtLocation(FName TrackName, FVector Location)
+{
+	UMetaSoundSource* MetaSound = GetTrackName(TrackName);
+	if (!MetaSound) return;
+	
+	if (!GetWorld()) return;
+	
+	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+	if (AudioComponent)
+	{
+		AudioComponent->RegisterComponentWithWorld(GetWorld());
+		AudioComponent->SetSound(MetaSound);
+		AudioComponent->SetWorldLocation(Location);
 		
 		AudioComponent->OnAudioFinishedNative.AddLambda([this, TrackName](UAudioComponent* AudioComponent)
 		{

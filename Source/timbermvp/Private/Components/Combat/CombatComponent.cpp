@@ -359,7 +359,7 @@ void UCombatComponent::HandleSecondaryAbility()
 
 		if (bIsAbilityValidated)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Secondary Ability is Validated."));
+			//UE_LOG(LogTemp, Warning, TEXT("Secondary Ability is Validated."));
 			//Get the class of the Ability.
 			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->SecondaryWeaponAbility;
 			//Create an Instance of the Ability.

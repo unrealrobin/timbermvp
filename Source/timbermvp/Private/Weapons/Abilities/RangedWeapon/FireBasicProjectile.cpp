@@ -46,6 +46,7 @@ void UFireBasicProjectile::Execute(FAbilityContext Context)
 			//After spawning, this Ability needs to lets the Weapon know that it was just fired and to initiate a projectile Spawn cooldown
 			if (Projectile)
 			{
+				HandleMuzzleFlash(NiagaraEffect, ProjectileSpawnLocation, ProjectileAimRotation, true, true);
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), OwningWeapon->FiringSound, ProjectileSpawnLocation);
 				
 				//The type of projectile controls the Firing Rate in this Case.
@@ -56,4 +57,10 @@ void UFireBasicProjectile::Execute(FAbilityContext Context)
 			}
 		};
 	}
+}
+
+void UFireBasicProjectile::HandleMuzzleFlash(
+	UNiagaraSystem* NiagaraSystem, FVector Location, FRotator Rotation, bool AutoDestroy, bool AutoActive)
+{
+	PlayNiagaraEffectAtLocation(NiagaraSystem, Location, Rotation, AutoDestroy, AutoActive);
 }

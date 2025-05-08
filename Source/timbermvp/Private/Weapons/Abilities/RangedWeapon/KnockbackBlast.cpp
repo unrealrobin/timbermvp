@@ -3,7 +3,9 @@
 
 #include "Weapons/Abilities/RangedWeapon/KnockbackBlast.h"
 
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "UObject/FastReferenceCollector.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
 UKnockbackBlast::UKnockbackBlast()
@@ -20,28 +22,39 @@ void UKnockbackBlast::Execute(FAbilityContext Context)
 	ATimberWeaponRangedBase* OwningWeapon = Cast<ATimberWeaponRangedBase>(Context.WeaponInstance);
 	if (OwningWeapon && OwningWeapon->ProjectileSpawnComponent)
 	{
+		LocalContext = Context;
+		
 		HitBox = NewObject<UBoxComponent>(this, UBoxComponent::StaticClass());
 
-		FRotator Rotation = OwningWeapon->ProjectileSpawnComponent->GetForwardVector().Rotation();
-		Rotation.Yaw += 90.0f;
+		FRotator Rotation = OwningWeapon->ProjectileSpawnComponent->GetComponentRotation();
+		Rotation.Roll = 0.0f;
+		FVector Location = OwningWeapon->ProjectileSpawnComponent->GetComponentLocation();
+		
 		HitBox->SetWorldRotation(Rotation);
-		
-		HitBox->SetWorldLocation(OwningWeapon->ProjectileSpawnComponent->GetComponentLocation());
-		
-		/*FVector Forward = OwningWeapon->ProjectileSpawnComponent->GetForwardVector();
-		FRotator BlastRotation = Forward.Rotation();
-		HitBox->SetWorldRotation(BlastRotation);*/
-
+		HitBox->SetWorldLocation(Location);
 		HitBox->SetBoxExtent(InitialBoxExtent, true);
+
+		/*For Debugging*/
+		HitBox->SetHiddenInGame(false);
+		HitBox->SetVisibility(true);
+
+		HitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		HitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+		HitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		
 		
 		HitBox->RegisterComponent();
-		HitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		HitBox->SetCollisionProfileName("DR_HitEventOnly");
-		HitBox->OnComponentHit.AddDynamic(this, &UKnockbackBlast::HandleHit);
-		
+
+		//HitBox->OnComponentHit.AddDynamic(this, &UKnockbackBlast::HandleHit);
+		HitBox->OnComponentBeginOverlap.AddDynamic(this, &UKnockbackBlast::HandleOverlap);
 		InitialBoxLocation = HitBox->GetComponentLocation();
+	
+		//UE_LOG(LogTemp, Warning, TEXT("PSC: Pitch: %f Yaw: %f Roll: %f"), Rotation.Pitch, Rotation.Yaw, Rotation.Roll);
+		GetWorld()->GetTimerManager().SetTimer(BlastTimerHandle, this, &UKnockbackBlast::IncrementBlastBox, 0.05f, true);
 		
-		GetWorld()->GetTimerManager().SetTimer(BlastTimerHandle, this, &UKnockbackBlast::IncrementBlastBox, 0.1f, true);
+		PlayNiagaraEffectAttached(NiagaraEffect, HitBox, NAME_None, EffectVectorOffset, FRotator::ZeroRotator, EAttachLocation::SnapToTargetIncludingScale, false, true);
+		
+		PlayEffectSFX(HitBox->GetComponentLocation(), SoundFXTrackName);
 	}
 }
 
@@ -53,7 +66,9 @@ void UKnockbackBlast::MoveBoxForward()
 	
 	FVector AdjustedLocation = InitialBoxLocation + (HitBox->GetForwardVector() * ForwardOffset);
 
-	HitBox->SetRelativeLocation(AdjustedLocation);
+	FHitResult* Hit = nullptr;;
+	HitBox->SetRelativeLocation(AdjustedLocation, true, Hit );
+	
 	
 }
 
@@ -63,10 +78,7 @@ void UKnockbackBlast::ScaleBoxExtent()
 	{
 		float Delta = CurrentTimeStep / EndTimeStep;
 		FVector AdjustedVector = FMath::Lerp(InitialBoxExtent, EndBoxExtent, Delta);
-
 		HitBox->SetBoxExtent(AdjustedVector, true);
-
-		DrawDebugBox(GetWorld(), HitBox->GetComponentLocation(), AdjustedVector, FColor::Red, false, 0.1f, 0, 5);
 	}
 }
 
@@ -84,11 +96,8 @@ void UKnockbackBlast::HandleDestructionCheck()
 
 void UKnockbackBlast::IncrementBlastBox()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Incrementing Blast Box. CurrentTimeStep = %f"), CurrentTimeStep);
 	MoveBoxForward();
 	ScaleBoxExtent();
-	UE_LOG(LogTemp, Warning, TEXT("Hit Box X Direction = %f"), HitBox->GetForwardVector().X);
-
 	HandleDestructionCheck();
 }
 
@@ -99,5 +108,25 @@ void UKnockbackBlast::HandleHit(
 	if (OtherActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HitActor = %s"), *OtherActor->GetName());
+	}
+}
+
+void UKnockbackBlast::HandleOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HitActor = %s"), *OtherActor->GetName());
+		if (ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor))
+		{
+			FVector ImpulseDirection = HitBox->GetForwardVector();
+			ImpulseDirection.Z += 1.0f;
+			ImpulseDirection = ImpulseDirection.GetSafeNormal();
+			OtherComp->AddImpulse(ImpulseDirection * ImpulseForce);
+
+			Enemy->TakeDamage(DamageAmount, LocalContext.Instigator);
+			
+		}
 	}
 }

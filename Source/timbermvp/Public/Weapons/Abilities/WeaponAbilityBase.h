@@ -7,6 +7,9 @@
 #include "UObject/Object.h"
 #include "WeaponAbilityBase.generated.h"
 
+class UMetaSoundSource;
+class UNiagaraSystem;
+
 UENUM(BlueprintType)
 enum class EAbilityValidation: uint8
 {
@@ -52,11 +55,27 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Details")
 	bool bNeedsProjectileData = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability FX")
+	UNiagaraSystem* NiagaraEffect = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability FX")
+	UMetaSoundSource* SoundFX = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability FX")
+	FName SoundFXTrackName = "TRACK_NAME_NOT_SET";
 	
 	/*
 	 * All Subclasses must Implement this function.
 	 * This is what gets called by the Combat Component to initiate this Ability.
 	 */
 	virtual void Execute(FAbilityContext Context) PURE_VIRTUAL(UWeaponAbilityBase::Execute,);
+
+protected:
 	
+	void PlayNiagaraEffectAtLocation(UNiagaraSystem* NiagaraSystem, FVector Location, FRotator Rotation = FRotator::ZeroRotator, bool AutoDestroy = true, bool AutoActive = true);
+	void PlayNiagaraEffectAttached(UNiagaraSystem* NiagaraSystem, UPrimitiveComponent* Component, FName Name, const FVector& OffsetVector, const FRotator& Rotator, EAttachLocation::Type SnapToTargetIncludingScale, bool AutoDestroy = false, bool AutoActive = true);
+
+	/* The Sound Effect MUST be in the SFX Library Data Asset */
+	void PlayEffectSFX(FVector SoundLocation, FName TrackName);
 };

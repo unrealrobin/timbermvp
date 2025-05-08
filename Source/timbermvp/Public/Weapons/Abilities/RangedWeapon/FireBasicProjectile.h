@@ -29,6 +29,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	TSubclassOf<ATimberProjectileBase> ProjectileClass;
+
+	void HandleMuzzleFlash(UNiagaraSystem* NiagaraSystem, FVector Location, FRotator Rotation = FRotator::ZeroRotator, bool AutoDestroy = true, bool AutoActive = true);
 	
 };
 /*

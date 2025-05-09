@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "Weapons/TimberWeaponMeleeBase.h"
@@ -146,20 +146,13 @@ void ATimberWeaponMeleeBase::OnAiWeaponOverlap(
 
 void ATimberWeaponMeleeBase::EmptyActorToIgnoreArray()
 {
-	//Resetting the Actors to Ignore Array for the next attack.
-	if (Cast<ATimberPlayableCharacter>(GetOwner()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - EmptyActorToIgnoreArray() - Player Character"));
-	}
-	else if (Cast<ATimberEnemyCharacter>(GetOwner()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - EmptyActorToIgnoreArray() - Enemy Character"));
-	}
 	ActorsToIgnore.Empty();
 }
 
 void ATimberWeaponMeleeBase::HandleAttackMontageInterrupted(UAnimMontage* AnimMontage, bool bArg, bool bCond)
 {
+	//TODO:: Move CanAttackAgain to CombatComponent - used in validation of Melee Weapons
+	
 	//Get the Controller and Flip the bCanAttackAgain Bool to True.
 	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(Cast<ATimberPlayableCharacter>(GetOwner())->GetController());
 	if (PlayerController)
@@ -175,7 +168,7 @@ void ATimberWeaponMeleeBase::HandleAttackMontageInterrupted(UAnimMontage* AnimMo
 void ATimberWeaponMeleeBase::HandlePlayAttackMontage()
 {
 	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(GetOwner());
-	const int32 NumberOfMontageSections = AttackMontage->GetNumSections();
+	const int32 NumberOfMontageSections = PrimaryAbilityMontage->GetNumSections();
 
 	//Getting Random Section of Montage
 	const int32 RandomSection = UKismetMathLibrary::RandomIntegerInRange(1, NumberOfMontageSections);
@@ -184,26 +177,25 @@ void ATimberWeaponMeleeBase::HandlePlayAttackMontage()
 		UAnimInstance* CharacterAnimInstance = Character->GetMesh()->GetAnimInstance();
 		if (CharacterAnimInstance)
 		{
-			FName RandomSectionName = AttackMontage->GetSectionName(RandomSection - 1);
-
-			//Checking binding so we dont double bind the delegate on subsequence attacks.
+			FName RandomSectionName = PrimaryAbilityMontage->GetSectionName(RandomSection - 1);
+			
 			if (!BlendingOutDelegate.IsBound())
 			{
 				//Creating a delegate to the BlendingOut function to reset the CanAttackAgain bool on the Player Controller.
 				//For any reason of blending out, we revert the CanAttackAgain bool to true.
 				//Either Animation Completed or interrupted.
 				BlendingOutDelegate.BindUObject(this, &ATimberWeaponMeleeBase::HandleAttackMontageInterrupted, false);
-				CharacterAnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, AttackMontage);
+				CharacterAnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, PrimaryAbilityMontage);
 			}
-			CharacterAnimInstance->Montage_Play(AttackMontage, 1.f);
+			CharacterAnimInstance->Montage_Play(PrimaryAbilityMontage, 1.f);
 			CharacterAnimInstance->Montage_JumpToSection(RandomSectionName);
 		}
 	}
 }
 
-void ATimberWeaponMeleeBase::PerformStandardAttack()
+/*void ATimberWeaponMeleeBase::PerformStandardAttack()
 {
 	HandlePlayAttackMontage();
-}
+}*/
 
 

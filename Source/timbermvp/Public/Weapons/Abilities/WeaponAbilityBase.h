@@ -13,7 +13,7 @@ class UNiagaraSystem;
 UENUM(BlueprintType)
 enum class EAbilityValidation: uint8
 {
-	AlwaysCastable UMETA(DisplayName = "AlwaysCastable"),
+	NoResourceCost UMETA(DisplayName = "AlwaysCastable"),
 	RequiresPower UMETA(DisplayName = "RequiresPower"),
 	RequiresAmmo UMETA(DisplayName = "RequiresAmmo"),
 	Default UMETA(DisplayName = "Default"),

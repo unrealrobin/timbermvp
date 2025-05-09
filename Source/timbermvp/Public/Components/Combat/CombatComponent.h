@@ -7,6 +7,8 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "CombatComponent.generated.h"
 
+class UCombatComponent;
+
 UENUM(BlueprintType)
 enum class EOwnerWeaponState : uint8
 {
@@ -32,6 +34,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
 	FVector TargetLocation = FVector::ZeroVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
+	UCombatComponent* CombatComponent = nullptr;
 };
 
 class ATimberPlayableCharacter;
@@ -73,6 +78,7 @@ protected:
 
 	FAbilityContext GenerateCurrentAbilityContext();
 
+	bool ValidateNoResourceCostAbility(const UWeaponAbilityBase* WeaponAbilityBase);
 	bool ValidateWeaponAbility(const UWeaponAbilityBase* AbilityToValidate);
 
 public:
@@ -141,7 +147,7 @@ private:
 
 	void ConsumePower(ATimberWeaponBase* WeaponInstance, float AmountToConsume);
 
-	bool ValidatePowerWeapon(const UWeaponAbilityBase* AbilityToValidate);
+	bool ValidatePowerWeaponAbility(const UWeaponAbilityBase* AbilityToValidate);
 
 	//void InitializeWeaponPrimaryAbility(ATimberWeaponBase* WeaponInstance, FAbilityContext& Context);
 

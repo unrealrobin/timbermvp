@@ -5,7 +5,6 @@
 
 #include "Character/TimberAnimInstance.h"
 #include "Character/TimberPlayableCharacter.h"
-#include "UObject/FastReferenceCollector.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 #include "Weapons/Abilities/WeaponAbilityBase.h"
@@ -387,9 +386,9 @@ bool UCombatComponent::ValidateWeaponAbility(const UWeaponAbilityBase* AbilityTo
 	switch (AbilityToValidate->ValidationType)
 	{
 	case EAbilityValidation::RequiresPower :
-		return ValidatePowerWeapon(AbilityToValidate);
-	case EAbilityValidation::AlwaysCastable:
-		return true;
+		return ValidatePowerWeaponAbility(AbilityToValidate);
+	case EAbilityValidation::NoResourceCost:
+		return ValidateNoResourceCostAbility(AbilityToValidate);
 	case EAbilityValidation::RequiresAmmo:
 		break;
 	case EAbilityValidation::Default:
@@ -399,7 +398,7 @@ bool UCombatComponent::ValidateWeaponAbility(const UWeaponAbilityBase* AbilityTo
 		
 }
 
-bool UCombatComponent::ValidatePowerWeapon(const UWeaponAbilityBase* AbilityToValidate)
+bool UCombatComponent::ValidatePowerWeaponAbility(const UWeaponAbilityBase* AbilityToValidate)
 {
 	//Not Enough Power? On Cooldown? Not Valid.
 	if (!bHasEnoughPower(AbilityToValidate->PowerCost, CurrentlyEquippedWeapon->CurrentPower) || CurrentlyEquippedWeapon->bIsOnPowerCooldown)
@@ -468,7 +467,30 @@ FAbilityContext UCombatComponent::GenerateCurrentAbilityContext()
 
 	CurrentAbilityContext.TargetLocation = GetProjectileTargetLocation();
 
+	CurrentAbilityContext.CombatComponent = this;
+
 	return CurrentAbilityContext;
+}
+
+bool UCombatComponent::ValidateNoResourceCostAbility(const UWeaponAbilityBase* WeaponAbilityBase)
+{
+	//Check Currently Equipped Melee Weapon
+	if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(CurrentlyEquippedWeapon))
+	{
+		// Is fully Equipped?
+		if (bIsMeleeEquipped)
+		{
+			// CanAttackAgain?
+			if (bCanMeleeAttack)
+			{
+				return true;
+			}
+		}
+	}
+	
+	
+	
+	return false;
 }
 
 

@@ -31,7 +31,7 @@ public:
 	UStaticMeshComponent* StaticMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
-	UAnimMontage* AttackMontage;
+	UAnimMontage* PrimaryAbilityMontage;
 
 protected:
 	// Called when the game starts or when spawned

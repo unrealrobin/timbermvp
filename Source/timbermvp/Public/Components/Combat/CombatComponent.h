@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "Components/ActorComponent.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "CombatComponent.generated.h"
 
+enum class EAbilityInputRequirement : uint8;
 class UCombatComponent;
+struct FInputActionValue;
 
 UENUM(BlueprintType)
 enum class EOwnerWeaponState : uint8
@@ -23,7 +26,9 @@ struct FAbilityContext
 {
 	GENERATED_BODY()
 	
-public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
+	UCombatComponent* CombatComponent = nullptr;
+
 	//The player/Character that initiated the ability
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
 	AActor* Instigator = nullptr;
@@ -34,9 +39,8 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
 	FVector TargetLocation = FVector::ZeroVector;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
-	UCombatComponent* CombatComponent = nullptr;
+	
+	FInputActionValue InputActionValue = FInputActionValue();
 };
 
 class ATimberPlayableCharacter;
@@ -76,7 +80,7 @@ protected:
 	void EquipWeapon(ATimberWeaponBase* WeaponInstance, FName EquippedWeaponSocketName);
 	void UnEquipWeapon(ATimberWeaponBase* WeaponInstance, FName UnEquipSocketName);
 
-	FAbilityContext GenerateCurrentAbilityContext();
+	FAbilityContext GenerateCurrentAbilityContext(const FInputActionValue& InputValue);
 
 	bool ValidateNoResourceCostAbility(const UWeaponAbilityBase* WeaponAbilityBase);
 	bool ValidateWeaponAbility(const UWeaponAbilityBase* AbilityToValidate);
@@ -101,8 +105,11 @@ public:
 	void UnEquipCurrentlyEquippedWeapon();
 	void UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState);
 	void ReloadRangedWeapon();
-	void HandlePrimaryAbility();
-	void HandleSecondaryAbility();
+	void HandlePrimaryAbility(const FInputActionValue& Value);
+	void HandleSecondaryAbility(const FInputActionValue& Value);
+	void HandleSecondaryAbility_Started(const FInputActionValue& Value);
+	void HandleSecondaryAbility_Cancelled(const FInputActionValue& Value);
+	void HandleSecondaryAbility_Completed(const FInputActionValue& Value);
 
 	bool bIsEquipMontagePlaying = false;
 	
@@ -123,6 +130,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Targeting")
 	float ProjectileAlignmentAdjustmentDistance = 500.0f;
+
+	float ControllerInputStartTime = 0;
+	float ControllerInputEndTimer = 0;
+
+	EAbilityInputRequirement GetAbilityInputRequirement(bool bIsPrimaryAbility) const;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Context")
+	UWeaponAbilityBase* CurrentWeaponAbility = nullptr;
 
 	FORCEINLINE ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 	FORCEINLINE EOwnerWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
@@ -148,9 +163,5 @@ private:
 	void ConsumePower(ATimberWeaponBase* WeaponInstance, float AmountToConsume);
 
 	bool ValidatePowerWeaponAbility(const UWeaponAbilityBase* AbilityToValidate);
-
-	//void InitializeWeaponPrimaryAbility(ATimberWeaponBase* WeaponInstance, FAbilityContext& Context);
-
-	//void InitializeWeaponSecondaryAbility(ATimberWeaponBase* WeaponInstance, FAbilityContext& Context);
 	
 };

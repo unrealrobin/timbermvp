@@ -130,7 +130,13 @@ public:
 	UFUNCTION()
 	void UsePrimaryAbility(const FInputActionValue& Value);
 	UFUNCTION()
-	void UseSecondaryAbility(const FInputActionValue& Value);
+	void UseSecondaryAbilityStarted(const FInputActionValue& Value);
+	UFUNCTION()
+	void UseSecondaryAbilityCanceled(const FInputActionValue& Value);
+	UFUNCTION()
+	void UseSecondaryAbilityCompleted(const FInputActionValue& Value);
+	UFUNCTION()
+	void UseSecondaryAbilityTriggered(const FInputActionValue& Value);
 	UFUNCTION()
 	void ReloadWeapon(const FInputActionValue& Value);
 	/*UFUNCTION()

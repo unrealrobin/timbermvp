@@ -11,6 +11,15 @@ class UMetaSoundSource;
 class UNiagaraSystem;
 
 UENUM(BlueprintType)
+enum class EAbilityInputRequirement: uint8
+{
+	Pressed UMETA(DisplayName = "Pressed"),
+	HoldOnly UMETA(DisplayName = "HoldAndRelease"),
+	Default UMETA(DisplayName = "Default"),
+	
+};
+
+UENUM(BlueprintType)
 enum class EAbilityValidation: uint8
 {
 	NoResourceCost UMETA(DisplayName = "AlwaysCastable"),
@@ -51,6 +60,9 @@ public:
 	EForWeaponType WeaponAbilityType = EForWeaponType::Default;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Details")
+	EAbilityInputRequirement InputRequirement = EAbilityInputRequirement::Pressed;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Details")
 	float PowerCost = 5.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Details")
@@ -70,6 +82,17 @@ public:
 	 * This is what gets called by the Combat Component to initiate this Ability.
 	 */
 	virtual void Execute(FAbilityContext Context) PURE_VIRTUAL(UWeaponAbilityBase::Execute,);
+
+	/*Used in Press&Release Abilities*/
+	virtual void Execute_Completed(FAbilityContext Context){};
+	virtual void Execute_Triggered(FAbilityContext Context){};
+	virtual void Execute_Cancelled(FAbilityContext Context){};
+
+	/* Clears the Stored Ability on the Combat Component
+	 * Required for Abilities with Press & Hold functionality.
+	 */
+	virtual void HandleCleanup(FAbilityContext Context);
+
 
 protected:
 	

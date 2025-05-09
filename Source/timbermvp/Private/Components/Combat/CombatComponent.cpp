@@ -42,6 +42,34 @@ void UCombatComponent::SpawnMeleeWeapon()
 	SpawnWeaponAtSocketLocation(MeleeWeaponClass, UnEquippedMeleeSocket);
 }
 
+EAbilityInputRequirement UCombatComponent::GetAbilityInputRequirement(bool bIsPrimaryAbility) const
+{
+	if (bIsPrimaryAbility)
+	{
+		//Get Primary Ability Input Type
+		if (CurrentlyEquippedWeapon->PrimaryWeaponAbility)
+		{
+			const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
+			return PrimaryAbility->InputRequirement;
+
+		}
+	
+		UE_LOG(LogTemp, Warning, TEXT("No Primary Ability Found"));
+		return EAbilityInputRequirement::Default;
+		
+	}
+
+	//Get Secondary Ability Input Type
+	if (CurrentlyEquippedWeapon->SecondaryWeaponAbility)
+	{
+		const UWeaponAbilityBase* SecondaryAbility = CurrentlyEquippedWeapon->SecondaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
+		return SecondaryAbility->InputRequirement;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("No Secondary Ability Found"));
+	return EAbilityInputRequirement::Default;
+	
+}
+
 void UCombatComponent::SpawnWeaponAtSocketLocation(TSubclassOf<ATimberWeaponBase> WeaponClassToSpawn, FName SocketName)
 {
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
@@ -283,7 +311,7 @@ void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState
 	SendWeaponStateToOwnerAnimInstance();
 }
 
-void UCombatComponent::HandlePrimaryAbility()
+void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 {
 	//Player wants the primary ability of the equipped weapon.
 	//What the current weapons prim. ability?
@@ -300,52 +328,13 @@ void UCombatComponent::HandlePrimaryAbility()
 
 			if (Ability)
 			{
-				Ability->Execute(GenerateCurrentAbilityContext());
+				Ability->Execute(GenerateCurrentAbilityContext(Value));
 			}
 		}
 	}
-
-	
-	/*UE_LOG(LogTemp, Warning, TEXT("Initiating Primary Ability"));
-	//Basic LMB Attack for any / all weapons. Called from Player Controller Input Mapping Subsystem
-	switch (CurrentWeaponState)
-	{
-		case EOwnerWeaponState::MeleeWeaponEquipped:
-			if (MeleeWeaponInstance && bIsMeleeEquipped && bCanMeleeAttack)
-			{
-				bCanMeleeAttack = false;
-				//Standard attack on the Melee Weapon
-				MeleeWeaponInstance->PerformStandardAttack();
-			}
-			break;
-		
-		case EOwnerWeaponState::RangedWeaponEquipped:
-			if (RangedWeaponInstance && bIsRifleEquipped)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Attempting Ranged Primary Ability."));
-				//Needs a hit location to fire at.
-				//We can perform a Raycast here for 1 Frame to get a Hit Location.
-				//RangedWeaponInstance->FireRangedWeapon(GetProjectileTargetLocation());
-				//Checking if ability is affordable.
-				if (bHasEnoughPower(RangedWeaponInstance->PrimaryAbility.AbilityPowerCost, RangedWeaponInstance->CurrentPower) && !RangedWeaponInstance->bIsPowerWeaponCooldown)
-				{
-					//Initiating the Primary Abilities Execute Logic Flow.
-					RangedWeaponInstance->PrimaryAbility.Execute(GenerateCurrentAbilityContext());
-					//Charging for Ability from Power.
-					ConsumePower(RangedWeaponInstance, RangedWeaponInstance->PrimaryAbility.AbilityPowerCost);
-				}
-			}
-			break;
-		
-		case EOwnerWeaponState::Unequipped:
-			break;
-		case EOwnerWeaponState::Default:
-			break;
-	}*/
-	
 }
 
-void UCombatComponent::HandleSecondaryAbility()
+void UCombatComponent::HandleSecondaryAbility(const FInputActionValue& Value)
 {
 	//If there is a weapon and the weapon has a secondary ability.
 	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->SecondaryWeaponAbility)
@@ -358,7 +347,6 @@ void UCombatComponent::HandleSecondaryAbility()
 
 		if (bIsAbilityValidated)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Secondary Ability is Validated."));
 			//Get the class of the Ability.
 			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->SecondaryWeaponAbility;
 			//Create an Instance of the Ability.
@@ -367,7 +355,7 @@ void UCombatComponent::HandleSecondaryAbility()
 			if (Ability)
 			{
 				//Run the Encapsulated Execute Function that runs the logic for the ability.
-				Ability->Execute(GenerateCurrentAbilityContext());
+				Ability->Execute(GenerateCurrentAbilityContext(Value));
 			}
 		}
 		else
@@ -381,8 +369,66 @@ void UCombatComponent::HandleSecondaryAbility()
 	}
 }
 
+void UCombatComponent::HandleSecondaryAbility_Started(const FInputActionValue& Value)
+{
+	//Just like HandleSecondaryAbility() BUT we Store a Ref to the Ability on the Combat Component for Future Updates.
+	//If there is a weapon and the weapon has a secondary ability.
+	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->SecondaryWeaponAbility)
+	{
+		//Get the default object of the secondary ability. (Grants access before making Instance)
+		const UWeaponAbilityBase* SecondaryAbility = CurrentlyEquippedWeapon->SecondaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
+
+		//Validate whether or not the Ability can be Fired.
+		bool bIsAbilityValidated = ValidateWeaponAbility(SecondaryAbility);
+
+		if (bIsAbilityValidated)
+		{
+			//Get the class of the Ability.
+			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->SecondaryWeaponAbility;
+			//Create an Instance of the Ability.
+			UWeaponAbilityBase* Ability = NewObject<UWeaponAbilityBase>(this, AbilityClass);
+
+			if (Ability)
+			{
+				//Storing the Ability on the Combat Component for Future Updates.
+				CurrentWeaponAbility = Ability;
+				//Run the Encapsulated Execute Function that runs the logic for the ability.
+				Ability->Execute(GenerateCurrentAbilityContext(Value));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Secondary skill could not be validated."));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Secondary Ability to Execute."));
+	}
+}
+
+void UCombatComponent::HandleSecondaryAbility_Cancelled(const FInputActionValue& Value)
+{
+	if (CurrentWeaponAbility)
+	{
+		CurrentWeaponAbility->Execute_Cancelled(GenerateCurrentAbilityContext(Value));
+	}
+}
+
+void UCombatComponent::HandleSecondaryAbility_Completed(const FInputActionValue& Value)
+{
+	if (CurrentWeaponAbility && CurrentWeaponAbility->InputRequirement == EAbilityInputRequirement::HoldOnly)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("CurrentWeaponAbility is Valid."));
+		CurrentWeaponAbility->Execute_Completed(GenerateCurrentAbilityContext(Value));
+	}
+}
+
 bool UCombatComponent::ValidateWeaponAbility(const UWeaponAbilityBase* AbilityToValidate)
 {
+
+	//TODO:: CHeck if ability is for this Weapon Type.
+	
 	switch (AbilityToValidate->ValidationType)
 	{
 	case EAbilityValidation::RequiresPower :
@@ -457,7 +503,7 @@ void UCombatComponent::PlayEquipWeaponMontage(FName MontageSectionName)
 	}
 }
 
-FAbilityContext UCombatComponent::GenerateCurrentAbilityContext()
+FAbilityContext UCombatComponent::GenerateCurrentAbilityContext(const FInputActionValue& InputValue)
 {
 	FAbilityContext CurrentAbilityContext;
 	
@@ -468,6 +514,8 @@ FAbilityContext UCombatComponent::GenerateCurrentAbilityContext()
 	CurrentAbilityContext.TargetLocation = GetProjectileTargetLocation();
 
 	CurrentAbilityContext.CombatComponent = this;
+
+	CurrentAbilityContext.InputActionValue = InputValue;
 
 	return CurrentAbilityContext;
 }

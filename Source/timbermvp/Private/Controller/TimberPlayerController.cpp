@@ -14,21 +14,21 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "UI/TimberHUDBase.h"
+#include "Weapons/Abilities/WeaponAbilityBase.h"
 
 class UDialogueManager;
 
 void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-		GetLocalPlayer());
+
+	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
 	TimberCharacterSpringArmComponent = TimberCharacter->CameraSpringArm;
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 	EnableStandardKeyboardInput();
-	
+
 	{
 		//When switching from Game Start Menu to Level, we switch back the Input Mode to Game and UI
 		FInputModeGameAndUI GameAndUIInputMode;
@@ -54,7 +54,6 @@ void ATimberPlayerController::BeginPlay()
 	{
 		DisableAllKeyboardInput();
 	}
-	
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -64,6 +63,11 @@ void ATimberPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 	//Binding Move Function
+	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::UsePrimaryAbility);
+	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Started, this, &ATimberPlayerController::UseSecondaryAbilityStarted);
+	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Canceled, this, &ATimberPlayerController::UseSecondaryAbilityCanceled);
+	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Completed, this, &ATimberPlayerController::UseSecondaryAbilityCompleted);
+	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::UseSecondaryAbilityTriggered);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Move);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ATimberPlayerController::MoveComplete);
 	EnhancedInputComponent->BindAction(LookUpAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::LookUp);
@@ -72,13 +76,11 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
 	EnhancedInputComponent->BindAction(EquipMeleeWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipMeleeWeapon);
 	EnhancedInputComponent->BindAction(EquipRangedWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipRangedWeapon);
-	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::UsePrimaryAbility);
-	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::UseSecondaryAbility);
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EnterBuildMode);
-	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this,&ATimberPlayerController::RotateBuildingComponent);
+	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
 	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
 	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
-	EnhancedInputComponent->BindAction(DeleteBuildingComponentAction, ETriggerEvent::Triggered, this,&ATimberPlayerController::DeleteBuildingComponent);
+	EnhancedInputComponent->BindAction(DeleteBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::DeleteBuildingComponent);
 	EnhancedInputComponent->BindAction(ModifyCursorAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
 	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
@@ -89,16 +91,14 @@ void ATimberPlayerController::SetupInputComponent()
 void ATimberPlayerController::EnableCursor()
 {
 	bShowMouseCursor = true;
-	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(
-		TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
 	CharacterSpringArm->bUsePawnControlRotation = false;
 }
 
 void ATimberPlayerController::DisableCursor()
 {
 	bShowMouseCursor = false;
-	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(
-		TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
 	CharacterSpringArm->bUsePawnControlRotation = true;
 }
 
@@ -130,8 +130,7 @@ void ATimberPlayerController::Move(const FInputActionValue& Value)
 
 		// Rotates the Character to the direction of the Camera Smoothly
 		const FRotator TargetForwardDirection = FRotator(0.f, ControllerRotation.Yaw, 0.f);
-		FRotator NewRotation = FMath::RInterpTo(
-			ControlledPawn->GetActorRotation(), TargetForwardDirection, GetWorld()->GetDeltaSeconds(), 5.f);
+		FRotator NewRotation = FMath::RInterpTo(ControlledPawn->GetActorRotation(), TargetForwardDirection, GetWorld()->GetDeltaSeconds(), 5.f);
 		ControlledPawn->SetActorRotation(NewRotation);
 
 		//Adding Movement Input to the Character
@@ -214,7 +213,7 @@ void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 void ATimberPlayerController::Interact(const FInputActionValue& Value)
 {
 	//TODO:: Need to implement some kind of check if overlapping multiple interactable items.
-	
+
 	if (Value.Get<bool>() && InteractableItem)
 	{
 		if (InteractableItem)
@@ -233,9 +232,9 @@ void ATimberPlayerController::EquipMeleeWeapon(const FInputActionValue& Value)
 		{
 			return;
 		}
-		
+
 		TimberCharacter->CombatComponent->UnEquipCurrentlyEquippedWeapon();
-		
+
 		//Equipping a Weapon takes the player out of Build Mode.
 		HandleExitBuildMode();
 
@@ -250,26 +249,22 @@ void ATimberPlayerController::EquipRangedWeapon(const FInputActionValue& Value)
 {
 	//Input action Function Call for Equipping Weapon.
 	//Remap to 1 Key.
-	
-	if (TimberCharacter && TimberCharacter->CombatComponent && 
-	TimberCharacter->CombatComponent->GetCurrentWeaponState() != EOwnerWeaponState::RangedWeaponEquipped)
-	{
 
+	if (TimberCharacter && TimberCharacter->CombatComponent && TimberCharacter->CombatComponent->GetCurrentWeaponState() != EOwnerWeaponState::RangedWeaponEquipped)
+	{
 		if (TimberCharacter->CombatComponent->bIsEquipMontagePlaying)
 		{
 			return;
 		}
-		
+
 		TimberCharacter->CombatComponent->UnEquipCurrentlyEquippedWeapon();
-		
+
 		HandleExitBuildMode();
 
 		//Equip Animation
 		//TimberCharacter->PlayEquipWeaponMontage("EquipGun");
 		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipGun");
-		
 	}
-
 }
 
 void ATimberPlayerController::DisableAllKeyboardInput()
@@ -287,87 +282,62 @@ void ATimberPlayerController::EnableStandardKeyboardInput()
 	}
 }
 
-/*void ATimberPlayerController::UnEquipWeapon() const
-{
-	//If a weapon is equipped, we need to un-equip it.
-	if (TimberCharacter->CombatComponent->GetCurrentlyEquippedWeapon())
-	{
-		//Stops any reloading Montages or shooting montages from playing.
-		TimberCharacter->StopAllAnimMontages();
-		
-		TimberCharacter->CombatComponent->UnEquipAllWeapons();
-	}
-	
-	/*if (TimberCharacter->GetCurrentlyEquippedWeapon())
-	{
-		//Stops any reloading Montages or shooting montages from playing.
-		TimberCharacter->StopAllAnimMontages();
-		
-		//Broadcasts to HUD if Unequipped Weapon is the Ranged Weapon (Hides Ammo Counter)
-		HandleWeaponEquip();
-		
-		//Visually unequipped the weapons from the character when opening build menu.
-		TimberCharacter->UnEquipBothWeapons(); 
-		
-		//Setting WeaponState on Character
-		TimberCharacter->SetCurrentWeaponState(EWeaponState::Unequipped);
-		
-		WeaponState.Broadcast(EWeaponState::Unequipped);
-	}#1#
-}*/
-
 void ATimberPlayerController::UsePrimaryAbility(const FInputActionValue& Value)
 {
 	if (TimberCharacter && TimberCharacter->CombatComponent)
 	{
-		TimberCharacter->CombatComponent->HandlePrimaryAbility();
-		
+		TimberCharacter->CombatComponent->HandlePrimaryAbility(Value);
 	}
-	/*if (TimberCharacter && TimberCharacter->GetCurrentWeaponState() != EWeaponState::Unequipped)
-	{
-		switch (TimberCharacter->GetCurrentWeaponState())
-		{
-		case EWeaponState::MeleeWeaponEquipped:
-			{
-				if (CanAttackAgain && TimberCharacter->bIsSwordFullyEquipped)
-				{
-					//UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Sword Attack Montage"));
-					TimberCharacter->RangedWeaponInstance->HandlePlayAttackMontage();
-					CanAttackAgain = false;
-				}
-			}
-			break;
-		case EWeaponState::ChainsawEquipped:
-			{
-				//TODO::No Chainsaw Weapon Class Yet
-				//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Attacking with Chainsaw");
-			}
-			break;
-		case EWeaponState::RangedEquipped:
-			{
-				if (TimberCharacter && TimberCharacter->bIsRifleFullyEquipped)
-				{
-					//UE_LOG(LogTemp, Warning, TEXT("Player Controller - Playing Rifle Attack Montage"));
-					TimberCharacter->WeaponThreeInstance->FireRangedWeapon(ReticuleHitLocation);
-				}
-			}
-			break;
-		case EWeaponState::Unequipped:
-			{
-				//TODO:: Add a punch attack or something here maybe
-				//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "No Weapon Equipped");
-			}
-			break;
-		}
-	}*/
 }
 
-void ATimberPlayerController::UseSecondaryAbility(const FInputActionValue& Value)
+void ATimberPlayerController::UseSecondaryAbilityStarted(const FInputActionValue& Value)
+{
+	//If started is fired, that means we are holding the button down.
+	//Checking if the ability its a Hold and Release Ability.
+	EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
+	if (AbilityInputRequirement == EAbilityInputRequirement::HoldOnly)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Started."));
+		TimberCharacter->CombatComponent->HandleSecondaryAbility_Started(Value);
+	}
+}
+
+void ATimberPlayerController::UseSecondaryAbilityCanceled(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Canceled."));
+	EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
+	if (AbilityInputRequirement == EAbilityInputRequirement::HoldOnly)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Started."));
+		TimberCharacter->CombatComponent->HandleSecondaryAbility_Cancelled(Value);
+	}
+}
+
+void ATimberPlayerController::UseSecondaryAbilityCompleted(const FInputActionValue& Value)
+{
+	if (TimberCharacter->CombatComponent )
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Completed."));
+		EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
+		if (AbilityInputRequirement == EAbilityInputRequirement::HoldOnly)
+		{
+			//Reached when a Press and Hold Ability Hit the Max Activation Threshold.
+			TimberCharacter->CombatComponent->HandleSecondaryAbility_Completed(Value);
+		}
+	}
+}
+
+void ATimberPlayerController::UseSecondaryAbilityTriggered(const FInputActionValue& Value)
 {
 	if (TimberCharacter && TimberCharacter->CombatComponent)
 	{
-		TimberCharacter->CombatComponent->HandleSecondaryAbility();
-		
+		EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
+		if (AbilityInputRequirement == EAbilityInputRequirement::Pressed)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Triggered."));
+			//Reached when a Pressed Ability is Pressed.
+			TimberCharacter->CombatComponent->HandleSecondaryAbility(Value);
+		}
 	}
 }
 
@@ -392,7 +362,7 @@ void ATimberPlayerController::EnterBuildMode(const FInputActionValue& Value)
 
 		//Deletes Lingering Proxies
 		TimberCharacter->BuildSystemManager->RemoveBuildingComponentProxies_All();
-		
+
 		//HUD Responsibility
 		OpenBuildModeSelectionMenu();
 	}
@@ -424,7 +394,7 @@ void ATimberPlayerController::ExitBuildMode(const FInputActionValue& Value)
 	/*This only works when the Build Mode Input Mapping Context is Active
 	 * all keymappings here won't work when the Standard Input Mapping Context is Active.
 	 */
-	
+
 	HandleExitBuildMode();
 }
 
@@ -482,7 +452,7 @@ void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
 void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& Value)
 {
 	//During Raycast, if we raycast over an existing BC, a UI Widget Will Appear around that Component.
-	
+
 	//TODO:: Add Progress like system where Pressing the E button will Delete if Held for 1 Full second. Show Progress Swirl.
 
 	if (TimberCharacter && TimberCharacter->HoveredBuildingComponent)
@@ -492,29 +462,27 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 			//UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
 			return;
 		}
-		
+
 		if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->HoveredBuildingComponent)
 		{
 			//When the Buildable is Deleted by the Player, it will drop the cost of the buildable.
 			//UE_LOG(LogTemp, Warning, TEXT("Deleting Hovered BuildingComponent: %s"), *TimberCharacter->HoveredBuildingComponent->GetName());
-			
+
 			TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
 
 			//Reset the value of HoveredBuildingComponent after deletion.
 			TimberCharacter->HoveredBuildingComponent = nullptr;
 		}
 	}
-
 }
 
 void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 {
-	
 	if (bIsPlayerDead)
 	{
 		EnableCursor();
 		DisableAllKeyboardInput();
-		
+
 		TimberCharacter->CombatComponent->UnEquipAllWeapons();
 
 		//Subscribed on the HUD to Show the Death UI
@@ -549,7 +517,7 @@ void ATimberPlayerController::ModifyCursorWithController(const FInputActionValue
 	// Calculate the new mouse position
 	FVector2D NewMousePos = CurrentMousePos + (AnalogValue * CursorSpeed * DeltaTime);
 	DrawDebugPoint(GetWorld(), FVector(NewMousePos, 0), 5, FColor::Red, false, 1.0f);
-	
+
 	// Update the mouse location
 	SetMouseLocation(NewMousePos.X, NewMousePos.Y);
 }
@@ -564,27 +532,26 @@ void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& V
 	 * Set that to the ActiveBuildableComponentClass.
 	 * Close the Build Menu Panel. HUD::ShouldHideBuildMenu 
 	 */
-			if(HoveredIconDataAsset)
-			{
-				TSubclassOf<ABuildableBase> BuildingComponentClassName = HoveredIconDataAsset->BuildingComponentClass;
-				//UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
-				if(TimberCharacter)
-				{
-					TimberCharacter->BuildSystemManager->SetActiveBuildingComponentClass(BuildingComponentClassName);
-					ATimberHUDBase* HUD = Cast<ATimberHUDBase>(GetHUD());
+	if (HoveredIconDataAsset)
+	{
+		TSubclassOf<ABuildableBase> BuildingComponentClassName = HoveredIconDataAsset->BuildingComponentClass;
+		//UE_LOG(LogTemp, Warning, TEXT("THE FUCKIN CLASS NAME: %s"), *BuildingComponentClassName->GetName());
+		if (TimberCharacter)
+		{
+			TimberCharacter->BuildSystemManager->SetActiveBuildingComponentClass(BuildingComponentClassName);
+			ATimberHUDBase* HUD = Cast<ATimberHUDBase>(GetHUD());
 
-					//Close the Build Menu Panel (Doesn't Leave Build State, Same Effect as TAB)
-					HUD->CloseBuildPanelMenu();
+			//Close the Build Menu Panel (Doesn't Leave Build State, Same Effect as TAB)
+			HUD->CloseBuildPanelMenu();
 
-					//Clear Focused Widget
-					FocusedWidget = nullptr;
-				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("No data asset found on Building Component Icon Widget"));
-			}
-	
+			//Clear Focused Widget
+			FocusedWidget = nullptr;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No data asset found on Building Component Icon Widget"));
+	}
 }
 
 /* Tutorial Handling */
@@ -602,35 +569,35 @@ void ATimberPlayerController::HandleTutorialStateChanges(ETutorialState NewState
 {
 	switch (NewState)
 	{
-		case ETutorialState::Wake1:
-			DisableAllKeyboardInput();
-			break;
-		case ETutorialState::Wake2:
-			EnableStandardKeyboardInput();
-			break;
-		case ETutorialState::Wake3:
-			break;
-		case ETutorialState::Default:
-			break;
-		case ETutorialState::Combat1:
-			break;
-		case ETutorialState::Combat2:
-			break;
-		case ETutorialState::Parts1:
-			break;
-		case ETutorialState::Building1:
-			break;
-		case ETutorialState::Building2:
-			break;
-		case ETutorialState::Building3:
-			break;
-		case ETutorialState::WaveStart:
-			break;
-		case ETutorialState::WaveComplete:
-			break;
-		case ETutorialState::TutorialComplete:
-			EnableStandardKeyboardInput();
-			break;
+	case ETutorialState::Wake1:
+		DisableAllKeyboardInput();
+		break;
+	case ETutorialState::Wake2:
+		EnableStandardKeyboardInput();
+		break;
+	case ETutorialState::Wake3:
+		break;
+	case ETutorialState::Default:
+		break;
+	case ETutorialState::Combat1:
+		break;
+	case ETutorialState::Combat2:
+		break;
+	case ETutorialState::Parts1:
+		break;
+	case ETutorialState::Building1:
+		break;
+	case ETutorialState::Building2:
+		break;
+	case ETutorialState::Building3:
+		break;
+	case ETutorialState::WaveStart:
+		break;
+	case ETutorialState::WaveComplete:
+		break;
+	case ETutorialState::TutorialComplete:
+		EnableStandardKeyboardInput();
+		break;
 	}
 }
 
@@ -641,8 +608,6 @@ ETutorialState ATimberPlayerController::GetTutorialState() const
 	{
 		return DieRobotGameState->TutorialState;
 	}
-	
+
 	return ETutorialState::Default;
 }
-
-

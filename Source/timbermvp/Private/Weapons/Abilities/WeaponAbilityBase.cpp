@@ -6,6 +6,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
 
+void UWeaponAbilityBase::HandleCleanup(FAbilityContext Context)
+{
+	Context.CombatComponent->CurrentWeaponAbility = nullptr;
+}
+
 void UWeaponAbilityBase::PlayNiagaraEffectAtLocation(
 	UNiagaraSystem* NiagaraSystem, FVector Location, FRotator Rotation, bool AutoDestroy, bool AutoActive)
 {

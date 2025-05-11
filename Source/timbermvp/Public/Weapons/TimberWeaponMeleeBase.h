@@ -38,8 +38,11 @@ public:
 	float CurrentWeaponEnergy = 100.0f;
 
 	/*Collision Component*/
-	UPROPERTY(EditAnywhere, Category="Components")
-	UBoxComponent* WeaponBoxComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	UBoxComponent* WeaponBoxComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* NiagaraEffectSpawnLocation = nullptr;
 
 	UFUNCTION(BlueprintCallable, Category="Collision")
 	void HandleWeaponCollision(bool ShouldReadyCollision) const;

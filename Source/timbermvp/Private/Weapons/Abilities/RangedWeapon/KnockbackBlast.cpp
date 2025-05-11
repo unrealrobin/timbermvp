@@ -37,8 +37,8 @@ void UKnockbackBlast::Execute(FAbilityContext Context)
 		HitBox->SetBoxExtent(InitialBoxExtent, true);
 
 		/*For Debugging*/
-		HitBox->SetHiddenInGame(false);
-		HitBox->SetVisibility(true);
+		//HitBox->SetHiddenInGame(false);
+		//HitBox->SetVisibility(true);
 
 		HitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		HitBox->SetCollisionResponseToAllChannels(ECR_Ignore);

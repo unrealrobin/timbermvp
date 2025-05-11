@@ -88,6 +88,8 @@ public:
 	virtual void Execute_Triggered(FAbilityContext Context){};
 	virtual void Execute_Cancelled(FAbilityContext Context){};
 
+	virtual void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted){};
+
 	/* Clears the Stored Ability on the Combat Component
 	 * Required for Abilities with Press & Hold functionality.
 	 */

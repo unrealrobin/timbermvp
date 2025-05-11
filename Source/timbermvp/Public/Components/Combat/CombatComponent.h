@@ -117,6 +117,14 @@ public:
 	bool bCanMeleeAttack = true;
 	
 	void PlayEquipWeaponMontage(FName MontageSectionName);
+
+	UFUNCTION()
+	void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	//If tracked, Montage Stages must be tracked on the Current Ability.
+	void PlayCharacterAnimationMontage(UAnimMontage* Montage, FName MontageSectionName, float PlayRate = 1.0f, bool TrackStages = false);
+
+	void StopCharacterAnimationMontage(UAnimMontage* Montage, float BlendOutTime);
 	
 	/*Socket Names Set on SKM of Kip. Can be Overwritten.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Sockets")

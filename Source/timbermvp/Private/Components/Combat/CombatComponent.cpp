@@ -503,6 +503,46 @@ void UCombatComponent::PlayEquipWeaponMontage(FName MontageSectionName)
 	}
 }
 
+void UCombatComponent::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	//Report back to Current Ability that some montage has finished playing.
+	//Ability must track which montage was last played.
+	if (CurrentWeaponAbility)
+	{
+		//HandleMontageEnded() Override function on WeaponAbilityBase
+		CurrentWeaponAbility->HandleMontageEnded(Montage, bInterrupted);
+	}
+}
+
+void UCombatComponent::PlayCharacterAnimationMontage(UAnimMontage* Montage, FName MontageSectionName, float PlayRate, bool TrackStages)
+{
+	if (OwningCharacter)
+	{
+		if (UAnimInstance* Anim = OwningCharacter->GetMesh()->GetAnimInstance())
+		{
+			Anim->Montage_Play(Montage, PlayRate);
+		
+			Anim->Montage_JumpToSection(MontageSectionName, Montage);
+			if (TrackStages && !Anim->OnMontageEnded.IsBound())
+			{
+				//If we want reports back to ability that some montage has finished playing or been interrupted.
+				Anim->OnMontageEnded.AddDynamic(this, &UCombatComponent::HandleMontageEnded);
+			}
+		}
+	}
+}
+
+void UCombatComponent::StopCharacterAnimationMontage(UAnimMontage* Montage, float BlendOutTime)
+{
+	if (OwningCharacter)
+	{
+		if (UAnimInstance* Anim = OwningCharacter->GetMesh()->GetAnimInstance())
+		{
+			Anim->StopAllMontages(BlendOutTime);
+		}
+	}
+}
+
 FAbilityContext UCombatComponent::GenerateCurrentAbilityContext(const FInputActionValue& InputValue)
 {
 	FAbilityContext CurrentAbilityContext;

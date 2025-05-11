@@ -19,8 +19,11 @@ ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	WeaponBoxComponent = CreateDefaultSubobject<UBoxComponent>("Collision Box");
-	WeaponBoxComponent->SetupAttachment(GetRootComponent());
+	WeaponBoxComponent->SetupAttachment(RootComponent);
 	WeaponBoxComponent->SetCollisionProfileName("NoCollision");
+	
+	NiagaraEffectSpawnLocation = CreateDefaultSubobject<USceneComponent>("NiagaraSpawnLocation");
+	NiagaraEffectSpawnLocation->SetupAttachment(RootComponent);
 
 	if (WeaponBoxComponent)
 	{

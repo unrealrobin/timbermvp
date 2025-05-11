@@ -30,8 +30,6 @@ public:
 	virtual void Execute(FAbilityContext Context) override;
 	virtual void Execute_Completed(FAbilityContext Context) override;
 	virtual void Execute_Cancelled(FAbilityContext Context) override;
-
-	virtual void Execute_Triggered(FAbilityContext Context) override;
 	
 	void HandleIncompleteAbility(FAbilityContext Context);
 
@@ -40,6 +38,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
 	float FullChargeTimer = 2.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
+	float DamageDistance = 200.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
+	float CollisionSphereRadius = 50.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
+	float PerEnemyHitDamage = 20.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Data")
 	EMontageStage CurrentMontageStage = EMontageStage::None;
@@ -54,6 +61,7 @@ protected:
 private:
 	UPROPERTY()
 	FAbilityContext AbilityContext;
-	
+
+	void SweepForDamage(FAbilityContext Context);
 	
 };

@@ -420,7 +420,9 @@ void UCombatComponent::HandleSecondaryAbility_Completed(const FInputActionValue&
 	if (CurrentWeaponAbility && CurrentWeaponAbility->InputRequirement == EAbilityInputRequirement::HoldOnly)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("CurrentWeaponAbility is Valid."));
+		ConsumePower(CurrentlyEquippedWeapon, CurrentWeaponAbility->PowerCost);
 		CurrentWeaponAbility->Execute_Completed(GenerateCurrentAbilityContext(Value));
+		
 	}
 }
 

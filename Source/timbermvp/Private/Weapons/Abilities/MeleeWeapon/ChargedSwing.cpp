@@ -3,6 +3,7 @@
 
 #include "Weapons/Abilities/MeleeWeapon/ChargedSwing.h"
 
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 
 UChargedSwing::UChargedSwing()
@@ -33,17 +34,14 @@ void UChargedSwing::Execute_Completed(FAbilityContext Context)
 		{
 			//Spawn the effect at the location of the weapon.
 			PlayNiagaraEffectAtLocation(NiagaraEffect, MeleeWeapon->NiagaraEffectSpawnLocation->GetComponentLocation(), Context.Instigator->GetActorForwardVector().Rotation());
+
+			
 		}
 	}
+	//Sweep For Enemies and Apply Damage to Hit Actors.
+	SweepForDamage(Context);
 	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargedAttack", 1.0f);
 	CurrentMontageStage = EMontageStage::Final;
-	HandleCleanup(Context);
-}
-
-void UChargedSwing::Execute_Triggered(FAbilityContext Context)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Input Reached Max Hold Activation Threshold. Executing Attack."));
-	
 	HandleCleanup(Context);
 }
 
@@ -78,33 +76,48 @@ void UChargedSwing::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	//We only want to force a new montage if the previous montage was finished.
 	if (bInterrupted) return;
 	
-	switch (CurrentMontageStage)
+}
+
+void UChargedSwing::SweepForDamage(FAbilityContext Context)
+{
+	//Set Object Type to Sweep For.
+	FCollisionObjectQueryParams DamageParams;
+	DamageParams.AddObjectTypesToQuery(ECC_Pawn);
+	
+
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(Context.Instigator);
+	CollisionQueryParams.AddIgnoredActor(Context.WeaponInstance);
+	
+	//Temp Store for Hits
+	TArray<FHitResult> HitResults;
+
+	//Sweep Direction.
+	FVector StartLocation = Context.Instigator->GetActorLocation();
+	StartLocation.Z += 75.0f;
+	
+	FVector HitTargetLocation = Context.CombatComponent->GetProjectileTargetLocation();
+	FVector EndLocation = StartLocation + ((HitTargetLocation - StartLocation).GetSafeNormal() * DamageDistance);
+		//Sphere Sweep for Damage.
+	
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10.0f);
+	DrawDebugSphere(GetWorld(), EndLocation, CollisionSphereRadius, 12, FColor::Red, false, 10.0f);
+
+	bool bHit = GetWorld()->SweepMultiByObjectType(HitResults, StartLocation, EndLocation, FQuat::Identity, DamageParams, FCollisionShape::MakeSphere(CollisionSphereRadius), CollisionQueryParams);
+
+	if (bHit)
 	{
-	case EMontageStage::None:
-		break;
-	case EMontageStage::WindUp:
-		//Handle StartLoop
-		if (AbilityContext.CombatComponent)
+		for (FHitResult HitPawn: HitResults)
 		{
-			//AbilityContext.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargeLoadLoop", .01f, true);
-			//CurrentMontageStage = EMontageStage::Loop;
+			if (ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(HitPawn.GetActor()))
+			{
+				HitEnemy->TakeDamage(PerEnemyHitDamage, Context.Instigator);
+				UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitEnemy->GetName());
+			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Could not access Ability Context Variable to start Loop Anim Section."));
-		}
-		break;
-	case EMontageStage::Loop:
-		//ContinueToPlayLoop
-		if (AbilityContext.CombatComponent)
-		{
-			//AbilityContext.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargeLoadLoop", .5f, true);
-		}
-		break;
-	case EMontageStage::Final:
-		//Do Nothing
-		break;
-	default:
-		break;
+	}else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Hits from Sweep."));
 	}
+	
 }

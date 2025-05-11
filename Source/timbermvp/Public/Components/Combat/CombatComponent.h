@@ -105,8 +105,11 @@ public:
 	void UnEquipCurrentlyEquippedWeapon();
 	void UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState);
 	void ReloadRangedWeapon();
+
+	//Pressed Trigger Event Abilities
 	void HandlePrimaryAbility(const FInputActionValue& Value);
 	void HandleSecondaryAbility(const FInputActionValue& Value);
+	//Hold Trigger Event Abilities
 	void HandleSecondaryAbility_Started(const FInputActionValue& Value);
 	void HandleSecondaryAbility_Cancelled(const FInputActionValue& Value);
 	void HandleSecondaryAbility_Completed(const FInputActionValue& Value);
@@ -150,12 +153,11 @@ public:
 	FORCEINLINE ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 	FORCEINLINE EOwnerWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
 	
+	FVector GetProjectileTargetLocation();
 private:
 	
 	UFUNCTION()
 	void SpawnWeaponAtSocketLocation(TSubclassOf<ATimberWeaponBase> WeaponClassToSpawn, FName SocketName);
-
-	FVector GetProjectileTargetLocation();
 	
 	UPROPERTY()
 	bool bIsRifleEquipped = false;

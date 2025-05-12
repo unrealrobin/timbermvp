@@ -86,6 +86,9 @@ public:
 	// Sets default values for this actor's properties
 	ABuildableBase();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Attributes")
+	float ComponentDurability = 100.f;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	

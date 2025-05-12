@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "AI/Behavior/Tasks/Task_SetClosestWall.h"
@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BuildSystem/BuildingComponents/TimberHorizontalBuildingComponent.h"
 #include "BuildSystem/buildingComponents/TimberVerticalBuildingComponent.h"
+#include "BuildSystem/Ramps/RampBase.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -28,15 +29,16 @@ EBTNodeResult::Type UTask_SetClosestWall::ExecuteTask(UBehaviorTreeComponent& Ow
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	if (!BlackboardComponent) return EBTNodeResult::Failed;
 
-	TArray<AActor*> WallsArray;
+	TArray<AActor*> WallsOrRampsArray;
 
+	//Gets all vertical building components within RadiusToCheck (Set on the Task in the Editor)
 	bool bHits = UKismetSystemLibrary::SphereOverlapActors(GetWorld(),
 		AiEnemyCharacter->GetActorLocation(),
 		RadiusToCheck,
 		TArray<TEnumAsByte<EObjectTypeQuery>>(),
-		ATimberVerticalBuildingComponent::StaticClass(),
+		ABuildableBase::StaticClass(),
 		TArray<AActor*>(),
-		WallsArray);
+		WallsOrRampsArray);
 
 	if (bHits)
 	{
@@ -47,32 +49,40 @@ EBTNodeResult::Type UTask_SetClosestWall::ExecuteTask(UBehaviorTreeComponent& Ow
 		UE_LOG(LogTemp, Warning, TEXT("No Matching Building Components Found."));
 	}
 	
-
-	for (AActor* Wall : WallsArray)
+	//Finding the Closest Wall
+	for (AActor* Hit : WallsOrRampsArray)
 	{
-		if (Cast<ATimberVerticalBuildingComponent>(Wall) && Cast<ATimberVerticalBuildingComponent>(Wall)->BuildingComponentType != EBuildingComponentType::Environment)
+		if (ABuildableBase* HitBuildable = Cast<ABuildableBase>(Hit))
 		{
-			float Distance = FVector::Dist(AiEnemyCharacter->GetActorLocation(), Wall->GetActorLocation());
-			if (Distance < ClosestWall.Distance)
+			if (HitBuildable->BuildableType != EBuildableType::Environment)
 			{
-				ClosestWall.Wall = Wall;
-				ClosestWall.Distance = Distance;
+				//If this hit Returns A Wall Base Class or a Ramp Base Class
+				if (Cast<ATimberVerticalBuildingComponent>(HitBuildable) || Cast<ARampBase>(HitBuildable))
+				{
+					float Distance = FVector::Dist(AiEnemyCharacter->GetActorLocation(), HitBuildable->GetActorLocation());
+					if (Distance < MatchStruct.Distance)
+					{
+						MatchStruct.WallorRamp = HitBuildable;
+						MatchStruct.Distance = Distance;
+					}
+				}
 			}
 		}
 	}
 
-	BlackboardComponent->SetValueAsObject(FName("ClosestBuildingComponentActor"), Cast<ABuildableBase>(ClosestWall.Wall));
+	//Setting the Closest WallorRamp on the Blackboard
+	BlackboardComponent->SetValueAsObject(FName("ClosestBuildingComponentActor"), Cast<ABuildableBase>(MatchStruct.WallorRamp));
 
 	if (bShowDebugSphere)
 	{
-		if (ClosestWall.Wall)
+		if (MatchStruct.WallorRamp)
 		{
-			DrawDebugSphere(GetWorld(), ClosestWall.Wall->GetActorLocation(), 10.0f, 12, FColor::Red, false, 5.0f);
+			DrawDebugSphere(GetWorld(), MatchStruct.WallorRamp->GetActorLocation(), 10.0f, 12, FColor::Red, false, 5.0f);
 		}
 	}
 
-	ClosestWall.Wall = nullptr;
-	ClosestWall.Distance = 20000.0f;
+	MatchStruct.WallorRamp = nullptr;
+	MatchStruct.Distance = UE_MAX_FLT;
 	
 	return EBTNodeResult::Succeeded;
 }

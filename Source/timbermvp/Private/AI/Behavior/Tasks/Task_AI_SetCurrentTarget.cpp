@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries
 
 
 #include "AI/Behavior/Tasks/Task_AI_SetCurrentTarget.h"
@@ -36,7 +36,7 @@ EBTNodeResult::Type UTask_AI_SetCurrentTarget::ExecuteTask(UBehaviorTreeComponen
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Task_AI_SetCurrentTarget: Current Target is NULL."));
+		//UE_LOG(LogTemp, Warning, TEXT("Task_AI_SetCurrentTarget: Current Target is NULL."));
 		return EBTNodeResult::Failed;
 	}
 }

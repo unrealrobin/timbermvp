@@ -847,8 +847,6 @@ void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBas
 	BuildingComponent->SetActorEnableCollision(false);
 }
 
-
-
 USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResult HitResult)
 {
 	FVector ImpactPointLocation = HitResult.ImpactPoint;

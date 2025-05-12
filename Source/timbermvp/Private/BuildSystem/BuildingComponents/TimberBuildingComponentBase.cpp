@@ -146,16 +146,20 @@ void ATimberBuildingComponentBase::DeleteAllAttachments()
 	{
 		for (ABuildableBase* AttachedBuildable : AttachedBuildingComponents)
 		{
-			//Handle Trap, Handle Construct or other Seperately.
-			ATrapBase* AttachedTrap = Cast<ATrapBase>(AttachedBuildable);
-			if (AttachedTrap)
+			//Using IsValid() because on destruction of Ramp Component we don't clean up the reference in this array.
+			if (IsValid(AttachedBuildable))
 			{
-				AttachedTrap->HandleDeletionByBuildingComponent();
-			}
-			AConstructBase* AttachedConstruct = Cast<AConstructBase>(AttachedBuildable);
-			if (AttachedConstruct)
-			{
-				AttachedConstruct->HandleDeletionOfBuildable();
+				//Handle Trap, Handle Construct or other Separately.
+				ATrapBase* AttachedTrap = Cast<ATrapBase>(AttachedBuildable);
+				if (AttachedTrap)
+				{
+					AttachedTrap->HandleDeletionByBuildingComponent();
+				}
+				AConstructBase* AttachedConstruct = Cast<AConstructBase>(AttachedBuildable);
+				if (AttachedConstruct)
+				{
+					AttachedConstruct->HandleDeletionOfBuildable();
+				}
 			}
 		}
 		

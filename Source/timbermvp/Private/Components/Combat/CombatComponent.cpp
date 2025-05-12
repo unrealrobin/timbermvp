@@ -314,7 +314,6 @@ void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState
 void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 {
 	//Player wants the primary ability of the equipped weapon.
-	//What the current weapons prim. ability?
 	if (CurrentlyEquippedWeapon->PrimaryWeaponAbility)
 	{
 		const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
@@ -440,6 +439,7 @@ bool UCombatComponent::ValidateWeaponAbility(const UWeaponAbilityBase* AbilityTo
 	case EAbilityValidation::RequiresAmmo:
 		break;
 	case EAbilityValidation::Default:
+		UE_LOG(LogTemp, Warning, TEXT("No Validation Type Defined on Ability."));
 		break;
 	}
 	return false;
@@ -490,7 +490,6 @@ void UCombatComponent::ReloadRangedWeapon()
 				}
 			}
 		}
-		
 	}
 }
 
@@ -564,7 +563,6 @@ FAbilityContext UCombatComponent::GenerateCurrentAbilityContext(const FInputActi
 
 bool UCombatComponent::ValidateNoResourceCostAbility(const UWeaponAbilityBase* WeaponAbilityBase)
 {
-	//Check Currently Equipped Melee Weapon
 	if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(CurrentlyEquippedWeapon))
 	{
 		// Is fully Equipped?
@@ -577,9 +575,6 @@ bool UCombatComponent::ValidateNoResourceCostAbility(const UWeaponAbilityBase* W
 			}
 		}
 	}
-	
-	
-	
 	return false;
 }
 

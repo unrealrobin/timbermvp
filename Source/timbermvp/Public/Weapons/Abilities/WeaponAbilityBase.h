@@ -22,7 +22,7 @@ enum class EAbilityInputRequirement: uint8
 UENUM(BlueprintType)
 enum class EAbilityValidation: uint8
 {
-	NoResourceCost UMETA(DisplayName = "AlwaysCastable"),
+	NoResourceCost UMETA(DisplayName = "NoResourceCost"),
 	RequiresPower UMETA(DisplayName = "RequiresPower"),
 	RequiresAmmo UMETA(DisplayName = "RequiresAmmo"),
 	Default UMETA(DisplayName = "Default"),

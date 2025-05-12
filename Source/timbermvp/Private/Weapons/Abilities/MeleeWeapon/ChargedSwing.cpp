@@ -22,6 +22,9 @@ void UChargedSwing::Execute(FAbilityContext Context)
 
 	AbilityContext = Context;
 
+	//Cannot Primary Ability Melee during animation
+	Context.CombatComponent->bCanMeleeAttack = false;
+
 	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "WindUp", .5, true);
 	CurrentMontageStage = EMontageStage::WindUp;
 }
@@ -29,14 +32,15 @@ void UChargedSwing::Execute(FAbilityContext Context)
 void UChargedSwing::Execute_Completed(FAbilityContext Context)
 {
 	Context.WeaponInstance->ConsumePower(PowerCost);
+
+	//TODO:: Revisit if applying damage before of after the animation matters.
+	
+	CurrentMontageStage = EMontageStage::Final;
+	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargedAttack", 1.0f);
 	
 	//Sweep For Enemies and Apply Damage to Hit Actors.
 	SweepForDamage(Context);
-	
-	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargedAttack", 1.0f);
-	CurrentMontageStage = EMontageStage::Final;
-	
-	HandleCleanup(Context);
+
 }
 
 void UChargedSwing::Execute_Cancelled(FAbilityContext Context)
@@ -60,6 +64,8 @@ void UChargedSwing::HandleIncompleteAbility(FAbilityContext Context)
 	if (Context.CombatComponent)
 	{
 		Context.CombatComponent->StopCharacterAnimationMontage(ChargedSwingMontage, .33f);
+		//Cannot Primary Ability Melee during animation
+		Context.CombatComponent->bCanMeleeAttack = true;
 	}
 	HandleCleanup(Context);
 }
@@ -68,7 +74,14 @@ void UChargedSwing::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	//Interrupted only true if the animation was interrupted.If finished properly, it will be false.
 	//We only want to force a new montage if the previous montage was finished.
-	if (bInterrupted) return;
+	//if (bInterrupted) return;
+
+	if (CurrentMontageStage == EMontageStage::Final)
+	{
+		//Cannot Primary Ability Melee during animation
+		AbilityContext.CombatComponent->bCanMeleeAttack = true;
+		HandleCleanup(AbilityContext);
+	}
 	
 }
 

@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -31,10 +31,11 @@ void ATimberWeaponRangedBase::BeginPlay()
 	CurrentAmmo = MaxAmmo;
 }
 
-void ATimberWeaponRangedBase::ResetFiringCooldown()
+void ATimberWeaponRangedBase::HandleFiringRate(float InTime)
 {
-	GetWorld()->GetTimerManager().ClearTimer(TimeBetweenShotsHandle);
-	bIsFireOnCooldown = false;
+	//Called from the Weapons Ability to Initiate Cooldown and Pass Data Up the chain to the combat component.
+	bIsFireOnCooldown = true;
+	GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, &ATimberWeaponRangedBase::ResetFiringCooldown, InTime, false);
 }
 
 // Called every frame
@@ -45,6 +46,7 @@ void ATimberWeaponRangedBase::Tick(float DeltaTime)
 
 void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 {
+	UE_LOG(LogTemp, Warning, TEXT("In Fire Ranged Weapon"));
 	if (bIsFireOnCooldown == false && CurrentAmmo > 0 && bIsReloading == false)
 	{
 		if (WeaponOwner && GetWorld())
@@ -52,54 +54,55 @@ void ATimberWeaponRangedBase::FireRangedWeapon(FVector TargetLocation)
 			if (ProjectileType)
 			{
 				FVector ProjectileSpawnLocation = ProjectileSpawnComponent->GetComponentLocation();
-				//FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
-
-				//This is the updated Rotation based on the raycast using the HitResult from the Screen Space. (More Accurate.)
-				FRotator AimRotation = (TargetLocation - ProjectileSpawnLocation).Rotation();
-
-				// Add Spawn Params for Projectile Owner and Instigator
+				FRotator ProjectileAimRotation = (TargetLocation - ProjectileSpawnLocation).Rotation();
+				
 				FActorSpawnParameters SpawnParams;
-				// Print the owner of the weapon
-				//UE_LOG(LogTemp, Warning, TEXT("Player Weapon Owner: %s"), *GetOwner()->GetName());
 				SpawnParams.Owner = WeaponOwner;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				//UE_LOG(LogTemp, Warning, TEXT("Attempting to Spawn Projectile."));
-
-		
-				//Deffering spawn to set all ownership first.		
-				FTransform ProjectileSpawnTransform = FTransform(AimRotation, ProjectileSpawnLocation);
+				
+				FTransform ProjectileSpawnTransform = FTransform(ProjectileAimRotation, ProjectileSpawnLocation);
 				ATimberPlayerProjectile* Projectile = GetWorld()->SpawnActorDeferred<ATimberPlayerProjectile>(
 					ProjectileType,
 					ProjectileSpawnTransform, this);
-
 				Projectile->PlayerProjectileOwner = Cast<ATimberPlayableCharacter>(WeaponOwner);
-
 				Projectile->FinishSpawning(ProjectileSpawnTransform);
 
 				if (Projectile)
 				{
 					//Setting Timer to next shot
-					
 					GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, 
 					&ATimberWeaponRangedBase::ResetFiringCooldown, TimeBetweenProjectiles, false);
-
 					//Setting Firing to on Cooldown
 					bIsFireOnCooldown = true;
-
-					//Removing Ammo from Available Ammo
-					CurrentAmmo--;
-					
 					//Playing firing sounds
 					UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, ProjectileSpawnLocation);
-					
 					Projectile->SetOwner(this);
+					//Removing Ammo from Available Ammo
+			
+					if (!bUsesPower)
+					{
+						CurrentAmmo--;
+					}
+					else
+					{
+						if (CurrentPower <= 1)
+						{
+							bIsPowerWeaponCooldown = true;
+							//GetWorld()->GetTimerManager().SetTimer(PowerDepletedHandle, this, &ATimberWeaponRangedBase::ClearPowerCooldown, PowerDepletedCooldownTime, false);
+						}
+					}
+
 					
+
+					//If a Weapon uses Power, Power usage is handled in CombatComponent.
 				}
 			}
 		}
 	}
 
-	if (CurrentAmmo == 0)
+	//TODO:: Can we remove this cast? Reload is on the Players Combat Component
+	//TODO:: Tentatively Removing ammo and using Power as projectile Control.
+	if (!bUsesPower && CurrentAmmo == 0)
 	{
 		ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(Cast<ATimberPlayableCharacter>(GetOwner())->GetController());
 		if (PlayerController)
@@ -124,7 +127,7 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 				//Get Enemy Player Character
 				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 				FRotator RandomAimOffset = FRotator(
-					FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy), FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy), FMath::RandRange(-1 * WeaponAccuracy, WeaponAccuracy));
+					FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy), FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy), FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy));
 
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this; //Weapon is owner of the projectile.
@@ -202,3 +205,12 @@ void ATimberWeaponRangedBase::ReloadWeapon()
 	CurrentAmmo = MaxAmmo;
 	bIsReloading = false;
 }
+
+void ATimberWeaponRangedBase::ResetFiringCooldown()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TimeBetweenShotsHandle);
+	bIsFireOnCooldown = false;
+}
+
+
+

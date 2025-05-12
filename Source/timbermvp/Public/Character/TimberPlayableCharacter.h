@@ -1,13 +1,15 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.	
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Character/TimberCharacterBase.h"
+#include "Interfaces/CombatComponentAnimUser.h"
 #include "States/PlayerStateBase.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class UCombatComponent;
 enum class ETutorialState : uint8;
 class ABuildableBase;
 class UInventoryObject;
@@ -21,15 +23,6 @@ class UCameraComponent;
 class UInventoryManagerComponent;
 
 UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Unequipped UMETA(DisplayName = "None"),
-	MeleeWeaponEquipped UMETA(DisplayName = "MeleeWeaponEquipped"),
-	ChainsawEquipped UMETA(DisplayName = "ChainsawEquipped"),
-	RangedEquipped UMETA(DisplayName = "RangedEquipped"),
-};
-
-UENUM(BlueprintType)
 enum class ECharacterState: uint8
 {
 	Standard UMETA(DisplayName = "Standard"),
@@ -40,7 +33,7 @@ enum class ECharacterState: uint8
  * 
  */
 UCLASS()
-class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase
+class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase, public ICombatComponentAnimUser
 {
 	GENERATED_BODY()
 
@@ -52,15 +45,16 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandlePlayerDeath, bool, bIsPlayerDead);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHandleSpawnDeleteIconLocation, float, ViewportLocationX, float, ViewportLocationY);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHandleRemoveDeleteIcon);
-
 	
 	//Delegate Handles
 	FOnCharacterInitialization OnCharacterInitialization;
 	FHandlePlayerDeath HandlePlayerDeath_DelegateHandle;
 	FHandleSpawnDeleteIconLocation HandleSpawnDeleteIconLocation_DelegateHandle;
 	FHandleRemoveDeleteIcon HandleRemoveDeleteIcon_DelegateHandle;
-	
 
+	/*Interface Overrides*/
+	virtual void PlayWeaponEquipAnimationMontage(FName SectionName) override;
+	
 	//CharacterState
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")
 	ECharacterState CharacterState = ECharacterState::Standard;
@@ -73,12 +67,12 @@ public:
 	UCameraComponent* Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
 	USpringArmComponent* CameraSpringArm;
-	USpringArmComponent* GetSpringArmComponent() { return CameraSpringArm; }
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System")
 	UBuildSystemManagerComponent* BuildSystemManager;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory")
 	UInventoryManagerComponent* InventoryManager;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat Component")
+	UCombatComponent* CombatComponent;
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
 	float MaxRunSpeed = 2000.f;
@@ -87,41 +81,47 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* DeathMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
-	UAnimMontage* ReloadMontage;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
-	UAnimMontage* EquipWeaponMontage;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* TutorialWakeMontage;
-	
-	UFUNCTION()
-	void PlayEquipWeaponMontage(FName SectionName);
+
 	UFUNCTION()
 	void StopAllAnimMontages();
 	UFUNCTION()
 	void PlayWakeAnimationMontage();
 
-	
 	/*Animation Properties*/
 	//TODO:: Tentatively not needed. Was used in Anim BP
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
 	bool IsNowJumping = false;
+	
+	/*Combat*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* ReloadMontage;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* EquipWeaponMontage;
+	UFUNCTION()
+	void PlayEquipWeaponMontage(FName SectionName);
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
+	
 	/*Weapon Slots*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
-	TSubclassOf<ATimberWeaponBase> WeaponOne;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
+	TSubclassOf<ATimberWeaponBase> RangedWeaponClass;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
-	ATimberWeaponMeleeBase* WeaponOneInstance;
+	ATimberWeaponMeleeBase* RangedWeaponInstance;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponTwo;
 	UPROPERTY(BlueprintReadOnly, Category="Weapons")
 	ATimberWeaponMeleeBase* WeaponTwoInstance;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	TSubclassOf<ATimberWeaponBase> WeaponThree;
 	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	ATimberWeaponRangedBase* WeaponThreeInstance;
+	ATimberWeaponRangedBase* WeaponThreeInstance;*/
 
 	/* Weapon Spawning*/
-	UFUNCTION()
+	/*UFUNCTION()
 	void SpawnMeleeWeapon();
 	UFUNCTION()
 	void SpawnRangedWeapon();
@@ -130,23 +130,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip);
 	UFUNCTION(BlueprintCallable)
-	void UnEquipBothWeapons();
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
+	void UnEquipBothWeapons();*/
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
 	bool bIsSwordFullyEquipped = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
 	bool bIsRifleFullyEquipped = false;
+	*/
 	
-	/*Getters & Setters*/
-	EWeaponState GetCurrentWeaponState() const { return CurrentWeaponState; }
-	void SetCurrentWeaponState(EWeaponState NewWeaponState);
-	void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
+	
+	//void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
 	void HandleRaycastHitConditions(bool bHits);
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 
 	/*Build System*/
 	void PerformBuildSystemRaycast();
-
+	
 	bool HandleShowDeleteWidget();
+	
 	UFUNCTION()
 	void ResetDeleteIcon();
 	
@@ -196,12 +196,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Weapon State")
-	EWeaponState CurrentWeaponState = EWeaponState::Unequipped;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
-
 	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION()

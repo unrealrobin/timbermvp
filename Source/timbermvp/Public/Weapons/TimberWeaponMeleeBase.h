@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 #pragma once
 
@@ -38,8 +38,11 @@ public:
 	float CurrentWeaponEnergy = 100.0f;
 
 	/*Collision Component*/
-	UPROPERTY(EditAnywhere, Category="Components")
-	UBoxComponent* WeaponBoxComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	UBoxComponent* WeaponBoxComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* NiagaraEffectSpawnLocation = nullptr;
 
 	UFUNCTION(BlueprintCallable, Category="Collision")
 	void HandleWeaponCollision(bool ShouldReadyCollision) const;
@@ -70,15 +73,16 @@ public:
 	void HandlePlayAttackMontage();
 
 	/*Animation*/
-	UFUNCTION(BlueprintCallable, Category="Weapons")
+	/*UFUNCTION(BlueprintCallable, Category="Weapons")
 	virtual void PerformStandardAttack();
+	*/
 
 	/* Sounds */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
 	USoundCue* AttackSwooshSound;
 
 	/*Montage Delegate*/
-	//Used to make sure that attack animations that are interrupted reset the CanAttackAgain bool on the Controller.
+	//This is a delegate Implemented on AnimInstance (Unreal Engine AnimInstance.h)
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	
 	UFUNCTION()

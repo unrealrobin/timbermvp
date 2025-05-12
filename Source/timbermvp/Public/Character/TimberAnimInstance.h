@@ -1,13 +1,15 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "Animation/AnimInstance.h"
+#include "Components/Combat/CombatComponent.h"
 #include "TimberAnimInstance.generated.h"
 
 
+enum class EOwnerWeaponState : uint8;
 enum class ECharacterState : uint8;
 class ATimberPlayableCharacter;
 class ATimberPlayerController;
@@ -22,8 +24,6 @@ class TIMBERMVP_API UTimberAnimInstance : public UAnimInstance
 
 public:
 	virtual void NativeBeginPlay() override;
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	UPROPERTY(BlueprintReadOnly)
 	FInputActionValue InputActionValue;
@@ -36,16 +36,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Info")
 	bool CharacterNControllerInitialized = false;
-
-	UFUNCTION(BlueprintCallable)
-	void OnWeaponStateChange(EWeaponState WeaponState);
-
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	bool isRangedEquipped = false;
-
-	UFUNCTION(BlueprintCallable)
-	void InitializeDelegates();
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Info")
 	bool bIsReloading = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Info")
+	bool bIsRangedWeaponEquipped = false;
+
+	void UpdateOwnerWeaponState(EOwnerWeaponState OwnerWeaponState);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Info")
+	EOwnerWeaponState AnimCurrentWeaponState = EOwnerWeaponState::Unequipped;
 };

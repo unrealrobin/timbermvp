@@ -39,6 +39,8 @@ public:
 	
 	//Creates the Audio Component and Plays the Sound - Called in each function
 	void PlaySound(FName TrackName);
+
+	void PlaySoundAtLocation(FName TrackName, FVector Location);
 	
 protected:
 	//Holds all the SFX We need
@@ -50,8 +52,7 @@ protected:
 
 	//this - Will get a track based on the delegate broadcast - events don't declare which sound to play, this subsystem does.
 	UMetaSoundSource* GetTrackName(FName TrackName);
-
-
+	
 	UFUNCTION()
 	void HandleAudioComponentCleanUp(UAudioComponent* AudioComponent, FName TrackName);
 	UFUNCTION()

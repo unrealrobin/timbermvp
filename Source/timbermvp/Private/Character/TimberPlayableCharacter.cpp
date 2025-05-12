@@ -10,6 +10,7 @@
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Combat/CombatComponent.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -29,6 +30,7 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 	/* Actor Components */
 	BuildSystemManager = CreateDefaultSubobject<UBuildSystemManagerComponent>("BuildSystemManager");
 	InventoryManager = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("DR_PlayerCharacterCapsule"));
 	GetMesh()->SetCollisionProfileName(TEXT("DR_AestheticMeshOnly"));
@@ -82,9 +84,17 @@ void ATimberPlayableCharacter::BeginPlay()
 	}
 
 	{
+		//TODO:: To Be Moved to the Combat Component.
 		//Handle Weapon Initialization
-		SpawnMeleeWeapon();
-		SpawnRangedWeapon();
+		/*SpawnMeleeWeapon();
+		SpawnRangedWeapon();*/
+
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			CombatComponent->SpawnMeleeWeapon();
+			CombatComponent->SpawnRangedWeapon();
+		});
+		
 	}
 
 	//Tutorial is just starting, play the wake animation.
@@ -137,12 +147,12 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 		PerformBuildSystemRaycast();
 	}
 
-	//TODO:: This can be made more efficient by only calling this for like 2 seconds after last movement or rotation.
+	/*//TODO:: This can be made more efficient by only calling this for like 2 seconds after last movement or rotation.
 	//Used for aligning Projectile Direction with center of screen
 	if (CurrentWeaponState == EWeaponState::RangedEquipped)
 	{
 		RaycastController->PerformReticuleAlignment_Raycast();
-	}
+	}*/
 }
 
 /*Build System Stuff*/
@@ -340,12 +350,18 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 	}
 }
 
-void ATimberPlayableCharacter::SetCurrentWeaponState(EWeaponState NewWeaponState)
+//CombatComponentAnimUser Interface Override
+void ATimberPlayableCharacter::PlayWeaponEquipAnimationMontage(FName SectionName)
 {
-	CurrentWeaponState = NewWeaponState;
+	PlayEquipWeaponMontage(SectionName);
 }
 
-void ATimberPlayableCharacter::SpawnMeleeWeapon()
+void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
+{
+	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
+}
+
+/*void ATimberPlayableCharacter::SpawnMeleeWeapon()
 {
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 	FActorSpawnParameters SpawnParams;
@@ -359,7 +375,7 @@ void ATimberPlayableCharacter::SpawnMeleeWeapon()
 	//Spawn the Weapon
 	ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>
 	(
-		WeaponOne,
+		RangedWeaponClass,
 		SocketWorldLocation,
 		SocketWorldRotation,
 		SpawnParams);
@@ -367,14 +383,15 @@ void ATimberPlayableCharacter::SpawnMeleeWeapon()
 	if (SpawnedActor)
 	{
 		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-		WeaponOneInstance = SpawnedActor;
-		UnEquipWeapon("UnEquippedSwordSocket", WeaponOneInstance);
+		RangedWeaponInstance = SpawnedActor;
+		UnEquipWeapon("UnEquippedSwordSocket", RangedWeaponInstance);
 		UE_LOG(LogTemp, Warning, TEXT("Player Character - Spawned the sword and Attached it to the Socket."))
 	}
 }
 
 void ATimberPlayableCharacter::SpawnRangedWeapon()
 {
+	//Logic Moved to COmbat COmponent
 	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
@@ -399,19 +416,16 @@ void ATimberPlayableCharacter::SpawnRangedWeapon()
 		UnEquipWeapon("UnEquippedRifleSocket", WeaponThreeInstance);
 		UE_LOG(LogTemp, Warning, TEXT("Player Character - Spawned the sword and Attached it to the Socket."))
 	}
-}
+}*/
 
-void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon)
+/*void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon)
 {
 	CurrentlyEquippedWeapon = Weapon;
-}
+}*/
 
-void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
-{
-	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
-}
 
-void ATimberPlayableCharacter::EquipWeapon(FName EquipSocketName, ATimberWeaponBase* WeaponToEquip)
+
+/*void ATimberPlayableCharacter::EquipWeapon(FName EquipSocketName, ATimberWeaponBase* WeaponToEquip)
 {
 	//Handles Actual Placement of Weapon into Hand Socket.
 	WeaponToEquip->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, EquipSocketName);
@@ -433,8 +447,8 @@ void ATimberPlayableCharacter::UnEquipWeapon(FName UnEquipSocketName, ATimberWea
 
 void ATimberPlayableCharacter::UnEquipBothWeapons()
 {
-	UnEquipWeapon("UnEquippedSwordSocket", WeaponOneInstance);
+	UnEquipWeapon("UnEquippedSwordSocket", RangedWeaponInstance);
 	UnEquipWeapon("UnEquippedRifleSocket", Cast<ATimberWeaponBase>(WeaponThreeInstance));
-}
+}*/
 
 

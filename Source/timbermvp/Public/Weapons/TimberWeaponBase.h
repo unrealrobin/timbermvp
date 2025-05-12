@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TimberWeaponBase.generated.h"
 
+class UWeaponAbilityBase;
 class ATimberProjectileBase;
 class UBoxComponent;
 
@@ -18,18 +19,59 @@ public:
 	// Sets default values for this actor's properties
 	ATimberWeaponBase();
 
+	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Abilities")
+	TSubclassOf<UWeaponAbilityBase> PrimaryWeaponAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Abilities")
+	TSubclassOf<UWeaponAbilityBase> SecondaryWeaponAbility;
+	
+	UPROPERTY(EditAnywhere, Category="Weapon Components")
+	UStaticMeshComponent* StaticMesh;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
+	UAnimMontage* PrimaryAbilityMontage;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	void RegeneratePower(float DeltaTime, float RegenerationRate);
+
+	void ClearPowerCooldown();
+
+	FTimerHandle PowerCooldownTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	float PowerDepletedCooldownTime = 2.0f;
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	bool bUsesPower = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	bool bIsOnPowerCooldown = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	bool bIsReloadable = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	float PowerRegenerationPerSecond = 10.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Power")
+	float CurrentPower = 100.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Power")
+	float MinPower = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	float MaxPower = 100.0f;
 
 	//Used for Sword Only. Ranged Damage based on Projectile + Modifiers
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Details")
 	float BaseWeaponDamage = 35.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
-	UAnimMontage* AttackMontage;
-
-public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float DamageModifierValue = 1.0f;
@@ -38,12 +80,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Details")
 	float TotalWeaponDamage = BaseWeaponDamage * DamageModifierValue;
 	
-	UPROPERTY(EditAnywhere, Category="Weapon Components")
-	UStaticMeshComponent* StaticMesh;
+	UPROPERTY(VisibleAnywhere, Category="Attack Info")
+	TArray<AActor*> ActorsToIgnore;
+	
+	void ConsumePower(float AmountToConsume);
 
+	void HandlePowerCooldown();
+	
 	/*UFUNCTION()
 	virtual float GetWeaponBaseDamage() const { return BaseWeaponDamage; }*/
 
-	UPROPERTY(VisibleAnywhere, Category="Attack Info")
-	TArray<AActor*> ActorsToIgnore;
 };

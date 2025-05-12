@@ -1,8 +1,7 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "Character/TimberAnimInstance.h"
-
 #include "Character/TimberPlayableCharacter.h"
 #include "Controller/TimberPlayerController.h"
 
@@ -13,6 +12,7 @@ void UTimberAnimInstance::NativeBeginPlay()
 	if (!OwningPawn)
 	{
 		OwningPawn = Cast<ATimberPlayableCharacter>(GetOwningActor());
+		OwningPawn = Cast<ATimberPlayableCharacter>(TryGetPawnOwner());
 	}
 
 	if (OwningPawn)
@@ -21,38 +21,17 @@ void UTimberAnimInstance::NativeBeginPlay()
 	}
 }
 
-void UTimberAnimInstance::InitializeDelegates()
+void UTimberAnimInstance::UpdateOwnerWeaponState(EOwnerWeaponState OwnerWeaponState)
 {
-}
-
-void UTimberAnimInstance::NativeInitializeAnimation()
-{
-	Super::NativeInitializeAnimation();
-}
-
-void UTimberAnimInstance::NativeUpdateAnimation(float DeltaTime)
-{
-	Super::NativeUpdateAnimation(DeltaTime);
-}
-
-void UTimberAnimInstance::OnWeaponStateChange(EWeaponState WeaponState)
-{
-	switch (WeaponState)
+	AnimCurrentWeaponState = OwnerWeaponState;
+	
+	if (AnimCurrentWeaponState == EOwnerWeaponState::RangedWeaponEquipped)
 	{
-	case EWeaponState::RangedEquipped:
-		isRangedEquipped = true;
-		break;
-	case EWeaponState::MeleeWeaponEquipped:
-		isRangedEquipped = false;
-		break;
-	case EWeaponState::ChainsawEquipped:
-		isRangedEquipped = false;
-		break;
-	case EWeaponState::Unequipped:
-		isRangedEquipped = false;
-		break;
-	default:
-		isRangedEquipped = false;
-		break;
+		bIsRangedWeaponEquipped = true;
+	}
+	else
+	{
+		bIsRangedWeaponEquipped = false;
 	}
 }
+

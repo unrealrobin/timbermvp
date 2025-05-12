@@ -24,6 +24,7 @@ void UKnockbackBlast::Execute(FAbilityContext Context)
 	ATimberWeaponRangedBase* OwningWeapon = Cast<ATimberWeaponRangedBase>(Context.WeaponInstance);
 	if (OwningWeapon && OwningWeapon->ProjectileSpawnComponent)
 	{
+		OwningWeapon->ConsumePower(PowerCost);
 		LocalContext = Context;
 		
 		HitBox = NewObject<UBoxComponent>(this, UBoxComponent::StaticClass());

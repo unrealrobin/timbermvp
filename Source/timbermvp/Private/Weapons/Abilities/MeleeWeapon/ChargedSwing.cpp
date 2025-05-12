@@ -28,20 +28,14 @@ void UChargedSwing::Execute(FAbilityContext Context)
 
 void UChargedSwing::Execute_Completed(FAbilityContext Context)
 {
-	if (NiagaraEffect)
-	{
-		if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(Context.WeaponInstance))
-		{
-			//Spawn the effect at the location of the weapon.
-			PlayNiagaraEffectAtLocation(NiagaraEffect, MeleeWeapon->NiagaraEffectSpawnLocation->GetComponentLocation(), Context.Instigator->GetActorForwardVector().Rotation());
-
-			
-		}
-	}
+	Context.WeaponInstance->ConsumePower(PowerCost);
+	
 	//Sweep For Enemies and Apply Damage to Hit Actors.
 	SweepForDamage(Context);
+	
 	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargedAttack", 1.0f);
 	CurrentMontageStage = EMontageStage::Final;
+	
 	HandleCleanup(Context);
 }
 
@@ -100,8 +94,8 @@ void UChargedSwing::SweepForDamage(FAbilityContext Context)
 	FVector EndLocation = StartLocation + ((HitTargetLocation - StartLocation).GetSafeNormal() * DamageDistance);
 		//Sphere Sweep for Damage.
 	
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10.0f);
-	DrawDebugSphere(GetWorld(), EndLocation, CollisionSphereRadius, 12, FColor::Red, false, 10.0f);
+	//DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10.0f);
+	//DrawDebugSphere(GetWorld(), EndLocation, CollisionSphereRadius, 12, FColor::Red, false, 10.0f);
 
 	bool bHit = GetWorld()->SweepMultiByObjectType(HitResults, StartLocation, EndLocation, FQuat::Identity, DamageParams, FCollisionShape::MakeSphere(CollisionSphereRadius), CollisionQueryParams);
 
@@ -111,7 +105,12 @@ void UChargedSwing::SweepForDamage(FAbilityContext Context)
 		{
 			if (ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(HitPawn.GetActor()))
 			{
+				
 				HitEnemy->TakeDamage(PerEnemyHitDamage, Context.Instigator);
+				if (NiagaraEffect)
+				{
+					PlayNiagaraEffectAtLocation(NiagaraEffect, HitPawn.ImpactPoint, FRotator::ZeroRotator);
+				}
 				UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitEnemy->GetName());
 			}
 		}

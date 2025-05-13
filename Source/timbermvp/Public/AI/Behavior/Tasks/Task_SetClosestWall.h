@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 #pragma once
 
@@ -7,15 +7,16 @@
 #include "Task_SetClosestWall.generated.h"
 
 USTRUCT()
-struct FWallStruct
+struct FMatchStruct
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY()
-	AActor* Wall = nullptr;
+	AActor* WallorRamp = nullptr;
+	
 	UPROPERTY()
-	float Distance = 20000.0f;
+	float Distance = UE_MAX_FLT;
 	
 };
 
@@ -34,7 +35,7 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	UPROPERTY()
-	FWallStruct ClosestWall;
+	FMatchStruct MatchStruct;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TaskData")
 	float RadiusToCheck = 1000.f;

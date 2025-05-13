@@ -140,6 +140,7 @@ public:
 	
 	//void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
 	void HandleRaycastHitConditions(bool bHits);
+	
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }
 
 	/*Build System*/

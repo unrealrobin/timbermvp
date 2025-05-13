@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BuildSystem/BuildableBase.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/Ramps/RampBase.h"
 #include "Character/Enemies/FloaterDrones.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -278,13 +279,20 @@ void ABossLola::DemolishBuildable()
 	if (SweepHitActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Lola - Sweep Hit Actor Found. Demolishing Buildable."));
-		ATimberBuildingComponentBase* Buildable = Cast<ATimberBuildingComponentBase>(SweepHitActor);
-		if (Buildable)
+		ABuildableBase* Buildable = Cast<ABuildableBase>(SweepHitActor);
+		float BuildableHealth = Buildable->ComponentDurability;
+		if (ATimberBuildingComponentBase* WallorFloor = Cast<ATimberBuildingComponentBase>(SweepHitActor))
 		{
-			float BuildableHealth = Buildable->ComponentDurability;
-			Buildable->BuildingComponentTakeDamage(BuildableHealth, this);
+			WallorFloor->BuildingComponentTakeDamage(BuildableHealth, this);
 			SweepHitActor = nullptr;
 			UE_LOG(LogTemp, Warning, TEXT("Lola - Buildable Destroyed. Sweep Hit Cleared."));
+		}
+		else if (ARampBase* Ramp = Cast<ARampBase>(SweepHitActor))
+		{
+			//Ramps dont have a specific TakeDamage function yet. Lola will just destroy it outright.
+			//Ramps dont have parnts, butare considered Attachments?
+			//TODO:: Implement a DamageableBuildable Interface and have Ramp Inherit from it and use the BuildableTakeDamage() function.
+			Ramp->Destroy();
 		}
 	}
 }

@@ -51,11 +51,9 @@ public:
 	UFUNCTION()
 	void HandleEndOverlappedBuildingComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Attributes")
-	float ComponentDurability = 100.f;
-
 	UFUNCTION()
 	void BuildingComponentTakeDamage(float AmountOfDamage, AActor* DamagingActor);
+	
 	void CreateSnapPoints();
 	void CreateQuadrantComponents();
 
@@ -66,9 +64,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
 
-	/*Proxy*/
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Building Component")
-	bool bIsProxy = false;
+
 	
 	virtual void HandleDeletionOfBuildable() override;
 

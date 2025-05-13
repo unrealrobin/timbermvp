@@ -311,11 +311,11 @@ ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 	return nullptr;
 }
 
-void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor)
+void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, float SphereRadius, float DistanceToCheck)
 {
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f);
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(SphereRadius);
 	FVector SweepStart = RaycastStartPoint->GetComponentLocation();
-	FVector SweepEnd = SweepStart + RaycastStartPoint->GetForwardVector() * 100.f;
+	FVector SweepEnd = SweepStart + RaycastStartPoint->GetForwardVector() * DistanceToCheck;
 	
 	TArray<FHitResult> HitResults;
 	bool bHit = GetWorld()->SweepMultiByChannel(HitResults,

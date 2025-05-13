@@ -59,6 +59,10 @@ class TIMBERMVP_API ABuildableBase : public AActor, public IGameplayTagAssetInte
 {
 	GENERATED_BODY()
 
+public:
+	// Sets default values for this actor's properties
+	ABuildableBase();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -81,13 +85,17 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
 	TSubclassOf<AEnemyLootDropBase> UniquesClass;
-	
-public:
-	// Sets default values for this actor's properties
-	ABuildableBase();
 
-	// Called every frame
+		
+public:
 	virtual void Tick(float DeltaTime) override;
+	
+	/*Proxy*/
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Building Component")
+	bool bIsProxy = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Attributes")
+	float ComponentDurability = 100.f;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
 	bool bCanBuildableBeFinalized = true;

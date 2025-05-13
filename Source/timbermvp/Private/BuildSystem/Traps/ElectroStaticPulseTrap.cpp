@@ -21,8 +21,10 @@ void AElectroStaticPulseTrap::BeginPlay()
 	Super::BeginPlay();
 
 	//Continuously Fire the Electro-Pulse ever X Seconds
-	GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  
-	&AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
+	if (!bIsProxy)
+	{
+		GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  &AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
+	}
 }
 
 void AElectroStaticPulseTrap::Tick(float DeltaTime)

@@ -133,9 +133,7 @@ public:
 
 	UFUNCTION()
 	void HandleDroneDeath(AFloaterDrones* Drone);
-
 	
-
 	//Handles the initial components of the boss.
 	UFUNCTION(BlueprintCallable)
 	void LolaInitializeComponents();

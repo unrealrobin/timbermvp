@@ -608,7 +608,7 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 	//As it is now, all CenterSnapBuildabled would need to be children of the ATrapBase class which is not ideal.
 	ATrapBase* CenterSnapBuildable = Cast<ATrapBase>(BuildableProxyInstance);
 	
-	if (CenterSnapBuildable && CenterSnapBuildable->GetCanTrapBeFinalized())
+	if (CenterSnapBuildable && CenterSnapBuildable->bCanBuildableBeFinalized)
 	{
 		//Spawn Final Trap
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
@@ -847,8 +847,6 @@ void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBas
 	BuildingComponent->SetActorEnableCollision(false);
 }
 
-
-
 USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResult HitResult)
 {
 	FVector ImpactPointLocation = HitResult.ImpactPoint;
@@ -869,75 +867,6 @@ USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResul
 	return nullptr;
 }
 
-// Returns the closest snap location based on the impact point of the raycast for the building component.
-FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
-	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponentProxy)
-{
-	// Default Snap Data is facing the player at the impact point
-	FBuildablePlacementData TrapSnapData;
-	TrapSnapData.TrapLocation = ImpactPoint;
-	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
-	//TrapSnapData.TrapRotation.Yaw += 90;
-
-	DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 12, FColor::Red, false, 0.1f, 0, 1.0f);
-	if (BuildingComponent->FrontCenterSnapPoint && BuildingComponent->BackCenterSnapPoint)
-	{
-		/* Getting Distance from impact point to the closest scene component
-		 * that would always give the side of the wall/floor/ceiling's Snap location
-		 */
-		FVector FrontTrapSnapLocation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetLocation();
-		//FrontTrapSnapLocation.Z -= 200.f;
-		FVector BackTrapSnapLocation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetLocation();
-		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
-		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
-
-		//UE_LOG(LogTemp, Warning, TEXT("Length to Front Snap: %f. Length to Back Snap: %f."), LengthToFrontTrapSnap, LengthToBackTrapSnap);
-
-		if (LengthToFrontTrapSnap < LengthToBackTrapSnap)
-		{
-			//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
-			if (BuildingComponent->FrontCenterAttachment == nullptr)
-			{
-				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
-				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
-				TrapComponentProxy->SetCanTrapBeFinalized(true);
-				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Front Snap."));
-			}
-			else
-			{
-				TrapComponentProxy->SetCanTrapBeFinalized(false);
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
-			}
-		}
-		else
-		{
-			if (BuildingComponent->BackCenterAttachment == nullptr)
-			{
-				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
-				TrapSnapData.TrapLocation = BackTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
-				TrapComponentProxy->SetCanTrapBeFinalized(true);
-				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Back Snap."));
-			}
-			else
-			{
-				TrapComponentProxy->SetCanTrapBeFinalized(false);
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-			}
-		}
-	}
-	else
-	{
-		TrapComponentProxy->SetCanTrapBeFinalized(false);
-		TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-	}
-	return TrapSnapData;
-}
-
 void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(BuildableProxyInstance);
@@ -946,13 +875,15 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		//If the Proxy is a floor component hovering over any Environment Component, We set it to Not Finalizable and make it red.
 		if (Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor())->BuildingComponentType == EBuildingComponentType::Environment)
 		{
-			BuildableProxyInstance->bCanBuildableBeFinalized = false;
-			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
+			MakeBuildableNotFinalizable(BuildableProxyInstance);
+			/*BuildableProxyInstance->bCanBuildableBeFinalized = false;
+			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);*/
 			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, FloorComponent);
 			return;
 		}
-		
-		MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
+
+		MakeBuildableFinalizable(BuildableProxyInstance);
+		//MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
 	}
 
 	//Using this just as a check for a Valid Hit Result
@@ -979,7 +910,8 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		{
 			/*Simple Move to Location*/
 			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, ActiveBuildingComponentProxy);
-			ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
+			//ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
+			MakeBuildableNotFinalizable(ActiveBuildingComponentProxy);
 		}
 		
 	}
@@ -1005,59 +937,6 @@ void UBuildSystemManagerComponent::MoveBuildable(
 
 void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass)
 {
-	/*if (ActiveBuildableClass->IsChildOf(ATimberBuildingComponentBase::StaticClass()))
-	{
-		if (ActiveBuildingComponentProxy)
-		{
-			ActiveBuildingComponentProxy->Destroy();
-			ActiveBuildingComponentProxy = nullptr;
-		}
-	}
-
-	if (ActiveBuildableClass->IsChildOf(ATeleportConstruct::StaticClass()))
-	{
-		if (ActiveTeleportConstructProxy)
-		{
-			ActiveTeleportConstructProxy->Destroy();
-			ActiveTeleportConstructProxy = nullptr;
-		}
-	}
-
-	if (ActiveBuildableClass->IsChildOf(ATrapBase::StaticClass()))
-	{
-		if (ActiveTrapComponentProxy)
-		{
-			ActiveTrapComponentProxy->Destroy();
-			ActiveTrapComponentProxy = nullptr;
-		}
-	}
-
-	if (ActiveBuildableClass->IsChildOf(ARampBase::StaticClass()))
-	{
-		if (ActiveRampComponentProxy)
-		{
-			ActiveRampComponentProxy->Destroy();
-			ActiveRampComponentProxy = nullptr;
-		}
-	}
-
-	/*
-	 * Why is this one so different?
-	 * All of these are hardcoded per trap/buildable
-	 * We basically later want to change these class calls to a type on the buildable class.
-	 * The type will be closer to "CenterSnapFloorOnly" which will better describe the placement conditions.
-	 * It will require a full rewrite, but basically the powerplate's placement will run on the CenterSnapFloorOnly conditions.
-	 * And will just keep its reference in BuildableProxy
-	 #1#
-	if (ActiveBuildableClass->IsChildOf(APowerPlate::StaticClass()))
-	{
-		if (CenterSnapFloorOnlyBuildingComponentProxy)
-		{
-			CenterSnapFloorOnlyBuildingComponentProxy->Destroy();
-			CenterSnapFloorOnlyBuildingComponentProxy = nullptr;
-		}
-	}*/
-
 	if (BuildableProxyInstance)
 	{
 		BuildableProxyInstance->Destroy();
@@ -1077,16 +956,6 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	if (GEngine)
 	{
 		//GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
-	}
-}
-
-void UBuildSystemManagerComponent::RegisterTrapComponent(ATrapBase* TrapComponent)
-{
-	/* When the trap changes its finalization capability, this callback will happen. This changes the color from red to blue depending on finalization capabilities*/
-	if (TrapComponent)
-	{
-		TrapComponent->OnTrapFinalizationChange.AddDynamic(this, &UBuildSystemManagerComponent::HandleTrapMaterialChange);
-		HandleTrapMaterialChange(TrapComponent->GetCanTrapBeFinalized());
 	}
 }
 
@@ -1219,7 +1088,7 @@ AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> Act
 	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ActiveBuildableClass, SpawnLocation, SpawnRotation, SpawnParams);
 	if (SpawnedActor)
 	{
-		if (ATimberBuildingComponentBase* SpawnedBuildingComponent = Cast<ATimberBuildingComponentBase>(SpawnedActor))
+		if (ABuildableBase* SpawnedBuildingComponent = Cast<ABuildableBase>(SpawnedActor))
 		{
 			//We need to set this to proxy to ensure that the overlap check box is created.
 			UE_LOG(LogTemp, Warning, TEXT("Spawned Building Component Proxy"));
@@ -1235,6 +1104,7 @@ AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> Act
 
 FHitResult UBuildSystemManagerComponent::FirstHitBuildingComponentHitResult(TArray<FHitResult> HitResults)
 {
+	//We return the First Hit Building Component, else, we return the first hit result that can be anything.
 	FHitResult FirstHitBuildingComponentHitResult;
 	for (FHitResult Hit : HitResults)
 	{
@@ -1245,7 +1115,7 @@ FHitResult UBuildSystemManagerComponent::FirstHitBuildingComponentHitResult(TArr
 		}
 	}
 	
-	return FirstHitBuildingComponentHitResult;
+	return HitResults[0];
 }
 
 void UBuildSystemManagerComponent::HandleCenterSnapPlacement(FHitResult FirstHitBuildingComponentHitResult)
@@ -1255,99 +1125,98 @@ void UBuildSystemManagerComponent::HandleCenterSnapPlacement(FHitResult FirstHit
 	 * Traps that mount Center but can be applied to both sides of wall/floor.
 	 * Ex. Spike Trap, Frost Trap, Electro Pulse.
 	 */
-
 	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
 	ATrapBase* ActiveCenterSnapBuildable = Cast<ATrapBase>(BuildableProxyInstance);
+	
 	if (ActiveCenterSnapBuildable)
 	{
-		// Hit and Environment Building Component.
-		if (BuildingComponent && BuildingComponent->BuildingComponentType == EBuildingComponentType::Environment || 
-			BuildingComponent->BuildableType == EBuildableType::Environment)
+		if (BuildingComponent)
 		{
-			MoveBuildable(FVector_NetQuantize(FirstHitBuildingComponentHitResult.ImpactPoint),
-				ActiveCenterSnapBuildable,
-				FRotator::ZeroRotator);
-			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-			BuildableProxyInstance->bCanBuildableBeFinalized = false;
-			return;
-		}
-		
-		//HIT A BUILDING COMPONENT - Excluding Environment Buildable
-		if (BuildingComponent && BuildingComponent->BuildingComponentType != EBuildingComponentType::Environment && 
-			BuildingComponent->BuildableType != EBuildableType::Environment  )
-		{
-			// Pairing the trap with the wall its Hovering over.
-			//Setting the BuildingComponent as a Local Variable on the Trap Proxy for later use.
+			/* HIT EVIRONMENT BUILDING COMPONENT*/
+			if (BuildingComponent->BuildingComponentType == EBuildingComponentType::Environment || BuildingComponent->BuildableType == EBuildableType::Environment)
+			{
+				MoveBuildable(FVector_NetQuantize(FirstHitBuildingComponentHitResult.ImpactPoint),
+					ActiveCenterSnapBuildable,
+					FRotator::ZeroRotator);
+				MakeBuildableNotFinalizable(BuildableProxyInstance);
+				return;
+			}
+
+			/*HIT BUIDLING COMPONENT - NON-ENVIRONMENT*/
 			ActiveCenterSnapBuildable->TrapHoveredBuildingComponent = BuildingComponent;
 
 			//Handles Snapping to Closest Snap Point. Selecting the Correct Snap Slot on the Building Component Wall or Floor. Returns an object with Placement Data.
-			FBuildablePlacementData PlacementData = GetTrapSnapTransform(FirstHitBuildingComponentHitResult.ImpactPoint, 
-			BuildingComponent, 
-			ActiveCenterSnapBuildable);
-			
+			FBuildablePlacementData PlacementData = GetTrapSnapTransform(FirstHitBuildingComponentHitResult.ImpactPoint, BuildingComponent, ActiveCenterSnapBuildable);
+		
 			MoveBuildable(FVector_NetQuantize(PlacementData.TrapLocation),
 				ActiveCenterSnapBuildable,
 				PlacementData.TrapRotation);
-		}
-		else // HIT BUT NOT A BUILDING COMPONENT
-		{
-			if (ActiveCenterSnapBuildable)
+
+			//If set to Trap Direction::Default, it means both front and back snap locations were occupied.
+			if (ActiveCenterSnapBuildable->BuildingComponentTrapDirection == EBuildingComponentTrapDirection::Default)
 			{
-				ActiveCenterSnapBuildable->SetCanTrapBeFinalized(false);
-				ActiveCenterSnapBuildable->TrapHoveredBuildingComponent = nullptr;
-				
-				if (FirstHitBuildingComponentHitResult.ImpactPoint != FVector::ZeroVector)
-				{
-					FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
-					PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
-					MoveBuildable(
-						FirstHitBuildingComponentHitResult.ImpactPoint, ActiveCenterSnapBuildable,
-						PlayerRotation);
-				}
+				MakeBuildableNotFinalizable(BuildableProxyInstance);
 			}
+			else
+			{
+				MakeBuildableFinalizable(ActiveCenterSnapBuildable);
+			}
+			return;
+		}
+		
+		/*HIT A NON-BUILDING COMPONENT*/
+		ActiveCenterSnapBuildable->TrapHoveredBuildingComponent = nullptr;
+		
+		if (FirstHitBuildingComponentHitResult.ImpactPoint != FVector::ZeroVector)
+		{
+			FRotator PlayerRotation = GetOwner()->GetActorTransform().GetRotation().Rotator();
+			PlayerRotation.Yaw = PlayerRotation.Yaw - 180;
+			
+			MoveBuildable(
+				FirstHitBuildingComponentHitResult.ImpactPoint, ActiveCenterSnapBuildable,
+				PlayerRotation);
+
+			MakeBuildableNotFinalizable(BuildableProxyInstance);
 		}
 	}
 }
 
 void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
-	//Check FirstHitBuildingComponent Actor and Ensure it's a floor.
+	
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(FirstHitBuildingComponentHitResult.GetActor());
 	if (FloorComponent)
 	{
 		//Checking for finalization - if Building Component already has something in Snap Slot.
 		if (FloorComponent->FrontCenterAttachment != nullptr)
 		{
-			//If slot is occupied, construct cant be finalized.
-			BuildableProxyInstance->bCanBuildableBeFinalized = false;
-			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-			MoveBuildable(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, 
-			FRotator::ZeroRotator);
+			MakeBuildableNotFinalizable(BuildableProxyInstance);
+			
+			MoveBuildable(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, FRotator::ZeroRotator);
 		}
 		else
 		{
-			//Moving to the Buildable to the correct location.
-			MoveBuildable(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, 
-			FRotator::ZeroRotator);
-			BuildableProxyInstance->bCanBuildableBeFinalized = true;
-			MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
+			MoveBuildable(FloorComponent->FrontCenterSnapPoint->GetComponentLocation(), BuildableProxyInstance, FRotator::ZeroRotator);
+
+			MakeBuildableFinalizable(BuildableProxyInstance);
 		}
 	}
 	else
 	{
 		//If the Hit Actor is not a Floor Component, we move the Proxy to the Hit Location & set to not Finalizable.
 		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
-		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-		BuildableProxyInstance->bCanBuildableBeFinalized = false;
+		
+		MakeBuildableNotFinalizable(BuildableProxyInstance);
 	}
 }
 
 void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
-	/*Classes Using this:
+	/*
+	 *Classes Using this:
 	 * Teleporter
 	 */
-	// CHeck FirstHitBuildingComponent Actor and Ensure it's a floor.
+	
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(FirstHitBuildingComponentHitResult.GetActor());
 	if (FloorComponent)
 	{
@@ -1412,8 +1281,9 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 	else
 	{
 		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
-		MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-		BuildableProxyInstance->bCanBuildableBeFinalized = false;
+		/*MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
+		BuildableProxyInstance->bCanBuildableBeFinalized = false;*/
+		MakeBuildableNotFinalizable(BuildableProxyInstance);
 	}
 }
 
@@ -1429,42 +1299,41 @@ void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildi
 			if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Vertical)
 			{
 				USceneComponent* BCSnapComponent = GetClosestFaceSnapPoint(FirstHitBuildingComponentHitResult);
-				//UE_LOG(LogTemp, Warning, TEXT("Closest Ramp Snap Point: %s"), *BCSnapComponent->GetName());
-				// Snap Ramps Vertical Snap to the Building Components Vertical Center Snap
+				
 				FVector RampSnapLocation = ActiveRampComponentProxy->VerticalCenterSnap->GetComponentLocation();
 				if (BCSnapComponent)
 				{
 					FRotator SnapRotation = BCSnapComponent->GetComponentRotation();
+					
 					ActiveRampComponentProxy->SetActorRotation(SnapRotation);
+
 					FVector BCSnapLocation = BCSnapComponent->GetComponentLocation();
-					//Finding the Difference between the location of the Ramps Center Snap and the Building Components Center Snap
-					//Target Location Minus Current Location
+
 					FVector OffsetVector = BCSnapLocation - RampSnapLocation;
-					//Moving the Ramp to the Building Components Center Snap
+	
 					ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
 				}
 				MakeBuildableFinalizable(ActiveRampComponentProxy);
-				/*MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
-				ActiveRampComponentProxy->bCanBuildableBeFinalized = true;*/
+
 			}
 			else if (BuildingComponent->BuildingOrientation == EBuildingComponentOrientation::Horizontal)
 			{
 				// Snap Ramps Horizontal Snap to the Building Components Horizontal Center Snap
 				FVector RampHorizontalCenterSnap = ActiveRampComponentProxy->HorizontalCenterSnap->GetComponentLocation();
+				
 				FVector HitBuildingCenterSnap = BuildingComponent->CenterSnap->GetComponentLocation();
-				FVector OffsetVector = HitBuildingCenterSnap - RampHorizontalCenterSnap;
-				ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
-				/*MakeMaterialHoloColor(ActiveRampComponentProxy, BlueHoloMaterial);
-				ActiveRampComponentProxy->bCanBuildableBeFinalized = true;*/
-				MakeBuildableFinalizable(ActiveRampComponentProxy);
 
+				FVector OffsetVector = HitBuildingCenterSnap - RampHorizontalCenterSnap;
+
+				ActiveRampComponentProxy->SetActorLocation(ActiveRampComponentProxy->GetActorLocation() + OffsetVector);
+
+				MakeBuildableFinalizable(ActiveRampComponentProxy);
 			}
 		}
 		else //Hit but not a building Component that is snappable.
 		{
 			ActiveRampComponentProxy->SetActorLocation(FirstHitBuildingComponentHitResult.ImpactPoint);
-			/*MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-			ActiveRampComponentProxy->bCanBuildableBeFinalized = false;*/
+
 			MakeBuildableFinalizable(ActiveRampComponentProxy);
 		}
 
@@ -1474,6 +1343,70 @@ void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildi
 			MakeBuildableNotFinalizable(ActiveRampComponentProxy);
 		}
 	}
+}
+
+// Returns the closest snap location based on the impact point of the raycast for the building component.
+FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
+	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponentProxy)
+{
+	// Default Snap Data is facing the player at the impact point
+	FBuildablePlacementData TrapSnapData;
+	TrapSnapData.TrapLocation = ImpactPoint;
+	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
+	//TrapSnapData.TrapRotation.Yaw += 90;
+
+	DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 12, FColor::Red, false, 0.1f, 0, 1.0f);
+	if (BuildingComponent->FrontCenterSnapPoint && BuildingComponent->BackCenterSnapPoint)
+	{
+		/* Getting Distance from impact point to the closest scene component
+		 * that would always give the side of the wall/floor/ceiling's Snap location
+		 */
+		FVector FrontTrapSnapLocation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetLocation();
+		//FrontTrapSnapLocation.Z -= 200.f;
+		FVector BackTrapSnapLocation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetLocation();
+		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
+		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Length to Front Snap: %f. Length to Back Snap: %f."), LengthToFrontTrapSnap, LengthToBackTrapSnap);
+
+		if (LengthToFrontTrapSnap < LengthToBackTrapSnap)
+		{
+			//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
+			if (BuildingComponent->FrontCenterAttachment == nullptr)
+			{
+				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
+				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
+				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Front Snap."));
+			}
+			else
+			{
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
+			}
+		}
+		else
+		{
+			if (BuildingComponent->BackCenterAttachment == nullptr)
+			{
+				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
+				TrapSnapData.TrapLocation = BackTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
+				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Back Snap."));
+			}
+			else
+			{
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+			}
+		}
+	}
+	else
+	{
+		TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+	}
+	return TrapSnapData;
 }
 
 

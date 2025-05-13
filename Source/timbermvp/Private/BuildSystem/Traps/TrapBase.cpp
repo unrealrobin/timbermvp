@@ -29,7 +29,6 @@ void ATrapBase::BeginPlay()
 	Super::BeginPlay();
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATrapBase::HitBoxBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATrapBase::HitBoxEndOverlap);
-	OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
 }
 
 void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
@@ -88,15 +87,6 @@ void ATrapBase::HandleDeletionByBuildingComponent()
 	SpawnLootInRange(BuildableCost.CostOfParts, BuildableCost.CostOfMechanisms, BuildableCost.CostOfUniques);
 
 	Destroy();
-}
-
-void ATrapBase::SetCanTrapBeFinalized(bool bCanTrapBeFinalized)
-{
-	if (bCanTrapBeFinalized != CanTrapBeFinalized)
-	{
-		CanTrapBeFinalized = bCanTrapBeFinalized;
-		OnTrapFinalizationChange.Broadcast(CanTrapBeFinalized);
-	}
 }
 
 void ATrapBase::HitBoxBeginOverlap(

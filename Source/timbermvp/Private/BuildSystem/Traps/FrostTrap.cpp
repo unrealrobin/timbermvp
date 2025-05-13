@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries. 
 
 
 #include "BuildSystem/Traps/FrostTrap.h"
@@ -20,8 +20,6 @@ AFrostTrap::AFrostTrap()
 	FrostTrapVentMesh = CreateDefaultSubobject<UStaticMeshComponent>("Frost Trap Vent");
 	FrostTrapVentMesh->SetupAttachment(TrapBaseStaticMesh);
 	FrostTrapVentMesh->SetCollisionProfileName(TEXT("BuildableBlockEverything"));
-
-	TrapType = ETrapType::FrostTrap;
 
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapEndOverlap);

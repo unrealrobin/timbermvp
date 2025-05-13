@@ -21,15 +21,16 @@ struct FBuildablePlacementData
 {
 	GENERATED_BODY()
 
-	FBuildablePlacementData()
-		: TrapLocation(FVector::ZeroVector), TrapRotation(FRotator::ZeroRotator)
-	{
-	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Snap Data")
 	FVector TrapLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Trup Snap Data")
 	FRotator TrapRotation;
+	
+	FBuildablePlacementData()
+		: TrapLocation(FVector::ZeroVector), TrapRotation(FRotator::ZeroRotator)
+	{
+	}
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -82,9 +83,12 @@ protected:
 	/*Static Mesh Utilities*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component")
 	TArray<UStaticMeshComponent*> StaticMeshs;
+	
 	void GetStaticMeshComponents(AActor* BuildingComponentActor);
+	
 	UFUNCTION()
 	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
+	
 	void AddToBuildableAttachments(ABuildableBase* AttachingBuildable);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
 	UMaterial* RedHoloMaterial = nullptr;
@@ -146,8 +150,6 @@ public:
 	
 	FVector BuildingComponentImpactPoint;
 	
-	void RegisterTrapComponent(ATrapBase* TrapComponent);
-	
 	UFUNCTION()
 	FORCEINLINE void ClearStoredStaticMeshes() { StaticMeshs.Empty(); };
 	
@@ -158,7 +160,6 @@ public:
 	/*Building Component Placement Variables*/
 	FVector FinalSpawnLocation;
 	FRotator FinalSpawnRotation;
-	//FORCEINLINE void EmptyActiveBuildingComponent() { ActiveBuildingComponentProxy = nullptr; };
 
 	/*Getters & Setters*/
 	FORCEINLINE TSubclassOf<ABuildableBase> GetActiveBuildableClass() { return ActiveBuildableComponentClass; } ;

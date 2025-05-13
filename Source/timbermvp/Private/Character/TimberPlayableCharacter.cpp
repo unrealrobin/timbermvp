@@ -199,22 +199,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		
 		if (bHits && ActiveBuildableClass)
 		{
-			/* Hit Something/Anything */
 			//DrawDebugSphere(GetWorld(), HitResults[0].ImpactPoint, 10.f, 8, FColor::Red, false, 0.1f);
-			
-
-			/*
-			 * Call BuildSystemManager to HandleProxyPlacement
-			 * HandleProxyPlacement should then Handle:
-			 * 1. Finding the First HitBuildingComponent and Return it or return null if none found.
-			 *  a. Depending on the Buildable Type, this returned Building Component may need to be filtered. For example
-			 *  buildables that only snap to floors or only snap to walls etc.
-			 *  2. Depending on Valdity of FirstHitBuildingComponent, either:
-			 *  a. Move the Proxy to the Snap Location of the Building Component.
-			 *  b. Move proxy to Hit Location and Make it No Finalizable.
-			 */
-
-			//There is a Hit and We can Start the PlacementProcess.
 			BuildSystemManager->HandleProxyPlacement(HitResults, ActiveBuildableClass);
 		}
 		else //If the Raycast Hit Nothing
@@ -361,94 +346,6 @@ void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
 	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
 }
 
-/*void ATimberPlayableCharacter::SpawnMeleeWeapon()
-{
-	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
 
-	//Back UnEquipped Location
-	FTransform SocketWorldTransform = GetMesh()->GetSocketTransform("UnEquippedSwordSocket", RTS_World);
-	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
-	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
-	
-	//Spawn the Weapon
-	ATimberWeaponMeleeBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponMeleeBase>
-	(
-		RangedWeaponClass,
-		SocketWorldLocation,
-		SocketWorldRotation,
-		SpawnParams);
-	
-	if (SpawnedActor)
-	{
-		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-		RangedWeaponInstance = SpawnedActor;
-		UnEquipWeapon("UnEquippedSwordSocket", RangedWeaponInstance);
-		UE_LOG(LogTemp, Warning, TEXT("Player Character - Spawned the sword and Attached it to the Socket."))
-	}
-}
-
-void ATimberPlayableCharacter::SpawnRangedWeapon()
-{
-	//Logic Moved to COmbat COmponent
-	// Spawning and Attaching the Weapon to the Socket of Right Hand on Leeroy
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-
-	//Back UnEquipped Location
-	FTransform SocketWorldTransform = GetMesh()->GetSocketTransform("UnEquippedRifleSocket", RTS_World);
-	FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
-	FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
-	
-	//Spawn the Weapon
-	ATimberWeaponRangedBase* SpawnedActor = GetWorld()->SpawnActor<ATimberWeaponRangedBase>
-	(
-		WeaponThree,
-		SocketWorldLocation,
-		SocketWorldRotation,
-		SpawnParams);
-	
-	if (SpawnedActor)
-	{
-		//Set the Newly Spawned Weapon to the WeaponOneInstance and CurrentlyEquippedWeapon on Leeroy
-		WeaponThreeInstance = SpawnedActor;
-		UnEquipWeapon("UnEquippedRifleSocket", WeaponThreeInstance);
-		UE_LOG(LogTemp, Warning, TEXT("Player Character - Spawned the sword and Attached it to the Socket."))
-	}
-}*/
-
-/*void ATimberPlayableCharacter::SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon)
-{
-	CurrentlyEquippedWeapon = Weapon;
-}*/
-
-
-
-/*void ATimberPlayableCharacter::EquipWeapon(FName EquipSocketName, ATimberWeaponBase* WeaponToEquip)
-{
-	//Handles Actual Placement of Weapon into Hand Socket.
-	WeaponToEquip->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, EquipSocketName);
-}
-
-void ATimberPlayableCharacter::UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip)
-{
-	//Handles Actual Placement of Weapon into back socket.
-	WeaponToUnEquip->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, UnEquipSocketName);
-	if (Cast<ATimberWeaponRangedBase>(WeaponToUnEquip))
-	{
-		bIsRifleFullyEquipped = false;
-	}
-	else if (Cast<ATimberWeaponMeleeBase>(WeaponToUnEquip))
-	{
-		bIsSwordFullyEquipped = false;
-	}
-}
-
-void ATimberPlayableCharacter::UnEquipBothWeapons()
-{
-	UnEquipWeapon("UnEquippedSwordSocket", RangedWeaponInstance);
-	UnEquipWeapon("UnEquippedRifleSocket", Cast<ATimberWeaponBase>(WeaponThreeInstance));
-}*/
 
 

@@ -64,9 +64,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
 
-	/*Proxy*/
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Building Component")
-	bool bIsProxy = false;
+
 	
 	virtual void HandleDeletionOfBuildable() override;
 

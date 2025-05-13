@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries. 
 
 #pragma once
 
@@ -10,14 +10,6 @@
 class ATimberEnemyCharacter;
 class ATimberBuildingComponentBase;
 class UBoxComponent;
-
-UENUM(BlueprintType)
-enum class ETrapType : uint8
-{
-	SpikeTrap UMETA(DisplayName = "SpikeTrap"),
-	FrostTrap UMETA(DisplayName = "FrostTrap"),
-	Default UMETA(DisplayName = "Default"),
-};
 
 UENUM(BlueprintType)
 enum class EBuildingComponentTrapDirection : uint8
@@ -40,8 +32,8 @@ protected:
 
 	void DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
-	bool CanTrapBeFinalized = false;
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
+	bool CanTrapBeFinalized = false;*/
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
 	TArray<AActor*> InsideHitBoxArray;
@@ -58,8 +50,8 @@ public:
 	void HandleDeletionByBuildingComponent();
 
 	/*Delegates*/
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTrapFinalizationChange, bool, CanTrapBeFinalized);
-	FOnTrapFinalizationChange OnTrapFinalizationChange;
+	/*DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTrapFinalizationChange, bool, CanTrapBeFinalized);
+	FOnTrapFinalizationChange OnTrapFinalizationChange;*/
 	
 	/* Components */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
@@ -77,19 +69,13 @@ public:
 	/* Placement Utilities */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building Component")
 	ATimberBuildingComponentBase* TrapHoveredBuildingComponent = nullptr;
-	
-	/* ENUMS */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Components")
-	ETrapType TrapType = ETrapType::Default;
 
 	//TODO:: Work on Renaming this to be more General to Center Snap Buildable. 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
 	EBuildingComponentTrapDirection BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 
 	/* Getters / Setters */
-	FORCEINLINE bool GetCanTrapBeFinalized() const { return CanTrapBeFinalized; };
-	
-	void SetCanTrapBeFinalized(bool bCanTrapBeFinalized);
+	/*FORCEINLINE bool GetCanTrapBeFinalized() const { return CanTrapBeFinalized; };*/
 
 	/*Hit Area Utilities*/
 	/* Adds Enemies to the Inside Hit Box Array*/

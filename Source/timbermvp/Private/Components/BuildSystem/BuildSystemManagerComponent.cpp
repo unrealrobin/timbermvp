@@ -867,70 +867,6 @@ USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResul
 	return nullptr;
 }
 
-// Returns the closest snap location based on the impact point of the raycast for the building component.
-FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
-	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponentProxy)
-{
-	// Default Snap Data is facing the player at the impact point
-	FBuildablePlacementData TrapSnapData;
-	TrapSnapData.TrapLocation = ImpactPoint;
-	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
-	//TrapSnapData.TrapRotation.Yaw += 90;
-
-	DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 12, FColor::Red, false, 0.1f, 0, 1.0f);
-	if (BuildingComponent->FrontCenterSnapPoint && BuildingComponent->BackCenterSnapPoint)
-	{
-		/* Getting Distance from impact point to the closest scene component
-		 * that would always give the side of the wall/floor/ceiling's Snap location
-		 */
-		FVector FrontTrapSnapLocation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetLocation();
-		//FrontTrapSnapLocation.Z -= 200.f;
-		FVector BackTrapSnapLocation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetLocation();
-		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
-		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
-
-		//UE_LOG(LogTemp, Warning, TEXT("Length to Front Snap: %f. Length to Back Snap: %f."), LengthToFrontTrapSnap, LengthToBackTrapSnap);
-
-		if (LengthToFrontTrapSnap < LengthToBackTrapSnap)
-		{
-			//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
-			if (BuildingComponent->FrontCenterAttachment == nullptr)
-			{
-				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
-				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
-				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Front Snap."));
-			}
-			else
-			{
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
-			}
-		}
-		else
-		{
-			if (BuildingComponent->BackCenterAttachment == nullptr)
-			{
-				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
-				TrapSnapData.TrapLocation = BackTrapSnapLocation;
-				TrapSnapData.TrapRotation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
-				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Back Snap."));
-			}
-			else
-			{
-				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-			}
-		}
-	}
-	else
-	{
-		TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
-	}
-	return TrapSnapData;
-}
-
 void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(BuildableProxyInstance);
@@ -1210,15 +1146,21 @@ void UBuildSystemManagerComponent::HandleCenterSnapPlacement(FHitResult FirstHit
 			ActiveCenterSnapBuildable->TrapHoveredBuildingComponent = BuildingComponent;
 
 			//Handles Snapping to Closest Snap Point. Selecting the Correct Snap Slot on the Building Component Wall or Floor. Returns an object with Placement Data.
-			FBuildablePlacementData PlacementData = GetTrapSnapTransform(FirstHitBuildingComponentHitResult.ImpactPoint, 
-			BuildingComponent, 
-			ActiveCenterSnapBuildable);
+			FBuildablePlacementData PlacementData = GetTrapSnapTransform(FirstHitBuildingComponentHitResult.ImpactPoint, BuildingComponent, ActiveCenterSnapBuildable);
 		
 			MoveBuildable(FVector_NetQuantize(PlacementData.TrapLocation),
 				ActiveCenterSnapBuildable,
 				PlacementData.TrapRotation);
 
-			MakeBuildableFinalizable(ActiveCenterSnapBuildable);
+			//If set to Trap Direction::Default, it means both front and back snap locations were occupied.
+			if (ActiveCenterSnapBuildable->BuildingComponentTrapDirection == EBuildingComponentTrapDirection::Default)
+			{
+				MakeBuildableNotFinalizable(BuildableProxyInstance);
+			}
+			else
+			{
+				MakeBuildableFinalizable(ActiveCenterSnapBuildable);
+			}
 			return;
 		}
 		
@@ -1401,6 +1343,70 @@ void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildi
 			MakeBuildableNotFinalizable(ActiveRampComponentProxy);
 		}
 	}
+}
+
+// Returns the closest snap location based on the impact point of the raycast for the building component.
+FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
+	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponentProxy)
+{
+	// Default Snap Data is facing the player at the impact point
+	FBuildablePlacementData TrapSnapData;
+	TrapSnapData.TrapLocation = ImpactPoint;
+	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
+	//TrapSnapData.TrapRotation.Yaw += 90;
+
+	DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 12, FColor::Red, false, 0.1f, 0, 1.0f);
+	if (BuildingComponent->FrontCenterSnapPoint && BuildingComponent->BackCenterSnapPoint)
+	{
+		/* Getting Distance from impact point to the closest scene component
+		 * that would always give the side of the wall/floor/ceiling's Snap location
+		 */
+		FVector FrontTrapSnapLocation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetLocation();
+		//FrontTrapSnapLocation.Z -= 200.f;
+		FVector BackTrapSnapLocation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetLocation();
+		float LengthToFrontTrapSnap = FVector::Dist(ImpactPoint, FrontTrapSnapLocation);
+		float LengthToBackTrapSnap = FVector::Dist(ImpactPoint, BackTrapSnapLocation);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Length to Front Snap: %f. Length to Back Snap: %f."), LengthToFrontTrapSnap, LengthToBackTrapSnap);
+
+		if (LengthToFrontTrapSnap < LengthToBackTrapSnap)
+		{
+			//If the FrontSnap is empty, assign the TrapComponent to the FrontSnap, else do not snap to component.
+			if (BuildingComponent->FrontCenterAttachment == nullptr)
+			{
+				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
+				TrapSnapData.TrapLocation = FrontTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->FrontCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Front;
+				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Front Snap."));
+			}
+			else
+			{
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+				GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, "FrontSnap Taken.");
+			}
+		}
+		else
+		{
+			if (BuildingComponent->BackCenterAttachment == nullptr)
+			{
+				//The actual Scene Component Representing to Snap Location should have the correct Rotation.
+				TrapSnapData.TrapLocation = BackTrapSnapLocation;
+				TrapSnapData.TrapRotation = BuildingComponent->BackCenterSnapPoint->GetComponentTransform().GetRotation().Rotator();
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Back;
+				//UE_LOG(LogTemp, Warning, TEXT("Attacking Center Snap Buildable to Back Snap."));
+			}
+			else
+			{
+				TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+			}
+		}
+	}
+	else
+	{
+		TrapComponentProxy->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
+	}
+	return TrapSnapData;
 }
 
 

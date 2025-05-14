@@ -2,12 +2,17 @@
 
 
 #include "BuildSystem/BuildableBase.h"
+
+#include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Components/StatusEffect/StatusEffectHandlerComponent.h"
+#include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
 #include "UObject/ConstructorHelpers.h"
 
 
+class ATimberEnemyCharacter;
 // Sets default values
 ABuildableBase::ABuildableBase()
 {
@@ -73,6 +78,20 @@ FGuid ABuildableBase::GetGUID()
 void ABuildableBase::SetGUID(FGuid NewGUID)
 {
 	GUID = NewGUID;
+}
+
+void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
+{
+	/*
+	 * Used for Traps and Constructs that add effects to enemies.
+	 */
+	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(EnemyActor);
+	if (EnemyCharacter && EnemyCharacter->StatusEffectHandler)
+	{
+		
+		EnemyCharacter->StatusEffectHandler->AddStatusEffectToComponent(Effect);
+		UE_LOG(LogTemp, Warning, TEXT("Added Effect to Enemy: %s"), *EnemyCharacter->GetName());
+	}
 }
 
 void ABuildableBase::SpawnLootInRange(int NumberOfParts, int NumberOfMechanisms, int NumberOfUniques)

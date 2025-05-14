@@ -189,4 +189,3 @@ private:
 	UPROPERTY()
 	float TutorialBuildsPlaced = 0;
 };
-

@@ -870,24 +870,27 @@ USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResul
 void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(BuildableProxyInstance);
+
+	//This Floor Component Section just ensures the placed component is a floor component that we dont place it on the Floor of the lab.
 	if (FloorComponent)
 	{
-		//If the Proxy is a floor component hovering over any Environment Component, We set it to Not Finalizable and make it red.
-		if (Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor())->BuildingComponentType == EBuildingComponentType::Environment)
+		if (Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor()))
 		{
-			MakeBuildableNotFinalizable(BuildableProxyInstance);
-			/*BuildableProxyInstance->bCanBuildableBeFinalized = false;
-			MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);*/
-			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, FloorComponent);
-			return;
-		}
+			if (Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor())->BuildingComponentType == EBuildingComponentType::Environment)
+			{
+				MakeBuildableNotFinalizable(BuildableProxyInstance);
+				/*BuildableProxyInstance->bCanBuildableBeFinalized = false;
+				MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);*/
+				MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, FloorComponent);
+				return;
+			}
 
-		MakeBuildableFinalizable(BuildableProxyInstance);
-		//MakeMaterialHoloColor(BuildableProxyInstance, BlueHoloMaterial);
+			MakeBuildableFinalizable(BuildableProxyInstance);
+		}
 	}
 
 	//Using this just as a check for a Valid Hit Result
-	if (FirstHitBuildingComponentHitResult.GetActor() && Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor()) && FirstHitBuildingComponentHitResult.GetComponent())
+	if (Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor()))
 	{
 		/*Data for First Hit Building Component*/
 		ATimberBuildingComponentBase* FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
@@ -910,7 +913,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		{
 			/*Simple Move to Location*/
 			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, ActiveBuildingComponentProxy);
-			//ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
+			
 			MakeBuildableNotFinalizable(ActiveBuildingComponentProxy);
 		}
 		

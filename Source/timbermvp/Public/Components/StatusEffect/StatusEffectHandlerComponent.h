@@ -33,6 +33,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	void HandleDotEffects(FStatusEffect& StatusEffect, float DeltaTime);
+	void HandleMetaRemovals(FStatusEffect& StatusEffect);
 
 	/*
 	 * Checks if the Tag (EffectIdTag) already exists in the StatusEffectIdTagContainer.
@@ -42,7 +44,7 @@ protected:
 	/*
 	 * Checks if the Effect is stackable and Increments the stacks of the effect if possible.
 	 */
-	void HandleIsStackableEffect(FStatusEffect& Effect);
+	void HandleIsStackableEffect(FStatusEffect* Effect);
 
 	/*
 	 * Handle Slow Tags
@@ -55,6 +57,7 @@ public:
 	
 	void RemoveEffectFromComponent(const FStatusEffect& Effect);
 	void RemoveMultipleEffectsFromComponent(TArray<FStatusEffect>& Effects);
+	void ResetEffectDuration(FStatusEffect& Effect);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
 	ATimberEnemyCharacter* OwningEnemyCharacter = nullptr;

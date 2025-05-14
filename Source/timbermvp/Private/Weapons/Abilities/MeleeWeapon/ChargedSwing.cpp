@@ -25,7 +25,7 @@ void UChargedSwing::Execute(FAbilityContext Context)
 	//Cannot Primary Ability Melee during animation
 	Context.CombatComponent->bCanMeleeAttack = false;
 
-	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "WindUp", .5, true);
+	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "WindUp", 1, true);
 	CurrentMontageStage = EMontageStage::WindUp;
 }
 

@@ -11,6 +11,7 @@
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Data/DataAssets/LootTable.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -27,23 +28,16 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
+	
+	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 
 	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
-
-	//Remove if no issues with Invis Wall - Presets Fixed this issue.
-	/*if (GetCapsuleComponent())
-	{
-		//Should Ignore the invisible wall in the lab doors.
-		GetCapsuleComponent()->SetCollisionResponseToChannel(UCollisionProfile::Get()->ConvertToCollisionChannel
-		(false, *"InvisWall"), ECR_Ignore);
-	}*/
 }
 
 void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//Enemies can walk up slopes of 56 degrees.
+	
 	GetCharacterMovement()->SetWalkableFloorAngle(56.0f);
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 }
@@ -51,8 +45,6 @@ void ATimberEnemyCharacter::BeginPlay()
 void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-
-	//Cast<ATimberAiControllerBase>(GetController())->BrainComponent->StopLogic("EndPlay");
 }
 
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
@@ -98,7 +90,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 		//Drops Any Loot set on the Characters Loot Drop
 		OnDeath_DropLoot();
 	}
-	else
+	else if (DamageInstigator)
 	{
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamageInstigator, DamageAmount, DamageAccumulatedDuringWindow);
 		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
@@ -224,8 +216,6 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 	}
 }
 
-
-
 void ATimberEnemyCharacter::HandleEnemyDeath()
 {
 	HandleWeaponDestruction();
@@ -277,12 +267,6 @@ void ATimberEnemyCharacter::PlayMontageAtRandomSection(UAnimMontage* Montage)
 		PlayAnimMontage(Montage, 1, Montage->GetSectionName(RandomSection));
 	}
 	
-}
-
-//Not of use yet. Should be used to increase stats on enemies based on the wave Number. Health/Damage/Speed
-void ATimberEnemyCharacter::UpdateCurrentWaveNumber(float CurrentWaveNumber)
-{
-	CurrentWave = CurrentWaveNumber;
 }
 
 ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()

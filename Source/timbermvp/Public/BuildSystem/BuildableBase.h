@@ -9,6 +9,9 @@
 #include "Loot/EnemyLootDropBase.h"
 #include "BuildableBase.generated.h"
 
+struct FStatusEffect;
+class UStatusEffectBase;
+
 USTRUCT(BlueprintType)
 struct FBuildableCost
 {
@@ -125,5 +128,7 @@ public:
 	
 	UFUNCTION()
 	void SetGUID(FGuid NewGUID);
+
+	void AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect);
 	
 };

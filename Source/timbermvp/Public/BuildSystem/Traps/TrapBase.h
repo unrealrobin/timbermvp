@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "TrapBase.generated.h"
 
+class UStatusEffectBase;
 class ATimberEnemyCharacter;
 class ATimberBuildingComponentBase;
 class UBoxComponent;
@@ -26,6 +27,9 @@ class TIMBERMVP_API ATrapBase : public ABuildableBase
 
 public:
 	ATrapBase();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
+	UStatusEffectBase* StatusEffectDataAsset;
 
 protected:
 	virtual void BeginPlay() override;

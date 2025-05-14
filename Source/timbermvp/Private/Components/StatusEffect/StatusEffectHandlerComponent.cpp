@@ -11,6 +11,14 @@ UStatusEffectHandlerComponent::UStatusEffectHandlerComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Effect)
+{
+	if (Effect.InitialDamage > 0.f)
+	{
+		OwningEnemyCharacter->TakeDamage(Effect.InitialDamage, nullptr);
+	}
+}
+
 void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Effect)
 {
 	//Does this unique id already exist in the container?
@@ -19,18 +27,18 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 	if (!bTagExists) //Doesn't already exist
 	{
 		StatusEffectIdTagContainer.AddTag(Effect.EffectIdTag);
+		ActiveStatusEffects.Add(Effect);
+		/*UE_LOG(LogTemp, Warning, TEXT("Effect Tag Added to Status Effect ID Container."));
+		UE_LOG(LogTemp, Warning, TEXT("StatusEffectIdTagContainer: %d"), StatusEffectIdTagContainer.Num());
+		UE_LOG(LogTemp, Warning, TEXT("ActiveStatusEffects: %d"), ActiveStatusEffects.Num());*/
 
-		/*Handle Any Initial Damage*/
-		if (Effect.InitialDamage > 0.f)
-		{
-			OwningEnemyCharacter->TakeDamage(Effect.InitialDamage, nullptr);
-
-			//Initializing TimeRemaining to Start at Effect Duration
-			Effect.TimeRemaining = Effect.Duration;
-		}
-
-		HandleSlowTags(Effect, 0.5f); //50% slower
+		//Initializing TimeRemaining to Start at Effect Duration
+		Effect.TimeRemaining = Effect.Duration;
 		
+		/*Handle Any Initial Damage*/
+		HandleEffectInitialDamage(Effect);
+		
+		HandleSlowTags(Effect, 0.5f); //50% slower
 	}
 	else
 	{
@@ -71,14 +79,15 @@ void UStatusEffectHandlerComponent::HandleIsStackableEffect(FStatusEffect& Effec
 	}
 }
 
-void UStatusEffectHandlerComponent::HandleSlowTags(FStatusEffect& Effect, float MaxWalkSpeedBaseMultiplier)
+void UStatusEffectHandlerComponent::HandleSlowTags(const FStatusEffect& Effect, float MaxWalkSpeedBaseMultiplier)
 {
 	/*Handle Slow Tags*/
 	for (FGameplayTag Tag : Effect.TypeTagContainer)
 	{
 		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow"))
 		{
-			OwningEnemyCharacter->GetCharacterMovement()->MaxWalkSpeed *= MaxWalkSpeedBaseMultiplier; //50% slower
+			OwningEnemyCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningEnemyCharacter->MaxWalkSpeedBase *  MaxWalkSpeedBaseMultiplier; 
+			UE_LOG(LogTemp, Warning, TEXT("Slowed Enemy: %s"), *OwningEnemyCharacter->GetName());
 		}
 	}
 }
@@ -87,44 +96,34 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	for (FStatusEffect& Effect : ActiveStatusEffects)
+	for (FStatusEffect& StatusEffect : ActiveStatusEffects)
 	{
 		/*If the effect still has time remaining*/
-		if (Effect.TimeRemaining > 0.f)
+		if (StatusEffect.TimeRemaining > 0.f)
 		{
 			//Incrementing
-			Effect.TimeRemaining -= DeltaTime;
-
-			//Handle Any Slow Tags
-			if (Effect.TypeTagContainer.Num() > 0)
-			{
-				for (FGameplayTag Tag: Effect.TypeTagContainer )
-				{
-					//Here we apply any Incremental Effects like DOTs or Corrosive Damage to be applied.
-				}
-			}
-
+			StatusEffect.TimeRemaining -= DeltaTime;
 			//Handle Any DOT Tags
-			
+			//Logic...
 		}
 		else
 		{
-			RemoveEffectFromComponent(Effect);
+			UE_LOG(LogTemp, Warning, TEXT("Removing Effect."));
+			StagedForRemoval.Add(StatusEffect);
 		}
-		
 	}
+
+	//Handles Removal of all Staged Removal Effects
+	RemoveMultipleEffectsFromComponent(StagedForRemoval);
 }
 
 void UStatusEffectHandlerComponent::RemoveEffectFromComponent(const FStatusEffect& Effect)
 {
 	//Check the array for this effect and Remove it.
 
-	//Remove Any Movement Speed Incumberances applied during effect.
-	//HandleSlowTags(Effect, 1.0f); //Back to normal speed
-
-
+	//Remove Any Movement Speed Encumbrances applied during effect.
+	HandleSlowTags(Effect, 1.0f); //Back to normal speed
 	
-	//ActiveStatusEffects.Remove(Effect);
 	ActiveStatusEffects.RemoveAll([Effect](const FStatusEffect& ActiveEffect)
 	{
 		return ActiveEffect.EffectIdTag == Effect.EffectIdTag;
@@ -133,6 +132,16 @@ void UStatusEffectHandlerComponent::RemoveEffectFromComponent(const FStatusEffec
 	//Remove The Unique Id Tag from the Tag Container.
 	StatusEffectIdTagContainer.RemoveTag(Effect.EffectIdTag);
 	
+}
+
+void UStatusEffectHandlerComponent::RemoveMultipleEffectsFromComponent(TArray<FStatusEffect>& Effects)
+{
+	for (FStatusEffect& StatusEffect : Effects)
+	{
+		RemoveEffectFromComponent(StatusEffect);
+	}
+
+	StagedForRemoval.Empty();
 }
 
 FStatusEffect* UStatusEffectHandlerComponent::FindEffectByIdTag(const FGameplayTag& Tag)

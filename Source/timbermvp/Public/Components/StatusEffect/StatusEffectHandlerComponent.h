@@ -20,6 +20,7 @@ class TIMBERMVP_API UStatusEffectHandlerComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UStatusEffectHandlerComponent();
+	void HandleEffectInitialDamage(FStatusEffect& Effect);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status Effects")
 	TArray<FStatusEffect> ActiveStatusEffects;
@@ -43,19 +44,24 @@ protected:
 	 */
 	void HandleIsStackableEffect(FStatusEffect& Effect);
 
-	/* Handle Slow Tags*/
-	void HandleSlowTags(FStatusEffect& Effect, float MaxWalkSpeedBaseMultiplier);
+	/*
+	 * Handle Slow Tags
+	 */
+	void HandleSlowTags(const FStatusEffect& Effect, float MaxWalkSpeedBaseMultiplier);
 
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void RemoveEffectFromComponent(const FStatusEffect& Effect);
+	void RemoveMultipleEffectsFromComponent(TArray<FStatusEffect>& Effects);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
 	ATimberEnemyCharacter* OwningEnemyCharacter = nullptr;
 
 private:
+	
+	TArray<FStatusEffect> StagedForRemoval;
 
 	FStatusEffect* FindEffectByIdTag(const FGameplayTag& Tag);
 };

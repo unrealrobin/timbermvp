@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"

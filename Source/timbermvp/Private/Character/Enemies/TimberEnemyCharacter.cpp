@@ -39,7 +39,8 @@ void ATimberEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	GetCharacterMovement()->SetWalkableFloorAngle(56.0f);
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeedBase;
 }
 
 void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)

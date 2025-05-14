@@ -55,8 +55,6 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 			}
 		}
 	}
-
-	
 }
 
 // Called every frame

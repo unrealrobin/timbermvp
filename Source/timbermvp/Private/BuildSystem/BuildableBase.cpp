@@ -90,7 +90,7 @@ void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
 	{
 		
 		EnemyCharacter->StatusEffectHandler->AddStatusEffectToComponent(Effect);
-		
+		UE_LOG(LogTemp, Warning, TEXT("Added Effect to Enemy: %s"), *EnemyCharacter->GetName());
 	}
 }
 

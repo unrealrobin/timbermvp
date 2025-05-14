@@ -43,27 +43,12 @@ void AFrostTrap::HandleFrostTrapBeginOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-
-	
 	AddEffectToEnemy(OtherActor, StatusEffectDataAsset->StatusEffect);
-	
-	//TODO:: Remove this, effect now moved to StatusEffectHandlerComponent.
-	/* Slow Down Enemy Robots.*/
-	/*ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(OtherActor);
-	if(EnemyCharacter)
-	{
-		//Adjust Enemy Max Walk/Run Speed.
-		EnemyCharacter->GetCharacterMovement()->MaxWalkSpeed = 100.f;
-	}*/
 }
 
 void AFrostTrap::HandleFrostTrapEndOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	/*ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(OtherActor);
-	if(EnemyCharacter)
-	{
-		EnemyCharacter->GetCharacterMovement()->MaxWalkSpeed = 400.f;
-	}*/
+	
 }
 

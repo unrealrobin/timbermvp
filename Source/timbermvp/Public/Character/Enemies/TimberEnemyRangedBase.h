@@ -16,6 +16,7 @@ class TIMBERMVP_API ATimberEnemyRangedBase : public ATimberEnemyCharacter
 
 public:
 	ATimberEnemyRangedBase();
+	
 	virtual void Tick(float DeltaTime) override;
 
 protected:

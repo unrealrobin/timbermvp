@@ -89,9 +89,7 @@ public:
 	void HandleEnemyDeath();
 	
 	void HandleWeaponDestruction();
-
 	
-
 	/*Sweep / Traces */
 	UFUNCTION(BlueprintCallable)
 	void SweepForActor(TSubclassOf<AActor> ActorToSweepFor, float SphereRadius = 100.0f, float DistanceToCheck = 100.0f);

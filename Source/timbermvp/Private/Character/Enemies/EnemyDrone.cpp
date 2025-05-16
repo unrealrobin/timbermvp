@@ -13,6 +13,7 @@
 #include "Environment/EnemyDroneSplinePath.h"
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Weapons/Projectiles/DroneProjectile.h"
 
 
 // Sets default values
@@ -132,21 +133,27 @@ void AEnemyDrone::ClearCurrentTarget()
 
 void AEnemyDrone::ShootTarget()
 {
+	//Checking bIsDead because there is a time in between being destroyed and loosing all life.
 	if (CurrentTarget && !bIsDead)
 	{
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;
 		FVector Location = ProjectileSpawnSceneComponent->GetComponentLocation();
 
-		//Adding some precision  offset to the projectile spawn rotation.
+		//Adding some precision offset to the projectile spawn rotation.
 		FRotator Rotation = (CurrentTarget->GetActorLocation() - Location).Rotation();
 		float OffsetPercent = FMath::RandRange(-1,1);
 		float OffsetAmount = 2.0f;
 		Rotation.Yaw += OffsetAmount * OffsetPercent;
 		Rotation.Pitch += OffsetAmount * OffsetPercent;
 		Rotation.Roll += OffsetAmount * OffsetPercent;
+
+		FTransform SpawnTransform = FTransform(Rotation, Location);
 		
-		AActor* SpawnedProjectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, Location, Rotation, SpawnParams);
+		ADroneProjectile* SpawnedProjectile = GetWorld()->SpawnActorDeferred<ADroneProjectile>(ProjectileClass, SpawnTransform, this);
+
+		UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTransform);
+		
 		if (SpawnedProjectile)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Drone Projectile Spawned."));

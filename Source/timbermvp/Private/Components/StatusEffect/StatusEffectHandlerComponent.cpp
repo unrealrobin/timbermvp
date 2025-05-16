@@ -33,10 +33,10 @@ void UStatusEffectHandlerComponent::HandleDotEffects(FStatusEffect& StatusEffect
 			StatusEffect.TickAccumulator += DeltaTime;
 			if (StatusEffect.TickAccumulator >= StatusEffect.TickInterval)
 			{
-				//Stacks multiple the Damage per Tick.
+				//Stacks multiply the Damage per Tick.
 				float TotalDamage = StatusEffect.DamagePerTick * StatusEffect.CurrentStacks;
 				OwningEnemyCharacter->TakeDamage(TotalDamage, nullptr);
-				UE_LOG(LogTemp, Warning, TEXT("Applied Total Damage Dot: %f"), TotalDamage);
+				//UE_LOG(LogTemp, Warning, TEXT("Applied Total Damage Dot: %f"), TotalDamage);
 				//Resetting the Tick Accumulator
 				StatusEffect.TickAccumulator = 0;
 			}
@@ -56,7 +56,7 @@ void UStatusEffectHandlerComponent::HandleMetaRemovals(FStatusEffect& StatusEffe
 				FGameplayTag TagToCompare = FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow");
 				if (CheckedStatusEffect.TypeTagContainer.HasTag(TagToCompare))
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Removed a Slow Effect."));
+					//UE_LOG(LogTemp, Warning, TEXT("Removed a Slow Effect."));
 					StagedForRemoval.Add(CheckedStatusEffect);
 				}
 			}
@@ -83,7 +83,7 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Removing Effect."));
+			//UE_LOG(LogTemp, Warning, TEXT("Removing Effect."));
 			StagedForRemoval.Add(StatusEffect);
 		}
 	}
@@ -119,7 +119,7 @@ void UStatusEffectHandlerComponent::HandleSlowTags(const FStatusEffect& Effect, 
 		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow"))
 		{
 			OwningEnemyCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningEnemyCharacter->MaxWalkSpeedBase *  MaxWalkSpeedBaseMultiplier; 
-			UE_LOG(LogTemp, Warning, TEXT("Slowed Enemy: %s"), *OwningEnemyCharacter->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Slowed Enemy: %s"), *OwningEnemyCharacter->GetName());
 		}
 	}
 }

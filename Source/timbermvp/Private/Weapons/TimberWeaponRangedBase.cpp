@@ -119,6 +119,7 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 	{
 		if (WeaponOwner && GetWorld())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Enemy Ranged Weapon Owner: %s"), *WeaponOwner->GetName());
 			if (ProjectileType)
 			{
 				//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile All Variables Loaded");
@@ -128,25 +129,27 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 				FRotator ControllerDirection = Cast<ATimberCharacterBase>(WeaponOwner)->GetController()->GetControlRotation();
 				FRotator RandomAimOffset = FRotator(
 					FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy), FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy), FMath::RandRange(-1 * AIWeaponAccuracy, AIWeaponAccuracy));
+				FTransform DeferredSpawnTransform = FTransform(ControllerDirection + RandomAimOffset, ProjectileSpawnLocation);
 
 				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = this; //Weapon is owner of the projectile.
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 				
-				ATimberProjectileBase* Projectile = GetWorld()->SpawnActor<ATimberProjectileBase>(
-					ProjectileType, ProjectileSpawnLocation, ControllerDirection + RandomAimOffset);
-
-				if (Projectile)
+				ATimberProjectileBase* EnemyProjectile = GetWorld()->SpawnActorDeferred<ATimberProjectileBase>(ProjectileType, DeferredSpawnTransform, this);
+				
+				UGameplayStatics::FinishSpawningActor(EnemyProjectile, DeferredSpawnTransform);
+				
+				if (EnemyProjectile)
 				{
+					UE_LOG(LogTemp, Warning, TEXT("Weapon Owner for Enemy Ranged Weapon: %s"), *this->GetOwner()->GetName());
+					UE_LOG(LogTemp, Warning, TEXT("Projectile Owner for Enemy Ranged Weapon: %s"), *EnemyProjectile->GetOwner()->GetName());
+					//Projectile->SetOwner(this);
 					//Cooldown for AI Automatic Fire.
 					GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, &ATimberWeaponRangedBase::ResetFiringCooldown, TimeBetweenProjectiles, false);
 					bIsFireOnCooldown = true;
 					
 					UGameplayStatics::PlaySoundAtLocation(this, FiringSound, ProjectileSpawnLocation);
 					
-					Projectile->SetOwner(this);
 					
-					//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Green, "Projectile Spawned.");
 				}
 			}
 		}

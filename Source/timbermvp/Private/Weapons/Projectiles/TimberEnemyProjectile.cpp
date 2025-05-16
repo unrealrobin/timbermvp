@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "Weapons/Projectiles/TimberEnemyProjectile.h"
@@ -6,6 +6,7 @@
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Weapons/TimberWeaponRangedBase.h"
 
 
 // Sets default values
@@ -100,28 +101,17 @@ void ATimberEnemyProjectile::HandleOverlap(
 
 bool ATimberEnemyProjectile::IsActorCurrentTarget(AActor* OtherActor)
 {
-	//Called in both block and Overlap
-	//UE_LOG(LogTemp, Warning, TEXT("CurrentTarget: %s. OtherActor: %s."), *Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner())->CurrentTarget->GetName(), *OtherActor->GetName());
-
-	//Used for Drones
-	// Projectile->Drone Enemy
-	if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner()))
-	{
-		if (OtherActor == EnemyCharacter->CurrentTarget)
-		{
-			return true;
-		}
-	}
-
-	//Double Get Owner because most projectiles file from Gun, but we need GunOwner
+	//Double Get Owner because most projectiles fire from Gun, but we need GunOwner
 	// Projectile -> Gun -> GunOwner
-	if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner()->GetOwner()))
+	if (ATimberWeaponRangedBase* OwningWeapon = Cast<ATimberWeaponRangedBase>(GetOwner()))
 	{
-		if (OtherActor == EnemyCharacter->CurrentTarget)
+		if (ATimberEnemyCharacter* OwningEnemyCharacter = Cast<ATimberEnemyCharacter>(OwningWeapon->GetOwner()))
 		{
-			return true;
+			if (OtherActor == OwningEnemyCharacter->CurrentTarget)
+			{
+				return true;
+			}
 		}
-		
 	}
 
 	return false;

@@ -70,6 +70,8 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 
 	if (CurrentHealth <= 0.f)
 	{
+		HandleRemoveStatusEffectComponent();
+		
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
 		GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CheckArrayForEnemy(this);
 
@@ -214,6 +216,14 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 				}
 			}
 		}
+	}
+}
+
+void ATimberEnemyCharacter::HandleRemoveStatusEffectComponent()
+{
+	if (StatusEffectHandler)
+	{
+		StatusEffectHandler->DestroyComponent();
 	}
 }
 

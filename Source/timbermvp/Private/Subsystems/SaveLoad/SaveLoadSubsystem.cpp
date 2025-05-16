@@ -32,9 +32,10 @@ FString USaveLoadSubsystem::GetSaveSlot()
 void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
 {
 	//Adds Key Value Pair
-	if (Buildable && Buildable->GetGUID().IsValid())
+	FGuid NewGUID = Buildable->GetGUID();
+	if (Buildable && NewGUID.IsValid())
 	{
-		GuidToBuildableMap.Add(Buildable->GetGUID(), Buildable);
+		GuidToBuildableMap.Add(NewGUID, Buildable);
 		UE_LOG(LogTemp, Warning, TEXT("Buildable Added to TMap: %s with GUID: %s"), *Buildable->GetName(), *Buildable->GetGUID().ToString());
 	}
 }
@@ -286,7 +287,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 		for (AActor* BuildableActor : CurrentBuildingComponents)
 		{
 			ABuildableBase* Buildable = Cast<ABuildableBase>(BuildableActor);
-			if (Buildable && Buildable->BuildableType != EBuildableType::Environment)
+			if (Buildable && Buildable->BuildableType != EBuildableType::Environment && !Buildable->IsPendingKillPending())
 			{
 				//Creating the Building Component Struct to pass to the Save System's Building Component Array
 				FBuildableData BuildableData;
@@ -297,6 +298,12 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				//UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
 				//UE_LOG(LogTemp, Warning, TEXT("Saving Buildable: %s. GUID: %s"), *BuildableActor->GetName(), *Buildable->GetGUID().ToString());
 				BuildableData.GUID = Buildable->GetGUID();
+				if (!BuildableData.GUID.IsValid())
+				{
+					UE_LOG(LogTemp, Warning, TEXT(" GUI Invalid"));
+					continue;
+					
+				}
 
 				/*
 				 * WALLS & FLOORS SPECIFIC
@@ -479,8 +486,8 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 		{
 			if (BuildingComponentData.BuildingComponentClass)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
-				UE_LOG(LogTemp, Warning, TEXT("Loading Buildable: %s"), *BuildingComponentData.BuildingComponentClass->GetName());
+				/*UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
+				UE_LOG(LogTemp, Warning, TEXT("Loading Buildable: %s"), *BuildingComponentData.BuildingComponentClass->GetName());*/
 				
 				AActor* SpawnedActor = GetWorld()->SpawnActor<ABuildableBase>(
 					BuildingComponentData.BuildingComponentClass,
@@ -489,15 +496,13 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 
 				if (ABuildableBase* SpawnedBuildable = Cast<ABuildableBase>(SpawnedActor))
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Spawned GUID: %s"), *SpawnedBuildable->GetGUID().ToString());
 					
 					//Set the Saved GUID back on the newly Spawned Buildable
 					SpawnedBuildable->SetGUID(BuildingComponentData.GUID);
-					UE_LOG(LogTemp, Warning, TEXT("Set GUID: %s"), *SpawnedBuildable->GetGUID().ToString());
+					UE_LOG(LogTemp, Warning, TEXT("Buildable: %s , Buildable GUID: %s"), *SpawnedBuildable->GetName(), *SpawnedBuildable->GetGUID().ToString());
 
 					//Add the KV Pair to the TMap
 					RegisterBuildable(SpawnedBuildable);
-					UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
 				}
 
 			}

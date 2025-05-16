@@ -70,9 +70,15 @@ void ABuildableBase::HandleDeletionOfBuildable()
 
 FGuid ABuildableBase::GetGUID()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Getting GUID for Actor: %s"), *GetName());
 
+	if (GUID.IsValid())
+	{
 		return GUID;
-	
+	}
+
+	//Invalid Guid
+	return FGuid();
 }
 
 void ABuildableBase::SetGUID(FGuid NewGUID)

@@ -34,6 +34,7 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
 		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
 		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
+		CharacterMovementComponent->bUseRVOAvoidance = true;
 		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
 		CharacterMovementComponent->AvoidanceWeight = 0.8f;
 	}
@@ -42,7 +43,6 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	
 }
 

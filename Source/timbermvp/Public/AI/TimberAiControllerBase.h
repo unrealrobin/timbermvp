@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 #pragma once
 
@@ -21,9 +21,19 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	FTimerHandle CheckOnNavMeshTimerHandle;
+
+	UFUNCTION()
+	void CheckIsOwnerOnNavMesh();
+
+	UFUNCTION()
+	void HandleActorOffMesh(ATimberEnemyCharacter* EnemyCharacter);
+
 public:
 
 	/* AI Setup */
+
+	bool bIsOwnerOnNavMesh = true;
 
 	virtual void OnPossess(APawn* InPawn) override;
 

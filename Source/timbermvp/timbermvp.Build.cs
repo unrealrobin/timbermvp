@@ -24,7 +24,8 @@ public class timbermvp : ModuleRules
 			"OnlineServicesInterface", 
 			"CoreOnline",
 			"OnlineServicesCommon",
-			"OnlineServicesEOS"
+			"OnlineServicesEOS",
+			"NavigationSystem"
 		});
 	}
 }

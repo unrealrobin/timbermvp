@@ -2,14 +2,12 @@
 
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
-
 #include "AI/TimberAiControllerBase.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
-#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Data/DataAssets/LootTable.h"
@@ -18,8 +16,6 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Loot/EnemyLootDropBase.h"
-#include "Loot/LootHealthDrop.h"
-#include "Loot/LootHealthDropMax.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -31,16 +27,23 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 
-	GetCharacterMovement()->SetWalkableFloorAngle(70.f);
+	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
+	{
+		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
+		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
+		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
+		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
+		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
+		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
+		CharacterMovementComponent->AvoidanceWeight = 0.8f;
+	}
 }
 
 void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
-	GetCharacterMovement()->SetWalkableFloorAngle(56.0f);
-	
-	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeedBase;
 }
 
 void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)

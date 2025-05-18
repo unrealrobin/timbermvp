@@ -157,12 +157,49 @@ void ATimberPlayerController::LookUp(const FInputActionValue& Value)
 	PitchAngle = UpdatedRotation.Pitch;
 }
 
+void ATimberPlayerController::HandleCharacterRotation()
+{
+	//We want to check the difference in rotation from the Characters Forward Rotation to the Controllers Rotation
+	//If the difference is larger than X
+	//Rotate the Character some y degrees, and play rotations animation
+	
+	/*Checking for adjusted Rotation*/
+	if (TimberCharacter)
+	{
+		
+		FRotator CharacterRotation = TimberCharacter->GetActorRotation().Clamp();
+		//UE_LOG(LogTemp, Warning, TEXT("Kip Yaw Rotation = %f"), CharacterRotation.Yaw)
+		FRotator ControllerRotation = GetControlRotation().Clamp();
+		//UE_LOG(LogTemp, Warning, TEXT("Kip Controller Rotation = %f"), ControllerRotation.Yaw)
+
+		float DeltaYaw = FMath::FindDeltaAngleDegrees(CharacterRotation.Yaw, ControllerRotation.Yaw);
+		UE_LOG(LogTemp, Warning, TEXT("Delta Angle: %f"), DeltaYaw);
+
+		if (DeltaYaw < -60.0)
+		{
+			//Rotate Left
+			CharacterRotation.Yaw -= -60.0f;
+		}
+		else if (DeltaYaw > 60.0)
+		{
+			//Rotate Right
+			CharacterRotation.Yaw += 60.0f;
+		}
+
+		TimberCharacter->SetActorRotation(CharacterRotation);
+	}
+}
+
 void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 {
 	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
 	UpdatedRotation.Yaw = UpdatedRotation.Yaw + Value.Get<float>();
 	SetControlRotation(UpdatedRotation);
 	YawAngle = UpdatedRotation.Yaw;
+
+	HandleCharacterRotation();
+	
+	
 }
 
 void ATimberPlayerController::CanCharacterJump()

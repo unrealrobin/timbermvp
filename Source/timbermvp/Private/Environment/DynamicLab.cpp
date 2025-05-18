@@ -9,6 +9,8 @@ ADynamicLab::ADynamicLab()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -483,7 +485,7 @@ void ADynamicLab::GenerateChildComponent(TSubclassOf<AActor> BuildableActor, FVe
 	//Set Rotation
 	ChildActorComponent->SetRelativeRotation(Rotation);
 	ChildActorComponent->RegisterComponent();
-
+	
 	ChildComponents.Add(ChildActorComponent);
 	
 }
@@ -502,7 +504,7 @@ void ADynamicLab::GenerateStaticMeshComponent(UStaticMesh* StaticMesh, FVector L
 
 		// Register so it shows up in the editor
 		StaticMeshComponent->RegisterComponent();
-
+		StaticMeshComponent->bCastDynamicShadow = false;
 		StaticMeshComponentsArray.Add(StaticMeshComponent);
 	}
 }
@@ -533,6 +535,7 @@ void ADynamicLab::SetupInstancedWallStaticMeshComponent()
 	InstancedWallStaticMesh->SetStaticMesh(WallMesh);
 	InstancedWallStaticMesh->RegisterComponent();
 	InstancedWallStaticMesh->SetCollisionProfileName("DR_BuildableBlockEverything");
+	InstancedWallStaticMesh->bCastDynamicShadow = false;
 
 	
 }
@@ -549,4 +552,5 @@ void ADynamicLab::SetupInstancedCeilingStaticMeshComponent()
 	InstancedCeilingStaticMesh->RegisterComponent();
 	InstancedCeilingStaticMesh->ClearInstances();
 	InstancedCeilingStaticMesh->SetCollisionProfileName("DR_BuildableBlockEverything");
+	InstancedCeilingStaticMesh->bCastDynamicShadow = false;
 }

@@ -1,8 +1,9 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries. 
 
 
 #include "Character/Enemies/Boss/BossBase.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Loot/EnemyLootDropBase.h"
 #include "Loot/LootHealthDropMax.h"
 
@@ -19,6 +20,15 @@ void ABossBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
+	{
+		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
+		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
+		CharacterMovementComponent->NavAgentProps.AgentRadius = 200.0f;
+		CharacterMovementComponent->NavAgentProps.AgentHeight = 200.0f;
+		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
+	}
+	
 	OnDestroyed.AddDynamic(this, &ABossBase::BroadcastDeathDelegate);
 }
 

@@ -61,6 +61,7 @@ void ABossBruiser::HandleWhirlwindOverlap(
 	//Only damages the Player, will not Damage other enemies or Building Components.
 	if (PlayerCharacter)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Whirlwind Applied Damage to Player."));
 		PlayerCharacter->PlayerTakeDamage(WhirlwindTickDamage);
 	}
 }
@@ -72,6 +73,7 @@ void ABossBruiser::HandleBHandSlapOverlap(
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Backhand Slap Applied Damage to Player."));
 		PlayerCharacter->PlayerTakeDamage(BHandSlapDamage);
 	}
 }
@@ -84,6 +86,7 @@ void ABossBruiser::HandleOverHeadSmashOverlap(
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Overhead Smash Applied Damage to Player."));
 		PlayerCharacter->PlayerTakeDamage(OverHeadSmashDamage);
 	}
 }

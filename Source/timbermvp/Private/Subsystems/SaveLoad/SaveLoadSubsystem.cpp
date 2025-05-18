@@ -319,7 +319,11 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 					{
 						for (ABuildableBase* AttachedComponent : BuildingComponent->AttachedBuildingComponents)
 						{
-							BuildableData.AttachedBuildablesArray.Add(AttachedComponent->GetGUID());
+							if (AttachedComponent && AttachedComponent->GetGUID().IsValid())
+							{
+								//TODO:: GUID Bug Gets tripped on this Line.
+								BuildableData.AttachedBuildablesArray.Add(AttachedComponent->GetGUID());
+							}
 							//UE_LOG(LogTemp, Warning, TEXT("Attachment: %s. Attachment GUID: %s"), *AttachedComponent->GetName(), *AttachedComponent->GetGUID().ToString());
 
 						}

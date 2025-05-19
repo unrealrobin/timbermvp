@@ -335,6 +335,45 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 	}
 }
 
+void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation, float DurationOfRotation)
+{
+
+	if (DurationOfRotation <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Can Not set a Lerp Rotation Duration of 0."));
+		return;
+	}
+
+	if (IsRotating)
+	{
+		return;
+	}
+	
+	FRotator StartRotation = GetActorRotation().Clamp();
+	float ElapsedTime = 0.0f;
+
+	//Update the Rotation
+	GetWorld()->GetTimerManager().SetTimer(RotationTimerHandle, [&]()
+	{
+		IsRotating = true;
+		//Updating the Elapsed Time
+		ElapsedTime += GetWorld()->GetDeltaSeconds();
+
+		//Scaling the Duration of Rotation
+		float Alpha = FMath::Clamp(ElapsedTime / DurationOfRotation, 0.0f, 1.0f);
+
+		FRotator NewRotation = FMath::Lerp(StartRotation, TargetRotation, Alpha);
+		UE_LOG(LogTemp, Warning, TEXT("Setting Player Rotation Yaw : %f"), NewRotation.Yaw);
+		SetActorRotation(NewRotation);
+
+		if (Alpha >= 1.0f)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(RotationTimerHandle);
+			IsRotating = false;
+		}
+	}, 0.01, true);
+}
+
 //CombatComponentAnimUser Interface Override
 void ATimberPlayableCharacter::PlayWeaponEquipAnimationMontage(FName SectionName)
 {

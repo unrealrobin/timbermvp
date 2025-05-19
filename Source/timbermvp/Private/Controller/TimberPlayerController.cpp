@@ -179,14 +179,17 @@ void ATimberPlayerController::HandleCharacterRotation()
 		{
 			//Rotate Left
 			CharacterRotation.Yaw -= -60.0f;
+			//Perform Rotation on the Character.
+			TimberCharacter->StartLerpRotation(CharacterRotation, 0.5f);
 		}
 		else if (DeltaYaw > 60.0)
 		{
 			//Rotate Right
 			CharacterRotation.Yaw += 60.0f;
+			//Perform Rotation on the Character.
+			TimberCharacter->StartLerpRotation(CharacterRotation, 0.5f);
 		}
-
-		TimberCharacter->SetActorRotation(CharacterRotation);
+		
 	}
 }
 

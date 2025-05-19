@@ -173,23 +173,16 @@ void ATimberPlayerController::HandleCharacterRotation()
 		//UE_LOG(LogTemp, Warning, TEXT("Kip Controller Rotation = %f"), ControllerRotation.Yaw)
 
 		float DeltaYaw = FMath::FindDeltaAngleDegrees(CharacterRotation.Yaw, ControllerRotation.Yaw);
-		UE_LOG(LogTemp, Warning, TEXT("Delta Angle: %f"), DeltaYaw);
+		//UE_LOG(LogTemp, Warning, TEXT("Delta Angle: %f"), DeltaYaw);
 
-		if (DeltaYaw < -60.0)
+		//If the Controller Rotation Delta from Character Rotation is larger than 45 degrees...
+		if (DeltaYaw < -45.0 || DeltaYaw > 45.0)
 		{
 			//Rotate Left
-			CharacterRotation.Yaw -= -60.0f;
+			CharacterRotation.Yaw += DeltaYaw;
 			//Perform Rotation on the Character.
-			TimberCharacter->StartLerpRotation(CharacterRotation, 0.5f);
+			TimberCharacter->StartLerpRotation(CharacterRotation, 0.25f);
 		}
-		else if (DeltaYaw > 60.0)
-		{
-			//Rotate Right
-			CharacterRotation.Yaw += 60.0f;
-			//Perform Rotation on the Character.
-			TimberCharacter->StartLerpRotation(CharacterRotation, 0.5f);
-		}
-		
 	}
 }
 
@@ -200,6 +193,7 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 	SetControlRotation(UpdatedRotation);
 	YawAngle = UpdatedRotation.Yaw;
 
+	//Handles if needed character rotation adjustments.
 	HandleCharacterRotation();
 	
 	

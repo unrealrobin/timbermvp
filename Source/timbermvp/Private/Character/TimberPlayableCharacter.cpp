@@ -11,8 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Combat/CombatComponent.h"
-#include "Weapons/TimberWeaponRangedBase.h"
-#include "Weapons/TimberWeaponMeleeBase.h"
+#include "Containers/Ticker.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -344,34 +343,43 @@ void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation,
 		return;
 	}
 
+	//Dont rotate if Character is moving.
+	if (GetVelocity().Length() > 0)
+	{
+		return;
+	}
+
+	//Dont want to restart the timer if we are already in the rotation animation.
 	if (IsRotating)
 	{
 		return;
 	}
 	
 	FRotator StartRotation = GetActorRotation().Clamp();
-	float ElapsedTime = 0.0f;
 
-	//Update the Rotation
-	GetWorld()->GetTimerManager().SetTimer(RotationTimerHandle, [&]()
-	{
-		IsRotating = true;
-		//Updating the Elapsed Time
-		ElapsedTime += GetWorld()->GetDeltaSeconds();
+	IsRotating = true;
+	
+	FTickerDelegate TickDelegate = FTickerDelegate::CreateLambda(
+	   [this, StartRotation, TargetRotation, DurationOfRotation](float DeltaTime) -> bool
+	   {
+		   ElapsedTime += DeltaTime;
+		   float Alpha = FMath::Clamp(ElapsedTime / DurationOfRotation, 0.0f, 1.0f);
+		   float SmoothedAlpha = FMath::SmoothStep(0.0f, 1.0f, Alpha);
 
-		//Scaling the Duration of Rotation
-		float Alpha = FMath::Clamp(ElapsedTime / DurationOfRotation, 0.0f, 1.0f);
+		   FRotator NewRotation = FMath::Lerp(StartRotation, TargetRotation, SmoothedAlpha);
+		   SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
 
-		FRotator NewRotation = FMath::Lerp(StartRotation, TargetRotation, Alpha);
-		UE_LOG(LogTemp, Warning, TEXT("Setting Player Rotation Yaw : %f"), NewRotation.Yaw);
-		SetActorRotation(NewRotation);
+		   if (Alpha >= 1.0f)
+		   {
+			   IsRotating = false;
+			   ElapsedTime = 0.0f;
+			   return false; // Stop the ticker
+		   }
+		   return true; // Continue ticking
+	   });
 
-		if (Alpha >= 1.0f)
-		{
-			GetWorld()->GetTimerManager().ClearTimer(RotationTimerHandle);
-			IsRotating = false;
-		}
-	}, 0.01, true);
+	FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
+	
 }
 
 //CombatComponentAnimUser Interface Override

@@ -97,6 +97,7 @@ public:
 	void MoveComplete(const FInputActionValue& Value);
 	UFUNCTION()
 	void LookUp(const FInputActionValue& Value);
+	void HandleCharacterRotation();
 	UFUNCTION()
 	void LookRight(const FInputActionValue& Value);
 	UFUNCTION()

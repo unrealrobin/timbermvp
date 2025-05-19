@@ -11,8 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Combat/CombatComponent.h"
-#include "Weapons/TimberWeaponRangedBase.h"
-#include "Weapons/TimberWeaponMeleeBase.h"
+#include "Containers/Ticker.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -333,6 +332,59 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Player Character - Wake Animation Montage Not Found."));
 	}
+}
+
+void ATimberPlayableCharacter::PlayAnimationMontageAtSection(UAnimMontage* MontageToPlay, FName SectionName)
+{
+	PlayAnimMontage(MontageToPlay, 1.f, SectionName);
+}
+
+void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation, float DurationOfRotation)
+{
+
+	if (DurationOfRotation <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Can Not set a Lerp Rotation Duration of 0."));
+		return;
+	}
+
+	//Dont want to restart the timer if we are already in the rotation animation.
+	if (IsRotating)
+	{
+		return;
+	}
+	
+	FRotator StartRotation = GetActorRotation().Clamp();
+
+	IsRotating = true;
+	
+	FTickerDelegate TickDelegate = FTickerDelegate::CreateLambda(
+	   [this, StartRotation, TargetRotation, DurationOfRotation](float DeltaTime) -> bool
+	   {
+		   ElapsedTime += DeltaTime;
+		   float Alpha = FMath::Clamp(ElapsedTime / DurationOfRotation, 0.0f, 1.0f);
+		   float SmoothedAlpha = FMath::SmoothStep(0.0f, 1.0f, Alpha);
+
+		   FRotator NewRotation = FMath::Lerp(StartRotation, TargetRotation, SmoothedAlpha);
+		   SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
+
+	   		//Early brake if movement started or of animation is finished.
+		   if (Alpha >= 1.0f || GetVelocity().Length() > 0.0f)
+		   {
+			   IsRotating = false;
+			   ElapsedTime = 0.0f;
+			   return false; // Stop the ticker
+		   }
+		   return true; // Continue ticking
+	   });
+
+	FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
+
+	if (TurnInPlaceMontage)
+	{
+		StopAnimMontage(TurnInPlaceMontage);
+	}
+	
 }
 
 //CombatComponentAnimUser Interface Override

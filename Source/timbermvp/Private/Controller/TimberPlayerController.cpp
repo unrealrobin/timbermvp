@@ -90,14 +90,18 @@ void ATimberPlayerController::SetupInputComponent()
 
 void ATimberPlayerController::EnableCursor()
 {
+	FRotator SavedControllerRotation = GetControlRotation();
+	
 	bShowMouseCursor = true;
-	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
-	CharacterSpringArm->bUsePawnControlRotation = false;
+
+	SetControlRotation(SavedControllerRotation);
 }
 
 void ATimberPlayerController::DisableCursor()
 {
 	bShowMouseCursor = false;
+
+	
 	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
 	CharacterSpringArm->bUsePawnControlRotation = true;
 }
@@ -157,12 +161,61 @@ void ATimberPlayerController::LookUp(const FInputActionValue& Value)
 	PitchAngle = UpdatedRotation.Pitch;
 }
 
+void ATimberPlayerController::HandleCharacterRotation()
+{
+	//We want to check the difference in rotation from the Characters Forward Rotation to the Controllers Rotation
+	//If the difference is larger than X
+	//Rotate the Character some y degrees, and play rotations animation
+	
+	/*Checking for adjusted Rotation*/
+	if (TimberCharacter)
+	{
+		//Dont rotate if Character is moving.
+		if (TimberCharacter->GetVelocity().Length() > 0)
+		{
+			return;
+		}
+		
+		FRotator CharacterRotation = TimberCharacter->GetActorRotation().Clamp();
+		//UE_LOG(LogTemp, Warning, TEXT("Kip Yaw Rotation = %f"), CharacterRotation.Yaw)
+		FRotator ControllerRotation = GetControlRotation().Clamp();
+		//UE_LOG(LogTemp, Warning, TEXT("Kip Controller Rotation = %f"), ControllerRotation.Yaw)
+
+		float DeltaYaw = FMath::FindDeltaAngleDegrees(CharacterRotation.Yaw, ControllerRotation.Yaw);
+		//UE_LOG(LogTemp, Warning, TEXT("Delta Angle: %f"), DeltaYaw);
+
+		
+
+		//If the Controller Rotation Delta from Character Rotation is larger than 45 degrees...
+		if (DeltaYaw < -45.0 || DeltaYaw > 45.0)
+		{
+			if (DeltaYaw < 0 )
+			{
+				TimberCharacter->PlayAnimationMontageAtSection(TimberCharacter->TurnInPlaceMontage, "TurnLeft");
+			}
+			else
+			{
+				TimberCharacter->PlayAnimationMontageAtSection(TimberCharacter->TurnInPlaceMontage, "TurnRight");
+			}
+			//Rotate Left
+			CharacterRotation.Yaw += DeltaYaw;
+			//Perform Rotation on the Character.
+			TimberCharacter->StartLerpRotation(CharacterRotation, 0.25f);
+		}
+	}
+}
+
 void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 {
 	FRotator UpdatedRotation = TimberCharacter->GetControlRotation();
 	UpdatedRotation.Yaw = UpdatedRotation.Yaw + Value.Get<float>();
 	SetControlRotation(UpdatedRotation);
 	YawAngle = UpdatedRotation.Yaw;
+
+	//Handles if needed character rotation adjustments.
+	HandleCharacterRotation();
+	
+	
 }
 
 void ATimberPlayerController::CanCharacterJump()

@@ -73,6 +73,7 @@ public:
 	UInventoryManagerComponent* InventoryManager;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat Component")
 	UCombatComponent* CombatComponent;
+	
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
 	float MaxRunSpeed = 2000.f;
@@ -82,12 +83,26 @@ public:
 	UAnimMontage* DeathMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* TutorialWakeMontage;
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* TurnInPlaceMontage;
+	
 	UFUNCTION()
 	void StopAllAnimMontages();
 	UFUNCTION()
 	void PlayWakeAnimationMontage();
 
+	void PlayAnimationMontageAtSection(UAnimMontage* MontageToPlay, FName SectionName);
+	/*Smooth Character Rotation*/
+
+	//Checks if the player is undergoing a Timed Rotation
+	bool IsRotating = false;
+	//Time Elapsed inbetween timer calls.
+	float ElapsedTime = 0.0f;
+	FTimerHandle RotationTimerHandle;
+	//Handles that actual timing and set of the Rotation
+	void StartLerpRotation(const FRotator& TargetRotation, float DurationOfRotation);
+	
+	
 	/*Animation Properties*/
 	//TODO:: Tentatively not needed. Was used in Anim BP
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Animation")
@@ -104,41 +119,6 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberWeaponBase> CurrentlyEquippedWeapon;
 	
-	/*Weapon Slots*/
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
-	TSubclassOf<ATimberWeaponBase> RangedWeaponClass;
-	UPROPERTY(BlueprintReadOnly, Category="Weapons")
-	ATimberWeaponMeleeBase* RangedWeaponInstance;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
-	TSubclassOf<ATimberWeaponBase> WeaponTwo;
-	UPROPERTY(BlueprintReadOnly, Category="Weapons")
-	ATimberWeaponMeleeBase* WeaponTwoInstance;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
-	TSubclassOf<ATimberWeaponBase> WeaponThree;
-	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	ATimberWeaponRangedBase* WeaponThreeInstance;*/
-
-	/* Weapon Spawning*/
-	/*UFUNCTION()
-	void SpawnMeleeWeapon();
-	UFUNCTION()
-	void SpawnRangedWeapon();
-	UFUNCTION(BlueprintCallable)
-	void EquipWeapon(FName EquipSocketName, ATimberWeaponBase* WeaponToEquip);
-	UFUNCTION(BlueprintCallable)
-	void UnEquipWeapon(FName UnEquipSocketName, ATimberWeaponBase* WeaponToUnEquip);
-	UFUNCTION(BlueprintCallable)
-	void UnEquipBothWeapons();*/
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
-	bool bIsSwordFullyEquipped = false;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapons")
-	bool bIsRifleFullyEquipped = false;
-	*/
-	
-	
-	//void SetCurrentlyEquippedWeapon(ATimberWeaponBase* Weapon);
 	void HandleRaycastHitConditions(bool bHits);
 	
 	ATimberWeaponBase* GetCurrentlyEquippedWeapon() const { return CurrentlyEquippedWeapon; }

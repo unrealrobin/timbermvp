@@ -314,7 +314,7 @@ void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState
 void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 {
 	//Player wants the primary ability of the equipped weapon.
-	if (CurrentlyEquippedWeapon->PrimaryWeaponAbility)
+	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->PrimaryWeaponAbility)
 	{
 		const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
 

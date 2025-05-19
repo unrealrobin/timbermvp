@@ -329,7 +329,6 @@ FVector2d ATimberHUDBase::GetViewportSize()
 	return FVector2d(ViewportSizeX, ViewportSizeY);
 }
 
-
 void ATimberHUDBase::SwitchToDeathUI()
 {
 	/*

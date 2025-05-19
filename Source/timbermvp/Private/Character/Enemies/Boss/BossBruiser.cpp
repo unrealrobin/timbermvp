@@ -19,6 +19,7 @@ ABossBruiser::ABossBruiser()
 
 	WhirlwindRightCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
 	WhirlwindLeftCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleWhirlwindOverlap);
+	
 	RightArmCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ABossBruiser::HandleBHandSlapOverlap);
 
 	BossTechnicalName = "8RU153R";
@@ -70,10 +71,15 @@ void ABossBruiser::HandleBHandSlapOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("Overlapped Component: %s"), *OtherComp->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Overlapped Component Owner: %s"), *OtherComp->GetOwner()->GetName());
+	//Issue is the OtherComp is the Hit Box from the Weapon Ability and its Owner returns to the Player Character Initiating Damage.
+	
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Backhand Slap Applied Damage to Player."));
+		//UE_LOG(LogTemp, Warning, TEXT("Backhand Slap Applied Damage to Player."));
 		PlayerCharacter->PlayerTakeDamage(BHandSlapDamage);
 	}
 }

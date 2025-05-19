@@ -83,12 +83,15 @@ public:
 	UAnimMontage* DeathMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* TutorialWakeMontage;
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	UAnimMontage* TurnInPlaceMontage;
+	
 	UFUNCTION()
 	void StopAllAnimMontages();
 	UFUNCTION()
 	void PlayWakeAnimationMontage();
 
+	void PlayAnimationMontageAtSection(UAnimMontage* MontageToPlay, FName SectionName);
 	/*Smooth Character Rotation*/
 
 	//Checks if the player is undergoing a Timed Rotation

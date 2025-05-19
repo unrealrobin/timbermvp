@@ -334,18 +334,17 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 	}
 }
 
+void ATimberPlayableCharacter::PlayAnimationMontageAtSection(UAnimMontage* MontageToPlay, FName SectionName)
+{
+	PlayAnimMontage(MontageToPlay, 1.f, SectionName);
+}
+
 void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation, float DurationOfRotation)
 {
 
 	if (DurationOfRotation <= 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Can Not set a Lerp Rotation Duration of 0."));
-		return;
-	}
-
-	//Dont rotate if Character is moving.
-	if (GetVelocity().Length() > 0)
-	{
 		return;
 	}
 
@@ -369,7 +368,8 @@ void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation,
 		   FRotator NewRotation = FMath::Lerp(StartRotation, TargetRotation, SmoothedAlpha);
 		   SetActorRotation(NewRotation, ETeleportType::TeleportPhysics);
 
-		   if (Alpha >= 1.0f)
+	   		//Early brake if movement started or of animation is finished.
+		   if (Alpha >= 1.0f || GetVelocity().Length() > 0.0f)
 		   {
 			   IsRotating = false;
 			   ElapsedTime = 0.0f;
@@ -379,6 +379,11 @@ void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation,
 	   });
 
 	FTSTicker::GetCoreTicker().AddTicker(TickDelegate);
+
+	if (TurnInPlaceMontage)
+	{
+		StopAnimMontage(TurnInPlaceMontage);
+	}
 	
 }
 

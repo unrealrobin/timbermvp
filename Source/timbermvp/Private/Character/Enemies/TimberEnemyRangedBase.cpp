@@ -65,8 +65,11 @@ void ATimberEnemyRangedBase::GetRotationToCurrentTarget()
 
 		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
 		
-		PitchToTarget = RotationToTarget.Pitch;
-		YawToTarget = RotationToTarget.Yaw;
+		PitchToTarget = FMath::Clamp(RotationToTarget.Pitch, -45.0f, 45.0f);
+		YawToTarget = FMath::Clamp(RotationToTarget.Yaw, 79.0f, -79.0f);
+
+		UE_LOG(LogTemp, Warning, TEXT("Pitch To Target = %f"), PitchToTarget);
+		UE_LOG(LogTemp, Warning, TEXT("Yaw To Target = %f"), YawToTarget);
 
 		DrawDebugLine(GetWorld(), StartLocation, TargetLocation, FColor::Red, false, 0.1f);
 
@@ -79,12 +82,5 @@ void ATimberEnemyRangedBase::GetRotationToCurrentTarget()
 void ATimberEnemyRangedBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (GetMesh())
-	{
-		if (GetMesh()->GetAnimInstance()->GetActiveMontageInstance())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *GetMesh()->GetName());
-		}
-	}
+	
 }

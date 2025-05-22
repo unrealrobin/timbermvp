@@ -206,17 +206,7 @@ protected:
 	USpringArmComponent* TimberCharacterSpringArmComponent;
 	float ViewPitchMax = 90.0f;
 	float ViewPitchMin = -80.0f;
-
-	/*Jump Controls*/
-	UPROPERTY(BlueprintReadWrite)
-	bool CanJump = false;
-	UPROPERTY(BlueprintReadWrite)
-	bool SwitchToWalking = false;
-	UFUNCTION()
-	void CanCharacterJump();
-	UFUNCTION(BlueprintCallable)
-	void JumpComplete();
-
+	
 	/*Interactable Items*/
 	IInteractable* InteractableItem;
 

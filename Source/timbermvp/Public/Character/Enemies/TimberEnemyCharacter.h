@@ -59,8 +59,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
 	USoundCue* MeleeHitSound;
-
-	
 	
 	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
 	

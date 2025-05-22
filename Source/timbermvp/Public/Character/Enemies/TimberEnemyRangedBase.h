@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 #pragma once
 
@@ -26,9 +26,19 @@ protected:
 	void EquipRangedWeapon();
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ".Weapon Info")
-	TSubclassOf<ATimberWeaponBase> RangedWeaponClassName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
+	TSubclassOf<ATimberWeaponBase> RangedWeaponClassName = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ".Weapon Info")
-	ATimberWeaponRangedBase* EquippedWeapon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
+	ATimberWeaponRangedBase* EquippedWeapon = nullptr;
+
+
+	//Assists in Aim Offset Calculations in Animation Blueprint
+	UFUNCTION(BlueprintCallable)
+	void GetRotationToCurrentTarget();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="RangedTargetRotation")
+	float PitchToTarget;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="RangedTargetRotation")
+	float YawToTarget;
 };

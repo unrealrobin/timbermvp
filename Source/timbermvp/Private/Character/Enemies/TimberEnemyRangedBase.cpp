@@ -1,11 +1,10 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
-
+﻿// Property of Paracosm Industries. 
 
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 
+#include "Kismet/KismetMathLibrary.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
-
 
 // Sets default values
 ATimberEnemyRangedBase::ATimberEnemyRangedBase()
@@ -57,8 +56,35 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 	}
 }
 
+void ATimberEnemyRangedBase::GetRotationToCurrentTarget()
+{
+	if (CurrentTarget && EquippedWeapon)
+	{
+		FVector TargetLocation = CurrentTarget->GetActorLocation();
+		FVector StartLocation = EquippedWeapon->GetActorLocation();
+
+		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
+		
+		PitchToTarget = RotationToTarget.Pitch;
+		YawToTarget = RotationToTarget.Yaw;
+
+		DrawDebugLine(GetWorld(), StartLocation, TargetLocation, FColor::Red, false, 0.1f);
+
+		//DrawDebugSphere(GetWorld(), TargetLocation, 20, 30, FColor::Red);
+		//UE_LOG(LogTemp, Warning, TEXT("Ranged Enemy Current Target: %s"), *CurrentTarget->GetName())
+	}
+}
+
 // Called every frame
 void ATimberEnemyRangedBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (GetMesh())
+	{
+		if (GetMesh()->GetAnimInstance()->GetActiveMontageInstance())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *GetMesh()->GetName());
+		}
+	}
 }

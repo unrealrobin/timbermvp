@@ -27,7 +27,7 @@ void UKnockbackBlast::Execute(FAbilityContext Context)
 		OwningWeapon->ConsumePower(PowerCost);
 		LocalContext = Context;
 		
-		HitBox = NewObject<UBoxComponent>(this, UBoxComponent::StaticClass());
+		HitBox = NewObject<UBoxComponent>(OwningWeapon, UBoxComponent::StaticClass());
 
 		FRotator Rotation = OwningWeapon->ProjectileSpawnComponent->GetComponentRotation();
 		Rotation.Roll = 0.0f;
@@ -36,10 +36,6 @@ void UKnockbackBlast::Execute(FAbilityContext Context)
 		HitBox->SetWorldRotation(Rotation);
 		HitBox->SetWorldLocation(Location);
 		HitBox->SetBoxExtent(InitialBoxExtent, true);
-
-		/*For Debugging*/
-		//HitBox->SetHiddenInGame(false);
-		//HitBox->SetVisibility(true);
 
 		HitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		HitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -71,8 +67,6 @@ void UKnockbackBlast::MoveBoxForward()
 
 	FHitResult* Hit = nullptr;;
 	HitBox->SetRelativeLocation(AdjustedLocation, true, Hit );
-	
-	
 }
 
 void UKnockbackBlast::ScaleBoxExtent()

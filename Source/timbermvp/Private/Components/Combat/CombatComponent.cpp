@@ -1,6 +1,5 @@
 ﻿// Property of Paracosm.
 
-
 #include "Components/Combat/CombatComponent.h"
 
 #include "Character/TimberAnimInstance.h"

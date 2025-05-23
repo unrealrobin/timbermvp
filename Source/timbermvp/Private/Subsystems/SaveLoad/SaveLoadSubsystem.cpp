@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries. 
 
 
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
@@ -32,10 +32,10 @@ FString USaveLoadSubsystem::GetSaveSlot()
 void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
 {
 	//Adds Key Value Pair
-	FGuid NewGUID = Buildable->GetGUID();
-	if (Buildable && NewGUID.IsValid())
+	FGuid BuildableGUID = Buildable->GetGUID();
+	if (Buildable && BuildableGUID.IsValid())
 	{
-		GuidToBuildableMap.Add(NewGUID, Buildable);
+		GuidToBuildableMap.Add(BuildableGUID, Buildable);
 		UE_LOG(LogTemp, Warning, TEXT("Buildable Added to TMap: %s with GUID: %s"), *Buildable->GetName(), *Buildable->GetGUID().ToString());
 	}
 }
@@ -284,6 +284,9 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 		UGameplayStatics::GetAllActorsOfClass(
 			GetWorld(), ABuildableBase::StaticClass(), CurrentBuildingComponents);
 
+		/*
+		 * 1. Loop Through All Buildables.
+		 */
 		for (AActor* BuildableActor : CurrentBuildingComponents)
 		{
 			ABuildableBase* Buildable = Cast<ABuildableBase>(BuildableActor);
@@ -312,16 +315,15 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				 * They also have Snap Attachments that need to be saved.
 				 */
 				
+				//Looping through the array of attached Buildable Instances and saving their GUID's to our AttachedBuildablesGUID Array.
 				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(Buildable))
 				{
-					//Looping through the array of attached Buildable Instances and saving their GUID's to our AttachedBuildablesGUID Array.
 					if (BuildingComponent->AttachedBuildingComponents.Num() > 0)
 					{
 						for (ABuildableBase* AttachedComponent : BuildingComponent->AttachedBuildingComponents)
 						{
 							if (AttachedComponent && AttachedComponent->GetGUID().IsValid())
 							{
-								//TODO:: GUID Bug Gets tripped on this Line.
 								BuildableData.AttachedBuildablesArray.Add(AttachedComponent->GetGUID());
 							}
 							//UE_LOG(LogTemp, Warning, TEXT("Attachment: %s. Attachment GUID: %s"), *AttachedComponent->GetName(), *AttachedComponent->GetGUID().ToString());
@@ -334,6 +336,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 					CheckBuildingComponentForSnapAttachments(BuildableData, BuildingComponent);
 				}
 
+				/*Trap Specific*/
 				//Linking the Parent Building Component to the Trap
 				if (ATrapBase* Trap = Cast<ATrapBase>(Buildable))
 				{
@@ -347,6 +350,8 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 						*Trap->ParentBuildable->GetName(),
 						*Trap->ParentBuildable->GetGUID().ToString());*/
 				}
+
+				/*Construct Specific*/
 				//Linking the Parent Building Component to the Construct
 				if (AConstructBase* Construct = Cast<AConstructBase>(Buildable))
 				{
@@ -359,6 +364,8 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 						UE_LOG(LogTemp, Warning, TEXT("Construct %s has no ParentBuildable!"), *GetNameSafe(Construct));
 					}
 				}
+
+				/*Teleporter Specific*/
 				//Linking the Parent Building Component to the Teleport Construct & the Teleport Pair
 				if (ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(Buildable))
 				{
@@ -372,7 +379,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 							*TeleportConstruct->ParentBuildable->GetName(),
 							*TeleportConstruct->ParentBuildable->GetGUID().ToString());*/
 					}
-					//Saving Teleport Pait GUID
+					//Saving Teleport Pair GUID
 					BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
 				}
 				

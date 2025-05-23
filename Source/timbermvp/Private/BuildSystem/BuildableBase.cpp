@@ -21,6 +21,11 @@ ABuildableBase::ABuildableBase()
 
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>("RootSceneComponent");
 	RootComponent = RootSceneComponent;
+
+	if (!GUID.IsValid())
+	{
+		GUID = FGuid::NewGuid();
+	}
 }
 
 void ABuildableBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -35,10 +40,7 @@ void ABuildableBase::BeginPlay()
 
 	//This creates a new Guid after the Actor is Spawned but only if its not Loaded.
 	//WHen its loaded the Actor receives the GUID before begin play.
-	if (!GUID.IsValid())
-	{
-		GUID = FGuid::NewGuid();
-	}
+	
 }
 
 void ABuildableBase::HandleDeletionOfBuildable()

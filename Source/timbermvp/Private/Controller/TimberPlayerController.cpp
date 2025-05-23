@@ -222,7 +222,7 @@ void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)
 {
 	//CanCharacterJump(); // sets the CanJump Variable
 	//SwitchToWalking = false;
-	
+	//Character JumpZVelocity and Other Jump Details are set in the BP for the character.
 	TimberCharacter->IsNowJumping = true;
 	TimberCharacter->Jump();
 	

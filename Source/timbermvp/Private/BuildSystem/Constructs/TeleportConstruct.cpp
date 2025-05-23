@@ -4,7 +4,6 @@
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 
 #include "Character/TimberPlayableCharacter.h"
-#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values

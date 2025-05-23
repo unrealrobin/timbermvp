@@ -355,6 +355,10 @@ void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation,
 	}
 	
 	FRotator StartRotation = GetActorRotation().Clamp();
+	if (StartRotation == FRotator::ZeroRotator)
+	{
+		return;
+	}
 
 	IsRotating = true;
 	

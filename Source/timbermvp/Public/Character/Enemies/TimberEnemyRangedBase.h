@@ -31,7 +31,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
 	ATimberWeaponRangedBase* EquippedWeapon = nullptr;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
+	USceneComponent* AimStartPointComponent;
 
 	//Assists in Aim Offset Calculations in Animation Blueprint
 	UFUNCTION(BlueprintCallable)

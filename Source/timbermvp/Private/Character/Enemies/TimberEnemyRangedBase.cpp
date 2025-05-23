@@ -2,6 +2,7 @@
 
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 
+#include "Engine/ContentEncryptionConfig.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -13,6 +14,9 @@ ATimberEnemyRangedBase::ATimberEnemyRangedBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	EnemyType = EEnemyType::RangedWeaponRobot;
+
+	AimStartPointComponent = CreateDefaultSubobject<USceneComponent>(TEXT("AimStartPointComponent"));
+	AimStartPointComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -61,19 +65,23 @@ void ATimberEnemyRangedBase::GetRotationToCurrentTarget()
 	if (CurrentTarget && EquippedWeapon)
 	{
 		FVector TargetLocation = CurrentTarget->GetActorLocation();
-		FVector StartLocation = EquippedWeapon->GetActorLocation();
+		FVector StartLocation = AimStartPointComponent->GetComponentLocation();
 
-		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
-		
-		PitchToTarget = FMath::Clamp(RotationToTarget.Pitch, -45.0f, 45.0f);
-		YawToTarget = FMath::Clamp(RotationToTarget.Yaw, 79.0f, -79.0f);
+		FRotator WorldRotationToTarget = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
+		FRotator ActorRotation = GetActorRotation();
+
+		FRotator AdjustedRotation = WorldRotationToTarget - ActorRotation;;
+		AdjustedRotation.Normalize();
+		//PitchToTarget = FMath::Clamp(RotationToTarget.Pitch, -45.0f, 45.0f);
+		//YawToTarget = FMath::Clamp(RotationToTarget.Yaw, 79.0f, -79.0f);
+		YawToTarget = AdjustedRotation.Yaw;
+		PitchToTarget = AdjustedRotation.Pitch;
 
 		UE_LOG(LogTemp, Warning, TEXT("Pitch To Target = %f"), PitchToTarget);
 		UE_LOG(LogTemp, Warning, TEXT("Yaw To Target = %f"), YawToTarget);
 
 		DrawDebugLine(GetWorld(), StartLocation, TargetLocation, FColor::Red, false, 0.1f);
-
-		//DrawDebugSphere(GetWorld(), TargetLocation, 20, 30, FColor::Red);
+		DrawDebugSphere(GetWorld(), TargetLocation, 20, 30, FColor::Red);
 		//UE_LOG(LogTemp, Warning, TEXT("Ranged Enemy Current Target: %s"), *CurrentTarget->GetName())
 	}
 }

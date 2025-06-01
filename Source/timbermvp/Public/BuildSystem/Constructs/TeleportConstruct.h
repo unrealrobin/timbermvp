@@ -7,6 +7,7 @@
 #include "TeleportConstruct.generated.h"
 
 class ATimberPlayableCharacter;
+class UBoxComponent;
 
 UENUM(BlueprintType) // Allows usage in Blueprints
 enum class ETeleportConstructState : uint8
@@ -39,13 +40,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* TeleportEffectMesh;
+	UBoxComponent* OverlapBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* PillarLeft;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* PillarRight;
+	UStaticMeshComponent* TeleportMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* TeleportLandingLocation;

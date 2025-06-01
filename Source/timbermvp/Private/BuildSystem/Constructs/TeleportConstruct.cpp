@@ -2,8 +2,8 @@
 
 
 #include "BuildSystem/Constructs/TeleportConstruct.h"
-
 #include "Character/TimberPlayableCharacter.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -18,8 +18,8 @@ ATeleportConstruct::ATeleportConstruct()
 
 	SaveDefaultMaterials();
 
-	TeleportEffectMesh->OnComponentBeginOverlap.AddDynamic(this, &ATeleportConstruct::HandleTeleportOverlap);
-	TeleportEffectMesh->OnComponentHit.AddDynamic(this, &ATeleportConstruct::HandleTeleportHit);
+	OverlapBox->OnComponentBeginOverlap.AddDynamic(this, &ATeleportConstruct::HandleTeleportOverlap);
+	OverlapBox->OnComponentHit.AddDynamic(this, &ATeleportConstruct::HandleTeleportHit);
 }
 
 // Called when the game starts or when spawned
@@ -42,18 +42,17 @@ void ATeleportConstruct::Tick(float DeltaTime)
 
 void ATeleportConstruct::SetupComponents()
 {
-	PillarLeft = CreateDefaultSubobject<UStaticMeshComponent>("PillarLeftStaticMesh");
-	PillarLeft->SetupAttachment(RootComponent);
-	PillarRight = CreateDefaultSubobject<UStaticMeshComponent>("PillarRightStaticMesh");
-	PillarRight->SetupAttachment(PillarLeft);
+	TeleportMesh = CreateDefaultSubobject<UStaticMeshComponent>("PillarLeftStaticMesh");
+	TeleportMesh->SetupAttachment(RootComponent);
+	
 	TeleportLandingLocation = CreateDefaultSubobject<USceneComponent>("TeleportLandingLocation");
-	TeleportLandingLocation->SetupAttachment(PillarLeft);
-	TeleportEffectMesh = CreateDefaultSubobject<UStaticMeshComponent>("TeleportEffectMesh");
-	TeleportEffectMesh->SetupAttachment(PillarLeft);
+	TeleportLandingLocation->SetupAttachment(TeleportMesh);
 
-	PillarLeft->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
-	PillarRight->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
-	TeleportEffectMesh->SetCollisionProfileName(TEXT("DR_HitEventOnly"));
+	OverlapBox = CreateDefaultSubobject<UBoxComponent>("OverlapBox");
+	OverlapBox->SetupAttachment(RootComponent);
+
+	TeleportMesh->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
+	OverlapBox->SetCollisionProfileName(TEXT("DR_HitEventOnly"));
 }
 
 void ATeleportConstruct::HandleTeleportOverlap(
@@ -66,9 +65,6 @@ void ATeleportConstruct::HandleTeleportOverlap(
 	{
 		PlayerToTeleport = Player;
 		FVector TeleportToLocation = TeleportPair->TeleportLandingLocation->GetComponentLocation();
-
-		//Teleport over Time
-		//StartTeleport(TeleportToLocation, 2.0f, PlayerToTeleport);
 
 		//Instant Teleport
 		PlayerToTeleport->SetActorLocation(TeleportToLocation);
@@ -120,33 +116,20 @@ void ATeleportConstruct::UpdateTeleport()
 
 void ATeleportConstruct::SaveDefaultMaterials()
 {
-	if (PillarLeft)
+	if (TeleportMesh)
 	{
-		DefaultBaseMaterial = PillarLeft->GetMaterial(0);
-		DefaultOrbMaterial = PillarLeft->GetMaterial(1);
-	}
-	if (TeleportEffectMesh)
-	{
-		DefaultEffectMesh = TeleportEffectMesh->GetMaterial(0);
+		DefaultBaseMaterial = TeleportMesh->GetMaterial(0);
+		DefaultOrbMaterial = TeleportMesh->GetMaterial(1);
 	}
 }
 
 void ATeleportConstruct::ApplyDefaultMaterials()
 {
 	//Apply Default Materials to the Pillars - defaults set in SaveDefaultMaterials
-	if (PillarLeft)
+	if (TeleportMesh)
 	{
-		PillarLeft->SetMaterial(0, DefaultBaseMaterial);
-		PillarLeft->SetMaterial(1, DefaultOrbMaterial);
-	}
-	if (PillarRight)
-	{
-		PillarRight->SetMaterial(0, DefaultBaseMaterial);
-		PillarRight->SetMaterial(1, DefaultOrbMaterial);
-	}
-	if (TeleportEffectMesh)
-	{
-		TeleportEffectMesh->SetMaterial(0, DefaultEffectMesh);
+		TeleportMesh->SetMaterial(0, DefaultBaseMaterial);
+		TeleportMesh->SetMaterial(1, DefaultOrbMaterial);
 	}
 }
 

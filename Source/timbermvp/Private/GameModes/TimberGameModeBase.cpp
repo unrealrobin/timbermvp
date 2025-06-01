@@ -91,15 +91,22 @@ void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
 void ATimberGameModeBase::GatherSeedaData()
 {
 	Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberSeeda::StaticClass()));
-	SeedaLocation = Seeda->GetActorLocation();
-
-	//Passing Seeda Class to Save Load Susbsytem for future Seeda Spawning.
-	if (USaveLoadSubsystem* SLSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>())
+	if (Seeda)
 	{
-		if (Seeda)
+		SeedaLocation = Seeda->GetActorLocation();
+
+		//Passing Seeda Class to Save Load Susbsytem for future Seeda Spawning.
+		if (USaveLoadSubsystem* SLSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>())
 		{
-			SLSubsystem->SeedaClass = Seeda->GetClass();
+			if (Seeda)
+			{
+				SLSubsystem->SeedaClass = Seeda->GetClass();
+			}
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameMode - GatherSeedaData() - Seeda Not Found in World."));
 	}
 }
 

@@ -131,7 +131,7 @@ public:
 	
 	/*Socket Names Set on SKM of Kip. Can be Overwritten.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Sockets")
-	FName UnEquippedMeleeSocket = "UnEquippedMeleeSocket";
+	FName UnEquippedMeleeSocket = "UnEquippedMeleeSocket_New";
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Sockets")
 	FName EquippedMeleeSocket = "EquippedMeleeSocket";
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon Sockets")

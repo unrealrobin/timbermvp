@@ -18,6 +18,16 @@ public:
 	// Sets default values for this actor's properties
 	ATimberWeaponMeleeBase();
 
+	/*Collision Component*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	UBoxComponent* WeaponBoxComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* NiagaraEffectSpawnLocation = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USkeletalMeshComponent* WeaponSkeletalMesh = nullptr;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,14 +46,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Weapons")
 	float CurrentWeaponEnergy = 100.0f;
-
-	/*Collision Component*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
-	UBoxComponent* WeaponBoxComponent = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	USceneComponent* NiagaraEffectSpawnLocation = nullptr;
-
+	
 	UFUNCTION(BlueprintCallable, Category="Collision")
 	void HandleWeaponCollision(bool ShouldReadyCollision) const;
 	

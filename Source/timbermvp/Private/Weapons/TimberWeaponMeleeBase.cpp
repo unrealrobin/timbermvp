@@ -25,6 +25,10 @@ ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
 	NiagaraEffectSpawnLocation = CreateDefaultSubobject<USceneComponent>("NiagaraSpawnLocation");
 	NiagaraEffectSpawnLocation->SetupAttachment(RootComponent);
 
+	WeaponSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponSkeletalMesh");
+	WeaponSkeletalMesh->SetupAttachment(RootComponent);
+	WeaponSkeletalMesh->SetCollisionProfileName("DR_AestheticMeshOnly");
+
 	if (WeaponBoxComponent)
 	{
 		WeaponBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberWeaponMeleeBase::OnWeaponOverlapBegin);

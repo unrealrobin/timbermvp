@@ -28,7 +28,10 @@ public:
 	TSubclassOf<UWeaponAbilityBase> SecondaryWeaponAbility;
 	
 	UPROPERTY(EditAnywhere, Category="Weapon Components")
-	UStaticMeshComponent* StaticMesh;
+	UStaticMeshComponent* WeaponStaticMesh;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Components")
+	USceneComponent* RootSceneComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation Montage")
 	UAnimMontage* PrimaryAbilityMontage;

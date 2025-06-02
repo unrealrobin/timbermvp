@@ -15,9 +15,13 @@ ATimberWeaponBase::ATimberWeaponBase()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
-	RootComponent = StaticMesh;
-	StaticMesh->SetCollisionProfileName("AestheticMeshOnly");
+
+	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	RootComponent = RootSceneComponent;
+	
+	WeaponStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
+	WeaponStaticMesh->SetupAttachment(RootComponent);
+	WeaponStaticMesh->SetCollisionProfileName("AestheticMeshOnly");
 }
 
 void ATimberWeaponBase::Tick(float DeltaTime)

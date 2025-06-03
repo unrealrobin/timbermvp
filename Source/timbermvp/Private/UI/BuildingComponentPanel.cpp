@@ -3,7 +3,8 @@
 
 #include "UI/BuildingComponentPanel.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-
+#include "Data/DataAssets/BuildComponentDataAsset.h"
+#include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 
 void UBuildingComponentPanel::LoadAllDataAssetsForMenu()
@@ -34,6 +35,67 @@ void UBuildingComponentPanel::LoadAllDataAssetsForMenu()
 			}
 		}
 	}
+}
+
+void UBuildingComponentPanel::PrepareStatusEffectForMenu()
+{
+	if (BuildMenuHoveredIconDataAsset){
+		if (UBuildComponentDataAsset* BuildComponentDataAsset = Cast<UBuildComponentDataAsset>(BuildMenuHoveredIconDataAsset))
+		{
+			if (BuildComponentDataAsset->BuildingComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			{
+				ATrapBase* TrapBase = BuildComponentDataAsset->BuildingComponentClass->GetDefaultObject<ATrapBase>();
+				if (TrapBase && TrapBase->StatusEffectDataAsset)
+				{
+					bHasStatusEffect = true;
+					//here we have access to the status effect of the trap
+					FStatusEffect StatusEffectData = TrapBase->StatusEffectDataAsset->StatusEffect;
+
+					if (StatusEffectData.InitialDamage > 0.f)
+					{
+						InitialDamage = StatusEffectData.InitialDamage;
+					}
+
+					for (FGameplayTag Tag : StatusEffectData.TypeTagContainer)
+					{
+						if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Type.DOT"))
+						{
+							DamagePerTick = StatusEffectData.DamagePerTick;
+							EffectDuration = StatusEffectData.Duration;
+						}
+						else if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Stackable"))
+						{
+							MaxStacks = StatusEffectData.MaxStacks;
+						}
+						else if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow"))
+						{
+							bSlows = true;
+						}
+					}
+
+					for (FGameplayTag Tag : StatusEffectData.MetaTagContainer)
+					{
+						if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Removes.Slow"))
+						{
+							bRemovesSlow = true;
+						}
+						
+					}
+				}
+			}
+		
+		}
+	}
+	else
+	{
+		bHasStatusEffect = false;
+		UE_LOG(LogTemp, Warning, TEXT("Hovered Building Component Icon Class has NO Status Effect Data Asset!"));
+	}
+}
+
+void UBuildingComponentPanel::SetHasStatusEffect(bool bNewHasStatusEffect)
+{
+	bHasStatusEffect = bNewHasStatusEffect;
 }
 
 void UBuildingComponentPanel::NativeConstruct()

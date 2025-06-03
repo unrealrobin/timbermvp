@@ -86,6 +86,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
 	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
 	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
+	EnhancedInputComponent->BindAction(ToggleBuildMenuStatusEffectWindowAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMenuStatusEffectWindow);
 }
 
 void ATimberPlayerController::EnableCursor()
@@ -424,6 +425,22 @@ void ATimberPlayerController::ToggleSettingsPanel(const FInputActionValue& Value
 		ToggleSettingsPanel_DelegateHandle.Broadcast();
 		//Just letting the HUD know that the player pressed this button while out of Build Mode.
 	}
+}
+
+void ATimberPlayerController::ToggleBuildMenuStatusEffectWindow(const FInputActionValue& Value)
+{
+	
+	ATimberHUDBase* HUD = Cast<ATimberHUDBase>(GetHUD());
+	if (HUD)
+	{
+		HUD->ToggleBuildMenuStatusEffectDetails();
+		//UE_LOG(LogTemp, Warning, TEXT("RMB Pressed in Build Mode"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HUD Unable To Cast."));
+	}
+	
 }
 
 void ATimberPlayerController::HandleControllerExitBuildMode()

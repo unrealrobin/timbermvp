@@ -46,7 +46,7 @@ EAbilityInputRequirement UCombatComponent::GetAbilityInputRequirement(bool bIsPr
 	if (bIsPrimaryAbility)
 	{
 		//Get Primary Ability Input Type
-		if (CurrentlyEquippedWeapon->PrimaryWeaponAbility)
+		if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->PrimaryWeaponAbility)
 		{
 			const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
 			return PrimaryAbility->InputRequirement;
@@ -59,7 +59,7 @@ EAbilityInputRequirement UCombatComponent::GetAbilityInputRequirement(bool bIsPr
 	}
 
 	//Get Secondary Ability Input Type
-	if (CurrentlyEquippedWeapon->SecondaryWeaponAbility)
+	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->SecondaryWeaponAbility)
 	{
 		const UWeaponAbilityBase* SecondaryAbility = CurrentlyEquippedWeapon->SecondaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
 		return SecondaryAbility->InputRequirement;

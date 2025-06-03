@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildingComponentPanel.generated.h"
 
 class FAssetRegistryModule;
+class ATrapBase;
+class UTextBlock;
 
 /**
  * 
@@ -16,6 +17,11 @@ UCLASS()
 class TIMBERMVP_API UBuildingComponentPanel : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleStatusEffectDetails();
 
 protected:
 
@@ -62,5 +68,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SetHasStatusEffect(bool bNewHasStatusEffect);
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* InitialDamageTextBlock;
 	
 };

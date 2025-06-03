@@ -3,6 +3,8 @@
 
 #include "UI/BuildingComponentPanel.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "BuildSystem/Traps/TrapBase.h"
+#include "Components/TextBlock.h"
 #include "Data/DataAssets/BuildComponentDataAsset.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
@@ -39,6 +41,7 @@ void UBuildingComponentPanel::LoadAllDataAssetsForMenu()
 
 void UBuildingComponentPanel::PrepareStatusEffectForMenu()
 {
+	InitialDamageTextBlock->SetVisibility(ESlateVisibility::Collapsed);
 	if (BuildMenuHoveredIconDataAsset){
 		if (UBuildComponentDataAsset* BuildComponentDataAsset = Cast<UBuildComponentDataAsset>(BuildMenuHoveredIconDataAsset))
 		{
@@ -53,7 +56,13 @@ void UBuildingComponentPanel::PrepareStatusEffectForMenu()
 
 					if (StatusEffectData.InitialDamage > 0.f)
 					{
+						InitialDamageTextBlock->SetVisibility(ESlateVisibility::Visible);
 						InitialDamage = StatusEffectData.InitialDamage;
+						FText Combined = FText::Format(FText::FromString("Initial Damage: {0}"), FText::AsNumber(InitialDamage));
+						InitialDamageTextBlock->SetText(Combined);
+					}else
+					{
+						InitialDamageTextBlock->SetVisibility(ESlateVisibility::Collapsed);
 					}
 
 					for (FGameplayTag Tag : StatusEffectData.TypeTagContainer)

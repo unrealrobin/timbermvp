@@ -9,6 +9,7 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "UI/BossHealthBar.h"
+#include "UI/BuildingComponentPanel.h"
 #include "UI/Death/TimberDeathWidget.h"
 
 
@@ -200,8 +201,6 @@ void ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed)
 // Called by Player using the "B" Key, Listening for the Delegate on the Controller
 void ATimberHUDBase::HandleBuildPanelMenu(bool IsBuildPanelMenuOpen)
 {
-	//Open Menu if it isn't Open.
-	//Controller will handle the rest.
 	if (BuildMenuWidget->IsVisible())
 	{
 		return;
@@ -586,6 +585,25 @@ void ATimberHUDBase::HandleBossSpawned(AActor* BossActor)
 			Boss->OnBossDeath.AddDynamic(this, &ATimberHUDBase::HandleBossDeath);
 			
 		}
+	}
+}
+
+void ATimberHUDBase::ToggleBuildMenuStatusEffectDetails()
+{
+	if (BuildMenuWidget && BuildMenuWidget->IsVisible())
+	{
+		if (UBuildingComponentPanel* Panel = Cast<UBuildingComponentPanel>(BuildMenuWidget))
+		{
+			Panel->ToggleStatusEffectDetails();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Could Not Cast to UBuildingComponentPanel from Build Menu Widget"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Build Menu Widget is not visible, cannot toggle status effect details."));
 	}
 }
 

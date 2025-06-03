@@ -89,6 +89,8 @@ public:
 	UInputAction* ExitBuildModeAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ToggleSettingsPanelAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ToggleBuildMenuStatusEffectWindowAction;
 
 	/*Player Input Functions*/
 	UFUNCTION()
@@ -122,6 +124,8 @@ public:
 	void ExitBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
 	void ToggleSettingsPanel(const FInputActionValue& Value);
+	UFUNCTION()
+	void ToggleBuildMenuStatusEffectWindow(const FInputActionValue& Value);
 
 	/* COMBAT */
 	UFUNCTION()

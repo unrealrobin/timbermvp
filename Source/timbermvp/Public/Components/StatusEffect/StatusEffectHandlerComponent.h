@@ -20,6 +20,7 @@ class TIMBERMVP_API UStatusEffectHandlerComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UStatusEffectHandlerComponent();
+	
 	void HandleEffectInitialDamage(FStatusEffect& Effect);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status Effects")
@@ -50,6 +51,9 @@ protected:
 	 * Handle Slow Tags
 	 */
 	void HandleSlowTags(const FStatusEffect& Effect, float MaxWalkSpeedBaseMultiplier);
+
+	/* Update Status Effect Bar on Characters*/
+	void AddEffectToStatusEffectBar(FGameplayTag EffectTag);
 
 public:
 	// Called every frame

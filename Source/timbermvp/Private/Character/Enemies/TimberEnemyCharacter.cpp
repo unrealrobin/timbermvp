@@ -19,7 +19,6 @@
 #include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
-#include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
 
@@ -76,9 +75,9 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	//Glows the Enemy Character briefly when hit.
 	AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f);
 	
-	//Adding new damage to the accumulated damage during window
+	//Adding new damage to the accumulated damage window
 	DamageAccumulatedDuringWindow += DamageAmount;
-	//Applying damage to Characters Health
+	//Applying damage to Character Health
 	CurrentHealth -= DamageAmount;
 	//Starting Damage Accumulation Window / Used for Aggro Conditions
 	StartDamageTimerWindow();
@@ -120,7 +119,7 @@ bool ATimberEnemyCharacter::HandleAggroCheck(AActor* DamageInstigator, float Dam
 	//If DamageInstigator is a player character, check if the enemy should aggro the player.
 	if (Cast<ATimberPlayableCharacter>(DamageInstigator))
 	{
-		// If damage accumulated during window is greater than 20 or the enemy has lost more than 40% of its health, it will aggro the player.
+		// If damage accumulated during a damage window is greater than 20 or the enemy has lost more than 40% of its health, it will then aggro the player.
 		if(DamageReceived > (MaxHealth * .40) || fDamageAccumulatedDuringWindow > 20 )
 		{
 			return true;
@@ -140,7 +139,7 @@ void ATimberEnemyCharacter::StartDamageTimerWindow()
 	bool bIsTimerActive = GetWorld()->GetTimerManager().IsTimerActive(DamageWindowTimerHandle);
 	if(!bIsTimerActive)
 	{
-		// Starts the Damage Window Timer that starts at first hit for (X: DamageWindowTime ) and automatically resets itself at the end of the window.
+		// Starts the Damage Window Timer that starts at first hit for (X: DamageWindowTime) and automatically resets itself at the end of the window.
 		GetWorld()->GetTimerManager().SetTimer(DamageWindowTimerHandle, this, &ATimberEnemyCharacter::ResetDamageWindow, DamageWindowTime, false);
 	}
 	else
@@ -309,12 +308,15 @@ ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 		RaycastStart,
 		RaycastEnd,
 		ECC_Visibility);
-	
-	for (FHitResult HitActors : HitResults)
+
+	if (bHit)
 	{
-		if (HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
+		for (FHitResult HitActors : HitResults)
 		{
-			return Cast<ATimberBuildingComponentBase>(HitActors.GetActor());
+			if (HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
+			{
+				return Cast<ATimberBuildingComponentBase>(HitActors.GetActor());
+			}
 		}
 	}
 

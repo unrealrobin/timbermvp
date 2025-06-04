@@ -3,8 +3,10 @@
 
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Components/WidgetComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/StatusEffects/StatusEffectBar.h"
 
 UStatusEffectHandlerComponent::UStatusEffectHandlerComponent()
 {
@@ -36,7 +38,7 @@ void UStatusEffectHandlerComponent::HandleDotEffects(FStatusEffect& StatusEffect
 				//Stacks multiply the Damage per Tick.
 				float TotalDamage = StatusEffect.DamagePerTick * StatusEffect.CurrentStacks;
 				OwningEnemyCharacter->TakeDamage(TotalDamage, nullptr);
-				//UE_LOG(LogTemp, Warning, TEXT("Applied Total Damage Dot: %f"), TotalDamage);
+				//UE_LOG(LogTemp, Warning, TEXT ("Applied Total Damage Dot: %f"), TotalDamage);
 				//Resetting the Tick Accumulator
 				StatusEffect.TickAccumulator = 0;
 			}
@@ -99,7 +101,7 @@ void UStatusEffectHandlerComponent::HandleIsStackableEffect(FStatusEffect* Effec
 {
 	if (Effect->TypeTagContainer.HasTag(FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Stackable")))
 	{
-		//Look through the Active Status Effects TArray for the Effect with the Effect Id Tag for this effect.
+		//Look through the Active Status Effects TArray for the Effect with the Effect ID Tag for this effect.
 		//FStatusEffect* StackableEffect = FindEffectByIdTag(Effect->EffectIdTag);
 
 		if (Effect && Effect->CurrentStacks < Effect->MaxStacks)
@@ -120,6 +122,27 @@ void UStatusEffectHandlerComponent::HandleSlowTags(const FStatusEffect& Effect, 
 		{
 			OwningEnemyCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningEnemyCharacter->MaxWalkSpeedBase *  MaxWalkSpeedBaseMultiplier; 
 			//UE_LOG(LogTemp, Warning, TEXT("Slowed Enemy: %s"), *OwningEnemyCharacter->GetName());
+		}
+	}
+}
+
+void UStatusEffectHandlerComponent::AddEffectToStatusEffectBar(FGameplayTag EffectTag)
+{
+	//TODO::This only works with the Enemy Characters At the moment. Interface? 
+	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
+	if (EnemyCharacter)
+	{
+		if (EnemyCharacter->StatusEffectBarComponent)
+		{
+			UUserWidget* Widget = EnemyCharacter->StatusEffectBarComponent->GetUserWidgetObject();
+			if (Widget)
+			{
+				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);
+				if (StatusEffectBar)
+				{
+					StatusEffectBar->AddEffectToBar(EffectTag);
+				}
+			}
 		}
 	}
 }
@@ -149,11 +172,14 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 		HandleEffectInitialDamage(Effect);
 		
 		HandleSlowTags(Effect, 0.5f); //50% slower
+
+		//This adds the Effect Icon to the Status Effect Bar on the Enemy Character.
+		AddEffectToStatusEffectBar(Effect.EffectIdTag);
 	}
 	else
 	{
 		//If the ID Already existing in our array, we need to get the existing version of the effect. And add a stack. Then we need to reset the duration
-		//because its basically a new iteration of the effect at a higher stack.
+		//because it's basically a new iteration of the effect at a higher stack.
 		
 		FStatusEffect* ExisitingStatusEffect = FindEffectByIdTag(Effect.EffectIdTag);
 		if (ExisitingStatusEffect)

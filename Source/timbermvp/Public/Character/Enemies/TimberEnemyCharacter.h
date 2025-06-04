@@ -7,6 +7,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class UWidgetComponent;
 class UStatusEffectHandlerComponent;
 class ULootTable;
 class ALootHealthDrop;
@@ -41,12 +42,16 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 
 public:
 	ATimberEnemyCharacter();
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Damage)
 	UStatusEffectHandlerComponent* StatusEffectHandler;
 
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status Effects")
+	UWidgetComponent* StatusEffectBarComponent;
+
+	void SetupCharacterMovementData();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
 	EEnemyWeaponState EnemyWeaponType = EEnemyWeaponState::NoWeaponEquipped;

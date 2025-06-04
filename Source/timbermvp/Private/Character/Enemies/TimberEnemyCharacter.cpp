@@ -9,6 +9,7 @@
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Data/DataAssets/LootTable.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -18,26 +19,22 @@
 #include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
+
+
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
+
+	StatusEffectBarComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
+	StatusEffectBarComponent->SetupAttachment(RootComponent);
 	
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 
-	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
-	{
-		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
-		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
-		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
-		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
-		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
-		CharacterMovementComponent->bUseRVOAvoidance = true;
-		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
-		CharacterMovementComponent->AvoidanceWeight = 0.8f;
-	}
+	SetupCharacterMovementData();
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -54,6 +51,21 @@ void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+}
+
+void ATimberEnemyCharacter::SetupCharacterMovementData()
+{
+	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
+	{
+		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
+		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
+		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
+		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
+		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
+		CharacterMovementComponent->bUseRVOAvoidance = true;
+		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
+		CharacterMovementComponent->AvoidanceWeight = 0.8f;
+	}
 }
 
 void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstigator)
@@ -106,7 +118,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 bool ATimberEnemyCharacter::HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float fDamageAccumulatedDuringWindow)
 {
 	//If DamageInstigator is a player character, check if the enemy should aggro the player.
-	if (ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(DamageInstigator))
+	if (Cast<ATimberPlayableCharacter>(DamageInstigator))
 	{
 		// If damage accumulated during window is greater than 20 or the enemy has lost more than 40% of its health, it will aggro the player.
 		if(DamageReceived > (MaxHealth * .40) || fDamageAccumulatedDuringWindow > 20 )
@@ -297,7 +309,7 @@ ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 		RaycastStart,
 		RaycastEnd,
 		ECC_Visibility);
-
+	
 	for (FHitResult HitActors : HitResults)
 	{
 		if (HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))

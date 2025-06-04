@@ -71,5 +71,19 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* InitialDamageTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DOTTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DOTDamageTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DOTDurationTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MaxStacksTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* SlowsTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MetaTextBlock;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* RemovesTextBlock;
 	
 };

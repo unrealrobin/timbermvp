@@ -62,7 +62,7 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			//Applying any DOT Effects if Valid
 			HandleDotEffects(StatusEffect, DeltaTime);
 
-			HandleMetaRemovals(StatusEffect);
+			HandleMetaPerpetualRemovals(StatusEffect);
 		}
 		else
 		{
@@ -78,13 +78,43 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	}
 }
 
-void UStatusEffectHandlerComponent::HandleMetaRemovals(FStatusEffect& StatusEffect)
+void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Effect)
+{
+	if (Effect.InitialDamage > 0.f)
+	{
+		OwningEnemyCharacter->TakeDamage(Effect.InitialDamage, nullptr);
+	}
+}
+
+void UStatusEffectHandlerComponent::HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect)
 {
 	//Looping through Type Tags Array of any Active Status Effects to Check if there is a Meta Tag
 	for (FGameplayTag Tag : StatusEffect.MetaTagContainer) //Ex. Status Effect = Burn Effect 
 	{
 		//Does the Burn status effect have a Meta Tag that removes Slow?
-		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Removes.Slow")) // Burn effect has this Tag in the Meta Tag Container
+		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Perpetual.Removes.Slow")) // Burn effect has this Tag in the Meta Tag Container
+		{
+			
+			//Check all existing Status Effects to see if there is a Slow Effect that needs to be removed.
+			for (FStatusEffect& CheckedStatusEffect : ActiveStatusEffects)
+			{
+				if (CheckedStatusEffect.TypeTagContainer.HasTag(FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow"))) 
+				{
+					StagedForRemoval.Add(CheckedStatusEffect);
+					UE_LOG(LogTemp, Warning, TEXT("Removing : %s from: %s"), *CheckedStatusEffect.EffectIdTag.ToString(), *GetOwner()->GetName());
+				}
+			}
+		}
+	}
+}
+
+void UStatusEffectHandlerComponent::HandleMetaInitialRemovals(FStatusEffect& StatusEffect)
+{
+	//Looping through Type Tags Array of any Active Status Effects to Check if there is a Meta Tag
+	for (FGameplayTag Tag : StatusEffect.MetaTagContainer) //Ex. Status Effect = Burn Effect 
+	{
+		//Does the Burn status effect have a Meta Tag that removes Slow?
+		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Initial.Removes.Slow")) // Burn effect has this Tag in the Meta Tag Container
 		{
 			
 			//Check all existing Status Effects to see if there is a Slow Effect that needs to be removed.
@@ -170,14 +200,6 @@ void UStatusEffectHandlerComponent::RemoveEffectFromStatusEffectBar(FGameplayTag
 	}
 }
 
-void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Effect)
-{
-	if (Effect.InitialDamage > 0.f)
-	{
-		OwningEnemyCharacter->TakeDamage(Effect.InitialDamage, nullptr);
-	}
-}
-
 void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Effect)
 {
 	//Does this unique id already exist in the container?
@@ -194,6 +216,9 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 		
 		/*Handle Any Initial Damage*/
 		HandleEffectInitialDamage(Effect);
+
+		/*Handle Any Initial Removals*/
+		HandleMetaInitialRemovals(Effect);
 
 		//Handle Any Slow Tags on the Status Effect. (There can be multiple Tags on this Effect.)
 		HandleSlowTags(Effect, 0.5f); //50% slower

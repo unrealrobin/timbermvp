@@ -7,6 +7,13 @@
 #include "UI/StatusEffects/StatusEffectBarIcon.h"
 
 
+void UStatusEffectBar::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	//AController* Controller = GetOwner()->GetController();
+}
+
 void UStatusEffectBar::AddEffectToBar(FGameplayTag EffectTag)
 {
 	//TODO:: Status Effect Component to Call this when adding a new Status Effect to Status Effect Container.

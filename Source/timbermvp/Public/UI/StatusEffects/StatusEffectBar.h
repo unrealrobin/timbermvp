@@ -23,6 +23,8 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UHorizontalBox* StatusEffectIconContainer;
+
+	void NativeConstruct() override;
 	
 	//Takes a GameplayTag and adds a Specific Icon for that Effect to the Status Effect Bar.
 	UFUNCTION()

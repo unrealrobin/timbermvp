@@ -62,7 +62,7 @@ void ATimberPlayerController::SetupInputComponent()
 
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
-	//Binding Move Function
+	/*Standard Inputs*/
 	EnhancedInputComponent->BindAction(StandardAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::UsePrimaryAbility);
 	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Started, this, &ATimberPlayerController::UseSecondaryAbilityStarted);
 	EnhancedInputComponent->BindAction(SecondaryAction, ETriggerEvent::Canceled, this, &ATimberPlayerController::UseSecondaryAbilityCanceled);
@@ -76,17 +76,20 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::Interact);
 	EnhancedInputComponent->BindAction(EquipMeleeWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipMeleeWeapon);
 	EnhancedInputComponent->BindAction(EquipRangedWeaponAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EquipRangedWeapon);
+	EnhancedInputComponent->BindAction(ModifyCursorAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
+	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
+	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
+	EnhancedInputComponent->BindAction(ToggleDataViewAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleDataView);
+
+	/*Build Inputs*/
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EnterBuildMode);
 	EnhancedInputComponent->BindAction(RotateBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::RotateBuildingComponent);
 	EnhancedInputComponent->BindAction(PlaceBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::PlaceBuildingComponent);
-	EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 	EnhancedInputComponent->BindAction(DeleteBuildingComponentAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::DeleteBuildingComponent);
-	EnhancedInputComponent->BindAction(ModifyCursorAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::ModifyCursorWithController);
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
-	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
-	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
-	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
 	EnhancedInputComponent->BindAction(ToggleBuildMenuStatusEffectWindowAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMenuStatusEffectWindow);
+	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
+	//EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 }
 
 void ATimberPlayerController::EnableCursor()
@@ -421,7 +424,7 @@ void ATimberPlayerController::ToggleSettingsPanel(const FInputActionValue& Value
 {
 	if (TimberCharacter->CharacterState == ECharacterState::Standard)
 	{
-		//The HUD will no whether or not the visibility of the settings panel is set to true or false. And will toggle beteern them.
+		//The HUD will know whether the visibility of the settings panel is set to true or false. And will toggle between them.
 		ToggleSettingsPanel_DelegateHandle.Broadcast();
 		//Just letting the HUD know that the player pressed this button while out of Build Mode.
 	}
@@ -441,6 +444,11 @@ void ATimberPlayerController::ToggleBuildMenuStatusEffectWindow(const FInputActi
 		UE_LOG(LogTemp, Warning, TEXT("HUD Unable To Cast."));
 	}
 	
+}
+
+void ATimberPlayerController::ToggleDataView(const FInputActionValue& Value)
+{
+	ToggleDataView_DelegateHandle.Broadcast(Value);
 }
 
 void ATimberPlayerController::HandleControllerExitBuildMode()
@@ -478,11 +486,11 @@ void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Va
 	}
 }
 
-void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
+/*void ATimberPlayerController::HideBuildMenu(const FInputActionValue& Value)
 {
 	//Broadcast to HUD to Hide the Build Menu
 	ShouldHideBuildMenu.Broadcast();
-}
+}*/
 
 void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& Value)
 {

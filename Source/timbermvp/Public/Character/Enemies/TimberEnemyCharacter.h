@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "Character/TimberCharacterBase.h"
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
@@ -42,6 +43,7 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 
 public:
 	ATimberEnemyCharacter();
+	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -145,4 +147,7 @@ protected:
 
 private:
 	void HandleRemoveStatusEffectComponent();
+
+	UFUNCTION()
+	void HandleToggleDataView(FInputActionValue Input);
 };

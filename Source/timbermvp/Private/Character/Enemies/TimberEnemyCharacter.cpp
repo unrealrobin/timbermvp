@@ -11,6 +11,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "Data/DataAssets/LootTable.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -19,8 +20,8 @@
 #include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
-
 
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
@@ -39,6 +40,21 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
+	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarComponent->GetWidget());
+	if (StatusEffectBarWidget)
+	{
+		ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
+		if (PlayerCharacter)
+		{
+			ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+			if (PC)		
+			{
+				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
+			}
+		}
+	}
 	
 }
 
@@ -238,6 +254,30 @@ void ATimberEnemyCharacter::HandleRemoveStatusEffectComponent()
 	if (StatusEffectHandler)
 	{
 		StatusEffectHandler->DestroyComponent();
+	}
+}
+
+void ATimberEnemyCharacter::HandleToggleDataView(FInputActionValue Input)
+{
+	/*When holding down Tab
+	 * Should show All Data - Status Effect Bar
+	 * If not holding, hide the Status Effect Bar
+	 */
+	if (Input.Get<bool>()) //true
+	{
+		if (StatusEffectBarComponent && StatusEffectBarComponent->GetUserWidgetObject() && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
+		{
+			//Toggles the visibility of the Status Effect Bar
+			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Visible);
+			
+		}
+	}
+	else //false
+	{
+		if (StatusEffectBarComponent && StatusEffectBarComponent->GetUserWidgetObject() && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
+		{
+			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 }
 

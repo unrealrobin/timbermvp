@@ -9,7 +9,9 @@
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "Data/DataAssets/LootTable.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -18,31 +20,41 @@
 #include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
+
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
+
+	StatusEffectBarComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
+	StatusEffectBarComponent->SetupAttachment(RootComponent);
 	
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 
-	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
-	{
-		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
-		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
-		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
-		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
-		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
-		CharacterMovementComponent->bUseRVOAvoidance = true;
-		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
-		CharacterMovementComponent->AvoidanceWeight = 0.8f;
-	}
+	SetupCharacterMovementData();
 }
 
 void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
+	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarComponent->GetWidget());
+	if (StatusEffectBarWidget)
+	{
+		ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
+		if (PlayerCharacter)
+		{
+			ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+			if (PC)		
+			{
+				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
+			}
+		}
+	}
 	
 }
 
@@ -56,6 +68,21 @@ void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
+void ATimberEnemyCharacter::SetupCharacterMovementData()
+{
+	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
+	{
+		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
+		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
+		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
+		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
+		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
+		CharacterMovementComponent->bUseRVOAvoidance = true;
+		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
+		CharacterMovementComponent->AvoidanceWeight = 0.8f;
+	}
+}
+
 void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 {
 	//TODO::PlayHitReact Montage
@@ -64,9 +91,9 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	//Glows the Enemy Character briefly when hit.
 	AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f);
 	
-	//Adding new damage to the accumulated damage during window
+	//Adding new damage to the accumulated damage window
 	DamageAccumulatedDuringWindow += DamageAmount;
-	//Applying damage to Characters Health
+	//Applying damage to Character Health
 	CurrentHealth -= DamageAmount;
 	//Starting Damage Accumulation Window / Used for Aggro Conditions
 	StartDamageTimerWindow();
@@ -106,9 +133,9 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 bool ATimberEnemyCharacter::HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float fDamageAccumulatedDuringWindow)
 {
 	//If DamageInstigator is a player character, check if the enemy should aggro the player.
-	if (ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(DamageInstigator))
+	if (Cast<ATimberPlayableCharacter>(DamageInstigator))
 	{
-		// If damage accumulated during window is greater than 20 or the enemy has lost more than 40% of its health, it will aggro the player.
+		// If damage accumulated during a damage window is greater than 20 or the enemy has lost more than 40% of its health, it will then aggro the player.
 		if(DamageReceived > (MaxHealth * .40) || fDamageAccumulatedDuringWindow > 20 )
 		{
 			return true;
@@ -128,7 +155,7 @@ void ATimberEnemyCharacter::StartDamageTimerWindow()
 	bool bIsTimerActive = GetWorld()->GetTimerManager().IsTimerActive(DamageWindowTimerHandle);
 	if(!bIsTimerActive)
 	{
-		// Starts the Damage Window Timer that starts at first hit for (X: DamageWindowTime ) and automatically resets itself at the end of the window.
+		// Starts the Damage Window Timer that starts at first hit for (X: DamageWindowTime) and automatically resets itself at the end of the window.
 		GetWorld()->GetTimerManager().SetTimer(DamageWindowTimerHandle, this, &ATimberEnemyCharacter::ResetDamageWindow, DamageWindowTime, false);
 	}
 	else
@@ -230,6 +257,30 @@ void ATimberEnemyCharacter::HandleRemoveStatusEffectComponent()
 	}
 }
 
+void ATimberEnemyCharacter::HandleToggleDataView(FInputActionValue Input)
+{
+	/*When holding down Tab
+	 * Should show All Data - Status Effect Bar
+	 * If not holding, hide the Status Effect Bar
+	 */
+	if (Input.Get<bool>()) //true
+	{
+		if (StatusEffectBarComponent && StatusEffectBarComponent->GetUserWidgetObject() && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
+		{
+			//Toggles the visibility of the Status Effect Bar
+			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Visible);
+			
+		}
+	}
+	else //false
+	{
+		if (StatusEffectBarComponent && StatusEffectBarComponent->GetUserWidgetObject() && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
+		{
+			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
 void ATimberEnemyCharacter::HandleEnemyDeath()
 {
 	HandleWeaponDestruction();
@@ -298,11 +349,14 @@ ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 		RaycastEnd,
 		ECC_Visibility);
 
-	for (FHitResult HitActors : HitResults)
+	if (bHit)
 	{
-		if (HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
+		for (FHitResult HitActors : HitResults)
 		{
-			return Cast<ATimberBuildingComponentBase>(HitActors.GetActor());
+			if (HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
+			{
+				return Cast<ATimberBuildingComponentBase>(HitActors.GetActor());
+			}
 		}
 	}
 

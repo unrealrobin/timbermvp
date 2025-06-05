@@ -5,7 +5,7 @@
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
-
+#include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 
 AElectroStaticPulseTrap::AElectroStaticPulseTrap()
@@ -130,7 +130,8 @@ void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
 	//Apply Initial Damage to Enemy.
 	if (Enemy)
 	{
-		Enemy->TakeDamage(InitialHitDamage, this);
+		AddEffectToEnemy(Enemy, StatusEffectDataAsset->StatusEffect);
+		//Enemy->TakeDamage(InitialHitDamage, this);
 	}
 
 	//TODO::Apply DOT on Enemy that last 10 Seconds doing 2 damage every other second.

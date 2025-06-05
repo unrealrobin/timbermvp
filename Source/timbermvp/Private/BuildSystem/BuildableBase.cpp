@@ -94,11 +94,11 @@ void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
 	 * Used for Traps and Constructs that add effects to enemies.
 	 */
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(EnemyActor);
-	if (EnemyCharacter && EnemyCharacter->StatusEffectHandler)
+	if (EnemyCharacter && !EnemyCharacter->IsPendingKillPending() && EnemyCharacter->StatusEffectHandler)
 	{
 		
 		EnemyCharacter->StatusEffectHandler->AddStatusEffectToComponent(Effect);
-		UE_LOG(LogTemp, Warning, TEXT("Added Effect to Enemy: %s"), *EnemyCharacter->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Added %s to Enemy: %s"), *Effect.EffectIdTag.ToString(), *EnemyCharacter->GetName());
 	}
 }
 

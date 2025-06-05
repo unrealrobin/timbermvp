@@ -128,6 +128,9 @@ public:
 	UFUNCTION()
 	void ShowAllGameWidgets();
 
+	UFUNCTION()
+	void ToggleBuildMenuStatusEffectDetails();
+
 protected:
 	UPROPERTY()
 	ATimberPlayableCharacter* TimberCharacter;
@@ -166,7 +169,8 @@ private:
 	UUserWidget* GetWidgetByClassName(FString ClassName);
 	UUserWidget* CreateVisibleWidget(const TSubclassOf<UUserWidget>& Class, int32 ZOrder);
 	UUserWidget* CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetClass, int32 ZOrder);
-	
+
+	//TODO: Tutorial Needs Refinement
 	void HideWidget(UUserWidget* Widget);
 	void ShowWidget(UUserWidget* Widget);
 	void HideAllChildWidgets(TArray<UUserWidget*> Widgets);
@@ -179,9 +183,10 @@ private:
 
 	UFUNCTION()
 	void HandleBossDeath();
-	
 	UFUNCTION()
 	void HandleBossSpawned(AActor* BossActor);
+
+	
 	
 };
 

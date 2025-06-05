@@ -33,22 +33,17 @@ public:
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
-	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSettingsPanelToggle);
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
-
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
-
-	//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FShouldShowAmmoCounter, bool, bShouldShowAmmoCounter);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FToggleDataView, FInputActionValue, Input);
 	
 	/*DelegateHandles*/
 	FOnBuildMenuToggle IsBuildPanelOpen;
 	FOnHideBuildMenu ShouldHideBuildMenu;
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
 	FOnSettingsPanelToggle ToggleSettingsPanel_DelegateHandle;
-	/*UPROPERTY(BlueprintAssignable)
-	FShouldShowAmmoCounter ShowAmmoCounter;*/
+	FToggleDataView ToggleDataView_DelegateHandle;
 	
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -76,8 +71,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	UInputAction* PlaceBuildingComponentAction;
 	UPROPERTY(EditAnywhere)
-	UInputAction* HideBuildMenuAction;
-	UPROPERTY(EditAnywhere)
 	UInputAction* DeleteBuildingComponentAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ModifyCursorAction_Controller;
@@ -89,6 +82,13 @@ public:
 	UInputAction* ExitBuildModeAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ToggleSettingsPanelAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ToggleBuildMenuStatusEffectWindowAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* ToggleDataViewAction;
+	/*UPROPERTY(EditAnywhere)
+	UInputAction* HideBuildMenuAction;*/
+
 
 	/*Player Input Functions*/
 	UFUNCTION()
@@ -110,8 +110,8 @@ public:
 	void RotateBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
 	void PlaceBuildingComponent(const FInputActionValue& Value);
-	UFUNCTION()
-	void HideBuildMenu(const FInputActionValue& Value);
+	/*UFUNCTION()
+	void HideBuildMenu(const FInputActionValue& Value);*/
 	UFUNCTION()
 	void DeleteBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
@@ -122,6 +122,10 @@ public:
 	void ExitBuildMode(const FInputActionValue& Value);
 	UFUNCTION()
 	void ToggleSettingsPanel(const FInputActionValue& Value);
+	UFUNCTION()
+	void ToggleBuildMenuStatusEffectWindow(const FInputActionValue& Value);
+	UFUNCTION()
+	void ToggleDataView(const FInputActionValue& Value);
 
 	/* COMBAT */
 	UFUNCTION()

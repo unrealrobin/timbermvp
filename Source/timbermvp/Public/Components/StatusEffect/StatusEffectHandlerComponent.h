@@ -20,6 +20,7 @@ class TIMBERMVP_API UStatusEffectHandlerComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UStatusEffectHandlerComponent();
+	
 	void HandleEffectInitialDamage(FStatusEffect& Effect);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status Effects")
@@ -34,7 +35,9 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	void HandleDotEffects(FStatusEffect& StatusEffect, float DeltaTime);
-	void HandleMetaRemovals(FStatusEffect& StatusEffect);
+	
+	void HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect);
+	void HandleMetaInitialRemovals(FStatusEffect& StatusEffect);
 
 	/*
 	 * Checks if the Tag (EffectIdTag) already exists in the StatusEffectIdTagContainer.
@@ -51,6 +54,10 @@ protected:
 	 */
 	void HandleSlowTags(const FStatusEffect& Effect, float MaxWalkSpeedBaseMultiplier);
 
+	/* Update Status Effect Bar on Characters*/
+	void AddEffectToStatusEffectBar(FGameplayTag EffectTag);
+	void RemoveEffectFromStatusEffectBar(FGameplayTag EffectTag);
+
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -63,7 +70,11 @@ public:
 	ATimberEnemyCharacter* OwningEnemyCharacter = nullptr;
 
 private:
-	
+	/*
+	 * Why do we Stage For Removal?
+	 * We don't want to modify the ActiveStatusEffects array while iterating through it every tick. So we loop every status effect,
+	 * and the last part of logic in tick clears any staged status effects for destruction.
+	 */
 	TArray<FStatusEffect> StagedForRemoval;
 
 	FStatusEffect* FindEffectByIdTag(const FGameplayTag& Tag);

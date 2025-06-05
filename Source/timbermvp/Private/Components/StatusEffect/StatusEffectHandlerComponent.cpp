@@ -3,8 +3,10 @@
 
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Components/WidgetComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/StatusEffects/StatusEffectBar.h"
 
 UStatusEffectHandlerComponent::UStatusEffectHandlerComponent()
 {
@@ -36,31 +38,10 @@ void UStatusEffectHandlerComponent::HandleDotEffects(FStatusEffect& StatusEffect
 				//Stacks multiply the Damage per Tick.
 				float TotalDamage = StatusEffect.DamagePerTick * StatusEffect.CurrentStacks;
 				OwningEnemyCharacter->TakeDamage(TotalDamage, nullptr);
-				//UE_LOG(LogTemp, Warning, TEXT("Applied Total Damage Dot: %f"), TotalDamage);
+				//UE_LOG(LogTemp, Warning, TEXT ("Applied Total Damage Dot: %f"), TotalDamage);
 				//Resetting the Tick Accumulator
 				StatusEffect.TickAccumulator = 0;
 			}
-		}
-	}
-}
-
-void UStatusEffectHandlerComponent::HandleMetaRemovals(FStatusEffect& StatusEffect)
-{
-	for (FGameplayTag Tag : StatusEffect.TypeTagContainer)
-	{
-		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Removes.Slow"))
-		{
-			//Go through the Status Effects - Check for Type Tags with Slow
-			for (FStatusEffect& CheckedStatusEffect : ActiveStatusEffects)
-			{
-				FGameplayTag TagToCompare = FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow");
-				if (CheckedStatusEffect.TypeTagContainer.HasTag(TagToCompare))
-				{
-					//UE_LOG(LogTemp, Warning, TEXT("Removed a Slow Effect."));
-					StagedForRemoval.Add(CheckedStatusEffect);
-				}
-			}
-			//Stage for removal
 		}
 	}
 }
@@ -69,6 +50,7 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	//Going through Each Active Status Effect.
 	for (FStatusEffect& StatusEffect : ActiveStatusEffects)
 	{
 		/*If the effect still has time remaining*/
@@ -77,9 +59,10 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			//Incrementing
 			StatusEffect.TimeRemaining -= DeltaTime;
 
+			//Applying any DOT Effects if Valid
 			HandleDotEffects(StatusEffect, DeltaTime);
 
-			HandleMetaRemovals(StatusEffect);
+			HandleMetaPerpetualRemovals(StatusEffect);
 		}
 		else
 		{
@@ -95,11 +78,63 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	}
 }
 
+void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Effect)
+{
+	if (Effect.InitialDamage > 0.f)
+	{
+		OwningEnemyCharacter->TakeDamage(Effect.InitialDamage, nullptr);
+	}
+}
+
+void UStatusEffectHandlerComponent::HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect)
+{
+	//Looping through Type Tags Array of any Active Status Effects to Check if there is a Meta Tag
+	for (FGameplayTag Tag : StatusEffect.MetaTagContainer) //Ex. Status Effect = Burn Effect 
+	{
+		//Does the Burn status effect have a Meta Tag that removes Slow?
+		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Perpetual.Removes.Slow")) // Burn effect has this Tag in the Meta Tag Container
+		{
+			
+			//Check all existing Status Effects to see if there is a Slow Effect that needs to be removed.
+			for (FStatusEffect& CheckedStatusEffect : ActiveStatusEffects)
+			{
+				if (CheckedStatusEffect.TypeTagContainer.HasTag(FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow"))) 
+				{
+					StagedForRemoval.Add(CheckedStatusEffect);
+					UE_LOG(LogTemp, Warning, TEXT("Removing : %s from: %s"), *CheckedStatusEffect.EffectIdTag.ToString(), *GetOwner()->GetName());
+				}
+			}
+		}
+	}
+}
+
+void UStatusEffectHandlerComponent::HandleMetaInitialRemovals(FStatusEffect& StatusEffect)
+{
+	//Looping through Type Tags Array of any Active Status Effects to Check if there is a Meta Tag
+	for (FGameplayTag Tag : StatusEffect.MetaTagContainer) //Ex. Status Effect = Burn Effect 
+	{
+		//Does the Burn status effect have a Meta Tag that removes Slow?
+		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Initial.Removes.Slow")) // Burn effect has this Tag in the Meta Tag Container
+		{
+			
+			//Check all existing Status Effects to see if there is a Slow Effect that needs to be removed.
+			for (FStatusEffect& CheckedStatusEffect : ActiveStatusEffects)
+			{
+				if (CheckedStatusEffect.TypeTagContainer.HasTag(FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow"))) 
+				{
+					StagedForRemoval.Add(CheckedStatusEffect);
+					UE_LOG(LogTemp, Warning, TEXT("Removing : %s from: %s"), *CheckedStatusEffect.EffectIdTag.ToString(), *GetOwner()->GetName());
+				}
+			}
+		}
+	}
+}
+
 void UStatusEffectHandlerComponent::HandleIsStackableEffect(FStatusEffect* Effect)
 {
 	if (Effect->TypeTagContainer.HasTag(FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Stackable")))
 	{
-		//Look through the Active Status Effects TArray for the Effect with the Effect Id Tag for this effect.
+		//Look through the Active Status Effects TArray for the Effect with the Effect ID Tag for this effect.
 		//FStatusEffect* StackableEffect = FindEffectByIdTag(Effect->EffectIdTag);
 
 		if (Effect && Effect->CurrentStacks < Effect->MaxStacks)
@@ -124,11 +159,44 @@ void UStatusEffectHandlerComponent::HandleSlowTags(const FStatusEffect& Effect, 
 	}
 }
 
-void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Effect)
+void UStatusEffectHandlerComponent::AddEffectToStatusEffectBar(FGameplayTag EffectTag)
 {
-	if (Effect.InitialDamage > 0.f)
+	//TODO::This only works with the Enemy Characters At the moment. Interface? 
+	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
+	if (EnemyCharacter)
 	{
-		OwningEnemyCharacter->TakeDamage(Effect.InitialDamage, nullptr);
+		if (EnemyCharacter->StatusEffectBarComponent)
+		{
+			UUserWidget* Widget = EnemyCharacter->StatusEffectBarComponent->GetUserWidgetObject();
+			if (Widget)
+			{
+				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);
+				if (StatusEffectBar)
+				{
+					StatusEffectBar->AddEffectToBar(EffectTag);
+				}
+			}
+		}
+	}
+}
+
+void UStatusEffectHandlerComponent::RemoveEffectFromStatusEffectBar(FGameplayTag EffectTag)
+{
+	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
+	if (EnemyCharacter)
+	{
+		if (EnemyCharacter->StatusEffectBarComponent)
+		{
+			UUserWidget* Widget = EnemyCharacter->StatusEffectBarComponent->GetUserWidgetObject();
+			if (Widget)
+			{
+				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);
+				if (StatusEffectBar)
+				{
+					StatusEffectBar->RemoveEffectFromBar(EffectTag);
+				}
+			}
+		}
 	}
 }
 
@@ -140,6 +208,7 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 	if (!bTagExists) //Doesn't already exist
 	{
 		StatusEffectIdTagContainer.AddTag(Effect.EffectIdTag);
+		
 		ActiveStatusEffects.Add(Effect);
 
 		//Initializing TimeRemaining to Start at Effect Duration
@@ -147,13 +216,20 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 		
 		/*Handle Any Initial Damage*/
 		HandleEffectInitialDamage(Effect);
-		
+
+		/*Handle Any Initial Removals*/
+		HandleMetaInitialRemovals(Effect);
+
+		//Handle Any Slow Tags on the Status Effect. (There can be multiple Tags on this Effect.)
 		HandleSlowTags(Effect, 0.5f); //50% slower
+
+		//This adds the Effect Icon to the Status Effect Bar on the Enemy Character.
+		AddEffectToStatusEffectBar(Effect.EffectIdTag);
 	}
 	else
 	{
 		//If the ID Already existing in our array, we need to get the existing version of the effect. And add a stack. Then we need to reset the duration
-		//because its basically a new iteration of the effect at a higher stack.
+		//because it's basically a new iteration of the effect at a higher stack.
 		
 		FStatusEffect* ExisitingStatusEffect = FindEffectByIdTag(Effect.EffectIdTag);
 		if (ExisitingStatusEffect)
@@ -171,15 +247,26 @@ bool UStatusEffectHandlerComponent::CheckIfTagAlreadyExists(FGameplayTag TagToCh
 
 void UStatusEffectHandlerComponent::RemoveEffectFromComponent(const FStatusEffect& Effect)
 {
+	/*
+	 * Why do we Stage For Removal?
+	 * We don't want to modify the ActiveStatusEffects array while iterating through it every tick. So we loop every status effect,
+	 * and the last part of logic in tick clears any staged status effects for destruction.
+	 */
+	
 	//Check the array for this effect and Remove it.
 
 	//Remove Any Movement Speed Encumbrances applied during effect.
 	HandleSlowTags(Effect, 1.0f); //Back to normal speed
-	
+
+	//Returns how Many Effects were removed.
+	//This would remove all status effects, even if there are multiple stacks/instances of the same effect.(Imagine 2 Slow traps in the same location.)
 	ActiveStatusEffects.RemoveAll([Effect](const FStatusEffect& ActiveEffect)
 	{
 		return ActiveEffect.EffectIdTag == Effect.EffectIdTag;
 	});
+
+	//Status Effect Bar UI Icon (Above Enemy Heads)
+	RemoveEffectFromStatusEffectBar(Effect.EffectIdTag);
 	
 	//Remove The Unique Id Tag from the Tag Container.
 	StatusEffectIdTagContainer.RemoveTag(Effect.EffectIdTag);

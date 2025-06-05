@@ -7,6 +7,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 
 // Sets default values
@@ -73,10 +74,11 @@ void ASpikeTrap::HandleSpikeTrapOverlap(
 void ASpikeTrap::HandleSpikeOutAttack()
 {
 	PlaySpikeOutTimeline();
-	ApplyDamageToActorsInHitBox();
+	
+	AppleStatusEffectToEnemy();
 }
 
-void ASpikeTrap::ApplyDamageToActorsInHitBox()
+void ASpikeTrap::AppleStatusEffectToEnemy()
 {
 	if (InsideHitBoxArray.Num() > 0)
 	{
@@ -85,10 +87,11 @@ void ASpikeTrap::ApplyDamageToActorsInHitBox()
 		{
 			if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(Actors))
 			{
-				
-				EnemyCharacter->TakeDamage(SpikeDamage, this);
-				//GEngine->AddOnScreenDebugMessage(6, 2, FColor::Red, "Damage");
-				//UE_LOG(LogTemp, Display, TEXT("Damage: %f"), SpikeDamage);
+				AddEffectToEnemy(EnemyCharacter, StatusEffectDataAsset->StatusEffect);
+				UE_LOG(LogTemp, Display, TEXT("Damage: %f"), StatusEffectDataAsset->StatusEffect.InitialDamage);
+
+				//Originally used to Apply Damage - Using Status Effects Now - Remove if unused
+				//EnemyCharacter->TakeDamage(SpikeDamage, this);
 			}
 		}
 	}

@@ -78,9 +78,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
 	EBuildingComponentTrapDirection BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 
-	/* Getters / Setters */
-	/*FORCEINLINE bool GetCanTrapBeFinalized() const { return CanTrapBeFinalized; };*/
-
 	/*Hit Area Utilities*/
 	/* Adds Enemies to the Inside Hit Box Array*/
 	UFUNCTION()

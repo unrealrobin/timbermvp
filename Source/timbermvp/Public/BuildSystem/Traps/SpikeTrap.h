@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
 	float SpikeDamage = 35.f;
 
-	void ApplyDamageToActorsInHitBox();
+	void AppleStatusEffectToEnemy();
 
 	/*Timeline Animation*/
 	void SetupTimelineComponents();

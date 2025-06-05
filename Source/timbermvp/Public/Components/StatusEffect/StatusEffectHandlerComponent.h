@@ -54,6 +54,7 @@ protected:
 
 	/* Update Status Effect Bar on Characters*/
 	void AddEffectToStatusEffectBar(FGameplayTag EffectTag);
+	void RemoveEffectFromStatusEffectBar(FGameplayTag EffectTag);
 
 public:
 	// Called every frame
@@ -67,7 +68,11 @@ public:
 	ATimberEnemyCharacter* OwningEnemyCharacter = nullptr;
 
 private:
-	
+	/*
+	 * Why do we Stage For Removal?
+	 * We don't want to modify the ActiveStatusEffects array while iterating through it every tick. So we loop every status effect,
+	 * and the last part of logic in tick clears any staged status effects for destruction.
+	 */
 	TArray<FStatusEffect> StagedForRemoval;
 
 	FStatusEffect* FindEffectByIdTag(const FGameplayTag& Tag);

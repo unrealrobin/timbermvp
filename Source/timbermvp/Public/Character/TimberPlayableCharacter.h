@@ -112,6 +112,7 @@ public:
 	UAnimMontage* ReloadMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* EquipWeaponMontage;
+	
 	UFUNCTION()
 	void PlayEquipWeaponMontage(FName SectionName);
 

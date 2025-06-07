@@ -393,11 +393,13 @@ void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation,
 //CombatComponentAnimUser Interface Override
 void ATimberPlayableCharacter::PlayWeaponEquipAnimationMontage(FName SectionName)
 {
+	//This is this characters-specific implementation of this Override.
 	PlayEquipWeaponMontage(SectionName);
 }
 
 void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
 {
+	//Build in function on the ACharacter Class.
 	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
 }
 

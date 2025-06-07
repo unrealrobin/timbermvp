@@ -179,6 +179,13 @@ void ATimberPlayerController::HandleCharacterRotation()
 		{
 			return;
 		}
+
+		//Don't want the Rotation Montage to Play and Break the Equip Animation Montage.
+		//Can be adjusted later by have 2 Rotation Animations and separate Upper and Lower Body Animations.
+		if (TimberCharacter->CombatComponent && TimberCharacter->CombatComponent->bIsEquipMontagePlaying)
+		{
+			return;
+		}
 		
 		FRotator CharacterRotation = TimberCharacter->GetActorRotation().Clamp();
 		//UE_LOG(LogTemp, Warning, TEXT("Kip Yaw Rotation = %f"), CharacterRotation.Yaw)
@@ -283,8 +290,7 @@ void ATimberPlayerController::EquipRangedWeapon(const FInputActionValue& Value)
 
 		HandleExitBuildMode();
 
-		//Equip Animation
-		//TimberCharacter->PlayEquipWeaponMontage("EquipGun");
+		
 		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipGun");
 	}
 }

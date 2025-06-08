@@ -20,9 +20,8 @@ ASpikeTrap::ASpikeTrap()
 	
 	TrapSpikeMesh = CreateDefaultSubobject<UStaticMeshComponent>("Spikes");
 	TrapSpikeMesh->SetupAttachment(TrapBaseStaticMesh);
-	
-	//Using No Collision Preset
 	TrapSpikeMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	
 	SpikeOutTimeline = CreateDefaultSubobject<UTimelineComponent>("SpikeOutTimeline");
 }
 
@@ -31,7 +30,7 @@ void ASpikeTrap::BeginPlay()
 	Super::BeginPlay();
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::HandleSpikeTrapOverlap);
 	SetupTimelineData();
-	FVector SpikeStartScale = FVector(0.1f, 1.0f, 1.0f);
+	FVector SpikeStartScale = FVector(1.0f, 1.0f, 0.1f);
 	TrapSpikeMesh->SetRelativeScale3D(SpikeStartScale);
 }
 

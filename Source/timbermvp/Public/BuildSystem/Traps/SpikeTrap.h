@@ -27,25 +27,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Component")
 	UStaticMeshComponent* TrapSpikeMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
+	float SpikeDamage = 35.f;
+
 	UFUNCTION()
 	void HandleSpikeTrapOverlap(
 		UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION()
 	void HandleSpikeOutAttack();
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
-	float SpikeDamage = 35.f;
-
 	void AppleStatusEffectToEnemy();
 
 	/*Timeline Animation*/
 	void SetupTimelineComponents();
 	void SetupTimelineData();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UTimelineComponent* SpikeOutTimeline;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UCurveVector* SpikeAnimVectorCurve;
+	
 	UFUNCTION()
 	void HandleVectorCurveUpdate(FVector CurveVector);
 	UFUNCTION()

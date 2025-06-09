@@ -35,6 +35,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Navigation Data")
+	bool bIsLastPathPartial = false;
+
 	UFUNCTION(BlueprintCallable, Category = "Navigation Logic")
 	TArray<FVector> GetCorridorPathPoints(FVector Start, FVector End);
 

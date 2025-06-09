@@ -12,7 +12,7 @@
 UNavigationHelperComponent::UNavigationHelperComponent()
 {
 	
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -39,6 +39,8 @@ UNavigationPath* UNavigationHelperComponent::GetOriginalNavPath(FVector Start, F
 		UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Failed to find a valid navigation path!"));
 		return nullptr;
 	}
+	
+	NavPath->IsPartial() ? bIsLastPathPartial = true : bIsLastPathPartial = false;
 
 	return NavPath;
 }

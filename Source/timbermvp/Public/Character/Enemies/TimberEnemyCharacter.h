@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "BuildSystem/BuildableBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class UNavigationHelperComponent;
 class UWidgetComponent;
 class UStatusEffectHandlerComponent;
 class ULootTable;
@@ -43,12 +45,20 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 
 public:
 	ATimberEnemyCharacter();
+
+	UFUNCTION()
+	void UpdatePathToTarget(ABuildableBase* BuildableActor);
+	UFUNCTION()
+	void UpdatePathToTarget_BuildableDeleted();
 	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Damage)
 	UStatusEffectHandlerComponent* StatusEffectHandler;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Navigation")
+	UNavigationHelperComponent* NavHelperComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status Effects")
 	UWidgetComponent* StatusEffectBarComponent;

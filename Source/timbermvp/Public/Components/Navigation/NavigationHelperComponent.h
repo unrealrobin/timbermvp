@@ -8,6 +8,7 @@
 #include "NavigationHelperComponent.generated.h"
 
 
+class ABuildableBase;
 class ATimberCharacterBase;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -36,4 +37,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Navigation Logic")
 	TArray<FVector> GetCorridorPathPoints(FVector Start, FVector End);
+
+	bool CheckIfPathShouldUpdate(ABuildableBase* BuildableActor);
 };

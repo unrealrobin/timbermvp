@@ -872,16 +872,19 @@ void UBuildSystemManagerComponent::BroadcastControllerUpdateNewBuildable(AActor*
 {
 	ABuildableBase* CastBuildable = Cast<ABuildableBase>(Buildable);
 	
-	if (!CastBuildable) return;
-	
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-	if (PlayerCharacter)
+	if (PlayerCharacter && CastBuildable)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Changed Buildable Name: %s"), *CastBuildable->GetName());
 		ATimberPlayerController* PC = PlayerCharacter->GetController<ATimberPlayerController>();
 		if (PC)
 		{
-			PC->OnBuildableChanged_DelegateHandle.Broadcast(CastBuildable);
+			PC->OnBuildableAdded.Broadcast(CastBuildable);
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BSMC - BroadcastControllerUpdateNewBuildable - Player Character or Buildable is Null."));
 	}
 }
 

@@ -33,7 +33,8 @@ public:
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildableChanged, ABuildableBase*, BuildableActor);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildableAdded, ABuildableBase*, BuildableActor);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBuildableDeleted);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSettingsPanelToggle);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
@@ -45,7 +46,8 @@ public:
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
 	FOnSettingsPanelToggle ToggleSettingsPanel_DelegateHandle;
 	FToggleDataView ToggleDataView_DelegateHandle;
-	FOnBuildableChanged OnBuildableChanged_DelegateHandle;
+	FOnBuildableAdded OnBuildableAdded;
+	FOnBuildableDeleted OnBuildableDeleted;
 	
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)

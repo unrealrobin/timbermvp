@@ -10,6 +10,7 @@
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/Navigation/NavigationHelperComponent.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Data/DataAssets/LootTable.h"
@@ -33,6 +34,7 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	StatusEffectBarComponent->SetupAttachment(RootComponent);
 	
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
+	NavHelperComponent = CreateDefaultSubobject<UNavigationHelperComponent>("NavHelperComponent");
 
 	SetupCharacterMovementData();
 }
@@ -52,6 +54,8 @@ void ATimberEnemyCharacter::BeginPlay()
 			if (PC)		
 			{
 				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
+				PC->OnBuildableAdded.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget);
+				PC->OnBuildableDeleted.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget_BuildableDeleted);
 			}
 		}
 	}
@@ -397,4 +401,26 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, f
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Actor Found"));
 	}
+}
+
+void ATimberEnemyCharacter::UpdatePathToTarget(ABuildableBase* BuildableActor)
+{
+	if (NavHelperComponent)
+	{
+		if (NavHelperComponent->CheckIfPathShouldUpdate(BuildableActor))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("A Buildable has been added that Effects Navigation, Updating Path."));
+
+			//Create Corridor Path, Set on BB.
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Buildable change does not Effect Navigation."));
+		}
+	}
+}
+
+void ATimberEnemyCharacter::UpdatePathToTarget_BuildableDeleted()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Updating Path To Target - Buildable Deleted."))
 }

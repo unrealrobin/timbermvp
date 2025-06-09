@@ -3,6 +3,7 @@
 
 #include "Components/Navigation/NavigationHelperComponent.h"
 #include "NavigationSystem.h"
+#include "BuildSystem/BuildableBase.h"
 #include "NavMesh/RecastNavMesh.h"
 #include "Character/TimberCharacterBase.h"
 
@@ -57,9 +58,12 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 	UNavigationPath* NavPath = GetOriginalNavPath(Start, End);
 
 	//Debug to show the original Path Points in the world.
-	for (FVector OriginalPathPoint : NavPath->PathPoints)
+	if (NavPath)
 	{
-		DrawDebugSphere(GetWorld(), OriginalPathPoint, 10, 10, FColor::Red, true);
+		for (FVector OriginalPathPoint : NavPath->PathPoints)
+		{
+			DrawDebugSphere(GetWorld(), OriginalPathPoint, 10, 10, FColor::Red, true);
+		}
 	}
 
 	// Retrieving the real object with all the Low Level Data
@@ -132,5 +136,20 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		}
 	}
 	return PathPoints;
+}
+
+bool UNavigationHelperComponent::CheckIfPathShouldUpdate(ABuildableBase* BuildableActor)
+{
+	if (BuildableActor)
+	{
+		//TODO:: Add some Var to ABuildableBase to Check whether this Buildable effects Navigation / Can block or alter paths.
+		if (BuildableActor->BuildableType == EBuildableType::BuildingComponent || BuildableActor->BuildableType == EBuildableType::Ramp)
+		{
+			return true;
+		}
+		return false;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Buildable Actor is Not Valid."))
+	return false;
 }
 

@@ -2,12 +2,9 @@
 
 
 #include "Components/Navigation/NavigationHelperComponent.h"
-
 #include "NavigationSystem.h"
 #include "NavMesh/RecastNavMesh.h"
 #include "Character/TimberCharacterBase.h"
-#include "Character/TimberSeeda.h"
-#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values for this component's properties

@@ -500,8 +500,6 @@ void ATimberPlayerController::PlaceBuildingComponent(const FInputActionValue& Va
 
 void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& Value)
 {
-	//During Raycast, if we raycast over an existing BC, a UI Widget Will Appear around that Component.
-
 	//TODO:: Add Progress like system where Pressing the E button will Delete if Held for 1 Full second. Show Progress Swirl.
 
 	if (TimberCharacter && TimberCharacter->HoveredBuildingComponent)
@@ -521,6 +519,10 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 
 			//Reset the value of HoveredBuildingComponent after deletion.
 			TimberCharacter->HoveredBuildingComponent = nullptr;
+
+			//Broadcasting that a Buildable has Been Deleted.
+			// Potentially Redraws Routes for Enemies.
+			OnBuildableChanged_DelegateHandle.Broadcast(TimberCharacter->HoveredBuildingComponent);
 		}
 	}
 }

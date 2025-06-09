@@ -96,7 +96,7 @@ public:
 
 	//Checks if the player is undergoing a Timed Rotation
 	bool IsRotating = false;
-	//Time Elapsed inbetween timer calls.
+	//Time Elapsed in-between timer calls.
 	float ElapsedTime = 0.0f;
 	FTimerHandle RotationTimerHandle;
 	//Handles that actual timing and set of the Rotation

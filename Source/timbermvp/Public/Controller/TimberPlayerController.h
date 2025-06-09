@@ -33,6 +33,7 @@ public:
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildableChanged, ABuildableBase*, BuildableActor);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSettingsPanelToggle);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHideBuildMenu);
 	DECLARE_DYNAMIC_DELEGATE(FHandleDeathUI);
@@ -44,6 +45,7 @@ public:
 	FHandleDeathUI HandleDeathUI_DelegateHandle;
 	FOnSettingsPanelToggle ToggleSettingsPanel_DelegateHandle;
 	FToggleDataView ToggleDataView_DelegateHandle;
+	FOnBuildableChanged OnBuildableChanged_DelegateHandle;
 	
 	/*Input Actions*/
 	UPROPERTY(EditAnywhere)
@@ -109,8 +111,6 @@ public:
 	void RotateBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
 	void PlaceBuildingComponent(const FInputActionValue& Value);
-	/*UFUNCTION()
-	void HideBuildMenu(const FInputActionValue& Value);*/
 	UFUNCTION()
 	void DeleteBuildingComponent(const FInputActionValue& Value);
 	UFUNCTION()
@@ -143,14 +143,6 @@ public:
 	void UseSecondaryAbilityTriggered(const FInputActionValue& Value);
 	UFUNCTION()
 	void ReloadWeapon(const FInputActionValue& Value);
-	/*UFUNCTION()
-	void UnEquipWeapon() const;*/
-
-	/*/* Reticule Alignment#1#
-	//Raycast to align the reticule to the hit location.
-	FVector ReticuleHitLocation;
-	UFUNCTION()
-	void PerformReticuleAlignment_Raycast();*/
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;

@@ -524,6 +524,9 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 			// Potentially Redraws Routes for Enemies.
 			OnBuildableDeleted.Broadcast();
 
+			//Broadcasting to Game Mode to update the Path Tracer.
+			TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.Broadcast();
+
 		}
 	}
 }

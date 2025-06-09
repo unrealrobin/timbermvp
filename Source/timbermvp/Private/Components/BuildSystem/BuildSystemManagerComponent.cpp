@@ -586,7 +586,7 @@ void UBuildSystemManagerComponent::SpawnFinalRampBuildable(FActorSpawnParameters
 		if(SpawnedActor)
 		{
 			BroadcastControllerUpdateNewBuildable(SpawnedActor);
-			RedrawPathTraceHandle.Broadcast();
+			
 			PlayBuildablePlacementSound();
 			//Adding Ramp to Hovered Building Components Attachment Array, on Deletion or Destruction, Ramp will also be deleted.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
@@ -683,7 +683,6 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 		{
 			SpawnedActor->SetActorEnableCollision(true);
 			BroadcastControllerUpdateNewBuildable(SpawnedActor);
-			RedrawPathTraceHandle.Broadcast();
 			PlayBuildablePlacementSound();
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
 		}
@@ -879,7 +878,11 @@ void UBuildSystemManagerComponent::BroadcastControllerUpdateNewBuildable(AActor*
 		ATimberPlayerController* PC = PlayerCharacter->GetController<ATimberPlayerController>();
 		if (PC)
 		{
+			//Used for Enemy to Update Path.
 			PC->OnBuildableAdded.Broadcast(CastBuildable);
+
+			//Used for Game Mode to update the Path Tracer.
+			RedrawPathTraceHandle.Broadcast();
 		}
 	}
 	else

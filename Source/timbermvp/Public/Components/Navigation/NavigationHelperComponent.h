@@ -25,7 +25,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Navigation Data")
-	ATimberCharacterBase* OwningCharacter = nullptr;
+	AActor* OwningActor = nullptr;
 
 	UFUNCTION()
 	UNavigationPath* GetOriginalNavPath(FVector Start, FVector End);

@@ -21,8 +21,8 @@ void UNavigationHelperComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwningCharacter = Cast<ATimberCharacterBase>(GetOwner());
-	if (!OwningCharacter)
+	OwningActor = GetOwner();
+	if (!OwningActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Owning character is not set or invalid!"));
 		return;
@@ -60,10 +60,10 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 	//Debug to show the original Path Points in the world.
 	if (NavPath)
 	{
-		for (FVector OriginalPathPoint : NavPath->PathPoints)
+		/*for (FVector OriginalPathPoint : NavPath->PathPoints)
 		{
 			DrawDebugSphere(GetWorld(), OriginalPathPoint, 10, 10, FColor::Red, true);
-		}
+		}*/
 	}
 
 	// Retrieving the real object with all the Low Level Data
@@ -84,7 +84,7 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		const TArray<NavNodeRef>& Corridor = MeshPath->PathCorridor;
 
 		//This is the Navigation System the Owning Character is using.
-		UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(OwningCharacter->GetWorld());
+		UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(OwningActor->GetWorld());
 
 		ARecastNavMesh* RecastMesh = Cast<ARecastNavMesh>(NavSys->GetDefaultNavDataInstance());
 
@@ -130,10 +130,10 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		}
 
 		//Debug to show the adjusted Path Points in the world.
-		for (FVector PathPoint : PathPoints)
+		/*for (FVector PathPoint : PathPoints)
 		{
 			DrawDebugSphere(GetWorld(), PathPoint, 10, 10, FColor::Green, true);
-		}
+		}*/
 	}
 	return PathPoints;
 }

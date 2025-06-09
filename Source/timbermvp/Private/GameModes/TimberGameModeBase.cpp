@@ -82,6 +82,7 @@ void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
 	{
 		if(TimberCharacter && TimberCharacter->BuildSystemManager)
 		{
+			
 			TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.AddDynamic(this, 
 				&ATimberGameModeBase::HandleRedrawPathTrace);
 		}

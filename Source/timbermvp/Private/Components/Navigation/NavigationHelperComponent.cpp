@@ -131,6 +131,10 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 			PathPoints.Add(CenteredPortalVector);
 		}
 
+		//Adding the actual Specified End Location to the Path Points. This is an unadjusted point.
+		LastPathPoint = NavPath->PathPoints.Last();
+		
+		PathPoints.Add(LastPathPoint); 
 		//Debug to show the adjusted Path Points in the world.
 		/*for (FVector PathPoint : PathPoints)
 		{

@@ -6,6 +6,8 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "Task_MoveThroughCorridorPath.generated.h"
 
+class UPathFollowingComponent;
+class ATimberAiControllerBase;
 struct FPathFollowingResult;
 class ATimberEnemyCharacter;
 /**
@@ -16,8 +18,12 @@ class TIMBERMVP_API UTask_MoveThroughCorridorPath : public UBTTaskNode
 {
 	GENERATED_BODY()
 
+	UTask_MoveThroughCorridorPath();
+
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
 
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector TargetActorKey;
@@ -25,17 +31,27 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector SelfActorKey;
 
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector bIsPartialPathKey;
+
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector LastPointInPathKey;
+	
+
 	void OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& Result);
 
 	int TotalCorridorPoints = 0;
 	int NextCorridorPoint = 0;
 	TArray<FVector> CorridorPathPoints;
+
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	float AcceptanceRadius = 20.0f;
+	
 	bool bIsPathPartial = false;
 
 private:
 	UPROPERTY()
-	UBehaviorTreeComponent* BehaviorTreeComponent;
+	UBehaviorTreeComponent* BehaviorTreeComponent = nullptr;
 
 	UPROPERTY()
 	ATimberAiControllerBase* AIControllerBase = nullptr;

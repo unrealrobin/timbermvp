@@ -37,6 +37,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Navigation Data")
 	bool bIsLastPathPartial = false;
+	FVector LastPathPoint = FVector::ZeroVector;
 
 	UFUNCTION(BlueprintCallable, Category = "Navigation Logic")
 	TArray<FVector> GetCorridorPathPoints(FVector Start, FVector End);

@@ -39,15 +39,20 @@ EBTNodeResult::Type UTask_SetClosestWall::ExecuteTask(UBehaviorTreeComponent& Ow
 		ABuildableBase::StaticClass(),
 		TArray<AActor*>(),
 		WallsOrRampsArray);
+	/*for (AActor* HitActors : WallsOrRampsArray)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActors->GetName());
+	}*/
+	//DrawDebugSphere(GetWorld(), AiEnemyCharacter->GetActorLocation(), 500,12, FColor::Green, false, 5.0f);
 
-	if (bHits)
+	/*if (bHits)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Found Vertical Building Components."))
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No Matching Building Components Found."));
-	}
+	}*/
 	
 	//Finding the Closest Wall
 	for (AActor* Hit : WallsOrRampsArray)
@@ -72,15 +77,17 @@ EBTNodeResult::Type UTask_SetClosestWall::ExecuteTask(UBehaviorTreeComponent& Ow
 
 	//Setting the Closest WallorRamp on the Blackboard
 	BlackboardComponent->SetValueAsObject(FName("ClosestBuildingComponentActor"), Cast<ABuildableBase>(MatchStruct.WallorRamp));
-
+	
 	if (bShowDebugSphere)
 	{
 		if (MatchStruct.WallorRamp)
 		{
-			DrawDebugSphere(GetWorld(), MatchStruct.WallorRamp->GetActorLocation(), 10.0f, 12, FColor::Red, false, 5.0f);
+			DrawDebugSphere(GetWorld(), MatchStruct.WallorRamp->GetActorLocation(), 100.0f, 36, FColor::Red, false, 5.0f);
 		}
 	}
+	
 
+	//resetting
 	MatchStruct.WallorRamp = nullptr;
 	MatchStruct.Distance = UE_MAX_FLT;
 	

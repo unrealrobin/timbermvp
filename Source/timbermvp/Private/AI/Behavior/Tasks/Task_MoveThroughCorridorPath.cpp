@@ -9,6 +9,12 @@
 #include "Components/Navigation/NavigationHelperComponent.h"
 #include "Navigation/PathFollowingComponent.h"
 
+UTask_MoveThroughCorridorPath::UTask_MoveThroughCorridorPath()
+{
+	bCreateNodeInstance = true;
+	bNotifyTaskFinished = true;
+}
+
 EBTNodeResult::Type UTask_MoveThroughCorridorPath::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
@@ -32,30 +38,58 @@ EBTNodeResult::Type UTask_MoveThroughCorridorPath::ExecuteTask(UBehaviorTreeComp
 		PathFollowingComponent = AIControllerBase->GetPathFollowingComponent();
 		if (AIControllerBase && PathFollowingComponent)
 		{
+			CorridorPathPoints.Empty();
 			CorridorPathPoints = EnemyCharacter->NavHelperComponent->GetCorridorPathPoints(
 				EnemyCharacter->GetActorLocation(),
 				TargetActor->GetActorLocation()
 			);
 
+			//Used to Set the value on the Blackboard. Value is used as a condition for the next Task in the Behavior Tree.
 			bIsPathPartial = EnemyCharacter->NavHelperComponent->bIsLastPathPartial;
+			BlackboardComponent->SetValueAsBool(bIsPartialPathKey.SelectedKeyName, bIsPathPartial);
 			
 			if (CorridorPathPoints.Num() > 0)
 			{
+				BlackboardComponent->SetValueAsVector(LastPointInPathKey.SelectedKeyName, CorridorPathPoints.Last());
 				//Total Points in Corridor Path.
-				TotalCorridorPoints = CorridorPathPoints.Num() - 1;
+				TotalCorridorPoints = CorridorPathPoints.Num();
 				//Callback for when the Move to the next point is finished
 				PathFollowingComponent->OnRequestFinished.AddUObject(this, &UTask_MoveThroughCorridorPath::OnMoveFinished);
 				//Calling Initial Move to the first point in the path.
-				AIControllerBase->MoveToLocation(CorridorPathPoints[NextCorridorPoint], AcceptanceRadius);
+				AIControllerBase->MoveToLocation(CorridorPathPoints[0], AcceptanceRadius);
 
 				//Latent Task
+				//UE_LOG(LogTemp, Warning, TEXT("Moving through Corridor in Progress."));
 				return EBTNodeResult::InProgress;
 			}
 		}
 	}
-	
+	UE_LOG(LogTemp, Warning, TEXT("Initial Fail"));
 	return EBTNodeResult::Failed;
 }
+
+EBTNodeResult::Type UTask_MoveThroughCorridorPath::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	if (AIControllerBase)
+	{
+		AIControllerBase->StopMovement();
+	}
+
+	FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Aborted);
+	UE_LOG(LogTemp, Warning, TEXT("Move through Corridor Aborted."));
+	return EBTNodeResult::Aborted;
+	//return Super::AbortTask(OwnerComp, NodeMemory);
+}
+
+void UTask_MoveThroughCorridorPath::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
+	EBTNodeResult::Type TaskResult)
+{
+	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
+
+	TotalCorridorPoints = 0;
+	NextCorridorPoint = 0;
+}
+
 
 void UTask_MoveThroughCorridorPath::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
@@ -70,13 +104,13 @@ void UTask_MoveThroughCorridorPath::OnMoveFinished(FAIRequestID RequestID, const
 				return;
 			}
 		}
-		//NextCorridorPoint == TotalCorridorPoints (We are at the last point in the path)
+		
+		//UE_LOG(LogTemp, Warning, TEXT("Finished Moving through Path."));
 		FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Succeeded );
 	}
 	else
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("Failed to finish Moving through corridor."));
 		FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Failed );
 	}
-
-	
 }

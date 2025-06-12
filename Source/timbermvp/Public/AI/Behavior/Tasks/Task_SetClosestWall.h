@@ -38,7 +38,7 @@ public:
 	FMatchStruct MatchStruct;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TaskData")
-	float RadiusToCheck = 1000.f;
+	float RadiusToCheck = 300.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TaskData")
 	bool bShowDebugSphere = false;

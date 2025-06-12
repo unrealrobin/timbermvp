@@ -185,6 +185,8 @@ private:
 
 	USceneComponent* GetClosestFaceSnapPoint(FHitResult HitResult);
 
+	void BroadcastControllerUpdateNewBuildable(AActor* Buildable);
+
 	/*Tutorial*/
 	UPROPERTY()
 	float TutorialBuildsPlaced = 0;

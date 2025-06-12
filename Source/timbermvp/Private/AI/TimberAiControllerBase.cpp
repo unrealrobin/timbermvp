@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Navigation/NavigationHelperComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
@@ -24,13 +25,17 @@ void ATimberAiControllerBase::BeginPlay()
 
 	
 	GetWorld()->GetTimerManager().SetTimer(CheckOnNavMeshTimerHandle, this, &ATimberAiControllerBase::CheckIsOwnerOnNavMesh, 0.5f, true );
-	
+	OwningCharacter = Cast<ATimberEnemyCharacter>(GetPawn());
+	if (!OwningCharacter)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Ai Controller could not get Owning Character!"));
+	}
 }
 
 void ATimberAiControllerBase::CheckIsOwnerOnNavMesh()
 {
 	
-	if (ATimberEnemyCharacter* OwningCharacter = Cast<ATimberEnemyCharacter>(GetPawn()))
+	if (OwningCharacter)
 	{
 		UNavigationSystemV1* NavSys =
 			FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
@@ -84,22 +89,32 @@ void ATimberAiControllerBase::HandleActorOffMesh(ATimberEnemyCharacter* EnemyCha
 	UNavigationSystemV1* NavSys =FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	if (NavSys)
 	{
+		//This is the closest point found by the ProjectPointToNavigation function.
 		FNavLocation ClosestPoint;
+		//This is the Node Reference of the closest point found by the ProjectPointToNavigation function.
+		NavNodeRef Node = ClosestPoint.NodeRef;
+		//This is the size space we are checking for the closest point on the Nav Mesh;
 		FVector SearchExtent = FVector(300, 300, 100);
+		
 		bool FoundLocation = NavSys->ProjectPointToNavigation(GetPawn()->GetActorLocation(), ClosestPoint, SearchExtent);
-		if (FoundLocation)
+		
+		FVector NodeCenter = FVector::ZeroVector;
+		if (FoundLocation && ClosestPoint.Location != FVector::ZeroVector)
 		{
-			//Move Actor to "On Mesh"
-			//Controller makes the Actor move to location
-			//Adjusting Location because Root Component on Actor is at Abdomen so we need to offset the Height Approx .5 Capsule Component Height.
-			FVector Location = ClosestPoint.Location;
-			Location.Z += EnemyCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-			GetPawn()->SetActorLocation(Location);
-			UE_LOG(LogTemp, Warning, TEXT("Moved off mesh actor to closest point on mesh"));
+			//Node ID on the Recast Nav Mesh
+			if (OwningCharacter && OwningCharacter->NavHelperComponent)
+			{
+				NodeCenter = OwningCharacter->NavHelperComponent->GetCenterOfNode(Node);
+				NodeCenter.Z += EnemyCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+				GetPawn()->SetActorLocation(NodeCenter);
+				UE_LOG(LogTemp, Warning, TEXT("Moved off mesh actor to closest point on mesh"));
+			}
 		}
 		else
 		{
 			//Detonate Actor causing Damage
+			GetPawn()->Destroy();
+			UE_LOG(LogTemp, Warning, TEXT("No Closest Point on NavMesh. Detonating Actor!"));
 		}
 		
 	}

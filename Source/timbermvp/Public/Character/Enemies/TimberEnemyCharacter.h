@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "BuildSystem/BuildableBase.h"
 #include "Character/TimberCharacterBase.h"
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class UNavigationHelperComponent;
 class UWidgetComponent;
 class UStatusEffectHandlerComponent;
 class ULootTable;
@@ -44,14 +46,33 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 public:
 	ATimberEnemyCharacter();
 	
+	
+
+	/*UFUNCTION()
+	void UpdatePathToTarget(ABuildableBase* BuildableActor);
+	
+	UFUNCTION()
+	void UpdatePathToTarget_BuildableDeleted();*/
+
+	//Gets Called from a Delegate that Broadcasts when the Character's Movement Mode is Changed,
+	//BUT the movement mode is not broadcasted, the new MovementMode is on the CharacterMovementComponent.
+	UFUNCTION()
+	void HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
+	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Damage)
 	UStatusEffectHandlerComponent* StatusEffectHandler;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Navigation")
+	UNavigationHelperComponent* NavHelperComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status Effects")
 	UWidgetComponent* StatusEffectBarComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
+	UCharacterMovementComponent* CharacterMovementComponent;
 
 	void SetupCharacterMovementData();
 
@@ -150,4 +171,11 @@ private:
 
 	UFUNCTION()
 	void HandleToggleDataView(FInputActionValue Input);
+
+	void SetupStatusEffectBar();
+	
+	UFUNCTION()
+	void HandleOnLanded(const FHitResult& Hit);
+	
+	void SetupCharacterMovementDelegates();
 };

@@ -2,8 +2,6 @@
 
 
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
-
-
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "BuildSystem/BuildingComponents/TimberHorizontalBuildingComponent.h"
 #include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
@@ -15,6 +13,7 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "States/DieRobotGameStateBase.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
@@ -385,7 +384,6 @@ EBuildingComponentOrientation UBuildSystemManagerComponent::CheckClassBuildingCo
 	return EBuildingComponentOrientation::Default;
 }
 
-
 FVector UBuildSystemManagerComponent::SnapToGrid(FVector RaycastLocation)
 {
 	FVector SnappedVector;
@@ -515,9 +513,8 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 {
 	if(ActiveBuildableComponentClass && BuildableProxyInstance)
 	{
-		// If player can afford the transaction, apply the transaction and spawn the final building component.
-		if(Cast<ATimberPlayableCharacter>(GetOwner()) && Cast<ATimberPlayableCharacter>(GetOwner())
-		->InventoryManager->bCanAffordCost(BuildableProxyInstance->BuildableCost))
+		// If a player can afford the transaction, apply the transaction and spawn the final building component.
+		if(Cast<ATimberPlayableCharacter>(GetOwner()) && Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager && Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bCanAffordCost(BuildableProxyInstance->BuildableCost))
 		{
 			FActorSpawnParameters SpawnParameters;
 
@@ -544,6 +541,7 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 			}
 
 
+			/*Tutorial Stuff.*/
 			ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
 			if (DieRobotGameStateBase)
 			{
@@ -587,7 +585,8 @@ void UBuildSystemManagerComponent::SpawnFinalRampBuildable(FActorSpawnParameters
 		
 		if(SpawnedActor)
 		{
-			RedrawPathTraceHandle.Broadcast();
+			BroadcastControllerUpdateNewBuildable(SpawnedActor);
+			
 			PlayBuildablePlacementSound();
 			//Adding Ramp to Hovered Building Components Attachment Array, on Deletion or Destruction, Ramp will also be deleted.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
@@ -605,7 +604,8 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 {
 	//TODO:: We may need to rename the classes to be based on the Snap Condition and not the Trap Name.
 	//All Traps are Center Snap, but not all Center Snap are traps.
-	//As it is now, all CenterSnapBuildabled would need to be children of the ATrapBase class which is not ideal.
+	//As it is now, all CenterSnapBuildable would need to be children of the ATrapBase class which is not ideal.
+	
 	ATrapBase* CenterSnapBuildable = Cast<ATrapBase>(BuildableProxyInstance);
 	
 	if (CenterSnapBuildable && CenterSnapBuildable->bCanBuildableBeFinalized)
@@ -617,7 +617,7 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			CenterSnapBuildable->GetActorLocation(),
 			CenterSnapBuildable->GetActorRotation(),
 			SpawnParameters);
-
+		
 		ATrapBase* FinalizedCenterSnapBuildable = Cast<ATrapBase>(SpawnedActor);
 		if (FinalizedCenterSnapBuildable &&  CenterSnapBuildable->TrapHoveredBuildingComponent)
 		{
@@ -648,12 +648,10 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
 				break;
 			}
+			
 			PlayBuildablePlacementSound();
-			
-			//Uses hovered building component from player as the Parent Building Component to attach to.
+			BroadcastControllerUpdateNewBuildable(SpawnedActor);
 			AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedCenterSnapBuildable));
-			
-	        //Handle Inventory Transaction if Spawn is Successfull. We already checked if player can afford.
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(FinalizedCenterSnapBuildable->BuildableCost);
 		}
 		
@@ -680,10 +678,11 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 		ActiveBuildingComponentProxy->GetActorRotation(),
 		SpawnParameters
 		);
+		
 		if(SpawnedActor)
 		{
 			SpawnedActor->SetActorEnableCollision(true);
-			RedrawPathTraceHandle.Broadcast();
+			BroadcastControllerUpdateNewBuildable(SpawnedActor);
 			PlayBuildablePlacementSound();
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
 		}
@@ -720,6 +719,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActo
 		{
 			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			BroadcastControllerUpdateNewBuildable(SpawnedActor);
 			PlayBuildablePlacementSound();
 			
 			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
@@ -773,7 +773,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FAc
 					}
 				}
 			}
-			//Sets up BC to be destroyed when the Snapped to Buildable is destroyed.
+			BroadcastControllerUpdateNewBuildable(SpawnedActor);
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
 			PlayBuildablePlacementSound();
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
@@ -865,6 +865,30 @@ USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResul
 		
 	}
 	return nullptr;
+}
+
+void UBuildSystemManagerComponent::BroadcastControllerUpdateNewBuildable(AActor* Buildable)
+{
+	ABuildableBase* CastBuildable = Cast<ABuildableBase>(Buildable);
+	
+	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+	if (PlayerCharacter && CastBuildable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Changed Buildable Name: %s"), *CastBuildable->GetName());
+		ATimberPlayerController* PC = PlayerCharacter->GetController<ATimberPlayerController>();
+		if (PC)
+		{
+			//Used for Enemy to Update Path.
+			PC->OnBuildableAdded.Broadcast(CastBuildable);
+
+			//Used for Game Mode to update the Path Tracer.
+			RedrawPathTraceHandle.Broadcast();
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BSMC - BroadcastControllerUpdateNewBuildable - Player Character or Buildable is Null."));
+	}
 }
 
 void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult)

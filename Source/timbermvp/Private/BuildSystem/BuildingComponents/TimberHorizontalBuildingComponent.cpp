@@ -12,6 +12,7 @@ ATimberHorizontalBuildingComponent::ATimberHorizontalBuildingComponent()
 
 	BuildingOrientation = EBuildingComponentOrientation::Horizontal;
 	SnapCondition = ESnapCondition::BuildingComponent;
+	BuildableType = EBuildableType::BuildingComponent;
 }
 
 // Called when the game starts or when spawned

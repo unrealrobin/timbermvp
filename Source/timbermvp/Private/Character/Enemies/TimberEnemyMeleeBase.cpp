@@ -5,6 +5,7 @@
 
 #include "BuildSystem/BuildableBase.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/Ramps/RampBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/TimberSeeda.h"
 #include "Components/CapsuleComponent.h"
@@ -21,7 +22,7 @@ ATimberEnemyMeleeBase::ATimberEnemyMeleeBase()
 	LeftFootCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("LFootCollisionSocket")));
 	RightFootCapsuleComponent->SetupAttachment(GetMesh(), FName(TEXT("RFootCollisionSocket")));
 
-
+	//Used for Player Hits
 	RightHandCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
 	LeftHandCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
 	RightFootCapsuleComponent->OnComponentBeginOverlap.AddDynamic(this, &ATimberEnemyMeleeBase::HandleCapsuleOverlap);
@@ -37,7 +38,7 @@ void ATimberEnemyMeleeBase::BeginPlay()
 
 void ATimberEnemyMeleeBase::EnableCapsuleComponent(UCapsuleComponent* MeleeCapsuleComponent)
 {
-	MeleeCapsuleComponent->SetCollisionProfileName("DR_HitEventOnly");
+	MeleeCapsuleComponent->SetCollisionProfileName("DR_MeleeAttackShapes");
 }
 
 void ATimberEnemyMeleeBase::DisableCapsuleComponent(UCapsuleComponent* MeleeCapsuleComponent)
@@ -56,7 +57,6 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s. Current Target: %s"), *OtherActor->GetName(), *CurrentTarget->GetName());
 	
 	//Current Target can Range from Player, Seeda, Building Component
 	// We want to focus damage only on the Current Damage and avoid "Collateral Damage"
@@ -65,6 +65,8 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 		//UE_LOG(LogTemp, Warning, TEXT("Hit Actor is not the current target. Returning."));
 		return;
 	}
+	//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s. Current Target: %s"), *OtherActor->GetName(), *CurrentTarget->GetName());
+
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter && PlayerCharacter->CurrentHealth > 0)
 	{
@@ -80,13 +82,18 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 		ActorsToIgnore.Add(OtherActor);
 	}
 
-	ATimberBuildingComponentBase* Building = Cast<ATimberBuildingComponentBase>(OtherActor);
-	if(Building)
+	//UE_LOG(LogTemp, Warning, TEXT("Hit Overlap on Building Component. Other Actor: %s"), *OtherActor->GetName());
+	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
+	//ARampBase* Building = Cast<ARampBase>(OtherActor);
+	if(BuildingComponent && BuildingComponent == CurrentTarget)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Timber Enemy Melee Base Capsule Overlap. Other Actor: %s"), *OtherActor->GetName());
 		//UE_LOG(LogTemp, Warning, TEXT("Overlapped Component: %s"), *OtherComp->GetName());
 		//UE_LOG(LogTemp, Warning, TEXT("Melee Robot hit a Building Component and dealt damage"));
-		Building->BuildingComponentTakeDamage(BaseMeleeAttackDamage, this);
+		//TODO::Ramps dont have a take damage function
+		BuildingComponent->BuildingComponentTakeDamage(BaseMeleeAttackDamage, this);
 		ActorsToIgnore.Add(OtherActor);
 	}
 }
+
+

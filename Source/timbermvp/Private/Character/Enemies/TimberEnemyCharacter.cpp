@@ -43,7 +43,10 @@ void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
+	if (StatusEffectBarComponent && StatusEffectBarComponent->GetWidget())
+	{
+		StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
+	}
 	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarComponent->GetWidget());
 	if (StatusEffectBarWidget)
 	{
@@ -54,8 +57,8 @@ void ATimberEnemyCharacter::BeginPlay()
 			if (PC)		
 			{
 				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
-				PC->OnBuildableAdded.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget);
-				PC->OnBuildableDeleted.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget_BuildableDeleted);
+				/*PC->OnBuildableAdded.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget);
+				PC->OnBuildableDeleted.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget_BuildableDeleted);*/
 			}
 		}
 	}
@@ -403,7 +406,7 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, f
 	}
 }
 
-void ATimberEnemyCharacter::UpdatePathToTarget(ABuildableBase* BuildableActor)
+/*void ATimberEnemyCharacter::UpdatePathToTarget(ABuildableBase* BuildableActor)
 {
 	if (NavHelperComponent)
 	{
@@ -423,4 +426,4 @@ void ATimberEnemyCharacter::UpdatePathToTarget(ABuildableBase* BuildableActor)
 void ATimberEnemyCharacter::UpdatePathToTarget_BuildableDeleted()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Updating Path To Target - Buildable Deleted."))
-}
+}*/

@@ -65,7 +65,7 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 		//UE_LOG(LogTemp, Warning, TEXT("Hit Actor is not the current target. Returning."));
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s. Current Target: %s"), *OtherActor->GetName(), *CurrentTarget->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s. Current Target: %s"), *OtherActor->GetName(), *CurrentTarget->GetName());
 
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(OtherActor);
 	if (PlayerCharacter && PlayerCharacter->CurrentHealth > 0)
@@ -82,12 +82,12 @@ void ATimberEnemyMeleeBase::HandleCapsuleOverlap(
 		ActorsToIgnore.Add(OtherActor);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Hit Overlap on Building Component. Other Actor: %s"), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Hit Overlap on Building Component. Other Actor: %s"), *OtherActor->GetName());
 	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(OtherActor);
 	//ARampBase* Building = Cast<ARampBase>(OtherActor);
 	if(BuildingComponent && BuildingComponent == CurrentTarget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Timber Enemy Melee Base Capsule Overlap. Other Actor: %s"), *OtherActor->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Timber Enemy Melee Base Capsule Overlap. Other Actor: %s"), *OtherActor->GetName());
 		//UE_LOG(LogTemp, Warning, TEXT("Overlapped Component: %s"), *OtherComp->GetName());
 		//UE_LOG(LogTemp, Warning, TEXT("Melee Robot hit a Building Component and dealt damage"));
 		//TODO::Ramps dont have a take damage function

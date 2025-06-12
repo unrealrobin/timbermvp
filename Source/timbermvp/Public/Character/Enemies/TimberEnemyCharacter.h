@@ -46,10 +46,11 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 public:
 	ATimberEnemyCharacter();
 
-	UFUNCTION()
+	/*UFUNCTION()
 	void UpdatePathToTarget(ABuildableBase* BuildableActor);
+	
 	UFUNCTION()
-	void UpdatePathToTarget_BuildableDeleted();
+	void UpdatePathToTarget_BuildableDeleted();*/
 	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

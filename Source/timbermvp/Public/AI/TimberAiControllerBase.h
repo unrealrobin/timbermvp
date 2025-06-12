@@ -7,6 +7,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "TimberAiControllerBase.generated.h"
 
+class ATimberEnemyCharacter;
 /**
  * 
  */
@@ -22,6 +23,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	FTimerHandle CheckOnNavMeshTimerHandle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Data")
+	ATimberEnemyCharacter* OwningCharacter;
 
 	UFUNCTION()
 	void CheckIsOwnerOnNavMesh();

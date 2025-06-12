@@ -36,9 +36,9 @@ EBTNodeResult::Type UTask_MoveThroughCorridorPath::ExecuteTask(UBehaviorTreeComp
 	if (EnemyCharacter && EnemyCharacter->NavHelperComponent && TargetActor)
 	{
 		PathFollowingComponent = AIControllerBase->GetPathFollowingComponent();
+		UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPath: Retrieved Path to Target."));
 		if (AIControllerBase && PathFollowingComponent)
 		{
-			CorridorPathPoints.Empty();
 			CorridorPathPoints = EnemyCharacter->NavHelperComponent->GetCorridorPathPoints(
 				EnemyCharacter->GetActorLocation(),
 				TargetActor->GetActorLocation()
@@ -64,15 +64,18 @@ EBTNodeResult::Type UTask_MoveThroughCorridorPath::ExecuteTask(UBehaviorTreeComp
 			}
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Initial Fail"));
+	//UE_LOG(LogTemp, Warning, TEXT("Initial Fail"));
 	return EBTNodeResult::Failed;
 }
 
 EBTNodeResult::Type UTask_MoveThroughCorridorPath::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	if (AIControllerBase)
+	if (AIControllerBase && PathFollowingComponent)
 	{
 		AIControllerBase->StopMovement();
+
+		//Unbinding on Abort.
+		PathFollowingComponent->OnRequestFinished.RemoveAll(this);
 	}
 
 	FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Aborted);
@@ -86,8 +89,11 @@ void UTask_MoveThroughCorridorPath::OnTaskFinished(UBehaviorTreeComponent& Owner
 {
 	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
 
+	CorridorPathPoints.Empty();
 	TotalCorridorPoints = 0;
 	NextCorridorPoint = 0;
+
+	UE_LOG(LogTemp, Warning, TEXT("Task Finished, Reseting Corridor Waypoint Data. Result: %s"), *UEnum::GetValueAsString(TaskResult));
 }
 
 
@@ -108,9 +114,10 @@ void UTask_MoveThroughCorridorPath::OnMoveFinished(FAIRequestID RequestID, const
 		//UE_LOG(LogTemp, Warning, TEXT("Finished Moving through Path."));
 		FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Succeeded );
 	}
-	else
+	
+	if (Result.Code != EPathFollowingResult::Success)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Failed to finish Moving through corridor."));
+		UE_LOG(LogTemp, Warning, TEXT("Failed to finish Moving through corridor."));
 		FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Failed );
 	}
 }

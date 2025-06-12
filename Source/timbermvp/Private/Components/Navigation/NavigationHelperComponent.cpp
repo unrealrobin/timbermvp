@@ -53,6 +53,26 @@ void UNavigationHelperComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 }
 
+FVector UNavigationHelperComponent::GetCenterOfNode(NavNodeRef Node)
+{
+	//This is the Navigation System the Owning Character is using.
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(OwningActor->GetWorld());
+	ARecastNavMesh* RecastMesh = Cast<ARecastNavMesh>(NavSys->GetDefaultNavDataInstance());
+	
+	TArray<FVector> Verts;
+	
+	RecastMesh->GetPolyVerts(Node, Verts );
+
+	FVector SumOfVerts = FVector::ZeroVector;
+	for (FVector Vert : Verts)
+	{
+		SumOfVerts += Vert;
+	}
+	FVector CenterOfNode = SumOfVerts / Verts.Num();
+	
+	return CenterOfNode;
+}
+
 TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start, FVector End)
 {
 	TArray<FVector> PathPoints;

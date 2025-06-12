@@ -35,6 +35,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
+	FVector GetCenterOfNode(NavNodeRef Node);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Navigation Data")
 	bool bIsLastPathPartial = false;
 	FVector LastPathPoint = FVector::ZeroVector;

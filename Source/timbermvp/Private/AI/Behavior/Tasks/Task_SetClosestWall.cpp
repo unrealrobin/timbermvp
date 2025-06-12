@@ -55,24 +55,31 @@ EBTNodeResult::Type UTask_SetClosestWall::ExecuteTask(UBehaviorTreeComponent& Ow
 	}*/
 	
 	//Finding the Closest Wall
-	for (AActor* Hit : WallsOrRampsArray)
+	if (bHits)
 	{
-		if (ABuildableBase* HitBuildable = Cast<ABuildableBase>(Hit))
+		for (AActor* Hit : WallsOrRampsArray)
 		{
-			if (HitBuildable->BuildableType != EBuildableType::Environment)
+			if (ABuildableBase* HitBuildable = Cast<ABuildableBase>(Hit))
 			{
-				//If this hit Returns A Wall Base Class or a Ramp Base Class
-				if (Cast<ATimberVerticalBuildingComponent>(HitBuildable) || Cast<ARampBase>(HitBuildable))
+				if (HitBuildable->BuildableType != EBuildableType::Environment)
 				{
-					float Distance = FVector::Dist(AiEnemyCharacter->GetActorLocation(), HitBuildable->GetActorLocation());
-					if (Distance < MatchStruct.Distance)
+					//If this hit Returns A Wall Base Class or a Ramp Base Class
+					if (Cast<ATimberVerticalBuildingComponent>(HitBuildable) || Cast<ARampBase>(HitBuildable))
 					{
-						MatchStruct.WallorRamp = HitBuildable;
-						MatchStruct.Distance = Distance;
+						float Distance = FVector::Dist(AiEnemyCharacter->GetActorLocation(), HitBuildable->GetActorLocation());
+						if (Distance < MatchStruct.Distance)
+						{
+							MatchStruct.WallorRamp = HitBuildable;
+							MatchStruct.Distance = Distance;
+						}
 					}
 				}
 			}
 		}
+	}
+	else
+	{
+		return EBTNodeResult::Failed;
 	}
 
 	//Setting the Closest WallorRamp on the Blackboard

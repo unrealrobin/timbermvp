@@ -20,7 +20,7 @@ void ABossBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
+	if (CharacterMovementComponent)
 	{
 		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;

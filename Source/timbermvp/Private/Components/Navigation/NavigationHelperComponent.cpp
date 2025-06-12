@@ -5,7 +5,6 @@
 #include "NavigationSystem.h"
 #include "BuildSystem/BuildableBase.h"
 #include "NavMesh/RecastNavMesh.h"
-#include "Character/TimberCharacterBase.h"
 
 
 // Sets default values for this component's properties
@@ -25,7 +24,6 @@ void UNavigationHelperComponent::BeginPlay()
 	if (!OwningActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Owning character is not set or invalid!"));
-		return;
 	}
 }
 
@@ -154,12 +152,13 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		//Adding the actual Specified End Location to the Path Points. This is an unadjusted point.
 		LastPathPoint = NavPath->PathPoints.Last();
 		
-		PathPoints.Add(LastPathPoint); 
+		PathPoints.Add(LastPathPoint);
+		
 		//Debug to show the adjusted Path Points in the world.
-		/*for (FVector PathPoint : PathPoints)
+		for (FVector PathPoint : PathPoints)
 		{
-			DrawDebugSphere(GetWorld(), PathPoint, 10, 10, FColor::Green, true);
-		}*/
+			DrawDebugSphere(GetWorld(), PathPoint, 10, 10, FColor::Green, false, 10.0f);
+		}
 	}
 	return PathPoints;
 }

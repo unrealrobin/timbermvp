@@ -43,26 +43,9 @@ void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (StatusEffectBarComponent && StatusEffectBarComponent->GetWidget())
-	{
-		StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
-	}
-	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarComponent->GetWidget());
-	if (StatusEffectBarWidget)
-	{
-		ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
-		if (PlayerCharacter)
-		{
-			ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
-			if (PC)		
-			{
-				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
-				/*PC->OnBuildableAdded.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget);
-				PC->OnBuildableDeleted.AddDynamic(this, &ATimberEnemyCharacter::UpdatePathToTarget_BuildableDeleted);*/
-			}
-		}
-	}
+	SetupStatusEffectBar();
 	
+	SetupCharacterMovementDelegates();
 }
 
 void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -77,7 +60,7 @@ void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 
 void ATimberEnemyCharacter::SetupCharacterMovementData()
 {
-	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
+	if (CharacterMovementComponent)
 	{
 		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
@@ -87,6 +70,57 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 		CharacterMovementComponent->bUseRVOAvoidance = true;
 		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
 		CharacterMovementComponent->AvoidanceWeight = 0.8f;
+	}
+}
+
+void ATimberEnemyCharacter::SetupCharacterMovementDelegates()
+{
+	CharacterMovementComponent = GetCharacterMovement();
+	if (CharacterMovementComponent)
+	{
+		MovementModeChangedDelegate.AddDynamic(this, &ATimberEnemyCharacter::HandleOnMovementModeChanged);
+		LandedDelegate.AddDynamic(this, &ATimberEnemyCharacter::HandleOnLanded);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Character Movement Component is NULL."));
+	}
+}
+
+void ATimberEnemyCharacter::HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode,
+	uint8 PreviousCustomMode)
+{
+	if (Character)
+	{
+		ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
+		if (AiController)
+		{
+			switch (Character->GetCharacterMovement()->MovementMode.GetValue())
+			{
+			case MOVE_Falling:
+				// Handle falling logic here
+				//if falling, controller to stop ai brain - We want to stop all Behavior Tree logic here.
+				AiController->BehaviorTreeComponent->StopLogic("Enemy Character is Falling.");
+				break;
+			default:
+				// Handle other movement modes if necessary
+				break;
+			}
+		}
+	}
+}
+
+void ATimberEnemyCharacter::HandleOnLanded(const FHitResult& Hit)
+{
+	//Ai Controller to Restart Ai Controller Brain - this should restart the pathing solution.
+	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
+	if (AiController)
+	{
+		//Restarting the Behavior tree Logic if the AI Controller is not already running.
+		if (AiController->BehaviorTreeComponent && !AiController->BehaviorTreeComponent->IsRunning())
+		{
+			AiController->BehaviorTreeComponent->StartLogic();
+		}
 	}
 }
 
@@ -195,7 +229,6 @@ void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 void ATimberEnemyCharacter::OnDeath_HandleCollision()
 {
 	GetCapsuleComponent()->SetCollisionProfileName("DR_DeadCharacter");
-
 }
 
 void ATimberEnemyCharacter::OnDeath_DropLoot()
@@ -326,6 +359,7 @@ void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
 	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
 	if (AiController && AiController->BehaviorTreeComponent)
 	{
+		//Does not abort the current task, but does FinishtheTask
 		AiController->BehaviorTreeComponent->StopLogic("Enemy has been killed");
 	}
 }
@@ -406,24 +440,26 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, f
 	}
 }
 
-/*void ATimberEnemyCharacter::UpdatePathToTarget(ABuildableBase* BuildableActor)
+void ATimberEnemyCharacter::SetupStatusEffectBar()
 {
-	if (NavHelperComponent)
+	if (StatusEffectBarComponent && StatusEffectBarComponent->GetWidget())
 	{
-		if (NavHelperComponent->CheckIfPathShouldUpdate(BuildableActor))
+		StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarComponent->GetWidget());
+	if (StatusEffectBarWidget)
+	{
+		ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
+		if (PlayerCharacter)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("A Buildable has been added that Effects Navigation, Updating Path."));
-
-			//Create Corridor Path, Set on BB.
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Buildable change does not Effect Navigation."));
+			ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+			if (PC)		
+			{
+				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
+			}
 		}
 	}
 }
 
-void ATimberEnemyCharacter::UpdatePathToTarget_BuildableDeleted()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Updating Path To Target - Buildable Deleted."))
-}*/
+

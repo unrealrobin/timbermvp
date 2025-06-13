@@ -224,7 +224,7 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 	YawAngle = UpdatedRotation.Yaw;
 
 	//Handles if needed character rotation adjustments.
-	HandleCharacterRotation();
+	//HandleCharacterRotation();
 	
 	
 }
@@ -269,7 +269,7 @@ void ATimberPlayerController::EquipMeleeWeapon(const FInputActionValue& Value)
 
 		//Notify calls actual equip logic on CombatComponent->EquipMelee()
 		//TimberCharacter->PlayEquipWeaponMontage("EquipSword");
-		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipSword");
+		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipMelee");
 	}
 }
 
@@ -289,9 +289,8 @@ void ATimberPlayerController::EquipRangedWeapon(const FInputActionValue& Value)
 		TimberCharacter->CombatComponent->UnEquipCurrentlyEquippedWeapon();
 
 		HandleExitBuildMode();
-
 		
-		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipGun");
+		TimberCharacter->CombatComponent->PlayEquipWeaponMontage("EquipRanged");
 	}
 }
 
@@ -536,6 +535,7 @@ void ATimberPlayerController::HandlePlayerDeath(bool bIsPlayerDead)
 	if (bIsPlayerDead)
 	{
 		EnableCursor();
+		
 		DisableAllKeyboardInput();
 
 		TimberCharacter->CombatComponent->UnEquipAllWeapons();

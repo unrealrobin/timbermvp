@@ -274,7 +274,7 @@ void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 
 void ATimberPlayableCharacter::PlayDeathAnimation()
 {
-	PlayAnimMontage(DeathMontage, 1.f, FName("Death1"));
+	PlayAnimMontage(DeathMontage, 1.f, FName("1"));
 }
 
 void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()

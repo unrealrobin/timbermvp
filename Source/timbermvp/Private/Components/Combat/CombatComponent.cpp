@@ -168,6 +168,7 @@ void UCombatComponent::EquipWeapon(ATimberWeaponBase* WeaponInstance, FName Equi
 {
 	if (WeaponInstance)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Equipping Weapon."));
 		WeaponInstance->AttachToComponent(OwningCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, EquippedWeaponSocketName);
 
 		CurrentlyEquippedWeapon = WeaponInstance;
@@ -195,6 +196,10 @@ void UCombatComponent::EquipWeapon(ATimberWeaponBase* WeaponInstance, FName Equi
 		}
 
 		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Melee Weapon Instance to Equip."));
 	}
 }
 

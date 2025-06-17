@@ -10,6 +10,11 @@ void UTimberAnimInstance::NativeBeginPlay()
 	Super::NativeBeginPlay();
 }
 
+void UTimberAnimInstance::OnMontageEnded(UAnimMontage* Montage)
+{
+	//Handles Ending of Some Montage
+}
+
 void UTimberAnimInstance::UpdateOwnerWeaponState(EOwnerWeaponState OwnerWeaponState)
 {
 	AnimCurrentWeaponState = OwnerWeaponState;

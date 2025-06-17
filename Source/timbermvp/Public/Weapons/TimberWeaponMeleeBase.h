@@ -74,11 +74,25 @@ public:
 	/* Attack */
 	UFUNCTION()
 	void HandlePlayAttackMontage();
+	
+	/* Combo */
+	UFUNCTION()
+	void HandlePlayComboAttackMontage();
 
-	/*Animation*/
-	/*UFUNCTION(BlueprintCallable, Category="Weapons")
-	virtual void PerformStandardAttack();
-	*/
+	UFUNCTION(BlueprintCallable, Category = "Combo")
+	void ResetComboData();
+	
+	//Initialized to -1 (No Section Played Yet)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+	int32 SectionIndex = 0;
+
+	//Whether the player attacked again within the CanCombo window.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+	bool bComboInitiated = false;
+
+	//The Window for when additional attack inputs will be allowed to make combo attacks.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+	bool bComboWindowOpen = false;
 
 	/* Sounds */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")

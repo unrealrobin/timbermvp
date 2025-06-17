@@ -320,19 +320,25 @@ void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 	//Player wants the primary ability of the equipped weapon.
 	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->PrimaryWeaponAbility)
 	{
+		//Getting the default object of the primary ability. (Grants access before making Instance)
 		const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
-
+		//Checking if the ability can be fired.
 		bool bIsAbilityValidated = ValidateWeaponAbility(PrimaryAbility);
 
 		if (bIsAbilityValidated)
 		{
 			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->PrimaryWeaponAbility;
+			//Creating Instance of the Ability.
 			UWeaponAbilityBase* Ability = NewObject<UWeaponAbilityBase>(this, AbilityClass);
 
 			if (Ability)
 			{
 				Ability->Execute(GenerateCurrentAbilityContext(Value));
 			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Primary skill could not be validated."));
 		}
 	}
 }
@@ -431,9 +437,6 @@ void UCombatComponent::HandleSecondaryAbility_Completed(const FInputActionValue&
 
 bool UCombatComponent::ValidateWeaponAbility(const UWeaponAbilityBase* AbilityToValidate)
 {
-
-	//TODO:: CHeck if ability is for this Weapon Type.
-	
 	switch (AbilityToValidate->ValidationType)
 	{
 	case EAbilityValidation::RequiresPower :
@@ -570,7 +573,7 @@ bool UCombatComponent::ValidateNoResourceCostAbility(const UWeaponAbilityBase* W
 	if (ATimberWeaponMeleeBase* MeleeWeapon = Cast<ATimberWeaponMeleeBase>(CurrentlyEquippedWeapon))
 	{
 		// Is fully Equipped?
-		if (bIsMeleeEquipped)
+		if (MeleeWeapon && bIsMeleeEquipped)
 		{
 			// CanAttackAgain?
 			if (bCanMeleeAttack)

@@ -25,6 +25,10 @@ class TIMBERMVP_API UTimberAnimInstance : public UAnimInstance
 public:
 	virtual void NativeBeginPlay() override;
 
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage);
+
+	
 	UPROPERTY(BlueprintReadOnly)
 	FInputActionValue InputActionValue;
 

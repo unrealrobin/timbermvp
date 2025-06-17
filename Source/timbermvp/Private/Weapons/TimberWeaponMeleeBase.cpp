@@ -9,6 +9,7 @@
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/Combat/CombatComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -200,9 +201,43 @@ void ATimberWeaponMeleeBase::HandlePlayAttackMontage()
 	}
 }
 
-/*void ATimberWeaponMeleeBase::PerformStandardAttack()
+void ATimberWeaponMeleeBase::HandlePlayComboAttackMontage()
 {
-	HandlePlayAttackMontage();
-}*/
+	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(GetOwner());
+	const int32 NumberOfMontageSections = PrimaryAbilityMontage->GetNumSections();
+
+	if (bComboInitiated)
+	{
+		//Anim Montage Play will be called from Anim BP Notify
+		SectionIndex++;
+		UE_LOG(LogTemp, Warning, TEXT("Incrementing Section Index to: %d"), SectionIndex);
+		return;
+	}
+
+	FName SectionName = PrimaryAbilityMontage->GetSectionName(SectionIndex);
+	
+	if (Character)
+	{
+		UAnimInstance* CharacterAnimInstance = Character->GetMesh()->GetAnimInstance();
+		if (CharacterAnimInstance)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Playing Initial Montage Section: %d"), SectionIndex);
+			CharacterAnimInstance->Montage_Play(PrimaryAbilityMontage, 1.f);
+			CharacterAnimInstance->Montage_JumpToSection(SectionName);
+			
+		}
+	}
+	
+}
+
+void ATimberWeaponMeleeBase::ResetComboData()
+{
+	SectionIndex = 0;
+	bComboInitiated = false;
+	bComboWindowOpen = false;
+	
+}
+
+
 
 

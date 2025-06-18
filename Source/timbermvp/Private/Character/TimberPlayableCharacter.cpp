@@ -9,6 +9,7 @@
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Character/TimberAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Combat/CombatComponent.h"
 #include "Containers/Ticker.h"
@@ -47,6 +48,15 @@ void ATimberPlayableCharacter::BeginPlay()
 
 	RaycastController = Cast<ATimberPlayerController>(GetController());
 
+	/*Initialize Anim Instance*/
+	UTimberAnimInstance* Anim = Cast<UTimberAnimInstance>(GetMesh()->GetAnimInstance());
+	if (Anim)
+	{
+		Anim->OwningPawn = this;
+		Anim->PlayerController = Cast<ATimberPlayerController>(GetController());
+	}
+	
+	
 	/*Delegate Binding*/
 	if (Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD()))
 	{
@@ -264,7 +274,7 @@ void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 
 void ATimberPlayableCharacter::PlayDeathAnimation()
 {
-	PlayAnimMontage(DeathMontage, 1.f, FName("Death1"));
+	PlayAnimMontage(DeathMontage, 1.f, FName("1"));
 }
 
 void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()

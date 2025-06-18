@@ -9,6 +9,7 @@
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/Combat/CombatComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -156,53 +157,6 @@ void ATimberWeaponMeleeBase::EmptyActorToIgnoreArray()
 	ActorsToIgnore.Empty();
 }
 
-void ATimberWeaponMeleeBase::HandleAttackMontageInterrupted(UAnimMontage* AnimMontage, bool bArg, bool bCond)
-{
-	//TODO:: Move CanAttackAgain to CombatComponent - used in validation of Melee Weapons
-	
-	//Get the Controller and Flip the bCanAttackAgain Bool to True.
-	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(Cast<ATimberPlayableCharacter>(GetOwner())->GetController());
-	if (PlayerController)
-	{
-		PlayerController->CanAttackAgain = true;
-	}
-	else
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("TimberWeaponMeleeBase - HandleAttackMontageInterrupted() - Player Controller is NULL"));
-	}
-}
 
-void ATimberWeaponMeleeBase::HandlePlayAttackMontage()
-{
-	const ATimberCharacterBase* Character = Cast<ATimberCharacterBase>(GetOwner());
-	const int32 NumberOfMontageSections = PrimaryAbilityMontage->GetNumSections();
-
-	//Getting Random Section of Montage
-	const int32 RandomSection = UKismetMathLibrary::RandomIntegerInRange(1, NumberOfMontageSections);
-	if (Character)
-	{
-		UAnimInstance* CharacterAnimInstance = Character->GetMesh()->GetAnimInstance();
-		if (CharacterAnimInstance)
-		{
-			FName RandomSectionName = PrimaryAbilityMontage->GetSectionName(RandomSection - 1);
-			
-			if (!BlendingOutDelegate.IsBound())
-			{
-				//Creating a delegate to the BlendingOut function to reset the CanAttackAgain bool on the Player Controller.
-				//For any reason of blending out, we revert the CanAttackAgain bool to true.
-				//Either Animation Completed or interrupted.
-				BlendingOutDelegate.BindUObject(this, &ATimberWeaponMeleeBase::HandleAttackMontageInterrupted, false);
-				CharacterAnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, PrimaryAbilityMontage);
-			}
-			CharacterAnimInstance->Montage_Play(PrimaryAbilityMontage, 1.f);
-			CharacterAnimInstance->Montage_JumpToSection(RandomSectionName);
-		}
-	}
-}
-
-/*void ATimberWeaponMeleeBase::PerformStandardAttack()
-{
-	HandlePlayAttackMontage();
-}*/
 
 

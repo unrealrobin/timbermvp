@@ -72,13 +72,17 @@ public:
 		OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	/* Attack */
+	/*UFUNCTION()
+	void HandlePlayAttackMontage();*/
+	
+	/*/* Combo #1#
 	UFUNCTION()
-	void HandlePlayAttackMontage();
+	void HandlePlayComboAttackMontage();*/
 
-	/*Animation*/
-	/*UFUNCTION(BlueprintCallable, Category="Weapons")
-	virtual void PerformStandardAttack();
-	*/
+	/*UFUNCTION(BlueprintCallable, Category = "Combo")
+	void ResetComboData();*/
+	
+	
 
 	/* Sounds */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
@@ -86,8 +90,8 @@ public:
 
 	/*Montage Delegate*/
 	//This is a delegate Implemented on AnimInstance (Unreal Engine AnimInstance.h)
-	FOnMontageBlendingOutStarted BlendingOutDelegate;
+	/*FOnMontageBlendingOutStarted BlendingOutDelegate;*/
 	
-	UFUNCTION()
-	void HandleAttackMontageInterrupted(UAnimMontage* AnimMontage, bool bArg, bool bCond);
+	/*UFUNCTION()
+	void HandleAttackMontageInterrupted(UAnimMontage* AnimMontage, bool bArg, bool bCond);*/
 };

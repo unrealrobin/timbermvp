@@ -8,17 +8,11 @@
 void UTimberAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
+}
 
-	if (!OwningPawn)
-	{
-		OwningPawn = Cast<ATimberPlayableCharacter>(GetOwningActor());
-		OwningPawn = Cast<ATimberPlayableCharacter>(TryGetPawnOwner());
-	}
-
-	if (OwningPawn)
-	{
-		PlayerController = Cast<ATimberPlayerController>(OwningPawn->GetController());
-	}
+void UTimberAnimInstance::OnMontageEnded(UAnimMontage* Montage)
+{
+	//Handles Ending of Some Montage
 }
 
 void UTimberAnimInstance::UpdateOwnerWeaponState(EOwnerWeaponState OwnerWeaponState)

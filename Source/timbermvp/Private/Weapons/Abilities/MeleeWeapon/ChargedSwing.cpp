@@ -3,8 +3,10 @@
 
 #include "Weapons/Abilities/MeleeWeapon/ChargedSwing.h"
 
+#include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
-#include "Weapons/TimberWeaponMeleeBase.h"
+#include "Components/SphereComponent.h"
+
 
 UChargedSwing::UChargedSwing()
 {
@@ -35,11 +37,9 @@ void UChargedSwing::Execute_Completed(FAbilityContext Context)
 
 	//TODO:: Revisit if applying damage before of after the animation matters.
 	
-	CurrentMontageStage = EMontageStage::Final;
 	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargedAttack", 1.0f);
+	CurrentMontageStage = EMontageStage::Final;
 	
-	//Sweep For Enemies and Apply Damage to Hit Actors.
-	SweepForDamage(Context);
 
 }
 
@@ -76,60 +76,67 @@ void UChargedSwing::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	//We only want to force a new montage if the previous montage was finished.
 	//if (bInterrupted) return;
 
-	if (CurrentMontageStage == EMontageStage::Final)
+	if (CurrentMontageStage == EMontageStage::Final && !bInterrupted)
 	{
 		//Cannot Primary Ability Melee during animation
 		AbilityContext.CombatComponent->bCanMeleeAttack = true;
 		HandleCleanup(AbilityContext);
+		UE_LOG(LogTemp, Warning, TEXT("Charged Swing Completed."));
 	}
+	
 	
 }
 
-void UChargedSwing::SweepForDamage(FAbilityContext Context)
+void UChargedSwing::HandleCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Set Object Type to Sweep For.
-	FCollisionObjectQueryParams DamageParams;
-	DamageParams.AddObjectTypesToQuery(ECC_Pawn);
-	
-
-	FCollisionQueryParams CollisionQueryParams;
-	CollisionQueryParams.AddIgnoredActor(Context.Instigator);
-	CollisionQueryParams.AddIgnoredActor(Context.WeaponInstance);
-	
-	//Temp Store for Hits
-	TArray<FHitResult> HitResults;
-
-	//Sweep Direction.
-	FVector StartLocation = Context.Instigator->GetActorLocation();
-	StartLocation.Z += 75.0f;
-	
-	FVector HitTargetLocation = Context.CombatComponent->GetProjectileTargetLocation();
-	FVector EndLocation = StartLocation + ((HitTargetLocation - StartLocation).GetSafeNormal() * DamageDistance);
-		//Sphere Sweep for Damage.
-	
-	//DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 10.0f);
-	//DrawDebugSphere(GetWorld(), EndLocation, CollisionSphereRadius, 12, FColor::Red, false, 10.0f);
-
-	bool bHit = GetWorld()->SweepMultiByObjectType(HitResults, StartLocation, EndLocation, FQuat::Identity, DamageParams, FCollisionShape::MakeSphere(CollisionSphereRadius), CollisionQueryParams);
-
-	if (bHit)
+	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(OtherActor);
+	if (ActorsToIgnore.Contains(OtherActor))
 	{
-		for (FHitResult HitPawn: HitResults)
-		{
-			if (ATimberEnemyCharacter* HitEnemy = Cast<ATimberEnemyCharacter>(HitPawn.GetActor()))
-			{
-				
-				HitEnemy->TakeDamage(PerEnemyHitDamage, Context.Instigator);
-				if (NiagaraEffect)
-				{
-					PlayNiagaraEffectAtLocation(NiagaraEffect, HitPawn.ImpactPoint, FRotator::ZeroRotator);
-				}
-				UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitEnemy->GetName());
-			}
-		}
-	}else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Hits from Sweep."));
+		return;
 	}
 	
+	if (EnemyCharacter && AbilityContext.Instigator)
+	{
+		//TODO:: Add Potential Stun Here with Timer. Make use of Status Effects?
+		ActorsToIgnore.Add(EnemyCharacter);
+		EnemyCharacter->TakeDamage(PerEnemyHitDamage, AbilityContext.Instigator);
+	}
+}
+
+void UChargedSwing::HandleDamage(FAbilityContext Context)
+{
+	AActor* Weapon = Context.WeaponInstance;
+	//UE_LOG(LogTemp, Warning, TEXT("Weapon : %s"), *Weapon->GetName());
+	
+	if (Weapon)
+	{
+		USphereComponent* CollisionSphere = NewObject<USphereComponent>(this);
+		if (CollisionSphere)
+		{
+			CollisionSphere->SetupAttachment(Weapon->GetRootComponent());
+			CollisionSphere->RegisterComponent();
+			CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &UChargedSwing::HandleCollisionSphereBeginOverlap);
+			CollisionSphere->SetSphereRadius(CollisionSphereRadius);
+			CollisionSphere->SetCollisionProfileName("DR_HitEventOnly");
+			CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+			//DrawDebugSphere(GetWorld(), Weapon->GetActorLocation(), CollisionSphereRadius, 12, FColor::Red, false, 10.0f);
+
+			//Handles Destruction of the Collision Sphere and Emptys the Abilities ActorsToIgnore Array. (Clean up)
+			FTimerHandle DestroyCollisionSphereTimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(DestroyCollisionSphereTimerHandle, [this, CollisionSphere]()
+			{
+					if (CollisionSphere)
+					{
+						CollisionSphere->DestroyComponent();
+						ActorsToIgnore.Empty();
+					}
+			}, .3f, false);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Weapon Ability - HandleDamage() - Weapon is Null."));
+	}
 }

@@ -43,7 +43,7 @@ public:
 	float DamageDistance = 200.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
-	float CollisionSphereRadius = 50.0f;
+	float CollisionSphereRadius = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
 	float PerEnemyHitDamage = 20.0f;
@@ -51,17 +51,22 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Data")
 	EMontageStage CurrentMontageStage = EMontageStage::None;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Data")
+	TArray<AActor*> ActorsToIgnore;
+
 	virtual void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted) override;
 
+	UFUNCTION()
+	void HandleCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	                                       const FHitResult& SweepResult);
+	UFUNCTION(BlueprintCallable)
+	void HandleDamage(FAbilityContext Context);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Data")
+	FAbilityContext AbilityContext;
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
 	UAnimMontage* ChargedSwingMontage = nullptr;
-
-private:
-	UPROPERTY()
-	FAbilityContext AbilityContext;
-
-	void SweepForDamage(FAbilityContext Context);
 	
 };

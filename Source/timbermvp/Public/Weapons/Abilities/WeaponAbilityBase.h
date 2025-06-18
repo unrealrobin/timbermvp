@@ -88,6 +88,7 @@ public:
 	virtual void Execute_Triggered(FAbilityContext Context){};
 	virtual void Execute_Cancelled(FAbilityContext Context){};
 
+	//Overridden in Child Ability Classes
 	virtual void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted){};
 
 	/* Clears the Stored Ability on the Combat Component

@@ -78,7 +78,7 @@ void UCombatComponent::SpawnWeaponAtSocketLocation(TSubclassOf<ATimberWeaponBase
 	//Ensuring Sockets exists on the Mesh
 	if (OwningCharacter && OwningCharacter->GetMesh() && OwningCharacter->GetMesh()->GetSocketByName(SocketName))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Socket: %s exists on the Mesh"), *SocketName.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Socket: %s exists on the Mesh"), *SocketName.ToString());
 		FTransform SocketWorldTransform = OwningCharacter->GetMesh()->GetSocketTransform(SocketName, RTS_World);
 		FVector SocketWorldLocation = SocketWorldTransform.GetLocation();
 		FRotator SocketWorldRotation = SocketWorldTransform.Rotator();
@@ -320,6 +320,25 @@ void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 	//Player wants the primary ability of the equipped weapon.
 	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->PrimaryWeaponAbility)
 	{
+		
+		//For Abilities with Combo potential we dont want to create a new instance of the Ability.
+		//The ability at its end will Reset CurrentWeaponAbility - so if there is still an ability there, we can use it and run its execute function.
+		//The Key here is that the ability MUST reset CurrentWeaponAbility. (This needs to be checked and double-checked.)
+		if (CurrentWeaponAbility && CurrentWeaponAbility->IsA(CurrentlyEquippedWeapon->PrimaryWeaponAbility))
+		{
+			//Getting the default object of the primary ability. (Grants access before making Instance)
+			const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
+			//Checking if the ability can be fired.
+			bool bIsAbilityValidated = ValidateWeaponAbility(PrimaryAbility);
+
+			if (bIsAbilityValidated)
+			{
+				CurrentWeaponAbility->Execute(GenerateCurrentAbilityContext(Value));
+				return;
+			}
+		}
+
+		
 		//Getting the default object of the primary ability. (Grants access before making Instance)
 		const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
 		//Checking if the ability can be fired.
@@ -333,6 +352,7 @@ void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 
 			if (Ability)
 			{
+				CurrentWeaponAbility = Ability;
 				Ability->Execute(GenerateCurrentAbilityContext(Value));
 			}
 		}
@@ -358,6 +378,7 @@ void UCombatComponent::HandleSecondaryAbility(const FInputActionValue& Value)
 		{
 			//Get the class of the Ability.
 			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->SecondaryWeaponAbility;
+			
 			//Create an Instance of the Ability.
 			UWeaponAbilityBase* Ability = NewObject<UWeaponAbilityBase>(this, AbilityClass);
 
@@ -533,6 +554,7 @@ void UCombatComponent::PlayCharacterAnimationMontage(UAnimMontage* Montage, FNam
 			Anim->Montage_JumpToSection(MontageSectionName, Montage);
 			if (TrackStages && !Anim->OnMontageEnded.IsBound())
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Binding OnMontageEnded to Combat Component."));
 				//If we want reports back to ability that some montage has finished playing or been interrupted.
 				Anim->OnMontageEnded.AddDynamic(this, &UCombatComponent::HandleMontageEnded);
 			}
@@ -558,6 +580,7 @@ FAbilityContext UCombatComponent::GenerateCurrentAbilityContext(const FInputActi
 	CurrentAbilityContext.Instigator = OwningCharacter;
 
 	CurrentAbilityContext.WeaponInstance = CurrentlyEquippedWeapon;
+	//UE_LOG(LogTemp, Warning, TEXT("Current Weapon = %s"), *CurrentAbilityContext.WeaponInstance->GetName())
 
 	CurrentAbilityContext.TargetLocation = GetProjectileTargetLocation();
 

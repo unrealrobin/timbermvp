@@ -16,6 +16,15 @@ public:
 	// Sets default values for this actor's properties
 	ABurnTrap();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	UStaticMeshComponent* BurnTrapInternalsMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	float InternalsSpinSpeed = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	float InternalsSpinTime = 3.0f;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

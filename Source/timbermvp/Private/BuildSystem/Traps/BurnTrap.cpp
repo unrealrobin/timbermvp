@@ -14,6 +14,9 @@ ABurnTrap::ABurnTrap()
 	PrimaryActorTick.bCanEverTick = true;
 	SnapCondition = ESnapCondition::CenterSnap;
 	
+	BurnTrapInternalsMesh = CreateDefaultSubobject<UStaticMeshComponent>("BurnTrapInternalsMesh");
+	BurnTrapInternalsMesh->SetupAttachment(TrapBaseStaticMesh);
+	
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ABurnTrap::HandleTrapBeginOverlap);
 }
 

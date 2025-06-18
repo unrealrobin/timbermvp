@@ -336,6 +336,7 @@ void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 				CurrentWeaponAbility->Execute(GenerateCurrentAbilityContext(Value));
 				return;
 			}
+			return;
 		}
 
 		
@@ -358,7 +359,7 @@ void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Primary skill could not be validated."));
+			//UE_LOG(LogTemp, Warning, TEXT("Primary skill could not be validated."));
 		}
 	}
 }

@@ -19,7 +19,7 @@ void UBasicSlash::Execute(FAbilityContext Context)
 	BasicSlashContext = Context;
 	ATimberPlayableCharacter* OwningCharacter = Cast<ATimberPlayableCharacter>(BasicSlashContext.Instigator);
 
-	if (bComboInitiated)
+	if (bComboInitiated || !BasicSlashContext.CombatComponent->bCanMeleeAttack)
 	{
 		return;
 	}
@@ -39,23 +39,23 @@ void UBasicSlash::Execute(FAbilityContext Context)
 			// Reasoning is we can mark with a notify exactly where we want the 2nd/3rd Sections to start playing.
 			// We just set the vars here so the Notify event knows whether or not to play the next sections.
 			SectionIndex++;
+			UE_LOG(LogTemp, Warning, TEXT("Combo Window Open. Section Index: %i"), SectionIndex);
 			
 			//Tells melee weapon to initiate combo - Can Happen on the Subsequent Calls, after the first Input Press.
 			bComboInitiated = true;
+
+			BasicSlashContext.CombatComponent->bCanMeleeAttack = false;
 			
 			UE_LOG(LogTemp, Warning, TEXT("Combo Initiated"));
 	
 		}
 		else if (SectionIndex == BasicSlashMontage->GetNumSections() - 1)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("On last Phase of Combo."));
+			/*UE_LOG(LogTemp, Warning, TEXT("On last Phase of Combo."));*/
 		}
 		else if (!bComboWindowOpen && SectionIndex == 0)
 		{
-			
-			/*SectionIndex = 0;
-			bComboInitiated = false;
-			bComboWindowOpen = false;*/
+			BasicSlashContext.CombatComponent->bCanMeleeAttack = false;
 			
 			/*This is the first Swing of the Combo.*/
 			UE_LOG(LogTemp, Warning, TEXT("Initial Combo Attack Play Animation."));
@@ -67,22 +67,25 @@ void UBasicSlash::Execute(FAbilityContext Context)
 
 void UBasicSlash::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	//Is Not Fired when Jumping to Sections.
 	Super::HandleMontageEnded(Montage, bInterrupted);
-
-	if (bInterrupted)
+	
+	UE_LOG(LogTemp, Warning, TEXT("Montage triggering HandleMontageEnded. %s"), *Montage->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Section: %i"), SectionIndex);
+	
+	if (Montage == BasicSlashMontage && BasicSlashContext.CombatComponent )
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Basic Slash Interrupted."));
-		if (Montage == BasicSlashMontage && BasicSlashContext.CombatComponent )
+		
+		if (bInterrupted)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Basic Slash Interrupted."));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Basic Slash Ended."));
 			ResetComboData();
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Basic Slash Ended."));
-	}
-	
-	
 }
 
 void UBasicSlash::ResetComboData()

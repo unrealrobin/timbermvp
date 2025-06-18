@@ -16,7 +16,11 @@ public:
 	AFrostTrap();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
-	UStaticMeshComponent* FrostTrapVentMesh;
+	UStaticMeshComponent* FrostTrapFanMesh = nullptr;
+
+	//The Amount of degrees to Spin over Time.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	float FanSpeed = 1.0f;
 
 protected:
 	// Called when the game starts or when spawned

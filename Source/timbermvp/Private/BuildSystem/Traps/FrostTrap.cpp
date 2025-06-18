@@ -17,9 +17,9 @@ AFrostTrap::AFrostTrap()
 
 	SnapCondition = ESnapCondition::CenterSnap;
 
-	FrostTrapVentMesh = CreateDefaultSubobject<UStaticMeshComponent>("Frost Trap Vent");
-	FrostTrapVentMesh->SetupAttachment(TrapBaseStaticMesh);
-	FrostTrapVentMesh->SetCollisionProfileName(TEXT("BuildableBlockEverything"));
+	FrostTrapFanMesh = CreateDefaultSubobject<UStaticMeshComponent>("Frost Trap Vent");
+	FrostTrapFanMesh->SetupAttachment(TrapBaseStaticMesh);
+	FrostTrapFanMesh->SetCollisionProfileName(TEXT("BuildableBlockEverything"));
 
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapEndOverlap);

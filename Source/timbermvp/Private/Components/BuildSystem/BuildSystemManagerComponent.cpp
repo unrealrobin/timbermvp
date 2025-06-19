@@ -602,9 +602,6 @@ void UBuildSystemManagerComponent::SpawnFinalRampBuildable(FActorSpawnParameters
 
 void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnParameters SpawnParameters)
 {
-	//TODO:: We may need to rename the classes to be based on the Snap Condition and not the Trap Name.
-	//All Traps are Center Snap, but not all Center Snap are traps.
-	//As it is now, all CenterSnapBuildable would need to be children of the ATrapBase class which is not ideal.
 	
 	ATrapBase* CenterSnapBuildable = Cast<ATrapBase>(BuildableProxyInstance);
 	
@@ -626,6 +623,14 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			
 			//Setting Parent-BC-Ref on Trap.
 			FinalizedCenterSnapBuildable->ParentBuildable = CenterSnapBuildable->TrapHoveredBuildingComponent;
+
+			//Handle Walkable Slop Override is Placed on Wall.
+			//Enemies should be able to walk over traps when placed Horizontally on floor, but when vertical they should not as this would
+			//allow the player to walk ontop of walls.
+			FinalizedCenterSnapBuildable->ConfigureStaticMeshWalkableSlope(FinalizedCenterSnapBuildable->ParentBuildable);
+
+			//Sets Collision to BC
+			FinalizedCenterSnapBuildable->SetActorEnableCollision(true);
 
 			//Resetting the Trap Direction back to default for further usage of the proxy.
 			CenterSnapBuildable->BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
@@ -654,7 +659,6 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedCenterSnapBuildable));
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(FinalizedCenterSnapBuildable->BuildableCost);
 		}
-		
 		ResetBuildableComponents(ATrapBase::StaticClass());
 	}
 	else

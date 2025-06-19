@@ -190,4 +190,6 @@ private:
 	/*Tutorial*/
 	UPROPERTY()
 	float TutorialBuildsPlaced = 0;
+
+	void HandleWalkableSlopeOverride(ATrapBase* FinalizedTrap);
 };

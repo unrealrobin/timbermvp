@@ -102,6 +102,11 @@ void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
 	}
 }
 
+void ABuildableBase::GetAllStaticMeshComponents()
+{
+	GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+}
+
 void ABuildableBase::SpawnLootInRange(int NumberOfParts, int NumberOfMechanisms, int NumberOfUniques)
 {
 	FActorSpawnParameters SpawnParameters;

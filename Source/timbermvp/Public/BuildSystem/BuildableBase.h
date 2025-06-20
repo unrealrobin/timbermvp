@@ -89,6 +89,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loot Drop Items")
 	TSubclassOf<AEnemyLootDropBase> UniquesClass;
 
+	
 		
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -118,6 +119,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
 	ABuildableBase* ParentBuildable;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Buildable")
+	bool bIsWalkable = true;
+
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
 	
 	UFUNCTION()
@@ -135,5 +139,8 @@ public:
 	TArray<UStaticMeshComponent*> StaticMeshComponents;
 
 	void GetAllStaticMeshComponents();
+
+	UFUNCTION()
+	void HandleStaticMeshWalkableSlope(AActor* NoWalkingBuildable);
 	
 };

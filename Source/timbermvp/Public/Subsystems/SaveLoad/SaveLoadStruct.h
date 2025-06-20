@@ -82,6 +82,10 @@ struct FBuildableData
 	FBuildableData() :
 		BuildingComponentClass(nullptr), BuildingComponentTransform(FTransform::Identity)
 	{}
+
+	//Whether or not this Buildable should Override Walkable Slop to "UnWalkable" - Needed for Traps on Vertical Walls.
+	UPROPERTY()
+	bool bSetIsWalkable = true;
 };
 
 USTRUCT(BlueprintType)

@@ -4,6 +4,7 @@
 #include "BuildSystem/Traps/BurnTrap.h"
 
 #include "NiagaraComponent.h"
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
@@ -34,7 +35,7 @@ void ABurnTrap::BeginPlay()
 
 void ABurnTrap::HandleTrapBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (BurnTrapInternalsNiagara)
+	if (BurnTrapInternalsNiagara && Cast<ATimberEnemyCharacter>(OtherActor))
 	{
 		BurnTrapInternalsNiagara->ActivateSystem();
 	}

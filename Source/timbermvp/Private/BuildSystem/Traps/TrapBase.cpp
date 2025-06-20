@@ -33,6 +33,7 @@ void ATrapBase::BeginPlay()
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATrapBase::HitBoxEndOverlap);
 	
 }
+
 void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
 {
 	SomeMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -125,6 +126,10 @@ void ATrapBase::RemoveEnemyFromInsideHitBoxArray(AActor* Enemy)
 
 void ATrapBase::ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef)
 {
+	/*
+	 * This is called from the BuildSystemManagerComponent when Initially Spawned.
+	 * bIsUnwalk
+	 */
 	//Parent Buildable is a Vertical Wall
 	if (Cast<ATimberVerticalBuildingComponent>(ParentBuildableRef))
 	{
@@ -137,6 +142,8 @@ void ATrapBase::ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef)
 				SomeMesh->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.0f));
 				UE_LOG(LogTemp, Warning, TEXT("Set Walkable Slope Override on Static Mesh Component: %s"), *SomeMesh->GetName());
 			}
+
+			bIsWalkable = false;
 		}
 	}
 	else

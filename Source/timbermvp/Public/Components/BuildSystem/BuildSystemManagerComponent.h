@@ -155,6 +155,7 @@ public:
 	
 	/*Clean up*/
 	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
+	
 	void RemoveBuildingComponentProxies_All();
 	
 	/*Building Component Placement Variables*/

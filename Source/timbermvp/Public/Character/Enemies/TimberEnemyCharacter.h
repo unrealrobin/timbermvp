@@ -32,6 +32,7 @@ enum class EEnemyType : uint8
 	BasicRobot UMETA(DisplayName = "BasicRobot"),
 	MeleeWeaponRobot UMETA(DisplayName = "MeleeWeaponRobot"),
 	RangedWeaponRobot UMETA(DisplayName = "RangedWeaponRobot"),
+	Drones UMETA(DisplayName = "Drones"),
 	Default UMETA(DisplayName = "Default")
 };
 
@@ -46,16 +47,6 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 public:
 	ATimberEnemyCharacter();
 	
-	
-
-	/*UFUNCTION()
-	void UpdatePathToTarget(ABuildableBase* BuildableActor);
-	
-	UFUNCTION()
-	void UpdatePathToTarget_BuildableDeleted();*/
-
-	//Gets Called from a Delegate that Broadcasts when the Character's Movement Mode is Changed,
-	//BUT the movement mode is not broadcasted, the new MovementMode is on the CharacterMovementComponent.
 	UFUNCTION()
 	void HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
 	

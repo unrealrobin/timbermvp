@@ -103,15 +103,20 @@ void AElectroStaticPulseTrap::CreatePulseHitSphere()
 {
 	/*Adjusting Spawn Location by Radius of Sphere*/
 	FVector BaseLocation = BoxExtentRaycastStart->GetComponentLocation();
-	FVector AdjustedLocation = FVector(BaseLocation.X , BaseLocation.Y - SphereRadius, BaseLocation.Z );
+	FVector ForwardOffset = BoxExtentRaycastStart->GetForwardVector() * SphereRadius;
+	//DrawDebugSphere(GetWorld(), BaseLocation + ForwardOffset, 20.0f, 12, FColor::Blue, false, 5.0f);
+	
+	FVector AdjustedLocation = BaseLocation + ForwardOffset;
+	
 	PulseSphereHitComponent = NewObject<USphereComponent>(this);
 	if (PulseSphereHitComponent)
 	{
 		/*Sphere CollisionComponent*/
 		PulseSphereHitComponent->SetSphereRadius(SphereRadius);
-		PulseSphereHitComponent->SetRelativeLocation(AdjustedLocation);
+		PulseSphereHitComponent->SetWorldLocation(AdjustedLocation);
 		PulseSphereHitComponent->RegisterComponent();
 		PulseSphereHitComponent->SetCollisionProfileName(TEXT("HitEventOnly"));
+		PulseSphereHitComponent->SetGenerateOverlapEvents(true);
 		PulseSphereHitComponent->OnComponentBeginOverlap.AddDynamic(this, &AElectroStaticPulseTrap::HandlePulseSphereOverlap);
 
 		if (PulseSphereMesh)

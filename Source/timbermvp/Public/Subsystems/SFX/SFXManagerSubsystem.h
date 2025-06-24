@@ -25,6 +25,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBuildablePlacement);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUISuccess);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUIFailure);
+	
 	FOnLootPickUp OnLootPickUp;
 	FOnWaveStart OnWaveStart;
 	FOnWaveEnd OnWaveEnd;

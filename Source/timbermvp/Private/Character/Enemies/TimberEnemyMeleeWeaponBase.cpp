@@ -33,7 +33,7 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 	{
 		//GEngine->AddOnScreenDebugMessage(1, 5.0, FColor::Black, "Mesh Found for Melee Weapon Spawn.");
 
-		const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandWeaponSocket");
+		const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("EquippedMeleeSocket");
 		if (RHandSocketTransform.IsValid())
 		{
 			//GEngine->AddOnScreenDebugMessage(2, 5.0, FColor::Black, "Right Hand Socket Transform Found");
@@ -49,7 +49,7 @@ void ATimberEnemyMeleeWeaponBase::EquipMeleeWeapon(TSubclassOf<ATimberWeaponBase
 			if (EquippedWeapon)
 			{
 				EquippedWeapon->AttachToComponent(
-					GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandWeaponSocket");
+					GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "EquippedMeleeSocket");
 				EnemyWeaponType = EEnemyWeaponState::MeleeWeaponEquipped;
 			}
 		}

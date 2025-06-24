@@ -1,4 +1,4 @@
-﻿// Property of Paracosm Industries. Dont use my shit.
+﻿// Property of Paracosm Industries.
 
 
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
@@ -13,6 +13,10 @@
 
 void USFXManagerSubsystem::BindToSFXDelegates()
 {
+	//TODO:: Wierd thing here, these are delegates from this class. We are eiuther broadcasting these or we need to Listen to delegates from other classes, otherwise
+	// other classes should just call the PlaySound function.
+
+	
 	/*Bind to all the delgates that Play Sounds - Call PlaySound with Sound*/
 	OnLootPickUp.AddDynamic(this, &USFXManagerSubsystem::PlayLootPickUpSound);
 	OnWaveStart.AddDynamic(this, &USFXManagerSubsystem::PlayWaveStartSound);
@@ -141,6 +145,7 @@ void USFXManagerSubsystem::PlayWaveStartSound()
 void USFXManagerSubsystem::PlayWaveEndSound()
 {
 	PlaySound("WaveComplete_1");
+	//PlaySound("WaveComplete_1");
 }
 
 void USFXManagerSubsystem::PlayBossSpawnSound()

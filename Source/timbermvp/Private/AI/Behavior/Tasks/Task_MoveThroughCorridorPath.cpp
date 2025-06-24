@@ -110,14 +110,31 @@ void UTask_MoveThroughCorridorPath::OnMoveFinished(FAIRequestID RequestID, const
 				return;
 			}
 		}
-		
 		//UE_LOG(LogTemp, Warning, TEXT("Finished Moving through Path."));
 		FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Succeeded );
 	}
 	
 	if (Result.Code != EPathFollowingResult::Success)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to finish Moving through corridor."));
+		switch (Result.Code)
+		{
+		case EPathFollowingResult::Aborted:
+			UE_LOG(LogTemp, Warning, TEXT("Path Following Aborted."));
+			break;
+		case EPathFollowingResult::Blocked:
+			UE_LOG(LogTemp, Warning, TEXT("Path Following Blocked."));
+			break;
+		case EPathFollowingResult::OffPath:
+			UE_LOG(LogTemp, Warning, TEXT("Path Following Off Path."));
+			break;
+		case EPathFollowingResult::Invalid:
+			UE_LOG(LogTemp, Warning, TEXT("Path Following Invalid."));
+			break;
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("Path Following failure,  default case."));
+			break;
+		}
+		//UE_LOG(LogTemp, Warning, TEXT("Failed to finish Moving through corridor."));
 		FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Failed );
 	}
 }

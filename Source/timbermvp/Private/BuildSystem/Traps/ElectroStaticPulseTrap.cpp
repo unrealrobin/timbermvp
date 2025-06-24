@@ -32,7 +32,8 @@ void AElectroStaticPulseTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	MovePulseHitBox(DeltaTime);
+	//MovePulseHitBox(DeltaTime);
+	MovePulseHitSphere(DeltaTime);
 }
 
 void AElectroStaticPulseTrap::FireElectroPulse()
@@ -100,37 +101,29 @@ void AElectroStaticPulseTrap::HandlePulseSphereOverlap(UPrimitiveComponent* Over
 
 void AElectroStaticPulseTrap::CreatePulseHitSphere()
 {
-	PulseHitSphere = NewObject<USphereComponent>(this);
-	if (PulseHitSphere)
+	/*Adjusting Spawn Location by Radius of Sphere*/
+	FVector BaseLocation = BoxExtentRaycastStart->GetComponentLocation();
+	FVector AdjustedLocation = FVector(BaseLocation.X , BaseLocation.Y - SphereRadius, BaseLocation.Z );
+	PulseSphereHitComponent = NewObject<USphereComponent>(this);
+	if (PulseSphereHitComponent)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Created"));
-		//Spawn the Box at the BoxExtentRayCast Start
-		PulseHitSphere->SetRelativeLocation(BoxExtentRaycastStart->GetComponentLocation());
-		PulseHitSphere->RegisterComponent();
-		//For other size Traps these variables may need to be changed.
-		PulseHitSphere->SetSphereRadius(120.0f);
-		PulseHitSphere->SetCollisionProfileName(TEXT("HitEventOnly"));
-		
-		//Collision Delegate
-		PulseHitSphere->OnComponentBeginOverlap.AddDynamic(this, &AElectroStaticPulseTrap::HandlePulseSphereOverlap);
-	}
+		/*Sphere CollisionComponent*/
+		PulseSphereHitComponent->SetSphereRadius(SphereRadius);
+		PulseSphereHitComponent->SetRelativeLocation(AdjustedLocation);
+		PulseSphereHitComponent->RegisterComponent();
+		PulseSphereHitComponent->SetCollisionProfileName(TEXT("HitEventOnly"));
+		PulseSphereHitComponent->OnComponentBeginOverlap.AddDynamic(this, &AElectroStaticPulseTrap::HandlePulseSphereOverlap);
 
-	if (PulseHitSphere && PulseSphereMesh)
-	{
-		//Create the Static Mesh Component of the Pulse
-		PulseSphereMeshComponent = NewObject<UStaticMeshComponent>(this);
-		
-		PulseSphereMeshComponent->RegisterComponent();
-		
-		PulseSphereMeshComponent->AttachToComponent(PulseHitSphere, FAttachmentTransformRules::KeepRelativeTransform);
-		
-		//PulseMeshComponent->SetWorldLocation(PulseHitBox->GetComponentLocation());
-
-		//Pulse Mesh is purely a visual representation of the Pulse Hit Box
-		PulseSphereMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
-		
-		//Setting the referenced Mesh as the mesh for this component.s
-		PulseSphereMeshComponent->SetStaticMesh(PulseSphereMesh);
+		if (PulseSphereMesh)
+		{
+			//Create the Static Mesh Component of the Pulse
+			PulseSphereMeshComponent = NewObject<UStaticMeshComponent>(this);
+			PulseSphereMeshComponent->RegisterComponent();
+			PulseSphereMeshComponent->AttachToComponent(PulseSphereHitComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			PulseSphereMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			PulseSphereMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+			PulseSphereMeshComponent->SetStaticMesh(PulseSphereMesh);
+		}
 	}
 }
 
@@ -173,10 +166,10 @@ void AElectroStaticPulseTrap::MovePulseHitBox(float DeltaTime)
 
 void AElectroStaticPulseTrap::MovePulseHitSphere(float DeltaTime)
 {
-	if (PulseHitSphere && PulseSphereMeshComponent && PulseSphereMeshComponent->GetStaticMesh())
+	if (PulseSphereHitComponent && PulseSphereMeshComponent && PulseSphereMeshComponent->GetStaticMesh())
 	{
 		//Original Location
-		FVector PulseStartLocation = PulseHitSphere->GetComponentLocation();
+		FVector PulseStartLocation = PulseSphereHitComponent->GetComponentLocation();
 
 		//Pulse Direction
 		FVector ForwardVector = BoxExtentRaycastStart->GetForwardVector();
@@ -184,17 +177,17 @@ void AElectroStaticPulseTrap::MovePulseHitSphere(float DeltaTime)
 		//Amount of Translation 
 		FVector NewLocation =	PulseStartLocation + (ForwardVector * 200 * DeltaTime);
 		
-		PulseHitSphere->SetRelativeLocation(NewLocation);
+		PulseSphereHitComponent->SetRelativeLocation(NewLocation);
 
 		//Once the Pulse has Reached the End of the Hit Box Extents, Destroy the Pulse Hit Box.
-		bool HitEndOfBoxExtent = FVector::Dist(PulseHitSphere->GetComponentLocation(), 
+		bool HitEndOfBoxExtent = FVector::Dist(PulseSphereHitComponent->GetComponentLocation(), 
 		BoxExtentRaycastStart->GetComponentLocation()) >= CalculatedBoxLength;
 
 		if ( HitEndOfBoxExtent )
 		{
 			//The actual box that causes the Overlaps/Hits
-			PulseHitSphere->DestroyComponent();
-			PulseHitSphere = nullptr;
+			PulseSphereHitComponent->DestroyComponent();
+			PulseSphereHitComponent = nullptr;
 
 			//We don't set this to nullptr as we define the shape in the editor
 			PulseSphereMeshComponent->DestroyComponent();
@@ -222,9 +215,6 @@ void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
 		AddEffectToEnemy(Enemy, StatusEffectDataAsset->StatusEffect);
 		//Enemy->TakeDamage(InitialHitDamage, this);
 	}
-
-	//TODO::Apply DOT on Enemy that last 10 Seconds doing 2 damage every other second.
-	
 }
 
 

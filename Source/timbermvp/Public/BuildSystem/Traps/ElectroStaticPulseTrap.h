@@ -43,10 +43,13 @@ protected:
 	float InitialHitDamage = 10.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	float SphereRadius = 120.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* PulseHitBox = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	USphereComponent* PulseHitSphere = nullptr;
+	USphereComponent* PulseSphereHitComponent = nullptr;
 	
 	FTimerHandle FireElectroPulseTimerHandle;
 

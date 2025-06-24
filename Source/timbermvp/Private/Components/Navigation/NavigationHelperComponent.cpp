@@ -154,11 +154,11 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		
 		PathPoints.Add(LastPathPoint);
 		
-		//Debug to show the adjusted Path Points in the world.
+		/*//Debug to show the adjusted Path Points in the world.
 		for (FVector PathPoint : PathPoints)
 		{
 			DrawDebugSphere(GetWorld(), PathPoint, 10, 10, FColor::Green, false, 10.0f);
-		}
+		}*/
 	}
 	return PathPoints;
 }

@@ -155,6 +155,7 @@ public:
 	
 	/*Clean up*/
 	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
+	
 	void RemoveBuildingComponentProxies_All();
 	
 	/*Building Component Placement Variables*/
@@ -190,4 +191,6 @@ private:
 	/*Tutorial*/
 	UPROPERTY()
 	float TutorialBuildsPlaced = 0;
+
+	void HandleWalkableSlopeOverride(ATrapBase* FinalizedTrap);
 };

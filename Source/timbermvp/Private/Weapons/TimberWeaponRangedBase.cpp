@@ -140,8 +140,8 @@ void ATimberWeaponRangedBase::AI_FireRangedWeapon()
 				
 				if (EnemyProjectile)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Weapon Owner for Enemy Ranged Weapon: %s"), *this->GetOwner()->GetName());
-					UE_LOG(LogTemp, Warning, TEXT("Projectile Owner for Enemy Ranged Weapon: %s"), *EnemyProjectile->GetOwner()->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Weapon Owner for Enemy Ranged Weapon: %s"), *this->GetOwner()->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Projectile Owner for Enemy Ranged Weapon: %s"), *EnemyProjectile->GetOwner()->GetName());
 					//Projectile->SetOwner(this);
 					//Cooldown for AI Automatic Fire.
 					GetWorld()->GetTimerManager().SetTimer(TimeBetweenShotsHandle, this, &ATimberWeaponRangedBase::ResetFiringCooldown, TimeBetweenProjectiles, false);

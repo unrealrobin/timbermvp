@@ -6,6 +6,8 @@
 #include "TrapBase.h"
 #include "FrostTrap.generated.h"
 
+class UNiagaraComponent;
+
 UCLASS()
 class TIMBERMVP_API AFrostTrap : public ATrapBase
 {
@@ -21,6 +23,9 @@ public:
 	//The Amount of degrees to Spin over Time.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	float FanSpeed = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	UNiagaraComponent* FrostTrapNiagaraComponent = nullptr;
 
 protected:
 	// Called when the game starts or when spawned

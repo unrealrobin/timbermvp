@@ -598,6 +598,8 @@ void UWaveGameInstanceSubsystem::FailWave()
 	//Close All Doors.
 	CloseLabDoorHandle.Broadcast();
 
+	//TODO:: Play Molly Failed Wave Quips
+
 	ResetWaveEnemies();
 
 	//Clears all timers for the Wave.

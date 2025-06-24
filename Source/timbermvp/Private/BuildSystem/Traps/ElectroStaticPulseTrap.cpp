@@ -5,6 +5,7 @@
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 
@@ -31,12 +32,14 @@ void AElectroStaticPulseTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	MovePulseHitBox(DeltaTime);
+	//MovePulseHitBox(DeltaTime);
+	MovePulseHitSphere(DeltaTime);
 }
 
 void AElectroStaticPulseTrap::FireElectroPulse()
 {
-	CreatePulseHitBox();
+	//CreatePulseHitBox();
+	CreatePulseHitSphere();
 }
 
 void AElectroStaticPulseTrap::CreatePulseHitBox()
@@ -51,7 +54,7 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 
 		FRotator AdjustedRotation = TrapBaseStaticMesh->GetComponentRotation();
 		
-		PulseHitBox->SetRelativeRotation(AdjustedRotation);
+		//PulseHitBox->SetRelativeRotation(AdjustedRotation);
 		
 		PulseHitBox->RegisterComponent();
 
@@ -79,6 +82,48 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 		
 		//Setting the referenced Mesh as the mesh for this component.
 		PulseMeshComponent->SetStaticMesh(PulseMesh);
+	}
+}
+
+void AElectroStaticPulseTrap::HandlePulseSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
+
+	//UE_LOG(LogTemp, Warning, TEXT("HandlePulseSphereOverlap - %ls"), *OtherActor->GetName());
+
+	//Apply Initial Damage to Enemy.
+	if (Enemy)
+	{
+		AddEffectToEnemy(Enemy, StatusEffectDataAsset->StatusEffect);
+	}
+}
+
+void AElectroStaticPulseTrap::CreatePulseHitSphere()
+{
+	/*Adjusting Spawn Location by Radius of Sphere*/
+	FVector BaseLocation = BoxExtentRaycastStart->GetComponentLocation();
+	FVector AdjustedLocation = FVector(BaseLocation.X , BaseLocation.Y - SphereRadius, BaseLocation.Z );
+	PulseSphereHitComponent = NewObject<USphereComponent>(this);
+	if (PulseSphereHitComponent)
+	{
+		/*Sphere CollisionComponent*/
+		PulseSphereHitComponent->SetSphereRadius(SphereRadius);
+		PulseSphereHitComponent->SetRelativeLocation(AdjustedLocation);
+		PulseSphereHitComponent->RegisterComponent();
+		PulseSphereHitComponent->SetCollisionProfileName(TEXT("HitEventOnly"));
+		PulseSphereHitComponent->OnComponentBeginOverlap.AddDynamic(this, &AElectroStaticPulseTrap::HandlePulseSphereOverlap);
+
+		if (PulseSphereMesh)
+		{
+			//Create the Static Mesh Component of the Pulse
+			PulseSphereMeshComponent = NewObject<UStaticMeshComponent>(this);
+			PulseSphereMeshComponent->RegisterComponent();
+			PulseSphereMeshComponent->AttachToComponent(PulseSphereHitComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			PulseSphereMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			PulseSphereMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+			PulseSphereMeshComponent->SetStaticMesh(PulseSphereMesh);
+		}
 	}
 }
 
@@ -119,6 +164,43 @@ void AElectroStaticPulseTrap::MovePulseHitBox(float DeltaTime)
 	}
 }
 
+void AElectroStaticPulseTrap::MovePulseHitSphere(float DeltaTime)
+{
+	if (PulseSphereHitComponent && PulseSphereMeshComponent && PulseSphereMeshComponent->GetStaticMesh())
+	{
+		//Original Location
+		FVector PulseStartLocation = PulseSphereHitComponent->GetComponentLocation();
+
+		//Pulse Direction
+		FVector ForwardVector = BoxExtentRaycastStart->GetForwardVector();
+		
+		//Amount of Translation 
+		FVector NewLocation =	PulseStartLocation + (ForwardVector * 200 * DeltaTime);
+		
+		PulseSphereHitComponent->SetRelativeLocation(NewLocation);
+
+		//Once the Pulse has Reached the End of the Hit Box Extents, Destroy the Pulse Hit Box.
+		bool HitEndOfBoxExtent = FVector::Dist(PulseSphereHitComponent->GetComponentLocation(), 
+		BoxExtentRaycastStart->GetComponentLocation()) >= CalculatedBoxLength;
+
+		if ( HitEndOfBoxExtent )
+		{
+			//The actual box that causes the Overlaps/Hits
+			PulseSphereHitComponent->DestroyComponent();
+			PulseSphereHitComponent = nullptr;
+
+			//We don't set this to nullptr as we define the shape in the editor
+			PulseSphereMeshComponent->DestroyComponent();
+
+			//Continuously Fire the Electro-Pulse ever @PARAM: FireElectroPulseCooldown Seconds
+			GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  
+			&AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
+			
+			//UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Destroyed"));
+		}
+	}
+}
+
 void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
@@ -133,9 +215,6 @@ void AElectroStaticPulseTrap::HandlePulseBoxOverlap(
 		AddEffectToEnemy(Enemy, StatusEffectDataAsset->StatusEffect);
 		//Enemy->TakeDamage(InitialHitDamage, this);
 	}
-
-	//TODO::Apply DOT on Enemy that last 10 Seconds doing 2 damage every other second.
-	
 }
 
 

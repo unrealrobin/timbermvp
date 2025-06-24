@@ -33,7 +33,7 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 	SpawnParameters.Instigator = GetInstigator();
 
 	//Getting the Socket Info from the Mesh
-	const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform("RHandRifleSocket");
+	const FTransform RHandSocketTransform = GetMesh()->GetSocketTransform(RangedSocketEquippedName);
 
 	if(RangedWeaponClassName != nullptr)
 	{
@@ -53,7 +53,7 @@ void ATimberEnemyRangedBase::EquipRangedWeapon()
 			{
 				//Attaching the Weapon to the Socket, this locks the weapon to the socket during movement.
 				EquippedWeapon->AttachToComponent(
-					GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, "RHandRifleSocket");
+					GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RangedSocketEquippedName);
 				EnemyWeaponType = EEnemyWeaponState::RangedWeaponEquipped;
 			}
 		}
@@ -77,8 +77,8 @@ void ATimberEnemyRangedBase::GetRotationToCurrentTarget()
 		YawToTarget = AdjustedRotation.Yaw;
 		PitchToTarget = AdjustedRotation.Pitch;
 
-		UE_LOG(LogTemp, Warning, TEXT("Pitch To Target = %f"), PitchToTarget);
-		UE_LOG(LogTemp, Warning, TEXT("Yaw To Target = %f"), YawToTarget);
+		//UE_LOG(LogTemp, Warning, TEXT("Pitch To Target = %f"), PitchToTarget);
+		//UE_LOG(LogTemp, Warning, TEXT("Yaw To Target = %f"), YawToTarget);
 
 		DrawDebugLine(GetWorld(), StartLocation, TargetLocation, FColor::Red, false, 0.1f);
 		DrawDebugSphere(GetWorld(), TargetLocation, 20, 30, FColor::Red);

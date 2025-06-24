@@ -102,6 +102,37 @@ void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
 	}
 }
 
+void ABuildableBase::GetAllStaticMeshComponents()
+{
+	GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+}
+
+void ABuildableBase::HandleStaticMeshWalkableSlope(AActor* NoWalkingBuildable)
+{
+	//Parent Buildable is a Vertical Wall
+	if (ABuildableBase* Buildable = Cast<ABuildableBase>(NoWalkingBuildable))
+	{
+		if (Buildable->bIsWalkable == false)
+		{
+			//Get All the Static Meshes for this Buildable
+			GetAllStaticMeshComponents();
+			
+			if (StaticMeshComponents.Num() > 0)
+			{
+				for (UStaticMeshComponent* SomeMesh : StaticMeshComponents)
+				{
+					SomeMesh->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.0f));
+					UE_LOG(LogTemp, Warning, TEXT("Set Walkable Slope Override on Static Mesh Component: %s"), *SomeMesh->GetName());
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Parent Buildable is not a Vertical Wall or not valid."));
+	}
+}
+
 void ABuildableBase::SpawnLootInRange(int NumberOfParts, int NumberOfMechanisms, int NumberOfUniques)
 {
 	FActorSpawnParameters SpawnParameters;

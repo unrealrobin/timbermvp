@@ -297,6 +297,19 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				BuildableData.BuildingComponentClass = BuildableActor->GetClass();
 				BuildableData.BuildingComponentTransform = BuildableActor->GetActorTransform();
 
+				//Will Set whether or not this buildable can be walked on.
+				// Ex. Tops of Walls / Traps on Vertical Surfaces etc.
+				BuildableData.bSetIsWalkable = Buildable->bIsWalkable;
+				
+				if (BuildableData.bSetIsWalkable == false)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Buildable is Not Walkable. %s"), *BuildableActor->GetName());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Buildable is Walkable. %s"), *BuildableActor->GetName());
+				}
+
 				//Saving the GUID of this Buildable
 				//UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
 				//UE_LOG(LogTemp, Warning, TEXT("Saving Buildable: %s. GUID: %s"), *BuildableActor->GetName(), *Buildable->GetGUID().ToString());
@@ -507,13 +520,25 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 
 				if (ABuildableBase* SpawnedBuildable = Cast<ABuildableBase>(SpawnedActor))
 				{
-					
 					//Set the Saved GUID back on the newly Spawned Buildable
 					SpawnedBuildable->SetGUID(BuildingComponentData.GUID);
-					UE_LOG(LogTemp, Warning, TEXT("Buildable: %s , Buildable GUID: %s"), *SpawnedBuildable->GetName(), *SpawnedBuildable->GetGUID().ToString());
+					//UE_LOG(LogTemp, Warning, TEXT("Buildable: %s , Buildable GUID: %s"), *SpawnedBuildable->GetName(), *SpawnedBuildable->GetGUID().ToString());
 
 					//Add the KV Pair to the TMap
 					RegisterBuildable(SpawnedBuildable);
+					
+					//Setting the IsWalkable Flag && WalkableSlopeOverride (Makes it so you cannot walk on the top of walls or Traps attached to Walls.)
+					if (BuildingComponentData.bSetIsWalkable == false)
+					{
+						SpawnedBuildable->bIsWalkable = false;
+						SpawnedBuildable->HandleStaticMeshWalkableSlope(SpawnedBuildable);
+
+						UE_LOG(LogTemp, Warning, TEXT("Setting %s to not walkable."), *SpawnedBuildable->GetName());
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Buildable is Walkable."));
+					}
 				}
 
 			}
@@ -522,7 +547,6 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 		//Second Pass over the Saved Buildable Data Array. Resolving References (Attachments and Parenting)
 		ResolveBuildableReferences(LoadGameInstance->BuildingComponentsArray);
 		
-		//TODO:: After Loading and Connecting all building Components redraw the PathTracers.
 	}
 }
 

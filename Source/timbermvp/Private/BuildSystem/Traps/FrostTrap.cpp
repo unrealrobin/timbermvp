@@ -3,6 +3,7 @@
 
 #include "BuildSystem/Traps/FrostTrap.h"
 
+#include "NiagaraComponent.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
@@ -21,6 +22,9 @@ AFrostTrap::AFrostTrap()
 	FrostTrapFanMesh->SetupAttachment(TrapBaseStaticMesh);
 	FrostTrapFanMesh->SetCollisionProfileName(TEXT("BuildableBlockEverything"));
 
+	FrostTrapNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("Frost Trap Niagara");
+	FrostTrapNiagaraComponent->SetupAttachment(FrostTrapFanMesh);
+
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapEndOverlap);
 	
@@ -30,6 +34,11 @@ AFrostTrap::AFrostTrap()
 void AFrostTrap::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!bIsProxy)
+	{
+		FrostTrapNiagaraComponent->Activate();
+	}
 	
 }
 

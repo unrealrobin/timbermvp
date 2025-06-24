@@ -27,6 +27,7 @@ class TIMBERMVP_API ATrapBase : public ABuildableBase
 
 public:
 	ATrapBase();
+	void ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	UStatusEffectBase* StatusEffectDataAsset;

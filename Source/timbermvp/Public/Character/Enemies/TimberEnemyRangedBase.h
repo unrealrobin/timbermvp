@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
 	USceneComponent* AimStartPointComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
+	FName RangedSocketEquippedName = "EquippedRangeSocket";
+
 	//Assists in Aim Offset Calculations in Animation Blueprint
 	UFUNCTION(BlueprintCallable)
 	void GetRotationToCurrentTarget();

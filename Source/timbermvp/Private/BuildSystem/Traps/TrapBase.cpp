@@ -4,6 +4,7 @@
 #include "BuildSystem/Traps/TrapBase.h"
 
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
+#include "BuildSystem/BuildingComponents/TimberVerticalBuildingComponent.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
@@ -27,8 +28,10 @@ ATrapBase::ATrapBase()
 void ATrapBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATrapBase::HitBoxBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATrapBase::HitBoxEndOverlap);
+	
 }
 
 void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
@@ -119,4 +122,32 @@ void ATrapBase::AddEnemyToInsideHitBoxArray(AActor* Enemy)
 void ATrapBase::RemoveEnemyFromInsideHitBoxArray(AActor* Enemy)
 {
 	InsideHitBoxArray.Remove(Enemy);
+}
+
+void ATrapBase::ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef)
+{
+	/*
+	 * This is called from the BuildSystemManagerComponent when Initially Spawned.
+	 * bIsUnwalk
+	 */
+	//Parent Buildable is a Vertical Wall
+	if (Cast<ATimberVerticalBuildingComponent>(ParentBuildableRef))
+	{
+		GetAllStaticMeshComponents();
+		
+		if (StaticMeshComponents.Num() > 0)
+		{
+			for (UStaticMeshComponent* SomeMesh : StaticMeshComponents)
+			{
+				SomeMesh->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.0f));
+				UE_LOG(LogTemp, Warning, TEXT("Set Walkable Slope Override on Static Mesh Component: %s"), *SomeMesh->GetName());
+			}
+
+			bIsWalkable = false;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Parent Buildable is not a Vertical Wall or not valid."));
+	}
 }

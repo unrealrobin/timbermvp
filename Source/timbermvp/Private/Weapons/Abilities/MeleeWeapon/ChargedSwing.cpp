@@ -120,6 +120,7 @@ void UChargedSwing::HandleDamage(FAbilityContext Context)
 			CollisionSphere->SetSphereRadius(CollisionSphereRadius);
 			CollisionSphere->SetCollisionProfileName("DR_HitEventOnly");
 			CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			CollisionSphere->SetCanEverAffectNavigation(false);
 
 			//DrawDebugSphere(GetWorld(), Weapon->GetActorLocation(), CollisionSphereRadius, 12, FColor::Red, false, 10.0f);
 

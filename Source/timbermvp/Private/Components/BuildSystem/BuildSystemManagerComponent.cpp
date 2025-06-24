@@ -11,6 +11,7 @@
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "BuildSystem/Ramps/RampBase.h"
 #include "Character/TimberPlayableCharacter.h"
+#include "Character/TimberSeeda.h"
 #include "Components/BoxComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
@@ -296,6 +297,7 @@ void UBuildSystemManagerComponent::HorizontalToVerticalSnapCondition(FHitResult 
 
 void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation)
 {
+	/*Handles Movement of the Buildable*/
 	ATimberBuildingComponentBase* ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(BuildableProxyInstance);
 	//Getting Vector Between 2 assumed Snap Points.
 	FVector MoveLocation = SnapLocation - ProxySnapLocation;
@@ -304,54 +306,95 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 	//Moving Actor the MoveLocation distance from the Current Location.
 	ActiveBuildingComponentProxy->SetActorLocation(CurrentLocation + MoveLocation);
 
+	FQuat Offset = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(90));
+	FQuat ProxyRotation = ActiveBuildingComponentProxy->GetActorQuat() * Offset;
 	/*
 	 * Here we are starting to check if whether our proposed snap location already has a Building Component in that spot.
 	 * We set bWillOverlap to true if there is an overlap. and set the component bool BCanBuildableBeFinalized to False.
 	 *
 	 * We add 200 to the Z Location if the component is vertical because the ActorTransform is from its PivotPoint but we want the Center of the Wall Location.
+	 * Used for the Box we are using to check overlaps.
 	 */
 	FVector WorldLocation = ActiveBuildingComponentProxy->GetActorTransform().TransformPosition(MoveLocation);
 	if (Cast<ATimberVerticalBuildingComponent>(ActiveBuildingComponentProxy))
 	{
 		WorldLocation.Z += 200.0f;
 	}
+	FVector SweepBoxSize = FVector(170, 10, 170);
+	/*Checking for Hit Building Component*/
+	TArray<FHitResult> BuildableHitResults;
+	TArray<FHitResult> PawnHitResults	;
 	
-	TArray<FHitResult> HitResults;
-	bool bWillOverlap = GetWorld()->SweepMultiByChannel(
-		HitResults,
+	bool bWillOverlapBuildable = GetWorld()->SweepMultiByChannel(
+		BuildableHitResults,
 		WorldLocation,
 		WorldLocation,  // Same start and end if stationary
-		FQuat::Identity,
+		ProxyRotation,
 		ECC_GameTraceChannel1,
-		FCollisionShape::MakeBox(FVector(40, 40, 40))
+		FCollisionShape::MakeBox(SweepBoxSize)
 		);
 
-	//DrawDebugBox(GetWorld(), WorldLocation, FVector(40, 40, 40), FColor::Green, false, -1);
-	
+	//Checking for a Mesh Hit Specifically, overlapping the Overlap Box of a BP can trigger a hit so we need to ensure we are overlapping a mesh.
 	bool bHitMesh = false;
-	for (FHitResult Hit: HitResults)
+	if (bWillOverlapBuildable && BuildableHitResults.Num() > 0)
 	{
-		UPrimitiveComponent* Component = Hit.GetComponent();
-		//UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());
-		if (UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Component))
+		for (FHitResult Hit: BuildableHitResults)
 		{
-			if (Mesh)
+			UPrimitiveComponent* Component = Hit.GetComponent();
+			//UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());s
+			if (UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Component))
 			{
-				//break that loop if any mesh was hit.
-				bHitMesh = true;
-
-				//Checking for outlier meshes.
-				//Ex. The Ramp is Tanget to the wall causing an overlap over the HitBox. This is not a valid overlap.
-				//TODO:: This may be adjusted in the future by adjusted the Width of the Overlap box to only be the width of the wall.
-				if (Cast<ARampBase>(Hit.GetActor()))
+				if (Mesh)
 				{
-					bHitMesh = false;
+					//break that loop if any mesh was hit.
+					bHitMesh = true;
+
+					if (Cast<ARampBase>(Hit.GetActor()))
+					{
+						bHitMesh = false;
+					}
+					break;
 				}
-				break;
 			}
 		}
 	}
-	if (bWillOverlap && bHitMesh)
+	
+	bool bWillOverlapPawn = GetWorld()->SweepMultiByChannel(
+		PawnHitResults,
+		WorldLocation,
+		WorldLocation,  
+		ProxyRotation,
+		ECC_Visibility,  
+		FCollisionShape::MakeBox(SweepBoxSize)
+		);
+	
+	bool bHitPawnMesh = false;
+	if (bWillOverlapPawn && PawnHitResults.Num() > 0)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Pawn Overlap Component Hit: %s"), *PawnHitResults[0].GetActor()->GetName());
+		for (FHitResult Hit: PawnHitResults)
+		{
+			UPrimitiveComponent* Component = Hit.GetComponent();
+			UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());
+			UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Component);
+			if (Hit.GetActor()->IsA(ATimberSeeda::StaticClass()) || Hit.GetActor()->IsA(ATimberCharacterBase::StaticClass()))
+			{
+				if (Mesh) //if the Hit Component is Static Mesh Component
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Mesh Hit: %s"), *Mesh->GetName());
+					UE_LOG(LogTemp, Warning, TEXT("Character Hit: %s"), *Hit.GetActor()->GetName());
+					bHitPawnMesh = true;
+					break;
+				}
+			}
+			UE_LOG(LogTemp, Warning, TEXT("No Character Actor Hit Results."));
+		}
+	}
+	
+	DrawDebugBox(GetWorld(), WorldLocation, SweepBoxSize, ProxyRotation, FColor::Green, false, -1);
+	
+	//If Overlapped a Buildable && We overlapped its Mesh - Set the Buildable to not be finalized.
+	if ((bWillOverlapBuildable && bHitMesh) || (bWillOverlapPawn && bHitPawnMesh))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Overlap."));
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = false;
@@ -359,7 +402,7 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Building Component Will Not Overlap."));
+		//good to be Placed
 		ActiveBuildingComponentProxy->bCanBuildableBeFinalized = true;
 		MakeMaterialHoloColor(ActiveBuildingComponentProxy, BlueHoloMaterial);
 	}

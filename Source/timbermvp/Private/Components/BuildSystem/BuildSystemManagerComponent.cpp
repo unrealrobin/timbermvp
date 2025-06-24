@@ -305,8 +305,15 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 	
 	//Moving Actor the MoveLocation distance from the Current Location.
 	ActiveBuildingComponentProxy->SetActorLocation(CurrentLocation + MoveLocation);
-
-	FQuat Offset = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(90));
+	FQuat Offset;
+	if (ActiveBuildingComponentProxy->IsA(ATimberVerticalBuildingComponent::StaticClass()))
+	{
+		Offset = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(90));
+	}
+	else if (ActiveBuildingComponentProxy->IsA(ATimberHorizontalBuildingComponent::StaticClass()))
+	{
+		Offset = FQuat(FVector(1, 0, 0), FMath::DegreesToRadians(90));
+	}
 	FQuat ProxyRotation = ActiveBuildingComponentProxy->GetActorQuat() * Offset;
 	/*
 	 * Here we are starting to check if whether our proposed snap location already has a Building Component in that spot.

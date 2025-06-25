@@ -29,7 +29,7 @@ void ATeleportConstruct::BeginPlay()
 
 	PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), 
 	ATimberPlayableCharacter::StaticClass()));
-	
+	UE_LOG(LogTemp, Warning, TEXT("Teleporter GUID: %s"), *BuildSystemGUID.ToString());
 }
 
 // Called every frame
@@ -37,7 +37,7 @@ void ATeleportConstruct::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	CheckForPairOutsideBuildMode();
+	//CheckForPairOutsideBuildMode();
 }
 
 void ATeleportConstruct::SetupComponents()
@@ -172,6 +172,7 @@ void ATeleportConstruct::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	if (TeleportPair)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Teleport Construct End Play. Went through Destruction."));
 		//Because Pair A was linked earlier, but destroys first, we need to remove the callback to Pair B that was added to Pair A.
 		// We are unbinding from the callback that would be called if Pair B was destroyed first.
 		TeleportPair->OnDestroyed.RemoveDynamic(this, &ATeleportConstruct::OnPairDestruction);

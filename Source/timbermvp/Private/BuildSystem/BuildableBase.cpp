@@ -21,11 +21,6 @@ ABuildableBase::ABuildableBase()
 
 	RootSceneComponent = CreateDefaultSubobject<USceneComponent>("RootSceneComponent");
 	RootComponent = RootSceneComponent;
-
-	if (!GUID.IsValid())
-	{
-		GUID = FGuid::NewGuid();
-	}
 }
 
 void ABuildableBase::GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const
@@ -40,6 +35,9 @@ void ABuildableBase::BeginPlay()
 
 	//This creates a new Guid after the Actor is Spawned but only if its not Loaded.
 	//WHen its loaded the Actor receives the GUID before begin play.
+	
+	BuildSystemGUID = FGuid::NewGuid();
+	
 	
 }
 
@@ -73,19 +71,12 @@ void ABuildableBase::HandleDeletionOfBuildable()
 FGuid ABuildableBase::GetGUID()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Getting GUID for Actor: %s"), *GetName());
-
-	if (GUID.IsValid())
-	{
-		return GUID;
-	}
-
-	//Invalid Guid
-	return FGuid();
+	return BuildSystemGUID;
 }
 
 void ABuildableBase::SetGUID(FGuid NewGUID)
 {
-	GUID = NewGUID;
+	BuildSystemGUID = NewGUID;
 }
 
 void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)

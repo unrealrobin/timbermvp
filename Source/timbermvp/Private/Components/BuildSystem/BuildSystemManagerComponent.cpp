@@ -259,7 +259,7 @@ void UBuildSystemManagerComponent::VerticalToHorizontalSnapCondition(FHitResult 
 			break;
 		default:
 			{
-				UE_LOG(LogTemp, Error, TEXT("No Matching Snap Condition from Vertical to Horizontal."))
+				//UE_LOG(LogTemp, Error, TEXT("No Matching Snap Condition from Vertical to Horizontal."))
 			}
 	}
 }
@@ -291,7 +291,9 @@ void UBuildSystemManagerComponent::HorizontalToVerticalSnapCondition(FHitResult 
 			MoveBuildingComponentProxyToSnapLocation(ProxySnapLocation, HitActorSnapLocation);
 		}
 		break;
-	default: UE_LOG(LogTemp, Error, TEXT("Floors and Ceilings can not Attach to Sides of Walls."));
+	default:
+		//UE_LOG(LogTemp, Error, TEXT("Floors and Ceilings can not Attach to Sides of Walls."));
+		break;
 	}
 }
 
@@ -382,23 +384,23 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 		for (FHitResult Hit: PawnHitResults)
 		{
 			UPrimitiveComponent* Component = Hit.GetComponent();
-			UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Proxy Overlap Component Hit: %s"), *Component->GetName());
 			UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(Component);
 			if (Hit.GetActor()->IsA(ATimberSeeda::StaticClass()) || Hit.GetActor()->IsA(ATimberCharacterBase::StaticClass()))
 			{
 				if (Mesh) //if the Hit Component is Static Mesh Component
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Mesh Hit: %s"), *Mesh->GetName());
-					UE_LOG(LogTemp, Warning, TEXT("Character Hit: %s"), *Hit.GetActor()->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Mesh Hit: %s"), *Mesh->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Character Hit: %s"), *Hit.GetActor()->GetName());
 					bHitPawnMesh = true;
 					break;
 				}
 			}
-			UE_LOG(LogTemp, Warning, TEXT("No Character Actor Hit Results."));
+			//UE_LOG(LogTemp, Warning, TEXT("No Character Actor Hit Results."));
 		}
 	}
 	
-	DrawDebugBox(GetWorld(), WorldLocation, SweepBoxSize, ProxyRotation, FColor::Green, false, -1);
+	//DrawDebugBox(GetWorld(), WorldLocation, SweepBoxSize, ProxyRotation, FColor::Green, false, -1);
 	
 	//If Overlapped a Buildable && We overlapped its Mesh - Set the Buildable to not be finalized.
 	if ((bWillOverlapBuildable && bHitMesh) || (bWillOverlapPawn && bHitPawnMesh))
@@ -587,7 +589,8 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 				SpawnFinalFloorEdgeSnapTopOnlyBuildable(SpawnParameters);
 				break;
 			default:
-				UE_LOG(LogTemp, Warning, TEXT("SpawnFinalBuildable() - No Set Snap Condition."))
+				//UE_LOG(LogTemp, Warning, TEXT("SpawnFinalBuildable() - No Set Snap Condition."))
+				break;
 			}
 
 
@@ -609,13 +612,13 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("BSMC - Player Can Not Afford this Buildable"));
+			//UE_LOG(LogTemp, Error, TEXT("BSMC - Player Can Not Afford this Buildable"));
 			PlayBuildDeniedSound();
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("BSMC - ActiveBuildableComponentClass or BuildableProxyInstance is Null."));
+		//UE_LOG(LogTemp, Error, TEXT("BSMC - ActiveBuildableComponentClass or BuildableProxyInstance is Null."));
 		PlayBuildDeniedSound();
 	}
 }
@@ -693,11 +696,11 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			{
 			case EBuildingComponentTrapDirection::Front:
 				CenterSnapBuildable->TrapHoveredBuildingComponent->FrontCenterAttachment = FinalizedCenterSnapBuildable;
-				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Front Trap Slot."));
+				//UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Front Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Back:
 				CenterSnapBuildable->TrapHoveredBuildingComponent->BackCenterAttachment = FinalizedCenterSnapBuildable;
-				UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Back Trap Slot."));
+				//UE_LOG(LogTemp, Warning, TEXT("Set Trap on Building Component Back Trap Slot."));
 				break;
 			case EBuildingComponentTrapDirection::Default:
 				GEngine->AddOnScreenDebugMessage(3, 3.0f, FColor::Red, "Trap Direction Not Specified.");
@@ -817,7 +820,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FAc
 				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
 				{
 					BuildingComponent->FrontCenterAttachment = Cast<ABuildableBase>(SpawnedActor);
-					UE_LOG(LogTemp, Warning, TEXT("Construct set on FrontTrapSnap Slot."))
+					//UE_LOG(LogTemp, Warning, TEXT("Construct set on FrontTrapSnap Slot."))
 					APowerPlate* PowerPlate = Cast<APowerPlate>(SpawnedActor);
 
 					//Setting the parent floor component on this actor, so we can free up slot during deletion.
@@ -836,7 +839,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FAc
 	else
 	{
 		PlayBuildDeniedSound();
-	    UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
+	    //UE_LOG(LogTemp, Warning, TEXT("BSMC - SpawnFinalFloorOnlyBC - Buildable Can Not be Finalized."));
 	}
 }
 
@@ -928,7 +931,7 @@ void UBuildSystemManagerComponent::BroadcastControllerUpdateNewBuildable(AActor*
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
 	if (PlayerCharacter && CastBuildable)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Changed Buildable Name: %s"), *CastBuildable->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Changed Buildable Name: %s"), *CastBuildable->GetName());
 		ATimberPlayerController* PC = PlayerCharacter->GetController<ATimberPlayerController>();
 		if (PC)
 		{
@@ -1172,7 +1175,7 @@ AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> Act
 		if (ABuildableBase* SpawnedBuildingComponent = Cast<ABuildableBase>(SpawnedActor))
 		{
 			//We need to set this to proxy to ensure that the overlap check box is created.
-			UE_LOG(LogTemp, Warning, TEXT("Spawned Building Component Proxy"));
+			//UE_LOG(LogTemp, Warning, TEXT("Spawned Building Component Proxy"));
 			SpawnedBuildingComponent->bIsProxy = true;
 		}
 		
@@ -1320,7 +1323,7 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 		}
 		if (FilteredSnapPoints.Num() <= 0)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Could not find any matching Snap Points."));
+			//UE_LOG(LogTemp, Warning, TEXT("Could not find any matching Snap Points."));
 			return;
 		}
 

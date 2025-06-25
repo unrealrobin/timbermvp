@@ -72,7 +72,7 @@ protected:
 
 	/*Unique Tag for Tracking/Saving/Loading */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Buildable")
-	FGuid GUID;
+	FGuid BuildSystemGUID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Buildable")
 	USceneComponent* RootSceneComponent;

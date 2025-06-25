@@ -80,8 +80,8 @@ void ATimberEnemyRangedBase::GetRotationToCurrentTarget()
 		//UE_LOG(LogTemp, Warning, TEXT("Pitch To Target = %f"), PitchToTarget);
 		//UE_LOG(LogTemp, Warning, TEXT("Yaw To Target = %f"), YawToTarget);
 
-		DrawDebugLine(GetWorld(), StartLocation, TargetLocation, FColor::Red, false, 0.1f);
-		DrawDebugSphere(GetWorld(), TargetLocation, 20, 30, FColor::Red);
+		/*DrawDebugLine(GetWorld(), StartLocation, TargetLocation, FColor::Red, false, 0.1f);
+		DrawDebugSphere(GetWorld(), TargetLocation, 20, 30, FColor::Red);*/
 		//UE_LOG(LogTemp, Warning, TEXT("Ranged Enemy Current Target: %s"), *CurrentTarget->GetName())
 	}
 }

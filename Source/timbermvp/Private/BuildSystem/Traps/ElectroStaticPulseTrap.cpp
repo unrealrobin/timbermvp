@@ -52,7 +52,7 @@ void AElectroStaticPulseTrap::CreatePulseHitBox()
 		//Spawn the Box at the BoxExtentRayCast Start
 		PulseHitBox->SetRelativeLocation(BoxExtentRaycastStart->GetComponentLocation());
 
-		FRotator AdjustedRotation = TrapBaseStaticMesh->GetComponentRotation();
+		//FRotator AdjustedRotation = TrapBaseStaticMesh->GetComponentRotation();
 		
 		//PulseHitBox->SetRelativeRotation(AdjustedRotation);
 		

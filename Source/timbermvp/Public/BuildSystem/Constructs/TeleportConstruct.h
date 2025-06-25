@@ -27,10 +27,10 @@ class TIMBERMVP_API ATeleportConstruct : public AConstructBase
 	GENERATED_BODY()
 
 public:
-	void SetupComponents();
-	
 	// Sets default values for this actor's properties
 	ATeleportConstruct();
+
+	void SetupComponents();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	ETeleportConstructState TeleportConstructState = ETeleportConstructState::Default;

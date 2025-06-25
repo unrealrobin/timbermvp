@@ -31,12 +31,13 @@ FString USaveLoadSubsystem::GetSaveSlot()
 
 void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
 {
-	//Adds Key Value Pair
+	//Adds Instance to GUID pair
 	FGuid BuildableGUID = Buildable->GetGUID();
 	if (Buildable && BuildableGUID.IsValid())
 	{
 		GuidToBuildableMap.Add(BuildableGUID, Buildable);
 		UE_LOG(LogTemp, Warning, TEXT("Buildable Added to TMap: %s with GUID: %s"), *Buildable->GetName(), *Buildable->GetGUID().ToString());
+		UE_LOG(LogTemp, Warning, TEXT(" TMap has %i Buildables"), GuidToBuildableMap.Num());
 	}
 }
 
@@ -68,9 +69,10 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 	
 	for (FBuildableData& Data : BuildableData)
 	{
-		//Checking if the Buildable is registered in the GuidToBuildableMap
+		//Checking if the Buildable class is registered in the GuidToBuildableMap
 		if (bIsBuildableRegistered(Data.GUID))
 		{
+			
 			//UE_LOG(LogTemp, Warning, TEXT("Buildable: %s is Registered"), *GuidToBuildableMap[Data.GUID]->GetName());
 			//Handling Attachment Array of Buildables
 			//Retrieving Instance of the Buildable from Guid from TMap
@@ -128,6 +130,10 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 				}
 				//UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
 			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Could not get Instance of Buildable from Guid: %s"), *Data.GUID.ToString());
+			}
 
 			/* Handling ParentBuildableReference*/
 			ATrapBase* Trap = Cast<ATrapBase>(GuidToBuildableMap[Data.GUID]);
@@ -160,12 +166,18 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 						/*Teleporters*/
 						if (TeleportConstruct)
 						{
+							UE_LOG(LogTemp, Warning, TEXT("--- Handling Teleporters --"));
 							// Teleporter have some Construction necessary when respawning themselves. The link Delegates etc.
-							TeleportConstruct->ParentBuildable= BuildingComponent;
+							TeleportConstruct->ParentBuildable = BuildingComponent;
 							TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
-							if (TeleportConstruct->TeleportPair)
+							if (TeleportConstruct->TeleportPair && TeleportConstruct->TeleportPair->TeleportPair)
 							{
+								UE_LOG(LogTemp, Warning, TEXT("Teleport is Linking to Pair."));
 								TeleportConstruct->LinkToPair(TeleportConstruct->TeleportPair);
+							}
+							else
+							{
+								UE_LOG(LogTemp, Error, TEXT("TeleportPair is not set in TMap. GUID: %s"), *Data.TeleportPairGUID.ToString());
 							}
 							
 							//UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *TeleportConstruct->GetName(), *BuildingComponent->GetName());
@@ -173,6 +185,10 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 					}
 				}
 			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Buildable is not set in TMap. GUID: %s"), *Data.GUID.ToString());
 		}
 	}
 }
@@ -301,25 +317,25 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				// Ex. Tops of Walls / Traps on Vertical Surfaces etc.
 				BuildableData.bSetIsWalkable = Buildable->bIsWalkable;
 				
-				if (BuildableData.bSetIsWalkable == false)
+				/*if (BuildableData.bSetIsWalkable == false)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("Buildable is Not Walkable. %s"), *BuildableActor->GetName());
 				}
 				else
 				{
 					UE_LOG(LogTemp, Warning, TEXT("Buildable is Walkable. %s"), *BuildableActor->GetName());
-				}
+				}*/
 
 				//Saving the GUID of this Buildable
 				//UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
-				//UE_LOG(LogTemp, Warning, TEXT("Saving Buildable: %s. GUID: %s"), *BuildableActor->GetName(), *Buildable->GetGUID().ToString());
+				UE_LOG(LogTemp, Warning, TEXT("Saving Buildable: %s. GUID: %s"), *BuildableActor->GetName(), *Buildable->GetGUID().ToString());
 				BuildableData.GUID = Buildable->GetGUID();
-				if (!BuildableData.GUID.IsValid())
+				/*if (!BuildableData.GUID.IsValid())
 				{
 					UE_LOG(LogTemp, Warning, TEXT(" GUI Invalid"));
 					continue;
 					
-				}
+				}*/
 
 				/*
 				 * WALLS & FLOORS SPECIFIC
@@ -394,6 +410,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 					}
 					//Saving Teleport Pair GUID
 					BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
+					UE_LOG(LogTemp, Warning, TEXT(" Saved for Teleport: %s -> Pair GUID for Teleport: %s"),*TeleportConstruct->GetName(), *TeleportConstruct->TeleportPair->GetName());
 				}
 				
 				SaveGameInstance->BuildingComponentsArray.Add(BuildableData);
@@ -456,6 +473,7 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 /* Load System */
 void USaveLoadSubsystem::LoadGame()
 {
+	UE_LOG(LogTemp, Warning, TEXT("----LOADING GAME----"));
 	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (WaveSubsystem && GameMode)
@@ -533,11 +551,11 @@ void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstanc
 						SpawnedBuildable->bIsWalkable = false;
 						SpawnedBuildable->HandleStaticMeshWalkableSlope(SpawnedBuildable);
 
-						UE_LOG(LogTemp, Warning, TEXT("Setting %s to not walkable."), *SpawnedBuildable->GetName());
+						//UE_LOG(LogTemp, Warning, TEXT("Setting %s to not walkable."), *SpawnedBuildable->GetName());
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Buildable is Walkable."));
+						//UE_LOG(LogTemp, Warning, TEXT("Buildable is Walkable."));
 					}
 				}
 

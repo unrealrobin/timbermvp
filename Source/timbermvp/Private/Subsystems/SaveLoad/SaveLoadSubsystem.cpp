@@ -31,13 +31,14 @@ FString USaveLoadSubsystem::GetSaveSlot()
 
 void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
 {
-	//Adds Instance to GUID pair
+	//Adds Instance to GUID pair to Map
+	// Map holds and Ref to the Spawned Buildable and Its GUID.
 	FGuid BuildableGUID = Buildable->GetGUID();
 	if (Buildable && BuildableGUID.IsValid())
 	{
 		GuidToBuildableMap.Add(BuildableGUID, Buildable);
 		UE_LOG(LogTemp, Warning, TEXT("Buildable Added to TMap: %s with GUID: %s"), *Buildable->GetName(), *Buildable->GetGUID().ToString());
-		UE_LOG(LogTemp, Warning, TEXT(" TMap has %i Buildables"), GuidToBuildableMap.Num());
+		//UE_LOG(LogTemp, Warning, TEXT(" TMap has %i Buildables"), GuidToBuildableMap.Num());
 	}
 }
 
@@ -63,10 +64,9 @@ bool USaveLoadSubsystem::bIsBuildableRegistered(FGuid BuildableGUID)
 
 void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> BuildableData)
 {
-	/*UE_LOG(LogTemp, Warning, TEXT("RESOLVING BUILDABLE REFERENCES"));
-	UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
-	UE_LOG(LogTemp, Warning, TEXT("BuildableData Array Size: %d"), BuildableData.Num());*/
-	
+	/*
+	 *Env Buildables don't get registered, so when loading anything placed on an env buildable, they will have a null parent.
+	 */
 	for (FBuildableData& Data : BuildableData)
 	{
 		//Checking if the Buildable class is registered in the GuidToBuildableMap
@@ -141,9 +141,6 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.GUID]);
 			if (Trap || Construct || TeleportConstruct)
 			{
-				/*UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));
-				UE_LOG(LogTemp, Warning, TEXT("TRAP/CONSTRUCT/TELEPORTCONSTRUCT PARENT BUILDABLE REFERENCE"));
-				UE_LOG(LogTemp, Warning, TEXT("-------------------------------"));*/
 				//Checking if the Parent Building Component is registered in the GuidToBuildableMap
 				if (bIsBuildableRegistered(Data.ParentBuildableGUID))
 				{
@@ -169,6 +166,7 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 							UE_LOG(LogTemp, Warning, TEXT("--- Handling Teleporters --"));
 							// Teleporter have some Construction necessary when respawning themselves. The link Delegates etc.
 							TeleportConstruct->ParentBuildable = BuildingComponent;
+							
 							TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
 							if (TeleportConstruct->TeleportPair && TeleportConstruct->TeleportPair->TeleportPair)
 							{
@@ -179,8 +177,24 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 							{
 								UE_LOG(LogTemp, Error, TEXT("TeleportPair is not set in TMap. GUID: %s"), *Data.TeleportPairGUID.ToString());
 							}
-							
-							//UE_LOG(LogTemp, Warning, TEXT("Setting %s ParentBuildable to: %s"), *TeleportConstruct->GetName(), *BuildingComponent->GetName());
+						}
+					}
+				}
+				else //No Parent Buildable
+				{
+					if (TeleportConstruct)
+					{
+						//Teleport Constructs still need to link to their Teleport Pair w/ or w/o a parent.
+						//Some traps/Constructs can be placed on ENV Walls/Floors that dont get registered.
+						TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
+						if (TeleportConstruct->TeleportPair && TeleportConstruct->TeleportPair->TeleportPair)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Teleport is Linking to Pair."));
+							TeleportConstruct->LinkToPair(TeleportConstruct->TeleportPair);
+						}
+						else
+						{
+							UE_LOG(LogTemp, Error, TEXT("TeleportPair is not set in TMap. GUID: %s"), *Data.TeleportPairGUID.ToString());
 						}
 					}
 				}
@@ -402,13 +416,9 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 					if (TeleportConstruct->ParentBuildable)
 					{
 						BuildableData.ParentBuildableGUID = TeleportConstruct->ParentBuildable->GetGUID();
-						/*UE_LOG(LogTemp, Warning, TEXT("TeleportConstruct: %s. TeleportConstruct GUID: %s. Parent: %s. Parent GUID: %s"),
-							*TeleportConstruct->GetName(),
-							*TeleportConstruct->GetGUID().ToString(),
-							*TeleportConstruct->ParentBuildable->GetName(),
-							*TeleportConstruct->ParentBuildable->GetGUID().ToString());*/
 					}
 					//Saving Teleport Pair GUID
+					check(TeleportConstruct->TeleportPair);
 					BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
 					UE_LOG(LogTemp, Warning, TEXT(" Saved for Teleport: %s -> Pair GUID for Teleport: %s"),*TeleportConstruct->GetName(), *TeleportConstruct->TeleportPair->GetName());
 				}

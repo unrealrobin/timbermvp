@@ -29,7 +29,7 @@ void ATeleportConstruct::BeginPlay()
 
 	PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), 
 	ATimberPlayableCharacter::StaticClass()));
-	UE_LOG(LogTemp, Warning, TEXT("Teleporter GUID: %s"), *BuildSystemGUID.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Begin Play Teleporter GUID: %s"), *BuildSystemGUID.ToString());
 }
 
 // Called every frame

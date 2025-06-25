@@ -46,6 +46,9 @@ protected:
 	UStaticMeshComponent* TeleportMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* TeleportEffectMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* TeleportLandingLocation;
 
 	UFUNCTION()
@@ -57,11 +60,10 @@ protected:
 	UFUNCTION()
 	void SaveDefaultMaterials();
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materials")
 	UMaterialInterface* DefaultBaseMaterial = nullptr;
-	UPROPERTY()
-	UMaterialInterface* DefaultOrbMaterial = nullptr;
-	UPROPERTY()
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materials")
 	UMaterialInterface* DefaultEffectMesh = nullptr;
 
 	/*Teleport Details*/

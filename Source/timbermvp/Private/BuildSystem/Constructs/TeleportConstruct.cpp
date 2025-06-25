@@ -37,13 +37,16 @@ void ATeleportConstruct::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	//CheckForPairOutsideBuildMode();
+	CheckForPairOutsideBuildMode();
 }
 
 void ATeleportConstruct::SetupComponents()
 {
-	TeleportMesh = CreateDefaultSubobject<UStaticMeshComponent>("PillarLeftStaticMesh");
+	TeleportMesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseStaticMesh");
 	TeleportMesh->SetupAttachment(RootComponent);
+
+	TeleportEffectMesh = CreateDefaultSubobject<UStaticMeshComponent>("TeleportEffectMesh");
+	TeleportEffectMesh->SetupAttachment(TeleportMesh);
 	
 	TeleportLandingLocation = CreateDefaultSubobject<USceneComponent>("TeleportLandingLocation");
 	TeleportLandingLocation->SetupAttachment(TeleportMesh);
@@ -119,7 +122,7 @@ void ATeleportConstruct::SaveDefaultMaterials()
 	if (TeleportMesh)
 	{
 		DefaultBaseMaterial = TeleportMesh->GetMaterial(0);
-		DefaultOrbMaterial = TeleportMesh->GetMaterial(1);
+		DefaultEffectMesh = TeleportEffectMesh->GetMaterial(0);
 	}
 }
 
@@ -129,7 +132,7 @@ void ATeleportConstruct::ApplyDefaultMaterials()
 	if (TeleportMesh)
 	{
 		TeleportMesh->SetMaterial(0, DefaultBaseMaterial);
-		TeleportMesh->SetMaterial(1, DefaultOrbMaterial);
+		TeleportEffectMesh->SetMaterial(0, DefaultEffectMesh);
 	}
 }
 

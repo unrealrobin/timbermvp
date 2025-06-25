@@ -213,7 +213,7 @@ void ATimberPlayableCharacter::HandleRaycastHitConditions(bool bHits)
 		}
 		else //If the Raycast Hit Nothing
 		{
-			BuildSystemManager->ResetBuildableComponents(ATrapBase::StaticClass());
+			BuildSystemManager->ResetBuildableComponents();
 		}
 	}
 }

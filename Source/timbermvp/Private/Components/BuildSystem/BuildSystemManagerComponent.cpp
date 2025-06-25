@@ -712,7 +712,7 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedCenterSnapBuildable));
 			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(FinalizedCenterSnapBuildable->BuildableCost);
 		}
-		ResetBuildableComponents(ATrapBase::StaticClass());
+		ResetBuildableComponents();
 	}
 	else
 	{
@@ -1019,7 +1019,14 @@ void UBuildSystemManagerComponent::MoveBuildable(
 	}
 }
 
-void UBuildSystemManagerComponent::ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass)
+void UBuildSystemManagerComponent::CleanUpBuildSystemManagerComponent()
+{
+	ClearTeleporterTMap();
+	RemoveBuildingComponentProxies_All();
+	ResetBuildableComponents();
+}
+
+void UBuildSystemManagerComponent::ResetBuildableComponents()
 {
 	if (BuildableProxyInstance)
 	{
@@ -1041,6 +1048,12 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	{
 		//GEngine->AddOnScreenDebugMessage(3, 5.0f, FColor::Green, "ATimberPlayableCharacter::ExitBuildMode() : Building Component Proxy Removed. ");
 	}
+}
+
+void UBuildSystemManagerComponent::ClearTeleporterTMap()
+{
+	TeleportTempPair.Key = nullptr;
+	TeleportTempPair.Value = nullptr;
 }
 
 void UBuildSystemManagerComponent::GetStaticMeshComponents(AActor* BuildingComponentActor)

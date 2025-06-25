@@ -404,8 +404,10 @@ void ATimberPlayerController::OpenBuildModeSelectionMenu()
 void ATimberPlayerController::HandleExitBuildMode()
 {
 	//Exiting Build Mode
-	if (TimberCharacter->CharacterState == ECharacterState::Building)
+	if (TimberCharacter->CharacterState == ECharacterState::Building && TimberCharacter->BuildSystemManager)
 	{
+		TimberCharacter->BuildSystemManager->CleanUpBuildSystemManagerComponent();
+		
 		//Handles changes on the Controller when Leaving Build Mode.
 		HandleControllerExitBuildMode();
 

@@ -154,9 +154,10 @@ public:
 	FORCEINLINE void ClearStoredStaticMeshes() { StaticMeshs.Empty(); };
 	
 	/*Clean up*/
-	void ResetBuildableComponents(TSubclassOf<ABuildableBase> ActiveBuildableClass);
-	
+	void CleanUpBuildSystemManagerComponent();
+	void ResetBuildableComponents();
 	void RemoveBuildingComponentProxies_All();
+	void ClearTeleporterTMap();
 	
 	/*Building Component Placement Variables*/
 	FVector FinalSpawnLocation;
@@ -173,17 +174,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Building")
 	EBuildingComponentOrientation CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked);
 
-
+	/*Teleport Utils*/
+	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
 private:
 	/*Buildable Placement Functions*/
 	//Used for Traps and Constructs
 	FBuildablePlacementData GetTrapSnapTransform(
 		FVector ImpactPoint, ATimberBuildingComponentBase*
 		BuildingComponent, ATrapBase* TrapComponentProxy);
-
-	/*Teleport Utils*/
-	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
-
+	
 	USceneComponent* GetClosestFaceSnapPoint(FHitResult HitResult);
 
 	void BroadcastControllerUpdateNewBuildable(AActor* Buildable);
@@ -192,5 +191,5 @@ private:
 	UPROPERTY()
 	float TutorialBuildsPlaced = 0;
 
-	void HandleWalkableSlopeOverride(ATrapBase* FinalizedTrap);
+	//void HandleWalkableSlopeOverride(ATrapBase* FinalizedTrap);
 };

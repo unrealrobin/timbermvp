@@ -250,7 +250,7 @@ void AEnemyDrone::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 void AEnemyDrone::DestroyAfterDelay()
 {
 	//TODO:: If we do end up using a death montage, then we need to rethink this and the TakeDamage override.
-	UE_LOG(LogTemp, Warning, TEXT("Drone Destroyed after Delay."));
+	//UE_LOG(LogTemp, Warning, TEXT("Drone Destroyed after Delay."));
 	Destroy();
 }
 

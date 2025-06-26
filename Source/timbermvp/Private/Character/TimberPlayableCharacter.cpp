@@ -46,7 +46,7 @@ void ATimberPlayableCharacter::BeginPlay()
 	/* Set Character Movement Defaults*/
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
 
-	RaycastController = Cast<ATimberPlayerController>(GetController());
+	PlayerController = Cast<ATimberPlayerController>(GetController());
 
 	/*Initialize Anim Instance*/
 	UTimberAnimInstance* Anim = Cast<UTimberAnimInstance>(GetMesh()->GetAnimInstance());
@@ -170,7 +170,7 @@ void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 {
 	if (CharacterState == ECharacterState::Building)
 	{
-		if (RaycastController)
+		if (PlayerController)
 		{
 			FVector RaycastStart;
 			FRotator PlayerRotation;
@@ -264,6 +264,13 @@ void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 {
 	if (bIsPlayerDeadNow)
 	{
+		if (PlayerController)
+		{
+			PlayerController->FlushPressedKeys();		
+		}
+		//Used for animation bp main state.
+		bIsPlayerDead = true;
+		
 		PlayDeathAnimation();
 		//Broadcast to HUD to Update Death UI Reason Text
 		//Player Controller && HUD is Subscribed to this Delegate

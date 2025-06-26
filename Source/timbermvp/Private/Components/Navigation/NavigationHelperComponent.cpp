@@ -43,14 +43,6 @@ UNavigationPath* UNavigationHelperComponent::GetOriginalNavPath(FVector Start, F
 	return NavPath;
 }
 
-// Called every frame
-void UNavigationHelperComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                               FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-}
-
 FVector UNavigationHelperComponent::GetCenterOfNode(NavNodeRef Node)
 {
 	//This is the Navigation System the Owning Character is using.

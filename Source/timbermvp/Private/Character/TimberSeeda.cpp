@@ -85,8 +85,9 @@ void ATimberSeeda::TakeDamage_Seeda(float DamageAmount)
 		//Handles Destruction, Calls to Player, Player Controller, GameMode.
 		OnSeedaDeath.Broadcast(true);
 		//UE_LOG(LogTemp, Warning, TEXT("Broadcast Seeda Death to player."));
-		
-		Destroy();
+
+		//TODO::Play Some Sound or Animation Signifying the Death of Seeda
+		//Destroy();
 	}
 	
 }

@@ -7,7 +7,6 @@
 #include "Components/ActorComponent.h"
 #include "NavigationHelperComponent.generated.h"
 
-
 class ABuildableBase;
 class ATimberCharacterBase;
 
@@ -26,21 +25,20 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Navigation Data")
 	AActor* OwningActor = nullptr;
-
+	
 	UFUNCTION()
 	UNavigationPath* GetOriginalNavPath(FVector Start, FVector End);
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	FVector GetCenterOfNode(NavNodeRef Node);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Navigation Data")
 	bool bIsLastPathPartial = false;
+	
 	FVector LastPathPoint = FVector::ZeroVector;
 
+	//Uses UE Nav Path and adjusts it to be centered on Polys.
 	UFUNCTION(BlueprintCallable, Category = "Navigation Logic")
 	TArray<FVector> GetCorridorPathPoints(FVector Start, FVector End);
 

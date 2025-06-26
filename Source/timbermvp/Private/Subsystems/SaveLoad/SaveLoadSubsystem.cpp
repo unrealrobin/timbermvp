@@ -9,6 +9,7 @@
 #include "Character/TimberSeeda.h"
 #include "Components/Combat/CombatComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -476,14 +477,16 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 		SaveGameInstance->SeedaData.SeedaLocation = Seeda->GetActorLocation();
 		UE_LOG(LogTemp, Warning, TEXT("Saved Seeda Location: %s"), *Seeda->GetActorLocation().ToString());
 		SaveGameInstance->SeedaData.SeedaRotation = Seeda->GetActorRotation();
-		SaveGameInstance->SeedaData.SeedaHealth = Seeda->CurrentHealth;
+
+		//When dieing Seeda Health is Regenerated.
+		SaveGameInstance->SeedaData.SeedaHealth = Seeda->MaxHealth;
 	}
 }
 
 /* Load System */
 void USaveLoadSubsystem::LoadGame()
 {
-	UE_LOG(LogTemp, Warning, TEXT("----LOADING GAME----"));
+	//UE_LOG(LogTemp, Warning, TEXT("----LOADING GAME----"));
 	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (WaveSubsystem && GameMode)
@@ -604,6 +607,7 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 		ATimberPlayableCharacter* TimberCharacter = GameMode->TimberCharacter;
 		if (TimberCharacter)
 		{
+			TimberCharacter->GetCharacterMovement()->StopMovementImmediately();
 			TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
 			TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 			TimberCharacter->bIsPlayerDead = false;
@@ -646,26 +650,26 @@ void USaveLoadSubsystem::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 
 	if (!Seeda)
 	{
+		//Should not be called, Seeda Object Instance should not get destroyed.
 		check(SeedaClass);
-
 		//This is the load situation if Seeda Was destroyed.
-		
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		AActor* SeedaActor = GetWorld()->SpawnActor<ATimberSeeda>(SeedaClass,
 			LoadGameInstance->SeedaData.SeedaLocation,
 			LoadGameInstance->SeedaData.SeedaRotation,
 			SpawnParams);
-		UE_LOG(LogTemp, Warning, TEXT("Spawned Seeda Location: %s"), *LoadGameInstance->SeedaData.SeedaLocation.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Spawned Seeda Location: %s"), *LoadGameInstance->SeedaData.SeedaLocation.ToString());
 		if (SeedaActor)
 		{
 			//SeedaActor->SetActorLocation(LoadGameInstance->SeedaData.SeedaLocation);
-			UE_LOG(LogTemp, Warning, TEXT("Set Seeda Location: %s"), *LoadGameInstance->SeedaData.SeedaLocation.ToString());
+			//UE_LOG(LogTemp, Warning, TEXT("Set Seeda Location: %s"), *LoadGameInstance->SeedaData.SeedaLocation.ToString());
 		}
 	}
 	else
 	{
-		Seeda->SetActorLocation(LoadGameInstance->SeedaData.SeedaLocation);
+		//Seeda->SetActorLocation(LoadGameInstance->SeedaData.SeedaLocation);
+		Seeda->CurrentHealth = Seeda->MaxHealth;
 	}
 
 }

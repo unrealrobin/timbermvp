@@ -56,16 +56,14 @@ EBTNodeResult::Type UTask_MoveThroughCorridorPathV2::ExecuteTask(UBehaviorTreeCo
     if (CorridorPathPoints.Num() == 0)
     {
         SetBlackboardValue(bHasValidPathKey.SelectedKeyName, false);
-        UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: No valid path found"));
+        //UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: No valid path found"));
         return EBTNodeResult::Failed;
     }
-
-    // Set up movement callback
+    
     PathFollowingComponent->OnRequestFinished.AddUObject(this, &UTask_MoveThroughCorridorPathV2::OnMoveFinished);
     
-    // Start moving to first waypoint
     MoveToNextWaypoint();
-    UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Started moving to waypoint %d/%d"), CurrentWaypointIndex + 1, TotalCorridorPoints);
+    //UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Started moving to waypoint %d/%d"), CurrentWaypointIndex + 1, TotalCorridorPoints);
     LogPathState("Task Started");
     return EBTNodeResult::InProgress;
 }
@@ -137,18 +135,18 @@ void UTask_MoveThroughCorridorPathV2::OnMoveFinished(FAIRequestID RequestID, con
     //UE_LOG(LogTemp, Warning, TEXT("On Move Finished Called."));
     if (RequestID != CurrentMoveRequestID)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Request ID: %d !=  CurrentMoveRequestID: %d"), RequestID.GetID(), CurrentMoveRequestID.GetID());
+        //UE_LOG(LogTemp, Warning, TEXT("Request ID: %d !=  CurrentMoveRequestID: %d"), RequestID.GetID(), CurrentMoveRequestID.GetID());
         //return; 
     }
 
     if (bIsSuccess)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Successfully Move."));
+       // UE_LOG(LogTemp, Warning, TEXT("Successfully Move."));
         HandleSuccessfulMove();
     }
     else if (bIsBlocked)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Blocked Path."));
+        //UE_LOG(LogTemp, Warning, TEXT("Blocked Path."));
         HandleBlockedPath();
     }
     else if (bIsAborted)
@@ -242,15 +240,15 @@ void UTask_MoveThroughCorridorPathV2::MoveToNextWaypoint()
         //CurrentMoveRequestID = AIControllerBase->MoveToLocation(NextWaypoint, AcceptanceRadius);
         AIControllerBase->MoveToLocation(NextWaypoint, AcceptanceRadius);
         CurrentMoveRequestID = PathFollowingComponent->GetCurrentRequestId();
-        UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint() - CurrentMoveRequest: %d"), CurrentMoveRequestID.GetID());
+        //UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint() - CurrentMoveRequest: %d"), CurrentMoveRequestID.GetID());
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("PathFollowingComponent is NULL!"));
+        //UE_LOG(LogTemp, Error, TEXT("PathFollowingComponent is NULL!"));
         return;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("USING RequestID: %d for waypoint %d"), CurrentMoveRequestID.GetID(), CurrentWaypointIndex + 1);
+    //UE_LOG(LogTemp, Warning, TEXT("USING RequestID: %d for waypoint %d"), CurrentMoveRequestID.GetID(), CurrentWaypointIndex + 1);
 
     if (bEnableDebugDrawing)
     {
@@ -265,11 +263,11 @@ void UTask_MoveThroughCorridorPathV2::HandleSuccessfulMove()
 {
     CurrentWaypointIndex++;
     BlockedAttempts = 0; // Reset blocked attempts on successful move
-    UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Successfully moved to waypoint %d/%d"), CurrentWaypointIndex, TotalCorridorPoints );
+    //UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Successfully moved to waypoint %d/%d"), CurrentWaypointIndex, TotalCorridorPoints );
     if (CurrentWaypointIndex >= TotalCorridorPoints)
     {
         // Reached final destination
-        UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Successfully reached destination"));
+       // UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Successfully reached destination"));
         FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Succeeded);
     }
     else

@@ -324,18 +324,18 @@ void ATimberPlayerController::UseSecondaryAbilityStarted(const FInputActionValue
 	EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
 	if (AbilityInputRequirement == EAbilityInputRequirement::HoldOnly)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Started."));
+		//UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Started."));
 		TimberCharacter->CombatComponent->HandleSecondaryAbility_Started(Value);
 	}
 }
 
 void ATimberPlayerController::UseSecondaryAbilityCanceled(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Canceled."));
+	//UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Canceled."));
 	EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
 	if (AbilityInputRequirement == EAbilityInputRequirement::HoldOnly)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Started."));
+		//UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Started."));
 		TimberCharacter->CombatComponent->HandleSecondaryAbility_Cancelled(Value);
 	}
 }
@@ -344,7 +344,7 @@ void ATimberPlayerController::UseSecondaryAbilityCompleted(const FInputActionVal
 {
 	if (TimberCharacter->CombatComponent )
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Completed."));
+		//UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Completed."));
 		EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
 		if (AbilityInputRequirement == EAbilityInputRequirement::HoldOnly)
 		{
@@ -361,7 +361,7 @@ void ATimberPlayerController::UseSecondaryAbilityTriggered(const FInputActionVal
 		EAbilityInputRequirement AbilityInputRequirement = TimberCharacter->CombatComponent->GetAbilityInputRequirement(false);
 		if (AbilityInputRequirement == EAbilityInputRequirement::Pressed)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Triggered."));
+			//UE_LOG(LogTemp, Warning, TEXT("Secondary Ability Triggered."));
 			//Reached when a Pressed Ability is Pressed.
 			TimberCharacter->CombatComponent->HandleSecondaryAbility(Value);
 		}
@@ -448,7 +448,7 @@ void ATimberPlayerController::ToggleBuildMenuStatusEffectWindow(const FInputActi
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HUD Unable To Cast."));
+		//UE_LOG(LogTemp, Warning, TEXT("HUD Unable To Cast."));
 	}
 	
 }
@@ -607,7 +607,7 @@ void ATimberPlayerController::SelectBCIcon_Controller(const FInputActionValue& V
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No data asset found on Building Component Icon Widget"));
+		//UE_LOG(LogTemp, Warning, TEXT("No data asset found on Building Component Icon Widget"));
 	}
 }
 

@@ -30,7 +30,7 @@ void USFXManagerSubsystem::BindToSFXDelegates()
 void USFXManagerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	UE_LOG(LogTemp, Warning, TEXT("SFXManager Initialized."));
+	//UE_LOG(LogTemp, Warning, TEXT("SFXManager Initialized."));
 
 	BindToSFXDelegates();
 	
@@ -46,7 +46,7 @@ void USFXManagerSubsystem::GetSFXLibrary()
 	SFXLibrary = LoadObject<UMusicLibraryDataAsset>(nullptr, *SFXLibaryAssetPath);
 	if (SFXLibrary)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SFXManager - SFX Library Loaded."));
+		//UE_LOG(LogTemp, Warning, TEXT("SFXManager - SFX Library Loaded."));
 	}
 }
 

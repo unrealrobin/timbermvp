@@ -39,7 +39,7 @@ void UWaveGameInstanceSubsystem::SetCurrentWaveNumber(int InWaveNumber)
 {
 	CurrentWaveNumber = InWaveNumber;
 	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
-	UE_LOG(LogTemp, Warning, TEXT("Set Wave Number to: %d"), InWaveNumber);
+	//UE_LOG(LogTemp, Warning, TEXT("Set Wave Number to: %d"), InWaveNumber);
 }
 
 void UWaveGameInstanceSubsystem::SetWaveCompositionDataTable(UDataTable* DataTable)
@@ -94,16 +94,16 @@ void UWaveGameInstanceSubsystem::GetGarageDoor()
 	ADynamicLab* Lab = Cast<ADynamicLab>(LabActor);
 	if (Lab)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Lab Asset Found. Gathering Lab Doors"));
+		//UE_LOG(LogTemp, Warning, TEXT("Lab Asset Found. Gathering Lab Doors"));
 		TArray<UChildActorComponent*> ChildComponents;
 		Lab->GetComponents<UChildActorComponent*>(ChildComponents);
-		UE_LOG(LogTemp, Warning, TEXT(" There are %d Child Components"), ChildComponents.Num());
+		//UE_LOG(LogTemp, Warning, TEXT(" There are %d Child Components"), ChildComponents.Num());
 		for (UChildActorComponent* Child : ChildComponents)
 		{
 			if (Cast<AGarageDoorBase>(Child->GetChildActor()))
 			{
 				BossDoor = Cast<AGarageDoorBase>((Child->GetChildActor()));
-				UE_LOG(LogTemp, Warning, TEXT("Gathered Lab Door: %s"), *Child->GetName());
+				//UE_LOG(LogTemp, Warning, TEXT("Gathered Lab Door: %s"), *Child->GetName());
 			}
 		}
 	}
@@ -135,11 +135,11 @@ void UWaveGameInstanceSubsystem::StartWave()
 		{
 			if(CurrentWaveNumber >= 30)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Its about to get wild. Endless mode. Bucket of popcorn time. Leaderboards in view."));
+				//UE_LOG(LogTemp, Warning, TEXT("Its about to get wild. Endless mode. Bucket of popcorn time. Leaderboards in view."));
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
+				//UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
 				//Prepares the Wave Composition
 				ComposeWaveFromDataTable();
 				//Process of Opening Doors
@@ -157,7 +157,7 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 	//Searches the data tables for the current wave number and then spawns the enemies
 	if(!WaveCompositionTable)
 	{
-		UE_LOG(LogTemp, Error, TEXT("No Wave Composition Data Table Found"));
+		//UE_LOG(LogTemp, Error, TEXT("No Wave Composition Data Table Found"));
 		return;
 	}
 
@@ -226,12 +226,12 @@ void UWaveGameInstanceSubsystem::ShuffleEnemiesToSpawn()
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies Start-------------------"));
+	/*UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies Start-------------------"));
 	for (TSubclassOf<ATimberEnemyCharacter> Enemy: EnemiesToSpawn)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Class: %s"), *Enemy->GetName());
 	}
-	UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies End-------------------"));
+	UE_LOG(LogTemp, Warning, TEXT("-------------------Shuffled Enemies End-------------------"));*/
 }
 
 void UWaveGameInstanceSubsystem::EarlyStartWave()
@@ -265,7 +265,7 @@ void UWaveGameInstanceSubsystem::SpawnWave()
 	//Timer is cleared and finished when all enemies are spawned
 	if(!bAllEnemiesSpawned)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnWave() - Spawning Wave - Timer Started"));
+		//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnWave() - Spawning Wave - Timer Started"));
 		GetWorld()->GetTimerManager().SetTimer(SpawnPartOfWaveTimerHandle, this, 
 			&UWaveGameInstanceSubsystem::SpawnPartOfWave, TimeBetweenEnemySpawns, true, 1.f);
 	}
@@ -344,7 +344,7 @@ void UWaveGameInstanceSubsystem::SpawnBoss(TSubclassOf<AActor> ActorToSpawn, FVe
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AActor* Actor = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Location, FRotator::ZeroRotator, SpawnParameters);
-	UE_LOG(LogTemp, Warning, TEXT("Spawned Boss: %s"), *Actor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Spawned Boss: %s"), *Actor->GetName());
 	if(Cast<ATimberEnemyCharacter>(Actor))
 	{
 		SpawnedEnemies.Add(Cast<ATimberEnemyCharacter>(Actor));
@@ -369,7 +369,7 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AActor* Actor = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Location, FRotator::ZeroRotator, SpawnParameters);
-	UE_LOG(LogTemp, Warning, TEXT("Spawned Actor: %s"), *Actor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Spawned Actor: %s"), *Actor->GetName());
 	if(Cast<ATimberEnemyCharacter>(Actor))
 	{
 		SpawnedEnemies.Add(Cast<ATimberEnemyCharacter>(Actor));
@@ -387,7 +387,7 @@ void UWaveGameInstanceSubsystem::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy
 		//SpawnedEnemies.Remove(Enemy);
 		TotalEnemiesKilled += 1;
 		
-		UE_LOG(LogTemp, Warning, TEXT("Enemies remaining to Kill: %d"), TotalEnemiesToSpawn - TotalEnemiesKilled);
+		//UE_LOG(LogTemp, Warning, TEXT("Enemies remaining to Kill: %d"), TotalEnemiesToSpawn - TotalEnemiesKilled);
 
 		//Only counting Basic Enemies
 		if(TotalEnemiesKilled == TotalEnemiesToSpawn && bAllEnemiesSpawned)
@@ -436,7 +436,7 @@ void UWaveGameInstanceSubsystem::ResetWaveEnemies()
 void UWaveGameInstanceSubsystem::IncrementWave()
 {
 	CurrentWaveNumber++;
-	UE_LOG(LogTemp, Warning, TEXT("Incrementing Wave #."));
+	//UE_LOG(LogTemp, Warning, TEXT("Incrementing Wave #."));
 	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
 }
 
@@ -494,11 +494,11 @@ void UWaveGameInstanceSubsystem::OpenBossDoor()
 
 void UWaveGameInstanceSubsystem::CloseBossDoor()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - CloseBossDoor() - Boss Destroyed - Closing Garage Door"));
+	//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - CloseBossDoor() - Boss Destroyed - Closing Garage Door"));
 	
 	if(BossDoor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Garage Door Closes."));
+		//UE_LOG(LogTemp, Warning, TEXT("Garage Door Closes."));
 		BossDoor->CloseGarageDoor();
 	}
 }

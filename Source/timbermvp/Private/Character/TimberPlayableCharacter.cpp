@@ -71,7 +71,7 @@ void ATimberPlayableCharacter::BeginPlay()
 		ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 		if (GM)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Binding to GameMode Delegate to know when Seeda is Initialized."));
+			//UE_LOG(LogTemp, Warning, TEXT("Binding to GameMode Delegate to know when Seeda is Initialized."));
 			//Basically says now you can Bind to the Seeda Delegates, and Passes in the Seeda Actor Ref.
 			//This is possible because we know for sure that the GM instance is available for binding by the time this BeginPlay fires.
 			GM->OnSeedaSpawn.AddDynamic(this, &ATimberPlayableCharacter::BindToSeedaDelegates);
@@ -120,7 +120,7 @@ void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
 	ATimberSeeda* SeedaRef = Cast<ATimberSeeda>(Seeda);
 	if (SeedaRef)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Seeda Initialized, Binding to Seeda Delegates."));
+		//UE_LOG(LogTemp, Warning, TEXT("Seeda Initialized, Binding to Seeda Delegates."));
 
 		//When seeda dies, player also dies.
 		SeedaRef->OnSeedaDeath.AddDynamic(this, &ATimberPlayableCharacter::HandlePlayerDeath);
@@ -130,7 +130,7 @@ void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Seeda Not Initialized, Cannot Bind to Seeda Delegates."));
+		//UE_LOG(LogTemp, Warning, TEXT("Seeda Not Initialized, Cannot Bind to Seeda Delegates."));
 	}
 }
 
@@ -289,7 +289,7 @@ void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
 	InventoryObject = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
 	if(InventoryObject)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Inventory Loaded."));
+		//UE_LOG(LogTemp, Warning, TEXT("Player Inventory Loaded."));
 	}
 }
 
@@ -340,13 +340,13 @@ void ATimberPlayableCharacter::PlayWakeAnimationMontage()
 {
 	if (TutorialWakeMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Character - Playing Wake Animation Montage."));
+		//UE_LOG(LogTemp, Warning, TEXT("Player Character - Playing Wake Animation Montage."));
 		
 		PlayAnimMontage(TutorialWakeMontage, 1.f, FName("WakingUp"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Character - Wake Animation Montage Not Found."));
+		//UE_LOG(LogTemp, Warning, TEXT("Player Character - Wake Animation Montage Not Found."));
 	}
 }
 
@@ -360,7 +360,7 @@ void ATimberPlayableCharacter::StartLerpRotation(const FRotator& TargetRotation,
 
 	if (DurationOfRotation <= 0)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Can Not set a Lerp Rotation Duration of 0."));
+		//UE_LOG(LogTemp, Error, TEXT("Can Not set a Lerp Rotation Duration of 0."));
 		return;
 	}
 

@@ -50,14 +50,14 @@ void UDialogueManager::LoadNarrativeDialogueSoundMix()
 
 	if (NarrativeDialogueSoundMix)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Sound Mix."));
+		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Sound Mix."));
 	}
 }
 
 void UDialogueManager::RemoveNarrativeSoundMix()
 {
 	UGameplayStatics::PopSoundMixModifier(this, NarrativeDialogueSoundMix);
-	UE_LOG(LogTemp, Warning, TEXT("Removed Narrative Dialogue Sound Mix."));
+	//UE_LOG(LogTemp, Warning, TEXT("Removed Narrative Dialogue Sound Mix."));
 }
 
 UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
@@ -74,10 +74,10 @@ UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Issue Loading the NarrativeDialogueList"));
+		//UE_LOG(LogTemp, Warning, TEXT("Issue Loading the NarrativeDialogueList"));
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - GetDialogueVoiceover() -  Dialogue Voiceover Not Found: %s"), *DialogueName.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - GetDialogueVoiceover() -  Dialogue Voiceover Not Found: %s"), *DialogueName.ToString());
 	return nullptr;
 }
 
@@ -97,7 +97,7 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 		DialoguePlayer->RegisterComponentWithWorld(GetWorld());
 		
 		DialoguePlayer->OnAudioFinished.AddDynamic(this, &UDialogueManager::RemoveNarrativeSoundMix);
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - PlayVoiceover - Added Binding to Audio Component to Remove Sound Mix on end Voiceover."));
+		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - PlayVoiceover - Added Binding to Audio Component to Remove Sound Mix on end Voiceover."));
 	}
 
 	if (DialoguePlayer && VoiceoverSound)
@@ -110,7 +110,7 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 		 * Removing the Mix after the Audio Dialogue is finished playing.
 		 * Theoretically should then Increase the Music and SFX Volume back to standard.
 		 */
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Playing Voiceover: %s"), *VoiceoverName.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Playing Voiceover: %s"), *VoiceoverName.ToString());
 	}
 
 	HandlePlayedDialogue(VoiceoverName);
@@ -247,7 +247,7 @@ void UDialogueManager::HandleWaveStartDialogueFinish()
 	{
 		//State Change initiates Broadcast to Listeners
 		DieRobotGameState->ChangeTutorialGameState(ETutorialState::WaveStart);
-		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - HandleWaveStartDialogueFinish - WaveStart State Change."));
+		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager - HandleWaveStartDialogueFinish - WaveStart State Change."));
 		//Removing the Binding.
 		DialoguePlayer->OnAudioFinished.RemoveDynamic(this, &UDialogueManager::HandleWaveStartDialogueFinish);
 	}

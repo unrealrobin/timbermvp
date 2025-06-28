@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+;// Property of Paracosm Industries. Dont use my shit.
 
 
 #include "GameModes/TimberGameModeBase.h"
@@ -107,7 +107,7 @@ void ATimberGameModeBase::GatherSeedaData()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("GameMode - GatherSeedaData() - Seeda Not Found in World."));
+		//UE_LOG(LogTemp, Error, TEXT("GameMode - GatherSeedaData() - Seeda Not Found in World."));
 	}
 }
 
@@ -122,7 +122,7 @@ void ATimberGameModeBase::InitializeGameState()
 		//Standard Game with Tutorial
 		if (DieRobotGameConfig->GameConfig == EDieRobotGameConfigType::Standard)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Standard Game State."))
+			//UE_LOG(LogTemp, Warning, TEXT("ATimberGameModeBase - Initialized Standard Game State."))
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::UpdateTutorialState);
 			DieRobotGameState->OnTutorialStateChange.AddDynamic(this, &ATimberGameModeBase::HandleTutorialStateChange);
 			
@@ -137,7 +137,7 @@ void ATimberGameModeBase::InitializeGameState()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("GameModeBase - No GameState Set."))
+			//UE_LOG(LogTemp, Warning, TEXT("GameModeBase - No GameState Set."))
 		}
 	}
 }
@@ -174,7 +174,7 @@ void ATimberGameModeBase::SpawnDummyForTutorial()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to load Dummy Blueprint Class."));
+		//UE_LOG(LogTemp, Error, TEXT("Failed to load Dummy Blueprint Class."));
 	}
 }
 
@@ -199,11 +199,11 @@ void ATimberGameModeBase::HandleTutorialStateChange(ETutorialState NewState)
 		{
 			//Starting wave 1 (Tutorial Wave)
 			WaveSubsystem->StartWave();
-			UE_LOG(LogTemp, Warning, TEXT("GameModeBase - Starting Wave 1."));
+			//UE_LOG(LogTemp, Warning, TEXT("GameModeBase - Starting Wave 1."));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("GameModeBase - Wave Subsystem Not Found."));
+			//UE_LOG(LogTemp, Error, TEXT("GameModeBase - Wave Subsystem Not Found."));
 		}
 	}
 }
@@ -211,7 +211,7 @@ void ATimberGameModeBase::HandleTutorialStateChange(ETutorialState NewState)
 void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
 {
 	GetWaveGameInstanceSubsystem()->SetWaveCompositionDataTable(DataTable);
-	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received DataTable and Passed to Wave Subsystem"));
+	//UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received DataTable and Passed to Wave Subsystem"));
 }
 
 /* Tells all relying on systems that the character is initialized */
@@ -244,7 +244,7 @@ void ATimberGameModeBase::SwitchToMainMenu()
 	
 	//Handles Switching Levels.
 	UGameplayStatics::OpenLevel(GetWorld(), FName("StartUp"));
-	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Switching to Main Menu."));
+	//UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Switching to Main Menu."));
 	
 }
 
@@ -290,23 +290,23 @@ void ATimberGameModeBase::GatherAllLabDoors()
 	ADynamicLab* Lab = Cast<ADynamicLab>(LabActor);
 	if (Lab)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Lab Asset Found. Gathering Lab Doors"));
+		//UE_LOG(LogTemp, Warning, TEXT("Lab Asset Found. Gathering Lab Doors"));
 		TArray<UChildActorComponent*> ChildComponents;
 		Lab->GetComponents<UChildActorComponent*>(ChildComponents);
-		UE_LOG(LogTemp, Warning, TEXT(" There are %d Child Components"), ChildComponents.Num());
+		//UE_LOG(LogTemp, Warning, TEXT(" There are %d Child Components"), ChildComponents.Num());
 		for (UChildActorComponent* Child : ChildComponents)
 		{
 			if (Cast<ALabDoorBase>(Child->GetChildActor()))
 			{
 				ArrayOfLabDoors.Add(Cast<AActor>((Child->GetChildActor())));
-				UE_LOG(LogTemp, Warning, TEXT("Gathered Lab Door: %s"), *Child->GetName());
+				//UE_LOG(LogTemp, Warning, TEXT("Gathered Lab Door: %s"), *Child->GetName());
 			}
 		}
 	}
 	else
 	{
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), ArrayOfLabDoors);
-		UE_LOG(LogTemp, Warning, TEXT("Could not get Dynamic Lab Actor."));
+		//UE_LOG(LogTemp, Warning, TEXT("Could not get Dynamic Lab Actor."));
 	}
 }
 
@@ -319,7 +319,7 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Freezing AI Characters."));
+	//UE_LOG(LogTemp, Warning, TEXT("Game Mode - Freezing AI Characters."));
 	TArray<AActor*> ArrayOfAICharacters;
 	UGameplayStatics::GetAllActorsOfClass(this, ATimberEnemyCharacter::StaticClass(), ArrayOfAICharacters);
 
@@ -367,7 +367,7 @@ void ATimberGameModeBase::OpenAllLabDoors()
 
 void ATimberGameModeBase::OpenLabDoors()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received Broadcast from Wave Subsystem Opening Lab Doors"));
+	//UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received Broadcast from Wave Subsystem Opening Lab Doors"));
 	if(ArrayOfLabDoors.Num() <= 0)
 	{
 		GatherAllLabDoors();

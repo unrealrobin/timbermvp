@@ -74,7 +74,7 @@ void ATimberHUDBase::CharacterAndControllerBindings()
 	TimberPlayerController = Cast<ATimberPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (TimberPlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HUD has Cached Timber Character Controller"));
+		//UE_LOG(LogTemp, Warning, TEXT("HUD has Cached Timber Character Controller"));
 
 		TimberPlayerController->IsBuildPanelOpen.AddDynamic(this, &ATimberHUDBase::HandleBuildPanelMenu);
 		TimberPlayerController->ShouldHideBuildMenu.AddDynamic(this, &ATimberHUDBase::CloseBuildPanelMenu);
@@ -112,7 +112,7 @@ void ATimberHUDBase::SeedaBindings()
 		if (Seeda)
 		{
 			Seeda->OnSeedaDeathUI.AddDynamic(this, &ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed);
-			UE_LOG(LogTemp, Warning, TEXT("Successfully Bound to Seeda Death UI Reason Delegate."))
+			//UE_LOG(LogTemp, Warning, TEXT("Successfully Bound to Seeda Death UI Reason Delegate."))
 		}
 	}
 }
@@ -133,7 +133,7 @@ void ATimberHUDBase::HandleBossDeath()
 
 void ATimberHUDBase::UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Death Delegate Received to Hud from Kip."));
+	//UE_LOG(LogTemp, Warning, TEXT("Death Delegate Received to Hud from Kip."));
 	if (bIsPlayerDead)
 	{
 		if (BossHealthBarWidget && BossHealthBarWidget->IsVisible())
@@ -146,7 +146,7 @@ void ATimberHUDBase::UpdateDeathUIReason_KipDestroyed(bool bIsPlayerDead)
 			UTimberDeathWidget* TimberDeathWidget = Cast<UTimberDeathWidget>(DeathWidget);
 			if (TimberDeathWidget && TimberDeathWidget->DeathReason == EDeathReason::Default)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("DeathReason is Default, Changing to Kip."));
+				//UE_LOG(LogTemp, Warning, TEXT("DeathReason is Default, Changing to Kip."));
 				TimberDeathWidget->DeathReason = EDeathReason::KipDestroyed;
 				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::KipDestroyed);
 			}
@@ -180,17 +180,17 @@ void ATimberHUDBase::ToggleSettingsPanelWidget()
 
 void ATimberHUDBase::UpdateDeathUIReason_SeedaDestroyed(bool bIsSeedaDestroyed)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Death Delegate Received to Hud from Seeda."));
+	//UE_LOG(LogTemp, Warning, TEXT("Death Delegate Received to Hud from Seeda."));
 	if (DeathWidget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Seeda Death Widget Valid."));
+		//UE_LOG(LogTemp, Warning, TEXT("Seeda Death Widget Valid."));
 		UTimberDeathWidget* TimberDeathWidget = Cast<UTimberDeathWidget>(DeathWidget);
 		if (TimberDeathWidget)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Seeda - Successful cast to Death Widget Class"));
+			//UE_LOG(LogTemp, Warning, TEXT("Seeda - Successful cast to Death Widget Class"));
 			if (TimberDeathWidget->DeathReason == EDeathReason::Default)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("DeathReason is Default, Changing to Seeda."));
+				//UE_LOG(LogTemp, Warning, TEXT("DeathReason is Default, Changing to Seeda."));
 				TimberDeathWidget->DeathReason = EDeathReason::SeedaDestroyed;
 				TimberDeathWidget->UpdateDeathReasonText(EDeathReason::SeedaDestroyed);
 			}
@@ -351,7 +351,7 @@ void ATimberHUDBase::SwitchToGameUI()
 	if (DeathWidget)
 	{
 		DeathWidget->SetVisibility(ESlateVisibility::Hidden);
-		UE_LOG(LogTemp, Warning, TEXT("HUD - Hid the Death Widget"));	
+		//UE_LOG(LogTemp, Warning, TEXT("HUD - Hid the Death Widget"));	
 	}
 	if (RootWidget)
 	{
@@ -532,7 +532,7 @@ UUserWidget* ATimberHUDBase::CreateVisibleWidget(const TSubclassOf<UUserWidget>&
 			return VisibleWidget;
 		}
 	}
-	UE_LOG(LogTemp, Error, TEXT("Failed to create widget: %s"), *WidgetClass->GetName());
+	//UE_LOG(LogTemp, Error, TEXT("Failed to create widget: %s"), *WidgetClass->GetName());
 	return nullptr;
 }
 
@@ -598,19 +598,19 @@ void ATimberHUDBase::ToggleBuildMenuStatusEffectDetails()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Could Not Cast to UBuildingComponentPanel from Build Menu Widget"));
+			//UE_LOG(LogTemp, Warning, TEXT("Could Not Cast to UBuildingComponentPanel from Build Menu Widget"));
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Build Menu Widget is not visible, cannot toggle status effect details."));
+		//UE_LOG(LogTemp, Warning, TEXT("Build Menu Widget is not visible, cannot toggle status effect details."));
 	}
 }
 
 void ATimberHUDBase::ShowInventoryPanelWidget()
 {
 	FString InventoryWidgetClassName = "W_TopInventoryBar_C";
-	UE_LOG(LogTemp, Warning, TEXT("Player Inventory Widget Class Name: %s"), *InventoryWidgetClassName);
+	//UE_LOG(LogTemp, Warning, TEXT("Player Inventory Widget Class Name: %s"), *InventoryWidgetClassName);
 	UUserWidget* Widget = GetWidgetByClassName(InventoryWidgetClassName);
 	if(Widget)
 	{
@@ -619,7 +619,7 @@ void ATimberHUDBase::ShowInventoryPanelWidget()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Inventory Widget Not Found"));	
+		//UE_LOG(LogTemp, Warning, TEXT("Player Inventory Widget Not Found"));	
 	}
 }
 

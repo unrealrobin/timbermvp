@@ -39,20 +39,29 @@ public:
     UPROPERTY(EditAnywhere, Category = "Blackboard")
     FBlackboardKeySelector SelfActorKey;
 
+    //Path does not go all the way to Target
     UPROPERTY(EditAnywhere, Category = "Blackboard")
     FBlackboardKeySelector bIsPartialPathKey;
 
+    //The last point in the path, stored as a Vector
     UPROPERTY(EditAnywhere, Category = "Blackboard")
     FBlackboardKeySelector LastPointInPathKey;
 
+    //An Object to the wall that is blocking the path
     UPROPERTY(EditAnywhere, Category = "Blackboard")
     FBlackboardKeySelector BlockingWallKey;
 
+    //If should destroy the Wall
     UPROPERTY(EditAnywhere, Category = "Blackboard")
     FBlackboardKeySelector bShouldDestroyWallKey;
 
+    //If a path exisitings at all - Navigation Helper Component
     UPROPERTY(EditAnywhere, Category = "Blackboard")
     FBlackboardKeySelector bHasValidPathKey;
+
+    //If Path has become Blocked during movement.
+    UPROPERTY(EditAnywhere, Category = "Blackboard")
+    FBlackboardKeySelector bMovementBlockedKey;
 
     // Path configuration
     UPROPERTY(EditAnywhere, Category = "Path Options")

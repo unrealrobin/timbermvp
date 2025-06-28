@@ -97,14 +97,14 @@ void ATimberSeeda::HandleCharacterBindingToSeeda()
 	ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if(GM)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Seeda Broadcasts to GameMode"))
+		//UE_LOG(LogTemp, Warning, TEXT("Seeda Broadcasts to GameMode"))
 		GM->OnSeedaSpawn.Broadcast(this);
 	}
 }
 
 void ATimberSeeda::RepairSeeda()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Seeda Repaired."));
+	//UE_LOG(LogTemp, Warning, TEXT("Seeda Repaired."));
 
 	//CheckPlayer Inventory for Repair Items
 
@@ -113,7 +113,7 @@ void ATimberSeeda::RepairSeeda()
 
 	if (CurrentHealth >= MaxHealth)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Seeda is already at Full Health."));
+		//UE_LOG(LogTemp, Warning, TEXT("Seeda is already at Full Health."));
 		return;
 	}
 
@@ -138,7 +138,7 @@ void ATimberSeeda::RepairSeeda()
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Not Enough Parts to Repair Seeda."));
+				//UE_LOG(LogTemp, Warning, TEXT("Not Enough Parts to Repair Seeda."));
 			}
 		}
 	}
@@ -146,7 +146,7 @@ void ATimberSeeda::RepairSeeda()
 
 void ATimberSeeda::Interact()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Seeda Interacted with."));
+	//UE_LOG(LogTemp, Warning, TEXT("Seeda Interacted with."));
 
 	RepairSeeda();
 }
@@ -227,7 +227,7 @@ void ATimberSeeda::HandleRepairWidget()
 		if (RepairWidget)
 		{
 			RepairWidget->SetVisibility(ESlateVisibility::Hidden);
-			UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget initialized and stored. Hidden."))
+			//UE_LOG(LogTemp, Warning, TEXT("Seeda - Repair Widget initialized and stored. Hidden."))
 		}
 	}
 }

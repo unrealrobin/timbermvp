@@ -133,20 +133,22 @@ void UTask_MoveThroughCorridorPathV2::OnMoveFinished(FAIRequestID RequestID, con
           bIsAborted ? TEXT("TRUE") : TEXT("FALSE"));*/
     
     //UE_LOG(LogTemp, Warning, TEXT("On Move Finished Called."));
-    if (RequestID != CurrentMoveRequestID)
+    //TODO:: This shit never works. It only gives problems.
+    /*if (RequestID != CurrentMoveRequestID)
     {
-        //UE_LOG(LogTemp, Warning, TEXT("Request ID: %d !=  CurrentMoveRequestID: %d"), RequestID.GetID(), CurrentMoveRequestID.GetID());
-        //return; 
-    }
+        UE_LOG(LogTemp, Warning, TEXT("Request ID: %d !=  CurrentMoveRequestID: %d"), RequestID.GetID(), CurrentMoveRequestID.GetID());
+        return; 
+    }*/
 
     if (bIsSuccess)
     {
-       // UE_LOG(LogTemp, Warning, TEXT("Successfully Move."));
+        UE_LOG(LogTemp, Warning, TEXT("Successfully Move."));
         HandleSuccessfulMove();
     }
     else if (bIsBlocked)
     {
-        //UE_LOG(LogTemp, Warning, TEXT("Blocked Path."));
+        //Path has become blocked during movement of full path /  or partial path
+        UE_LOG(LogTemp, Warning, TEXT("Blocked Path."));
         HandleBlockedPath();
     }
     else if (bIsAborted)
@@ -194,6 +196,7 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
 
     if (PathResult.bIsValid && PathResult.PathPoints.Num() > 0)
     {
+        
         CorridorPathPoints = PathResult.PathPoints;
         TotalCorridorPoints = CorridorPathPoints.Num();
         CurrentWaypointIndex = 0;
@@ -201,9 +204,11 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
         bIsPathPartial = PathResult.bIsPartial;
 
         // Update blackboard values
-        SetBlackboardValue(bHasValidPathKey.SelectedKeyName, true);
+        SetBlackboardValue(bHasValidPathKey.SelectedKeyName, PathResult.bIsValid); // Always True in this Case
         SetBlackboardValue(bIsPartialPathKey.SelectedKeyName, bIsPathPartial);
         SetBlackboardValue(LastPointInPathKey.SelectedKeyName, CorridorPathPoints.Last());
+        SetBlackboardValue(bMovementBlockedKey.SelectedKeyName, false); // Always False in this Case
+        SetBlackboardValue(bShouldDestroyWallKey.SelectedKeyName, false); // Always False in this Case
 
         if (bIsPathPartial)
         {
@@ -219,6 +224,7 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
     {
         SetBlackboardValue(bHasValidPathKey.SelectedKeyName, false);
         UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to calculate valid path"));
+        
     }
 }
 
@@ -266,9 +272,18 @@ void UTask_MoveThroughCorridorPathV2::HandleSuccessfulMove()
     //UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Successfully moved to waypoint %d/%d"), CurrentWaypointIndex, TotalCorridorPoints );
     if (CurrentWaypointIndex >= TotalCorridorPoints)
     {
-        // Reached final destination
-       // UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Successfully reached destination"));
-        FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Succeeded);
+        if (bIsPathPartial)
+        {
+            //Should be at last point in the path of a partial path.
+            UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: At end of Partial Path. Run Recalculation or Handle Blockage."));
+            HandleBlockedPath();
+        }
+        else
+        {
+            // Reached final destination
+            // UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Successfully reached destination"));
+            FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Succeeded);
+        }
     }
     else
     {
@@ -280,8 +295,7 @@ void UTask_MoveThroughCorridorPathV2::HandleSuccessfulMove()
 void UTask_MoveThroughCorridorPathV2::HandleBlockedPath()
 {
     BlockedAttempts++;
-    UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Path blocked (Attempt %d/%d)"), 
-           BlockedAttempts, MaxBlockedAttempts);
+    UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Path blocked (Attempt %d/%d)"), BlockedAttempts, MaxBlockedAttempts);
 
     if (BlockedAttempts >= MaxBlockedAttempts)
     {
@@ -289,14 +303,15 @@ void UTask_MoveThroughCorridorPathV2::HandleBlockedPath()
         return;
     }
 
+    //Attempting to find another open route to the target - 3 Trys
     if (bRecalculateOnBlocked)
     {
         RecalculatePathFromCurrentPosition();
     }
     else
     {
-        // Simple retry after delay
-        RetryMovementAfterDelay();
+        // Simple MoveToNextWaypoint() on a Timer
+        RetryMovementAfterDelay(); // Will trigger another loop of this function.
     }
 }
 
@@ -319,7 +334,6 @@ void UTask_MoveThroughCorridorPathV2::HandleMultipleBlockages()
 
     if (bUseFallbackPath)
     {
-        // Try to recalculate from current position
         RecalculatePathFromCurrentPosition();
         if (CorridorPathPoints.Num() > 0)
         {

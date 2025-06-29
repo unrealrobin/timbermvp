@@ -3,6 +3,7 @@
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 
 #include "Engine/ContentEncryptionConfig.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Weapons/TimberWeaponBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -24,6 +25,10 @@ void ATimberEnemyRangedBase::BeginPlay()
 {
 	Super::BeginPlay();
 	EquipRangedWeapon();
+	if (CharacterMovementComponent)
+	{
+		CharacterMovementComponent->MaxWalkSpeed = 375.0f;
+	}
 }
 
 void ATimberEnemyRangedBase::EquipRangedWeapon()

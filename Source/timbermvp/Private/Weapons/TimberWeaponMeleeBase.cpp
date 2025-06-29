@@ -107,9 +107,8 @@ void ATimberWeaponMeleeBase::OnPlayerWeaponOverlap(UPrimitiveComponent* Overlapp
 		{
 			return;
 		}
-
 		ActorsToIgnore.Add(HitEnemy);
-		
+		HitEnemy->PlayMeleeWeaponHitSound(SweepResult);
 		HitEnemy->TakeDamage(TotalWeaponDamage, GetOwner());
 	}
 }

@@ -17,8 +17,8 @@ public:
 	// Sets default values for this character's properties
 	ATimberEnemyMeleeWeaponBase();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Info")
-	float MeleeCharacterMovementSpeed = 400.f;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Info")
+	float MeleeCharacterMovementSpeed = 400.f;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
 	TSubclassOf<ATimberWeaponBase> MeleeWeaponClassName;

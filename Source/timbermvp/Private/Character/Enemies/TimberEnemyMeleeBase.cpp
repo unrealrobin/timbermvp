@@ -2,13 +2,11 @@
 
 
 #include "Character/Enemies/TimberEnemyMeleeBase.h"
-
-#include "BuildSystem/BuildableBase.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
-#include "BuildSystem/Ramps/RampBase.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/TimberSeeda.h"
 #include "Components/CapsuleComponent.h"
+
 
 ATimberEnemyMeleeBase::ATimberEnemyMeleeBase()
 {

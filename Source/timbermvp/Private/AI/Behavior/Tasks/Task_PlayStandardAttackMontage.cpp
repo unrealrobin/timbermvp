@@ -56,10 +56,18 @@ EBTNodeResult::Type UTask_PlayStandardAttackMontage::ExecuteTask(UBehaviorTreeCo
 	if (!bPlayRandomSection && SectionName != NAME_None)
 	{
 		//AICharacter->PlayAnimMontage(StandardAttackMontage, 1.0, SectionName);
-		UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
-		AnimInstance->Montage_Play(StandardAttackMontage, 1.0);
-		AnimInstance->Montage_JumpToSection(SectionName, StandardAttackMontage);
-		AnimInstance->OnMontageBlendingOut.AddDynamic(this, &UTask_PlayStandardAttackMontage::OnMontageBlendOut);
+
+		FName SectionNameCopy = SectionName;
+		AsyncTask(ENamedThreads::GameThread, [this, AICharacter, SectionNameCopy, StandardAttackMontage]()
+		{
+			if (!IsValid(AICharacter) || !StandardAttackMontage) return;
+			UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
+			if (!AnimInstance) return;
+			AnimInstance->Montage_Play(StandardAttackMontage, 1.0);
+			AnimInstance->Montage_JumpToSection(SectionNameCopy, StandardAttackMontage);
+			AnimInstance->OnMontageBlendingOut.RemoveDynamic(this, &UTask_PlayStandardAttackMontage::OnMontageBlendOut);
+			AnimInstance->OnMontageBlendingOut.AddDynamic(this, &UTask_PlayStandardAttackMontage::OnMontageBlendOut);
+		});
 
 		return EBTNodeResult::InProgress;
 	}
@@ -69,11 +77,19 @@ EBTNodeResult::Type UTask_PlayStandardAttackMontage::ExecuteTask(UBehaviorTreeCo
 		int NumberOfSections = StandardAttackMontage->GetNumSections();
 		int RandSection = FMath::RandRange(0, NumberOfSections - 1);
 		
-		UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
-		AnimInstance->Montage_Play(StandardAttackMontage, 1.0);
-		AnimInstance->Montage_JumpToSection(StandardAttackMontage->GetSectionName(RandSection), StandardAttackMontage);
-		
-		AnimInstance->OnMontageBlendingOut.AddDynamic(this, &UTask_PlayStandardAttackMontage::OnMontageBlendOut);
+
+		AsyncTask(ENamedThreads::GameThread, [this, AICharacter, StandardAttackMontage, RandSection]()
+		{
+			if (!IsValid(AICharacter) || !StandardAttackMontage) return;
+			UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
+			if (!AnimInstance) return;
+
+			FName RandSectionName = StandardAttackMontage->GetSectionName(RandSection);
+			AnimInstance->Montage_Play(StandardAttackMontage, 1.0);
+			AnimInstance->Montage_JumpToSection(RandSectionName, StandardAttackMontage);
+			AnimInstance->OnMontageBlendingOut.RemoveDynamic(this, &UTask_PlayStandardAttackMontage::OnMontageBlendOut);
+			AnimInstance->OnMontageBlendingOut.AddDynamic(this, &UTask_PlayStandardAttackMontage::OnMontageBlendOut);
+		});
 
 		return EBTNodeResult::InProgress;
 	}

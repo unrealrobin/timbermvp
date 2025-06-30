@@ -38,7 +38,7 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 	NavHelperComponent = CreateDefaultSubobject<UNavigationHelperComponent>("NavHelperComponent");
 
-	SetupCharacterMovementData();
+	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -46,7 +46,7 @@ void ATimberEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SetupStatusEffectBar();
-	
+	SetupCharacterMovementData();
 	SetupCharacterMovementDelegates();
 }
 
@@ -64,11 +64,12 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 {
 	if (CharacterMovementComponent)
 	{
-		CharacterMovementComponent->SetWalkableFloorAngle(91.0f);
+		CharacterMovementComponent->SetWalkableFloorAngle(65.0f);
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
-		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
+		CharacterMovementComponent->NavAgentProps.AgentRadius = 34.0f;
 		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
-		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 100.0f;
+		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 200.0f;
+		CharacterMovementComponent->MaxStepHeight = 200.0f;
 		CharacterMovementComponent->bUseRVOAvoidance = true;
 		CharacterMovementComponent->AvoidanceConsiderationRadius = 1000.0f;
 		CharacterMovementComponent->AvoidanceWeight = 0.8f;

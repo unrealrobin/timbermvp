@@ -56,6 +56,34 @@ void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void ATimberEnemyCharacter::SelfDestruct()
+{
+	//TODO:: Add VFX for Destruction of Enemy.
+	//Potentially need to delay the rest of this logic for the end of the Destruction VFX.
+
+	
+	StopAiControllerBehaviorTree();
+
+	//We want this actor not collidable so nothing interrupts the Montage about to play.
+	OnDeath_HandleCollision();
+	
+	//Potentially not necessary as destruction completely stops the AI Controller.
+	HandleRemoveStatusEffectComponent();
+
+	//Adjusts the Wave Enemy Count Number
+	GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CheckArrayForEnemy(this);
+
+
+	//Calling Destroy in Animation Notify on this Montage.
+	if (SelfDestructMontage)
+	{
+		PlayAnimMontage(SelfDestructMontage, 1);
+	}
+	
+
+	UE_LOG(LogTemp, Warning, TEXT("Actor Self Destructed."));
+}
+
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

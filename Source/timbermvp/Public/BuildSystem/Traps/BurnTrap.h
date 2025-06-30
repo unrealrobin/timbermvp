@@ -30,7 +30,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraComponent* BurnTrapInternalsNiagara = nullptr;
 
+	//The amount of time to wait before checking if need to Deactive Niagara System.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	float NiagaraCheckTimer = 3.0f;
+
 protected:
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -38,8 +43,14 @@ protected:
 	void HandleTrapBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 INT32);	
+	void HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 INT32);
+	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+
+	//Checks if Enemies in Hitbox Array is Empty and Deactivates Niagara if its Still Active.
+	void CheckNiagaraActive();
 };

@@ -31,6 +31,9 @@ ABurnTrap::ABurnTrap()
 void ABurnTrap::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FTimerHandle CheckNiagaraActiveTimerHandle;
+	GetWorldTimerManager().SetTimer(CheckNiagaraActiveTimerHandle, this, &ABurnTrap::CheckNiagaraActive, NiagaraCheckTimer, true);
 }
 
 void ABurnTrap::HandleTrapBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -49,13 +52,13 @@ void ABurnTrap::HandleTrapBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 void ABurnTrap::HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 INT32)
 {
-	//Check if anyone is still in hitbox, if not, turn off the effect.
-	if (InsideHitBoxArray.Num() == 0)
+	//Check if anyone is still in hit-box, if not, turn off the effect.
+	if (Cast<ATimberEnemyCharacter>(OtherActor) && InsideHitBoxArray.Num() == 0 )
 	{
 		if (BurnTrapInternalsNiagara)
 		{
 			BurnTrapInternalsNiagara->Deactivate();
-			UE_LOG(LogTemp, Display, TEXT("Burn Trap - Deactivated Niagara System."));
+			//UE_LOG(LogTemp, Display, TEXT("Burn Trap - Deactivated Niagara System."));
 		}
 	}
 }
@@ -64,5 +67,13 @@ void ABurnTrap::HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, A
 void ABurnTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ABurnTrap::CheckNiagaraActive()
+{
+	if (BurnTrapInternalsNiagara && BurnTrapInternalsNiagara->IsActive() && InsideHitBoxArray.Num() == 0)
+	{
+		BurnTrapInternalsNiagara->Deactivate();
+	}
 }
 

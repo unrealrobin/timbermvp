@@ -104,6 +104,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* HitReactMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* SelfDestructMontage;
 	
 	UFUNCTION(BlueprintCallable)
 	void HandleEnemyDeath();
@@ -125,6 +128,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Target")
 	AActor* CurrentTarget = nullptr;
+
+	UFUNCTION()
+	void SelfDestruct();
 
 protected:
 	

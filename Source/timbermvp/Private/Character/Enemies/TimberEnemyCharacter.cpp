@@ -46,8 +46,9 @@ void ATimberEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SetupStatusEffectBar();
-	SetupCharacterMovementData();
+	
 	SetupCharacterMovementDelegates();
+	SetupCharacterMovementData();
 }
 
 void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -66,10 +67,12 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 	{
 		CharacterMovementComponent->SetWalkableFloorAngle(65.0f);
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
+		CharacterMovementComponent->MaxStepHeight = 60.0f;
+		
 		CharacterMovementComponent->NavAgentProps.AgentRadius = 34.0f;
 		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
-		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 200.0f;
-		CharacterMovementComponent->MaxStepHeight = 200.0f;
+		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 60.0f;
+		
 		CharacterMovementComponent->bUseRVOAvoidance = true;
 		CharacterMovementComponent->AvoidanceConsiderationRadius = 1000.0f;
 		CharacterMovementComponent->AvoidanceWeight = 0.8f;

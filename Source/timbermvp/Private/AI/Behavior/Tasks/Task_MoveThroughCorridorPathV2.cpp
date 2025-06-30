@@ -241,9 +241,6 @@ void UTask_MoveThroughCorridorPathV2::MoveToNextWaypoint()
     // 🔧 PROPER FIX: Get the REAL RequestID from PathFollowing
     if (PathFollowingComponent)
     {
-        //AIControllerBase->StopMovement();
-        
-        //CurrentMoveRequestID = AIControllerBase->MoveToLocation(NextWaypoint, AcceptanceRadius);
         AIControllerBase->MoveToLocation(NextWaypoint, AcceptanceRadius);
         CurrentMoveRequestID = PathFollowingComponent->GetCurrentRequestId();
         //UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint() - CurrentMoveRequest: %d"), CurrentMoveRequestID.GetID());

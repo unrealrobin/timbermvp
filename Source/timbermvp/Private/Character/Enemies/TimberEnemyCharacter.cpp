@@ -68,6 +68,9 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 		CharacterMovementComponent->SetWalkableFloorAngle(65.0f);
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
 		CharacterMovementComponent->MaxStepHeight = 60.0f;
+
+		//Used to not slow down inbetween Nav Points.
+		CharacterMovementComponent->BrakingDecelerationWalking = 0.0f;
 		
 		CharacterMovementComponent->NavAgentProps.AgentRadius = 34.0f;
 		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;

@@ -19,6 +19,7 @@ public:
 
 	/*Save/Load Slots*/
 	FString DEVELOPER_SAVE_BASE_MIDGAME = TEXT("DEVELOPER_BASE_SAVE");
+	FString PubDemoSaveSlot = TEXT("PubDemoSaveSlot");
 	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");
 	FString StandardSaveSlot = TEXT("StandardSaveSlot");
 
@@ -49,7 +50,7 @@ public:
 
 	/*Load System*/
 	UFUNCTION(BlueprintCallable, Category="Save System")
-	void LoadGame();
+	void LoadGame(FString SlotToLoad = TEXT("StandardSaveSlot"));
 	void LoadBuildingComponents(USaveLoadStruct* LoadGameInstance);
 	void LoadWaveData(USaveLoadStruct* LoadGameInstance);
 	void LoadPlayerState(USaveLoadStruct* LoadGameInstance);

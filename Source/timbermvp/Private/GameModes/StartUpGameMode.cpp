@@ -3,11 +3,10 @@
 
 #include "GameModes/StartUpGameMode.h"
 
-#include "Data/MusicLibraryDataAsset.h"
 #include "Kismet/GameplayStatics.h"
-#include "States/DieRobotGameStateBase.h"
 #include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
+#include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 void AStartUpGameMode::BeginPlay()
@@ -37,7 +36,7 @@ void AStartUpGameMode::BeginPlay()
 		MusicManager->HandleInitialization();
 
 		//Play the Startup1 Song
-		MusicManager->PlayMusic("CyberpunkBoy", 2.0f);
+		MusicManager->PlayMusic("CyberpunkBoy", 0.1f);
 		
 		UE_LOG(LogTemp, Warning, TEXT("Startup Level Initialized the Music Manager and Played Song."))
 	}
@@ -56,6 +55,7 @@ void AStartUpGameMode::SetGameConfig(EDieRobotGameConfigType InGameState)
 
 void AStartUpGameMode::SwitchToGameLevel()
 {
+	//Called from the PlayDemo Button in the Startup Menu - See Startup Widget
 	if (StartUpMenu)
 	{
 		StartUpMenu->RemoveFromParent();
@@ -67,6 +67,7 @@ void AStartUpGameMode::SwitchToGameLevel()
 		UE_LOG(LogTemp, Warning, TEXT("Startup Game Mode - Set Game Config to Standard"));
 
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
+		
 	}
 }
 
@@ -76,6 +77,8 @@ void AStartUpGameMode::SwitchToMidgameDemo()
 	{
 		StartUpMenu->RemoveFromParent();
 		StartUpMenu = nullptr;
+
+		//Should load from a preconfigured Save Slot.
 
 		UWaveGameInstanceSubsystem* WaveSubsystem  = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 		if (WaveSubsystem)

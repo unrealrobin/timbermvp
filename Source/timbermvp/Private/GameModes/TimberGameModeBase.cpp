@@ -13,9 +13,7 @@
 #include "Environment/DynamicLab.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Environment/LabDoorBase.h"
-#include "Environment/LocationMarkerBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "Subsystems/SaveLoad/SaveLoadStruct.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
 #include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
@@ -27,14 +25,26 @@ class UDialogueManager;
 class UBuildingComponentPanel;
 
 
+void ATimberGameModeBase::LoadPublisherDemo()
+{
+	USaveLoadSubsystem* SLSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+	if (SLSubsystem)
+	{
+		SLSubsystem->LoadGame(SLSubsystem->PubDemoSaveSlot);
+	}
+}
 
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//TODO:: Remove when not showing Publishers.
+	PlayBuildMusic();
+
+	LoadPublisherDemo();
+	
 	InitializeGameState();
 
-	PlayBuildMusic();
 
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
@@ -260,11 +270,13 @@ void ATimberGameModeBase::PlayBuildMusic()
 	if (MusicManager)
 	{
 		//Delays the playing of the music by InRate - Might be useful for a fade in effect later.
+
 		FTimerHandle DelayHandle;
 		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([MusicManager]()
 		{
-			MusicManager->PlayMusic("Build1", 1.0f);	
-		}), 1.0f, false);
+			UE_LOG(LogTemp, Warning, TEXT("Playing Startup Music."));
+			MusicManager->PlayMusic("Build1", 0.1f);	
+		}), 0.1f, false);
 		
 	}
 }

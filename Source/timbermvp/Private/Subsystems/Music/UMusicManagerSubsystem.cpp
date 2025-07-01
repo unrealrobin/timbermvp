@@ -100,7 +100,7 @@ void UUMusicManagerSubsystem::PlayMusic(FName TrackName, float FadeTime)
 		//If the Music Player Audio Component is playing another song -> Crossfade the songs.
 		if (MusicPlayerAlpha->IsPlaying())
 		{
-			CrossfadeMusic(NewTrack, 1.0f);
+			CrossfadeMusic(NewTrack, 0.3f);
 			return;
 		}
 		//Stops any currently Playing Track
@@ -130,7 +130,7 @@ void UUMusicManagerSubsystem::CrossfadeMusic(UMetaSoundSource* NewTrack, float F
 	}
 
 	// Fade out over the specified FadeTime
-	MusicPlayerAlpha->FadeOut(FadeTime, 0.0f);
+	MusicPlayerAlpha->FadeOut(1.5, 0.3f);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([this, NewTrack, FadeTime]()
@@ -152,12 +152,12 @@ void UUMusicManagerSubsystem::CrossfadeMusic(UMetaSoundSource* NewTrack, float F
 			GetWorld()->GetTimerManager().SetTimer(InnerTimerHandle, FTimerDelegate::CreateLambda([this, NewTrack, FadeTime]()
 			{
 				//Fade in the New Track
-				MusicPlayerAlpha->FadeIn(FadeTime);
+				MusicPlayerAlpha->FadeIn(1.0f);
 				//MusicPlayerAlpha->Play();
 				//UE_LOG(LogTemp, Warning, TEXT("New Track Faded In: %s"), *CurrentTrack->GetName());
-			}), 1.f, false);
+			}), 0.1f, false);
 		}
-	}), 3, false);
+	}), 0.1, false);
 }
 
 

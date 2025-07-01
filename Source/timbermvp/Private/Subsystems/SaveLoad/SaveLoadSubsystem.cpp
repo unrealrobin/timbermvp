@@ -213,7 +213,7 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 void USaveLoadSubsystem::SaveCurrentGame()
 {
 	
-	FString SaveSlot = GetSaveSlot();
+	FString SaveSlot = StandardSaveSlot;
 	
 	//Creating an instance of the Save Game Object
 	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(
@@ -484,7 +484,7 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 }
 
 /* Load System */
-void USaveLoadSubsystem::LoadGame()
+void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("----LOADING GAME----"));
 	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
@@ -497,7 +497,7 @@ void USaveLoadSubsystem::LoadGame()
 		WaveSubsystem->ResetWaveEnemies();
 		
 		//Returns the correct Slot to use based on Game Config
-		FString LoadSlot = GetSaveSlot();
+		FString LoadSlot = SlotToLoad;
 		
 		USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(
 			UGameplayStatics::LoadGameFromSlot(LoadSlot, 0));

@@ -27,12 +27,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Data")
 	ATimberEnemyCharacter* OwningCharacter;
 
-	UFUNCTION()
-	void CheckIsOwnerOnNavMesh();
-
-	UFUNCTION()
-	void HandleActorOffMesh(ATimberEnemyCharacter* EnemyCharacter);
-
 public:
 
 	/* AI Setup */
@@ -40,12 +34,6 @@ public:
 	bool bIsOwnerOnNavMesh = true;
 
 	virtual void OnPossess(APawn* InPawn) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	UBehaviorTree* BehaviorTreeAsset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	UBlackboardData* BlackboardDataAsset;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ai Behavior")
 	UBehaviorTreeComponent* BehaviorTreeComponent;

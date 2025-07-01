@@ -9,6 +9,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class UMetaSoundSource;
 class UNavigationHelperComponent;
 class UWidgetComponent;
 class UStatusEffectHandlerComponent;
@@ -49,9 +50,9 @@ public:
 	
 	UFUNCTION()
 	void HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
-	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Damage)
 	UStatusEffectHandlerComponent* StatusEffectHandler;
@@ -65,7 +66,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
 	UCharacterMovementComponent* CharacterMovementComponent;
 
-	void SetupCharacterMovementData();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
 	EEnemyWeaponState EnemyWeaponType = EEnemyWeaponState::NoWeaponEquipped;
@@ -74,15 +74,16 @@ public:
 	EEnemyType EnemyType = EEnemyType::Default;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sounds")
-	USoundCue* ProjectileHitSound;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
-	USoundCue* MeleeHitSound;
+	UMetaSoundSource* ProjectileHitSound_MetaSound;
 	
-	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Sounds")
+	UMetaSoundSource* MeleeHitSound_MetaSound;
 	
 	virtual void PlayProjectileHitSound(FHitResult HitResult) override;
 	virtual void PlayMeleeWeaponHitSound(FHitResult HitResult) override;
+	
+	
+	void SetupCharacterMovementData();
 	
 	/*Base Data*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Base Data")
@@ -103,6 +104,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* HitReactMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimMontage* SelfDestructMontage;
 	
 	UFUNCTION(BlueprintCallable)
 	void HandleEnemyDeath();
@@ -124,6 +128,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Target")
 	AActor* CurrentTarget = nullptr;
+
+	UFUNCTION()
+	void SelfDestruct();
 
 protected:
 	

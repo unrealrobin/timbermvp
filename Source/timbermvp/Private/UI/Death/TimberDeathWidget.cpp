@@ -8,7 +8,7 @@
 
 void UTimberDeathWidget::SetLastCompletedWave(int CurrentWaveNumber)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Death Widget Wave Number Updated: %d"), CurrentWaveNumber);
+	//UE_LOG(LogTemp, Warning, TEXT("Death Widget Wave Number Updated: %d"), CurrentWaveNumber);
 	LastCompletedWave = CurrentWaveNumber;
 	SetLastCompletedWaveText();
 }
@@ -21,7 +21,7 @@ void UTimberDeathWidget::NativeConstruct()
 	if (WaveSubsystem)
 	{
 		WaveSubsystem->CurrentWaveHandle.AddDynamic(this, &UTimberDeathWidget::SetLastCompletedWave);
-		UE_LOG(LogTemp, Warning, TEXT("Death Widget Bound to Wave Subsystem."));
+		//UE_LOG(LogTemp, Warning, TEXT("Death Widget Bound to Wave Subsystem."));
 	}
 }
 

@@ -30,19 +30,19 @@ void UInventoryManagerComponent::LoadOwningPlayerState()
 	ATimberPlayableCharacter* PCh = Cast<ATimberPlayableCharacter>(GetOwner());
 	if(PCh)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player Character Loaded from GetOwner()"));
+		//UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player Character Loaded from GetOwner()"));
 		ATimberPlayerController* PC = Cast<ATimberPlayerController>(PCh->GetController());
 		if(PC)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player Controller Loaded."));
+			//UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player Controller Loaded."));
 			PS = PC->GetPlayerState<APlayerStateBase>();
 			if(PS == nullptr )
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player State Cast Failed."));
+				//UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player State Cast Failed."));
 			}
 			if(PS)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Player State Loaded for the Inventory Management Component."))
+				//UE_LOG(LogTemp, Warning, TEXT("Player State Loaded for the Inventory Management Component."))
 			}
 		}
 	}

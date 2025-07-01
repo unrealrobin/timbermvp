@@ -3,6 +3,7 @@
 
 #include "Character/Enemies/TimberEnemyMeleeWeaponBase.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/TimberWeaponBase.h"
 
 
@@ -20,6 +21,11 @@ void ATimberEnemyMeleeWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (CharacterMovementComponent)
+	{
+		CharacterMovementComponent->MaxWalkSpeed = 350.0f;;
+	}
+	
 	EquipMeleeWeapon(MeleeWeaponClassName);
 }
 

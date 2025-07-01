@@ -2,6 +2,8 @@
 
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
+
+#include "MetasoundSource.h"
 #include "AI/TimberAiControllerBase.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
@@ -36,7 +38,7 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 	NavHelperComponent = CreateDefaultSubobject<UNavigationHelperComponent>("NavHelperComponent");
 
-	SetupCharacterMovementData();
+	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -46,11 +48,40 @@ void ATimberEnemyCharacter::BeginPlay()
 	SetupStatusEffectBar();
 	
 	SetupCharacterMovementDelegates();
+	SetupCharacterMovementData();
 }
 
 void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+}
+
+void ATimberEnemyCharacter::SelfDestruct()
+{
+	//TODO:: Add VFX for Destruction of Enemy.
+	//Potentially need to delay the rest of this logic for the end of the Destruction VFX.
+
+	
+	StopAiControllerBehaviorTree();
+
+	//We want this actor not collidable so nothing interrupts the Montage about to play.
+	OnDeath_HandleCollision();
+	
+	//Potentially not necessary as destruction completely stops the AI Controller.
+	HandleRemoveStatusEffectComponent();
+
+	//Adjusts the Wave Enemy Count Number
+	GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->CheckArrayForEnemy(this);
+
+
+	//Calling Destroy in Animation Notify on this Montage.
+	if (SelfDestructMontage)
+	{
+		PlayAnimMontage(SelfDestructMontage, 1);
+	}
+	
+
+	UE_LOG(LogTemp, Warning, TEXT("Actor Self Destructed."));
 }
 
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
@@ -62,13 +93,19 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 {
 	if (CharacterMovementComponent)
 	{
-		CharacterMovementComponent->SetWalkableFloorAngle(56.0f);
+		CharacterMovementComponent->SetWalkableFloorAngle(65.0f);
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
-		CharacterMovementComponent->NavAgentProps.AgentRadius = 100.0f;
+		CharacterMovementComponent->MaxStepHeight = 60.0f;
+
+		//Used to not slow down inbetween Nav Points.
+		CharacterMovementComponent->BrakingDecelerationWalking = 0.0f;
+		
+		CharacterMovementComponent->NavAgentProps.AgentRadius = 34.0f;
 		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
-		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 65.0f;
+		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 60.0f;
+		
 		CharacterMovementComponent->bUseRVOAvoidance = true;
-		CharacterMovementComponent->AvoidanceConsiderationRadius = 600.0f;
+		CharacterMovementComponent->AvoidanceConsiderationRadius = 1000.0f;
 		CharacterMovementComponent->AvoidanceWeight = 0.8f;
 	}
 }
@@ -98,8 +135,6 @@ void ATimberEnemyCharacter::HandleOnMovementModeChanged(class ACharacter* Charac
 			switch (Character->GetCharacterMovement()->MovementMode.GetValue())
 			{
 			case MOVE_Falling:
-				// Handle falling logic here
-				//if falling, controller to stop ai brain - We want to stop all Behavior Tree logic here.
 				AiController->BehaviorTreeComponent->StopLogic("Enemy Character is Falling.");
 				break;
 			default:
@@ -126,19 +161,31 @@ void ATimberEnemyCharacter::HandleOnLanded(const FHitResult& Hit)
 
 void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 {
-	//TODO::PlayHitReact Montage
-	PlayAnimMontage(HitReactMontage, 1, FName("Back"));
+	if (DamageInstigator)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyCharacter - TakeDamage() - %s took %f damage from %s."), *GetName(), DamageAmount, *DamageInstigator->GetName());
+	}
+	
+	//Applying damage to Character Health
+	CurrentHealth -= DamageAmount;
+	
+	//Chance for Hit React to Play - Hit Reacts Interrupt other Montages like Attack Montage so we want to limit it.
+	float RandFloat = FMath::FRandRange(0.0f, 10.0f);
+	if (RandFloat > 9.0f)
+	{
+		PlayAnimMontage(HitReactMontage, 1, FName("Back"));
+	}
 	
 	//Glows the Enemy Character briefly when hit.
 	AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f);
 	
 	//Adding new damage to the accumulated damage window
 	DamageAccumulatedDuringWindow += DamageAmount;
-	//Applying damage to Character Health
-	CurrentHealth -= DamageAmount;
+	
 	//Starting Damage Accumulation Window / Used for Aggro Conditions
 	StartDamageTimerWindow();
 
+	//Things to do after Death - 0 Life.
 	if (CurrentHealth <= 0.f)
 	{
 		HandleRemoveStatusEffectComponent();
@@ -166,6 +213,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	}
 	else if (DamageInstigator)
 	{
+		//TODO:: Potential Removed from Game. - Delete Later is Unused still.
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamageInstigator, DamageAmount, DamageAccumulatedDuringWindow);
 		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
@@ -208,9 +256,9 @@ void ATimberEnemyCharacter::StartDamageTimerWindow()
 void ATimberEnemyCharacter::PlayProjectileHitSound(FHitResult HitResult)
 {
 	FVector HitLocation = HitResult.ImpactPoint;
-	if (ProjectileHitSound)
+	if (ProjectileHitSound_MetaSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, ProjectileHitSound, HitLocation);
+		UGameplayStatics::PlaySoundAtLocation(this, ProjectileHitSound_MetaSound, HitLocation);
 	}
 }
 
@@ -219,10 +267,10 @@ void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 	//GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "PlayMeleeHitSoundCalled.");
 
 	FVector HitLocation = HitResult.ImpactPoint;
-	if (MeleeHitSound)
+	if (MeleeHitSound_MetaSound)
 	{
 		//GEngine->AddOnScreenDebugMessage(1, 4, FColor::Red, "Playing Hit Sound.");
-		UGameplayStatics::PlaySoundAtLocation(this, MeleeHitSound, HitLocation);
+		UGameplayStatics::PlaySoundAtLocation(this, MeleeHitSound_MetaSound, HitLocation);
 	}
 }
 

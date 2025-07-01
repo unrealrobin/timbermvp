@@ -132,7 +132,7 @@ public:
 	void ResetDeleteIcon();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Controller")
-	ATimberPlayerController* RaycastController;
+	ATimberPlayerController* PlayerController;
 	
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 2000.f;

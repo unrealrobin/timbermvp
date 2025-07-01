@@ -10,7 +10,6 @@
 // Sets default values for this component's properties
 UNavigationHelperComponent::UNavigationHelperComponent()
 {
-	
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -43,13 +42,87 @@ UNavigationPath* UNavigationHelperComponent::GetOriginalNavPath(FVector Start, F
 	return NavPath;
 }
 
-// Called every frame
-void UNavigationHelperComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                               FActorComponentTickFunction* ThisTickFunction)
+FPathResult UNavigationHelperComponent::CalculatePathToTarget(FVector Start, FVector End)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	FPathResult Result;
 
+	// First attempt: Direct path
+	UNavigationPath* NavPath = GetOriginalNavPath(Start, End);
+
+	if (NavPath && NavPath->IsValid() && NavPath->PathPoints.Num() > 0)
+	{
+		Result.PathPoints = GetCorridorPathPoints(Start, End);
+		Result.bIsValid = true;
+		Result.bIsPartial = NavPath->IsPartial();
+
+		if (Result.bIsPartial)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Partial path found - enemy will destroy blocking walls"));
+		}
+
+		return Result;
+	}
+
+	// Fallback: Find closest accessible point
+	FVector ClosestPoint = FindClosestAccessiblePoint(Start, End);
+
+	if (ClosestPoint != FVector::ZeroVector)
+	{
+		NavPath = GetOriginalNavPath(Start, ClosestPoint);
+		if (NavPath && NavPath->IsValid())
+		{
+			Result.PathPoints = GetCorridorPathPoints(Start, ClosestPoint);
+			Result.bIsValid = true;
+			Result.bIsPartial = true;// Always partial since not reaching final target
+			Result.ClosestAccessiblePoint = ClosestPoint;
+			Result.FailureReason = EPathFailureReason::TargetUnreachable;
+
+			UE_LOG(LogTemp, Warning, TEXT("No direct path - moving to closest accessible point"));
+			return Result;
+		}
+	}
+
+	// Complete failure
+	Result.bIsValid = false;
+	Result.FailureReason = EPathFailureReason::NoPathExists;
+	UE_LOG(LogTemp, Error, TEXT("No path possible to target"));
+
+	return Result;
 }
+
+FVector UNavigationHelperComponent::FindClosestAccessiblePoint(FVector Start, FVector Target)
+{
+	// Search in expanding radius from target
+	float SearchRadius = 200.0f;
+	const float MaxSearchRadius = 2000.0f;
+	const float RadiusIncrement = 100.0f;
+
+	while (SearchRadius <= MaxSearchRadius)
+	{
+		// Test points in a circle around the target
+		const int32 NumTestPoints = 12;
+		for (int32 i = 0; i < NumTestPoints; i++)
+		{
+			float Angle = (2.0f * PI * i) / NumTestPoints;
+			FVector TestPoint = Target + FVector(
+				FMath::Cos(Angle) * SearchRadius,
+				FMath::Sin(Angle) * SearchRadius,
+				0.0f);
+
+			// Check if this point is accessible
+			UNavigationPath* TestPath = GetOriginalNavPath(Start, TestPoint);
+			if (TestPath && TestPath->IsValid() && !TestPath->IsPartial())
+			{
+				return TestPoint;
+			}
+		}
+
+		SearchRadius += RadiusIncrement;
+	}
+
+	return FVector::ZeroVector;// No accessible point found
+}
+
 
 FVector UNavigationHelperComponent::GetCenterOfNode(NavNodeRef Node)
 {

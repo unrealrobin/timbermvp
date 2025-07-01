@@ -41,7 +41,8 @@ public:
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
-	
+
+	void LoadPublisherDemo();
 	virtual void BeginPlay() override;
 	
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);

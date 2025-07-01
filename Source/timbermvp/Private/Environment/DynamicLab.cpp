@@ -69,6 +69,7 @@ void ADynamicLab::SetDimensionsFromState(ELabDimension LabDimensionEnum)
 		break;
 	default:
 		UE_LOG(LogTemp, Warning, TEXT("Incompatible Lab Dimension in Lab State"));
+		break;
 	}
 }
 

@@ -48,7 +48,10 @@ void ATimberEnemyCharacter::BeginPlay()
 	SetupStatusEffectBar();
 	
 	SetupCharacterMovementDelegates();
+	
 	SetupCharacterMovementData();
+
+	ScaleHealth();
 }
 
 void ATimberEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -335,6 +338,33 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 			}
 		}
 	}
+}
+
+void ATimberEnemyCharacter::ScaleHealth()
+{
+	UWaveGameInstanceSubsystem* WaveGameInstance = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+	if (WaveGameInstance)
+	{
+		float WaveNum = WaveGameInstance->CurrentWaveNumber;
+
+		//Using a Temp Var here because it can be changed per BP in Editor.
+		float BaseMaxHealth = MaxHealth;
+
+		/*
+		 * Wave 1 = 0
+		 * Wave 2 = 3.5
+		 * Wave 3 = 7
+		 */
+		
+		float ScaleValue = (WaveNum - 1) * 3.5 / 100;
+		float ScaledHealth = BaseMaxHealth + (BaseMaxHealth * ScaleValue);
+
+		MaxHealth = ScaledHealth;
+		CurrentHealth = ScaledHealth;
+
+		UE_LOG(LogTemp, Warning, TEXT("Base Health: %f. Scaled Health: %f, Scale Value: %f."), BaseMaxHealth, ScaledHealth, ScaleValue);
+	}
+	
 }
 
 void ATimberEnemyCharacter::HandleRemoveStatusEffectComponent()

@@ -165,6 +165,9 @@ protected:
 	void OnDeath_DropLoot();
 
 private:
+
+	void ScaleHealth();
+	
 	void HandleRemoveStatusEffectComponent();
 
 	UFUNCTION()

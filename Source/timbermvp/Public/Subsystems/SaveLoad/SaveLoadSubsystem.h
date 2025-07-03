@@ -18,13 +18,20 @@ class TIMBERMVP_API USaveLoadSubsystem : public UGameInstanceSubsystem
 public:
 
 	/*Save/Load Slots*/
-	FString DEVELOPER_SAVE_BASE_MIDGAME = TEXT("DEVELOPER_BASE_SAVE");
+	/*FString DEVELOPER_SAVE_BASE_MIDGAME = TEXT("DEVELOPER_BASE_SAVE");
+	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");*/
+
+	//The save I am sending to Publishers
 	FString PubDemoSaveSlot = TEXT("PubDemoSaveSlot");
-	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");
+
+	//The save they will save when they demo the game. Will not persist when exiting the game.
+	//We run a specific load Pub Demo on Start Game button on Start Menu.
 	FString StandardSaveSlot = TEXT("StandardSaveSlot");
 
-	UFUNCTION()
-	FString GetSaveSlot();
+	/*UFUNCTION()
+	FString GetSaveSlot();*/
+
+	
 
 	/*Stores a Key Value Pair of Guid->Buildables*/
 	UPROPERTY()
@@ -60,6 +67,9 @@ public:
 	void RemoveAllLootItems();
 	
 	UClass* SeedaClass = nullptr;
-	
+
+	//Demo for Publishers Logic.
+	void SetupSaveForPublisherDemo();
+	void LoadPublisherDemo();
 };
 

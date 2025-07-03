@@ -30,17 +30,17 @@ void ATimberGameModeBase::LoadPublisherDemo()
 	USaveLoadSubsystem* SLSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
 	if (SLSubsystem)
 	{
-		SLSubsystem->LoadGame(SLSubsystem->PubDemoSaveSlot);
+		SLSubsystem->LoadPublisherDemo();
 	}
 }
 
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//TODO:: Remove when not showing Publishers.
+	
 	PlayBuildMusic();
 
+	//TODO:: Remove when not showing Publishers.
 	LoadPublisherDemo();
 	
 	InitializeGameState();

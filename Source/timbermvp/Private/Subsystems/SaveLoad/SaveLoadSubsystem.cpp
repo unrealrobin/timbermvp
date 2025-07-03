@@ -19,7 +19,7 @@
 #include "Weapons/TimberWeaponRangedBase.h"
 
 
-FString USaveLoadSubsystem::GetSaveSlot()
+/*FString USaveLoadSubsystem::GetSaveSlot()
 {
 	UDieRobotGameConfigSubsystem* GameConfigSubsystem = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
 	if (GameConfigSubsystem)
@@ -28,7 +28,7 @@ FString USaveLoadSubsystem::GetSaveSlot()
 	}
 	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Using Standard Save Slot."))
 	return StandardSaveSlot;
-}
+}*/
 
 void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
 {
@@ -38,7 +38,7 @@ void USaveLoadSubsystem::RegisterBuildable(ABuildableBase* Buildable)
 	if (Buildable && BuildableGUID.IsValid())
 	{
 		GuidToBuildableMap.Add(BuildableGUID, Buildable);
-		UE_LOG(LogTemp, Warning, TEXT("Buildable Added to TMap: %s with GUID: %s"), *Buildable->GetName(), *Buildable->GetGUID().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Buildable Added to TMap: %s with GUID: %s"), *Buildable->GetName(), *Buildable->GetGUID().ToString());
 		//UE_LOG(LogTemp, Warning, TEXT(" TMap has %i Buildables"), GuidToBuildableMap.Num());
 	}
 }
@@ -109,7 +109,7 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Buildable has no Attached Buildable"));
+						//UE_LOG(LogTemp, Warning, TEXT("Buildable has no Attached Buildable"));
 					}
 					/* Checking and Setting GUID References for Each Individual Snap Point*/
 					if (Data.FrontCenterAttachmentGUID.IsValid())
@@ -133,7 +133,7 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Could not get Instance of Buildable from Guid: %s"), *Data.GUID.ToString());
+				//UE_LOG(LogTemp, Warning, TEXT("Could not get Instance of Buildable from Guid: %s"), *Data.GUID.ToString());
 			}
 
 			/* Handling ParentBuildableReference*/
@@ -164,19 +164,19 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 						/*Teleporters*/
 						if (TeleportConstruct)
 						{
-							UE_LOG(LogTemp, Warning, TEXT("--- Handling Teleporters --"));
+							//UE_LOG(LogTemp, Warning, TEXT("--- Handling Teleporters --"));
 							// Teleporter have some Construction necessary when respawning themselves. The link Delegates etc.
 							TeleportConstruct->ParentBuildable = BuildingComponent;
 							
 							TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
 							if (TeleportConstruct->TeleportPair && TeleportConstruct->TeleportPair->TeleportPair)
 							{
-								UE_LOG(LogTemp, Warning, TEXT("Teleport is Linking to Pair."));
+								//UE_LOG(LogTemp, Warning, TEXT("Teleport is Linking to Pair."));
 								TeleportConstruct->LinkToPair(TeleportConstruct->TeleportPair);
 							}
 							else
 							{
-								UE_LOG(LogTemp, Error, TEXT("TeleportPair is not set in TMap. GUID: %s"), *Data.TeleportPairGUID.ToString());
+								//UE_LOG(LogTemp, Error, TEXT("TeleportPair is not set in TMap. GUID: %s"), *Data.TeleportPairGUID.ToString());
 							}
 						}
 					}
@@ -190,12 +190,12 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 						TeleportConstruct->TeleportPair = Cast<ATeleportConstruct>(GuidToBuildableMap[Data.TeleportPairGUID]);
 						if (TeleportConstruct->TeleportPair && TeleportConstruct->TeleportPair->TeleportPair)
 						{
-							UE_LOG(LogTemp, Warning, TEXT("Teleport is Linking to Pair."));
+							//UE_LOG(LogTemp, Warning, TEXT("Teleport is Linking to Pair."));
 							TeleportConstruct->LinkToPair(TeleportConstruct->TeleportPair);
 						}
 						else
 						{
-							UE_LOG(LogTemp, Error, TEXT("TeleportPair is not set in TMap. GUID: %s"), *Data.TeleportPairGUID.ToString());
+							//UE_LOG(LogTemp, Error, TEXT("TeleportPair is not set in TMap. GUID: %s"), *Data.TeleportPairGUID.ToString());
 						}
 					}
 				}
@@ -203,18 +203,17 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Buildable is not set in TMap. GUID: %s"), *Data.GUID.ToString());
+			//UE_LOG(LogTemp, Error, TEXT("Buildable is not set in TMap. GUID: %s"), *Data.GUID.ToString());
 		}
 	}
 }
 
-
 /*Save System*/
 void USaveLoadSubsystem::SaveCurrentGame()
 {
-	
-	FString SaveSlot = StandardSaveSlot;
-	
+	//FString SaveSlot = StandardSaveSlot;
+	FString SaveSlot = PubDemoSaveSlot;
+	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *SaveSlot);
 	//Creating an instance of the Save Game Object
 	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(
 		UGameplayStatics::CreateSaveGameObject
@@ -224,15 +223,8 @@ void USaveLoadSubsystem::SaveCurrentGame()
 	SaveWaveData(SaveGameInstance);
 	SavePlayerData(SaveGameInstance);
 	SaveSeedaData(SaveGameInstance);
-
-
-	//TODO:: Create Dynamic Slot names, User to Input Slot Name or will be populated with Wave Info.
+	
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlot, 0);
-
-	if(GEngine)
-	{
-		//GEngine->AddOnScreenDebugMessage(1, 3.0, FColor::Red, "USaveLoadSubsystem::SaveCurrentGame() -> Game Saved");
-	}
 }
 
 void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData& BuildableData, ATimberBuildingComponentBase* BuildingComponent)
@@ -343,7 +335,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 
 				//Saving the GUID of this Buildable
 				//UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
-				UE_LOG(LogTemp, Warning, TEXT("Saving Buildable: %s. GUID: %s"), *BuildableActor->GetName(), *Buildable->GetGUID().ToString());
+				//UE_LOG(LogTemp, Warning, TEXT("Saving Buildable: %s. GUID: %s"), *BuildableActor->GetName(), *Buildable->GetGUID().ToString());
 				BuildableData.GUID = Buildable->GetGUID();
 				/*if (!BuildableData.GUID.IsValid())
 				{
@@ -405,7 +397,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("Construct %s has no ParentBuildable!"), *GetNameSafe(Construct));
+						//UE_LOG(LogTemp, Warning, TEXT("Construct %s has no ParentBuildable!"), *GetNameSafe(Construct));
 					}
 				}
 
@@ -421,7 +413,7 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 					//Saving Teleport Pair GUID
 					check(TeleportConstruct->TeleportPair);
 					BuildableData.TeleportPairGUID = TeleportConstruct->TeleportPair->GetGUID();
-					UE_LOG(LogTemp, Warning, TEXT(" Saved for Teleport: %s -> Pair GUID for Teleport: %s"),*TeleportConstruct->GetName(), *TeleportConstruct->TeleportPair->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT(" Saved for Teleport: %s -> Pair GUID for Teleport: %s"),*TeleportConstruct->GetName(), *TeleportConstruct->TeleportPair->GetName());
 				}
 				
 				SaveGameInstance->BuildingComponentsArray.Add(BuildableData);
@@ -450,7 +442,7 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 		{
 			/*Save Player Location*/
 			SaveGameInstance->PlayerData.PlayerLocation = Character->GetActorLocation();
-
+			UE_LOG(LogTemp, Warning, TEXT("Saved Player Location: %s"), *Character->GetActorLocation().ToString());
 			/*Save Player Inventory/Currency*/
 			APlayerStateBase* PS = Cast<APlayerStateBase>(Character->GetPlayerState());
 			if (PS)
@@ -459,10 +451,10 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 				SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
 				SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;
 				
-				UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
+				/*UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
 					SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts,
 					SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism,
-					SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques);
+					SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques);*/
 			}
 		}
 	}
@@ -475,7 +467,7 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 	if (Seeda && SaveGameInstance)
 	{
 		SaveGameInstance->SeedaData.SeedaLocation = Seeda->GetActorLocation();
-		UE_LOG(LogTemp, Warning, TEXT("Saved Seeda Location: %s"), *Seeda->GetActorLocation().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Saved Seeda Location: %s"), *Seeda->GetActorLocation().ToString());
 		SaveGameInstance->SeedaData.SeedaRotation = Seeda->GetActorRotation();
 
 		//When dieing Seeda Health is Regenerated.
@@ -607,8 +599,9 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 		ATimberPlayableCharacter* TimberCharacter = GameMode->TimberCharacter;
 		if (TimberCharacter)
 		{
-			TimberCharacter->GetCharacterMovement()->StopMovementImmediately();
 			TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
+			TimberCharacter->GetCharacterMovement()->StopMovementImmediately();
+			UE_LOG(LogTemp, Warning, TEXT("Loaded Player Location: %s"), *TimberCharacter->GetActorLocation().ToString());
 			TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 			TimberCharacter->bIsPlayerDead = false;
 			
@@ -703,4 +696,38 @@ void USaveLoadSubsystem::RemoveAllLootItems()
 		}
 	}
 }
+
+void USaveLoadSubsystem::SetupSaveForPublisherDemo()
+{
+	//We are checking their save slot location if the Slot/Save File Exists.
+	if (!UGameplayStatics::DoesSaveGameExist(PubDemoSaveSlot, 0))
+	{
+		//This is the file we added to the project in the Content Folder that has our Save.
+		FString Source = FPaths::ProjectContentDir() + TEXT("Saves/PubDemoSaveSlot.sav");
+
+		//This is where we need to move the file to so that when they begin play, and we call load it will play.
+		FString Destination = FPaths::ProjectSavedDir() + TEXT("SaveGames/PubDemoSaveSlot.sav");
+
+		//Checking if our Save File Exists. (This is what we sent with the game.)
+		if (FPaths::FileExists(Source))
+		{
+			//This is the actual copy function to that directory.
+			IFileManager::Get().Copy(*Destination, *Source);
+		}
+	}
+}
+
+void USaveLoadSubsystem::LoadPublisherDemo()
+{
+	//Does the Save Directory Container this Save File?
+	if (FPaths::FileExists(FPaths::ProjectSavedDir() + TEXT("SaveGames/PubDemoSaveSlot.sav")))
+	{
+		//Check if the save Slot Exists.
+		LoadGame(PubDemoSaveSlot);
+		return;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("SaveGames/PubDemoSaveSlot.sav DOES NOT Exist, Starting game from StartUp Level."));
+}
+
+
 

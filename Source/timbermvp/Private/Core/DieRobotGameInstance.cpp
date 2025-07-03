@@ -4,6 +4,7 @@
 #include "Core/DieRobotGameInstance.h"
 
 #include "GameFramework/GameUserSettings.h"
+#include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 
 void UDieRobotGameInstance::Init()
 {
@@ -16,5 +17,11 @@ void UDieRobotGameInstance::Init()
 		{
 			Settings->ApplySettings(false);  
 		}
+	}
+
+	USaveLoadSubsystem* SaveLoadSubsystem = GetSubsystem<USaveLoadSubsystem>();
+	if (SaveLoadSubsystem)
+	{
+		SaveLoadSubsystem->SetupSaveForPublisherDemo();
 	}
 }

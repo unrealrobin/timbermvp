@@ -42,7 +42,9 @@ public:
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
 
+	/*PUBLISHER DEMO ONLY*/
 	void LoadPublisherDemo();
+	
 	virtual void BeginPlay() override;
 	
 	void PassDataTableToWaveSubsystem(UDataTable* DataTable);

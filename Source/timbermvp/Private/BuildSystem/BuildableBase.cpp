@@ -89,7 +89,7 @@ void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
 	{
 		
 		EnemyCharacter->StatusEffectHandler->AddStatusEffectToComponent(Effect);
-		UE_LOG(LogTemp, Warning, TEXT("Added %s to Enemy: %s"), *Effect.EffectIdTag.ToString(), *EnemyCharacter->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Added %s to Enemy: %s"), *Effect.EffectIdTag.ToString(), *EnemyCharacter->GetName());
 	}
 }
 
@@ -113,14 +113,14 @@ void ABuildableBase::HandleStaticMeshWalkableSlope(AActor* NoWalkingBuildable)
 				for (UStaticMeshComponent* SomeMesh : StaticMeshComponents)
 				{
 					SomeMesh->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.0f));
-					UE_LOG(LogTemp, Warning, TEXT("Set Walkable Slope Override on Static Mesh Component: %s"), *SomeMesh->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Set Walkable Slope Override on Static Mesh Component: %s"), *SomeMesh->GetName());
 				}
 			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Parent Buildable is not a Vertical Wall or not valid."));
+		//UE_LOG(LogTemp, Warning, TEXT("Parent Buildable is not a Vertical Wall or not valid."));
 	}
 }
 

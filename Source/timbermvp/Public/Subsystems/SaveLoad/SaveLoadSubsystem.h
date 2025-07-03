@@ -7,6 +7,9 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SaveLoadSubsystem.generated.h"
 
+
+class ATimberGameModeBase;
+
 /**
  * 
  */
@@ -16,46 +19,22 @@ class TIMBERMVP_API USaveLoadSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-
-	/*Save/Load Slots*/
-	/*FString DEVELOPER_SAVE_BASE_MIDGAME = TEXT("DEVELOPER_BASE_SAVE");
-	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");*/
-
-	//The save I am sending to Publishers
-	FString PubDemoSaveSlot = TEXT("PubDemoSaveSlot");
-
-	//The save they will save when they demo the game. Will not persist when exiting the game.
-	//We run a specific load Pub Demo on Start Game button on Start Menu.
-	FString StandardSaveSlot = TEXT("StandardSaveSlot");
-
-	/*UFUNCTION()
-	FString GetSaveSlot();*/
-
 	
-
-	/*Stores a Key Value Pair of Guid->Buildables*/
 	UPROPERTY()
 	TMap<FGuid, ABuildableBase*> GuidToBuildableMap;
+	FString PubDemoSaveSlot = TEXT("PubDemoSaveSlot");
+	FString StandardSaveSlot = TEXT("StandardSaveSlot");
+	UClass* SeedaClass = nullptr;
 	
-	//Register Buildables - Add to TMap
-	void RegisterBuildable(ABuildableBase* Buildable);
-	//DeRegister Buildables - Remove Buildables from TMap
-	void DeRegisterBuildable(FGuid BuildableGUID);
-	//Move all Save and Load functionality here.
-	bool bIsBuildableRegistered(FGuid BuildableGUID);
-	
-	void ResolveBuildableReferences(TArray<FBuildableData> BuildableData);
-
-	/* Save System*/
+	/* Save System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
-	void CheckBuildingComponentForSnapAttachments(FBuildableData& BuildableData, ATimberBuildingComponentBase* BuildingComponent);
 	void SaveBuildableData(USaveLoadStruct* SaveGameInstance);
 	void SaveWaveData(USaveLoadStruct* SaveGameInstance);
 	void SavePlayerData(USaveLoadStruct* SaveGameInstance);
 	void SaveSeedaData(USaveLoadStruct* SaveGameInstance);
 
-	/*Load System*/
+	/* Load System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame(FString SlotToLoad = TEXT("StandardSaveSlot"));
 	void LoadBuildingComponents(USaveLoadStruct* LoadGameInstance);
@@ -63,12 +42,24 @@ public:
 	void LoadPlayerState(USaveLoadStruct* LoadGameInstance);
 	void LoadSeedaData(USaveLoadStruct* LoadGameInstance);
 
+	/* Utils */
+	// Deferring the Loading of the Player State to After the Initialization of the Character on Level Load.
+	UFUNCTION()
+	void OnCharacterInitialization();
+	void CheckBuildingComponentForSnapAttachments(FBuildableData& BuildableData, ATimberBuildingComponentBase* BuildingComponent);
 	void RemoveAllLabBuildables();
 	void RemoveAllLootItems();
-	
-	UClass* SeedaClass = nullptr;
-
-	//Demo for Publishers Logic.
+	//Deferred Character Initialization Bindings
+	void BindToGameModeBaseDelegate(ATimberGameModeBase* GameModeBase);
+	//Register Buildables - Add to TMap
+	void RegisterBuildable(ABuildableBase* Buildable);
+	//DeRegister Buildables - Remove Buildables from TMap
+	void DeRegisterBuildable(FGuid BuildableGUID);
+	//Move all Save and Load functionality here.
+	bool bIsBuildableRegistered(FGuid BuildableGUID);
+	//Resolving Linking of Parents/Pairs/Attached Buildables.
+	void ResolveBuildableReferences(TArray<FBuildableData> BuildableData);
+	/* Publisher Demo Functions */
 	void SetupSaveForPublisherDemo();
 	void LoadPublisherDemo();
 };

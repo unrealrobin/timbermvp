@@ -56,7 +56,6 @@ void ATimberPlayableCharacter::BeginPlay()
 		Anim->PlayerController = Cast<ATimberPlayerController>(GetController());
 	}
 	
-	
 	/*Delegate Binding*/
 	if (Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD()))
 	{
@@ -64,49 +63,32 @@ void ATimberPlayableCharacter::BeginPlay()
 			this,
 			&ATimberPlayableCharacter::HandleBuildMenuOpen);
 	}
-
-
+	
+	//Binding to the GameMode Delegate to know when the Seeda is Initialized and then Binding to the Seeda Delegates
+	ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GM)
 	{
-		//Binding to the GameMode Delegate to know when the Seeda is Initialized and then Binding to the Seeda Delegates
-		ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GM)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Binding to GameMode Delegate to know when Seeda is Initialized."));
-			//Basically says now you can Bind to the Seeda Delegates, and Passes in the Seeda Actor Ref.
-			//This is possible because we know for sure that the GM instance is available for binding by the time this BeginPlay fires.
-			GM->OnSeedaSpawn.AddDynamic(this, &ATimberPlayableCharacter::BindToSeedaDelegates);
-		}
+		//UE_LOG(LogTemp, Warning, TEXT("Binding to GameMode Delegate to know when Seeda is Initialized."));
+		//Basically says now you can Bind to the Seeda Delegates, and Passes in the Seeda Actor Ref.
+		//This is possible because we know for sure that the GM instance is available for binding by the time this BeginPlay fires.
+		GM->OnSeedaSpawn.AddDynamic(this, &ATimberPlayableCharacter::BindToSeedaDelegates);
+
+		/*
+	 *Broadcasts a Delegate on the GameMode letting other Systems know that the Character is Initialized.
+	 *Allows other systems to bind to the Game Mode Delegate which is typically initialized before anything else.
+	 *Used to eliminate potential Initialization Races
+	 *Set at the bottoms of the Begin Play Function to ensure all other systems are initialized.
+	 */
+		GM->PlayerIsInitialized();
 	}
 	
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
 	{
-		 /*
-		  *Broadcasts a Delegate on the GameMode letting other Systems know that the Character is Initialized.
-		  *Allows other systems to bind to the Game Mode Delegate which is typically initialized before anything else.
-		  *Used to eliminate potential Initialization Races
-		  *Set at the bottoms of the Begin Play Function to ensure all other systems are initialized.
-		  */
-		ATimberGameModeBase* GM = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
-		if(GM)
-		{
-			GM->PlayerIsInitialized();
-		}
-	}
-
-	{
-		//TODO:: To Be Moved to the Combat Component.
-		//Handle Weapon Initialization
-		/*SpawnMeleeWeapon();
-		SpawnRangedWeapon();*/
-
-		GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
-		{
-			CombatComponent->SpawnMeleeWeapon();
-			CombatComponent->SpawnRangedWeapon();
-		});
-		
-	}
-
-	//Tutorial is just starting, play the wake animation.
+		CombatComponent->SpawnMeleeWeapon();
+		CombatComponent->SpawnRangedWeapon();
+	});
+	
+	/* Tutorial */
 	if (GetTutorialState() == ETutorialState::Wake1)
 	{
 		PlayWakeAnimationMontage();
@@ -239,7 +221,6 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 
 			// Broadcast a Delegate with the Impact Position to the HUD.
 			HandleSpawnDeleteIconLocation_DelegateHandle.Broadcast(ScreenLocationOfImpactPoint.X, ScreenLocationOfImpactPoint.Y);
-			
 		}
 		break;
 	}
@@ -250,7 +231,6 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 		ResetDeleteIcon();
 		return false;
 	}
-	
 	return false;
 }
 
@@ -275,7 +255,6 @@ void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 		//Broadcast to HUD to Update Death UI Reason Text
 		//Player Controller && HUD is Subscribed to this Delegate
 		HandlePlayerDeath_DelegateHandle.Broadcast(bIsPlayerDeadNow);
-		
 	}
 }
 
@@ -286,10 +265,9 @@ void ATimberPlayableCharacter::PlayDeathAnimation()
 
 void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
 {
-	InventoryObject = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
-	if(InventoryObject)
+	if (GetController()->GetPlayerState<APlayerStateBase>()->MainInventory)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Player Inventory Loaded."));
+		InventoryObject = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
 	}
 }
 

@@ -227,18 +227,8 @@ void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
 /* Tells all relying on systems that the character is initialized */
 void ATimberGameModeBase::PlayerIsInitialized()
 {
+	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Player Is Initialized."));
 	OnCharacterInitialization.Broadcast();
-	
-	//If we are in mid Game Demo add some currency to player inventory.
-	UDieRobotGameConfigSubsystem* DRCS = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
-	if (DRCS && DRCS->GameConfig == EDieRobotGameConfigType::MidGameDemo)
-	{
-		if (TimberCharacter && TimberCharacter->InventoryManager)
-		{
-			TimberCharacter->InventoryManager->AddPartsToInventory(10);
-			TimberCharacter->InventoryManager->AddMechanismsToInventory(4);
-		}
-	}
 }
 
 //Switches to the Main Menu Level from Game Play Level.
@@ -326,7 +316,6 @@ void ATimberGameModeBase::HandleRedrawPathTrace()
 {
 	RedrawPathTrace();
 }
-
 
 //Used to Freeze all AI Characters when the Player Dies.
 void ATimberGameModeBase::FreezeAllAICharacters(bool bIsPlayerDead)

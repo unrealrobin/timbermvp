@@ -95,12 +95,15 @@ struct FPlayerData
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FVector PlayerLocation;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FRotator PlayerRotation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FInventoryData PlayerInventory;
 
 	FPlayerData() :
-		PlayerLocation(FVector::ZeroVector), PlayerInventory(FInventoryData())
+		PlayerLocation(FVector::ZeroVector), PlayerRotation(FRotator::ZeroRotator), PlayerInventory(FInventoryData())
 	{}
 	
 };

@@ -115,7 +115,7 @@ void UWaveGameInstanceSubsystem::GetGarageDoor()
 
 void UWaveGameInstanceSubsystem::StartWave()
 {
-	bIsWaveActive = true;
+	
 	PlayWaveStartSound();
 
 	USaveLoadSubsystem* SaveLoadSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
@@ -130,26 +130,25 @@ void UWaveGameInstanceSubsystem::StartWave()
 	
 	FTimerHandle WaveDelayHandle;
 	GetWorld()->GetTimerManager().SetTimer(
-	WaveDelayHandle,
-	FTimerDelegate::CreateLambda([this]()
-		{
-			if(CurrentWaveNumber >= 30)
+		WaveDelayHandle,
+		FTimerDelegate::CreateLambda([this]()
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("Its about to get wild. Endless mode. Bucket of popcorn time. Leaderboards in view."));
-			}
-			else
-			{
-				//UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
-				//Prepares the Wave Composition
-				ComposeWaveFromDataTable();
-				//Process of Opening Doors
-				OpenLabDoorHandle.Broadcast();
-				//Spawning Enemies from Data Tables
-				SpawnWave();
-			}
-		}),
-	2.0f,  
-	false);  
+				if(CurrentWaveNumber >= 30)
+				{
+					//UE_LOG(LogTemp, Warning, TEXT("Its about to get wild. Endless mode. Bucket of popcorn time. Leaderboards in view."));
+				}
+				else
+				{
+					//UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
+					//Prepares the Wave Composition
+					ComposeWaveFromDataTable();
+					
+					//Process of Opening Doors - Doors Open Finish Animations Start the Wave.
+					OpenLabDoorHandle.Broadcast();
+				}
+			}),
+		2.0f,  
+		false);  
 }
 
 void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
@@ -261,6 +260,13 @@ void UWaveGameInstanceSubsystem::EarlyStartWave()
 
 void UWaveGameInstanceSubsystem::SpawnWave()
 {
+	//Called at the end of the LabDoorOpening Timeline Animation.
+	
+	if (bIsWaveActive) return;
+	
+	UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnWave() - Starting Wave"));
+	bIsWaveActive = true;
+	
 	//Sets a looping timer to spawn random parts of the wave with a delay between each spawn
 	//Timer is cleared and finished when all enemies are spawned
 	if(!bAllEnemiesSpawned)

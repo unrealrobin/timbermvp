@@ -34,6 +34,7 @@ protected:
 
 	UPROPERTY()
 	UTimelineComponent* DoorOpenTimeline;
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Animation")
 	UCurveFloat* FloatCurve;
 	UFUNCTION()

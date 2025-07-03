@@ -3,8 +3,7 @@
 
 #include "Environment/LabDoorBase.h"
 
-#include "Character/Enemies/TimberEnemyCharacter.h"
-#include "Components/BoxComponent.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
 // Sets default values
 ALabDoorBase::ALabDoorBase()
@@ -73,6 +72,27 @@ void ALabDoorBase::HandleTimelineProgress(float Value)
 
 void ALabDoorBase::HandleTimelineFinished()
 {
+	FVector LabDoorLeftCurrentLocation = LabDoorLeft->GetRelativeLocation();
+	FVector LabDoorLeftOpenPosition = FVector(LabDoorLeftClosePos.X -310.0f, LabDoorLeftClosePos.Y, LabDoorLeftClosePos.Z);
+	
+	FVector LabDoorRightCurrentLocation = LabDoorRight->GetRelativeLocation();
+	FVector LabDoorRightOpenPosition = FVector(LabDoorRightClosePos.X + 270.0f, LabDoorRightClosePos.Y, LabDoorRightClosePos.Z);
+
+	//Checking if the LabDoors are in their Closed Positions.
+	bool bLeftLabDoorOpen = LabDoorLeftOpenPosition.Equals(LabDoorLeftCurrentLocation, 0.05f);
+	bool bRightLabDoorOpen = LabDoorRightOpenPosition.Equals(LabDoorRightCurrentLocation, 0.05f);
+
+	if (bLeftLabDoorOpen && bRightLabDoorOpen)
+	{
+		//Broadcast to Wave Susbsystem to Start the Wave.
+		UWaveGameInstanceSubsystem* WGS = GetWorld()->GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+		if (WGS)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Lab Door Call to Wave Subsystem."));
+			WGS->SpawnWave();
+		}
+	}
+	
 	return;
 }
 

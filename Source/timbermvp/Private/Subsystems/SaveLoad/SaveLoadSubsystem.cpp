@@ -31,8 +31,8 @@
 /*Save System*/
 void USaveLoadSubsystem::SaveCurrentGame()
 {
-	//FString SaveSlot = StandardSaveSlot;
-	FString SaveSlot = PubDemoSaveSlot;
+	FString SaveSlot = StandardSaveSlot;
+	//FString SaveSlot = PubDemoSaveSlot;
 	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *SaveSlot);
 	//Creating an instance of the Save Game Object
 	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(

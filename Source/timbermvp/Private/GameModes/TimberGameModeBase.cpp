@@ -359,8 +359,6 @@ void ATimberGameModeBase::OpenAllLabDoors()
 		ALabDoorBase* LabDoor = Cast<ALabDoorBase>(LabDoors);
 		if (LabDoor)
 		{
-			//GEngine->AddOnScreenDebugMessage(5, 3.0, FColor::Black, "LabDoor Exisits");
-
 			LabDoor->OpenLabDoor(GetWorld()->GetDeltaSeconds());
 		}
 	}
@@ -368,7 +366,6 @@ void ATimberGameModeBase::OpenAllLabDoors()
 
 void ATimberGameModeBase::OpenLabDoors()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Game Mode - Received Broadcast from Wave Subsystem Opening Lab Doors"));
 	if(ArrayOfLabDoors.Num() <= 0)
 	{
 		GatherAllLabDoors();

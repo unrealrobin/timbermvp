@@ -17,6 +17,19 @@ struct FPathFollowingResult;
 class ATimberEnemyCharacter;
 class ABuildableBase;
 
+USTRUCT(BlueprintType)
+struct FAdjustedPathFollowingTarget
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Path Following Target");
+    FVector AdjustedVector = FVector::ZeroVector;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Path Following Target");
+    float AdjustedAcceptanceRadius = 40.0f;
+    
+};
+
 /**
  * Enhanced corridor path movement task with blocked handling and wall destruction support
  */
@@ -108,6 +121,10 @@ private:
     int32 TotalCorridorPoints = 0;
     bool bIsExecutingFallbackPath = false;
     bool bIsPathPartial = false;
+
+    /*Adjustments*/
+    FAdjustedPathFollowingTarget AdjustedPathFollowingTarget;
+    FAdjustedPathFollowingTarget ApplyAdjustments(FVector NextWaypoint);
     
     // Blocked handling state
     int32 BlockedAttempts = 0;

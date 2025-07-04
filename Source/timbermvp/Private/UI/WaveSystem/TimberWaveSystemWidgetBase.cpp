@@ -26,23 +26,30 @@ void UTimberWaveSystemWidgetBase::NativeTick(const FGeometry& MyGeometry, float 
 
 	// Widget is always checking if a timer is going to the wave timer. if there is less than 15 seconds it updates the time on the widget.
 	// TODO:: Change this to a delegate call from the Wave Subsystem to update the time.
-	int TempTime = FMath::CeilToInt(GetWorld()->GetTimerManager().GetTimerRemaining(GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>()->TimeToNextWaveHandle));
-	if (TempTime)
+	if (GetWorld() && GetGameInstance())
 	{
-		//Reduced unchanging updates to the widget
-		if (TempTime != TimeToNextWaveWidget)
+		UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+		if (WaveSubsystem && GetWorld()->GetTimerManager().IsTimerActive(WaveSubsystem->TimeToNextWaveHandle))
 		{
-			TimeToNextWaveWidget = TempTime;
+			int TempTime = FMath::CeilToInt(GetWorld()->GetTimerManager().GetTimerRemaining(WaveSubsystem->TimeToNextWaveHandle));
+			if (TempTime)
+			{
+				//Reduced unchanging updates to the widget
+				if (TempTime != TimeToNextWaveWidget)
+				{
+					TimeToNextWaveWidget = TempTime;
+				}
+			}
+			else
+			{
+				if(TimeToNextWaveWidget != 0)
+				{
+					TimeToNextWaveWidget = 0;
+				}
+			}
 		}
 	}
-	else
-	{
-		if(TimeToNextWaveWidget != 0)
-		{
-			TimeToNextWaveWidget = 0;
-		}
-	}
-	
+
 }
 
 void UTimberWaveSystemWidgetBase::UpdateCurrentWave(int CurrentWaveNumber_FromSubsystem)

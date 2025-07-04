@@ -42,7 +42,11 @@ public:
 	AActor* TargetActor = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
-	float DamageAmount = 20.0f;
+	float DataSeedDamageAmount = 20.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	float BuildableDamageAmount = 50.0f;
+	
 private:
 
 	UFUNCTION()

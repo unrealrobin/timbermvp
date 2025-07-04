@@ -282,7 +282,7 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 	HandleBossSpawn();
 	
 	//1-3 enemies can spawn at once - this will help with spreading out the enemies.
-	int RandomNumberOfEnemiesToSpawnAtOnce = FMath::RandRange(1, 3);
+	int RandomNumberOfEnemiesToSpawnAtOnce = GetNumberOfEnemiesToSpawnPerGroup();
 	
 	//We need to adjust the Index used based on whether a boss is or isn't spawned. If we dont, then Total Enemies To Spawn will overflow the EnemiesToSpawn Array which
 	//doesn't include the boss. So if Enemies to Spawn = 20 and Boss = 1, it can try to find EnemiesToSpawn[21] which would overflow, so we adjust that index whether the boss has been spawned.
@@ -323,7 +323,7 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 			//Does not Include is the Boss - this is checking if all basic enemies have been spawned.
 			bAllEnemiesSpawned = true;
 			//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnPartOfWave() - All Enemies Spawned of Part."));
-			return;
+			break;
 		}
 	}
 }
@@ -460,6 +460,30 @@ void UWaveGameInstanceSubsystem::CheckEnemiesForWeapons(ATimberEnemyCharacter* E
 	{
 		RangedWeaponEnemy->EquippedWeapon->Destroy();
 	}
+}
+
+int UWaveGameInstanceSubsystem::GetNumberOfEnemiesToSpawnPerGroup()
+{
+	int NumEnemiesToSpawn;
+
+	if (CurrentWaveNumber <= 3) // 1,2,3
+	{
+		NumEnemiesToSpawn = FMath::RandRange(1, 3);
+	}
+	else if (CurrentWaveNumber <= 6) // 4,5,6
+	{
+		NumEnemiesToSpawn = FMath::RandRange(3, 6);
+	}
+	else if (CurrentWaveNumber <= 9) // 7,8,9
+	{
+		NumEnemiesToSpawn = FMath::RandRange(6, 9);
+	}
+	else
+	{
+		NumEnemiesToSpawn = FMath::RandRange(9, 12);
+	}
+	
+	return NumEnemiesToSpawn;
 }
 
 void UWaveGameInstanceSubsystem::UpdateTimeToNextWave()

@@ -41,7 +41,7 @@ void ATimberGameModeBase::BeginPlay()
 	PlayBuildMusic();
 
 	//TODO:: Remove when not showing Publishers.
-	LoadPublisherDemo();
+	//LoadPublisherDemo();
 	
 	InitializeGameState();
 

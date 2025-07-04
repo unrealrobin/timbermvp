@@ -29,21 +29,21 @@ EBTNodeResult::Type UTask_MoveThroughCorridorPathV2::ExecuteTask(UBehaviorTreeCo
     
     if (!AIControllerBase)
     {
-        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to get AI Controller"));
+        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to get AI Controller"));
         return EBTNodeResult::Failed;
     }
 
     EnemyCharacter = Cast<ATimberEnemyCharacter>(AIControllerBase->GetPawn());
     if (!EnemyCharacter)
     {
-        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to get Enemy Character"));
+        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to get Enemy Character"));
         return EBTNodeResult::Failed;
     }
 
     PathFollowingComponent = AIControllerBase->GetPathFollowingComponent();
     if (!PathFollowingComponent)
     {
-        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to get PathFollowing Component"));
+        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to get PathFollowing Component"));
         return EBTNodeResult::Failed;
     }
 
@@ -142,7 +142,7 @@ void UTask_MoveThroughCorridorPathV2::OnMoveFinished(FAIRequestID RequestID, con
 
     if (bIsSuccess)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Successfully Move."));
+        //UE_LOG(LogTemp, Warning, TEXT("Successfully Move."));
         HandleSuccessfulMove();
     }
     else if (bIsBlocked)
@@ -169,14 +169,14 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
 {
     if (!EnemyCharacter || !EnemyCharacter->NavHelperComponent)
     {
-        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Missing NavHelper Component"));
+        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Missing NavHelper Component"));
         return;
     }
 
     UBlackboardComponent* BlackboardComp = BehaviorTreeComponent->GetBlackboardComponent();
     if (!BlackboardComp)
     {
-        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: No Blackboard Component"));
+        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: No Blackboard Component"));
         return;
     }
 
@@ -184,7 +184,7 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
     AActor* TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject(TargetActorKey.SelectedKeyName));
     if (!TargetActor)
     {
-        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: No Target Actor in Blackboard"));
+        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: No Target Actor in Blackboard"));
         return;
     }
 
@@ -210,11 +210,6 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
         SetBlackboardValue(bMovementBlockedKey.SelectedKeyName, false); // Always False in this Case
         SetBlackboardValue(bShouldDestroyWallKey.SelectedKeyName, false); // Always False in this Case
 
-        if (bIsPathPartial)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Using partial path - may need wall destruction"));
-        }
-
         if (bEnableDebugDrawing)
         {
             DrawDebugPath();
@@ -223,25 +218,57 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
     else
     {
         SetBlackboardValue(bHasValidPathKey.SelectedKeyName, false);
-        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to calculate valid path"));
+        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to calculate valid path"));
         
     }
+}
+
+FAdjustedPathFollowingTarget UTask_MoveThroughCorridorPathV2::ApplyAdjustments(FVector NextWaypoint)
+{
+    FAdjustedPathFollowingTarget Temp;
+    //Handle Adjustments and Offset Randmization for Path Point and Acceptance Radius
+    
+    if (CurrentWaypointIndex < CorridorPathPoints.Num() - 1)
+    {
+        Temp.AdjustedAcceptanceRadius = AcceptanceRadius * 3;
+    }
+    else
+    {
+        Temp.AdjustedAcceptanceRadius = AcceptanceRadius;
+    }
+    AdjustedPathFollowingTarget = Temp;
+
+     if (NextWaypoint != FVector::ZeroVector)
+     {
+         float AdjustedX = NextWaypoint.X + (FMath::FRandRange(-0.5f, 0.5f) * 50.0f);
+         float AdjustedY = NextWaypoint.Y + (FMath::FRandRange(-0.5f, 0.5f) * 50.0f);
+
+         FVector AdjustedLocation = FVector(AdjustedX, AdjustedY, NextWaypoint.Z);
+        AdjustedPathFollowingTarget.AdjustedVector = AdjustedLocation;
+     }
+
+
+    return AdjustedPathFollowingTarget;
 }
 
 void UTask_MoveThroughCorridorPathV2::MoveToNextWaypoint()
 {
     if (!AIControllerBase || !IsPathValid() || CurrentWaypointIndex >= TotalCorridorPoints)
     {
-        UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint: Invalid state - aborting"));
+        //UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint: Invalid state - aborting"));
         return;
     }
 
     FVector NextWaypoint = CorridorPathPoints[CurrentWaypointIndex];
+
+    FAdjustedPathFollowingTarget AdjustedData = ApplyAdjustments(NextWaypoint);
     
-    // 🔧 PROPER FIX: Get the REAL RequestID from PathFollowing
+    //TODO:: Plug-in the Correct Data.
+    
     if (PathFollowingComponent)
     {
-        AIControllerBase->MoveToLocation(NextWaypoint, AcceptanceRadius);
+        
+        AIControllerBase->MoveToLocation(NextWaypoint, FinalAcceptanceRadius);
         CurrentMoveRequestID = PathFollowingComponent->GetCurrentRequestId();
         //UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint() - CurrentMoveRequest: %d"), CurrentMoveRequestID.GetID());
     }
@@ -273,7 +300,8 @@ void UTask_MoveThroughCorridorPathV2::HandleSuccessfulMove()
         {
             //Should be at last point in the path of a partial path.
             UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: At end of Partial Path. Run Recalculation or Handle Blockage."));
-            HandleBlockedPath();
+            //HandleBlockedPath();
+            FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Succeeded);
         }
         else
         {
@@ -292,7 +320,7 @@ void UTask_MoveThroughCorridorPathV2::HandleSuccessfulMove()
 void UTask_MoveThroughCorridorPathV2::HandleBlockedPath()
 {
     BlockedAttempts++;
-    UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Path blocked (Attempt %d/%d)"), BlockedAttempts, MaxBlockedAttempts);
+    //UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Path blocked (Attempt %d/%d)"), BlockedAttempts, MaxBlockedAttempts);
 
     if (BlockedAttempts >= MaxBlockedAttempts)
     {

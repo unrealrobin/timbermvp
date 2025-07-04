@@ -30,7 +30,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 6;
+	int CurrentWaveNumber = 1;
 	
 	void SetCurrentWaveNumber(int InWaveNumber);
 
@@ -134,7 +134,7 @@ public:
 	bool BossSpawned = false;
 	UFUNCTION()
 	void CheckEnemiesForWeapons(ATimberEnemyCharacter* Enemy);
-
+	
 	/*Wave Iteration*/
 	UPROPERTY()
 	int TimeBetweenWaves = 120; //2 minutes
@@ -166,6 +166,10 @@ public:
 	void PlayWaveStartSound();
 	void PlayWaveEndSound();
 	void PlayBossSpawnSound();
+
+private:
+	
+	int GetNumberOfEnemiesToSpawnPerGroup(); //Scales Number of enemies to spawn per "Grouping" by wave Number.
 };
 
 

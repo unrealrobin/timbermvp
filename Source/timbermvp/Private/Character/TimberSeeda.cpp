@@ -20,15 +20,34 @@ ATimberSeeda::ATimberSeeda()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Static Mesh");
 	CollisionSphere = CreateDefaultSubobject<UCapsuleComponent>("Collision Sphere");
 	RootComponent = CollisionSphere;
-	StaticMeshComponent->SetupAttachment(RootComponent);
+
+	DataSeedBase = CreateDefaultSubobject<UStaticMeshComponent>("Data Seed Base");
+	DataSeedBase->SetupAttachment(RootComponent);
+
+	DataSeedCore = CreateDefaultSubobject<UStaticMeshComponent>("Core");
+	DataSeedUpperPanel = CreateDefaultSubobject<UStaticMeshComponent>("Upper Panel");
+	DataSeedLowerPanel = CreateDefaultSubobject<UStaticMeshComponent>("Lower Panel");
+	DataSeedSmallLeftUpper = CreateDefaultSubobject<UStaticMeshComponent>("Small Left Lower Panel");
+	DataSeedSmallRightUpper = CreateDefaultSubobject<UStaticMeshComponent>("Small Right Lower Panel");
+	DataSeedSmallLeftLower = CreateDefaultSubobject<UStaticMeshComponent>("Small Left Upper Panel");
+	DataSeedSmallRightLower = CreateDefaultSubobject<UStaticMeshComponent>("Small Right Upper Panel");
+
+	DataSeedCore->SetupAttachment(DataSeedBase);
+	
+	DataSeedUpperPanel->SetupAttachment(DataSeedCore);
+	DataSeedLowerPanel->SetupAttachment(DataSeedCore);
+	DataSeedSmallLeftUpper->SetupAttachment(DataSeedCore);
+	DataSeedSmallRightUpper->SetupAttachment(DataSeedCore);
+	DataSeedSmallLeftLower->SetupAttachment(DataSeedCore);
+	DataSeedSmallRightLower->SetupAttachment(DataSeedCore);
+	
 	InteractOverlapSphere = CreateDefaultSubobject<UCapsuleComponent>("Interact Sphere");
 	InteractOverlapSphere->SetupAttachment(RootComponent);
 	
 	RepairWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Repair Widget Component");
-	RepairWidgetComponent->SetupAttachment(StaticMeshComponent);
+	RepairWidgetComponent->SetupAttachment(DataSeedBase);
 	//RepairWidgetComponent->RegisterComponent();
 }
 

@@ -261,14 +261,17 @@ void UTask_MoveThroughCorridorPathV2::MoveToNextWaypoint()
 
     FVector NextWaypoint = CorridorPathPoints[CurrentWaypointIndex];
 
-    FAdjustedPathFollowingTarget AdjustedData = ApplyAdjustments(NextWaypoint);
+    //FAdjustedPathFollowingTarget AdjustedData = ApplyAdjustments(NextWaypoint);
     
     //TODO:: Plug-in the Correct Data.
     
     if (PathFollowingComponent)
     {
-        
-        AIControllerBase->MoveToLocation(NextWaypoint, FinalAcceptanceRadius);
+        //Base Values
+        AIControllerBase->MoveToLocation(NextWaypoint, AcceptanceRadius);
+        //DrawDebugSphere(GetWorld(), NextWaypoint, 20, 12, FColor::Red, false, 2.0f);
+        //Uses Random Offsets Generated in Apply Adjustments()
+        //AIControllerBase->MoveToLocation(AdjustedData.AdjustedVector, AdjustedData.AdjustedAcceptanceRadius);
         CurrentMoveRequestID = PathFollowingComponent->GetCurrentRequestId();
         //UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint() - CurrentMoveRequest: %d"), CurrentMoveRequestID.GetID());
     }

@@ -13,7 +13,7 @@
 ABurnTrap::ABurnTrap()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	SnapCondition = ESnapCondition::CenterSnap;
 	
 	BurnTrapInternalsMesh = CreateDefaultSubobject<UStaticMeshComponent>("BurnTrapInternalsMesh");
@@ -61,12 +61,6 @@ void ABurnTrap::HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, A
 			//UE_LOG(LogTemp, Display, TEXT("Burn Trap - Deactivated Niagara System."));
 		}
 	}
-}
-
-// Called every frame
-void ABurnTrap::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void ABurnTrap::CheckNiagaraActive()

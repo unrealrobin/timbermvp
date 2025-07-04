@@ -602,7 +602,7 @@ void ATimberPlayerController::ModifyCursorWithController(const FInputActionValue
 
 	// Calculate the new mouse position
 	FVector2D NewMousePos = CurrentMousePos + (AnalogValue * CursorSpeed * DeltaTime);
-	DrawDebugPoint(GetWorld(), FVector(NewMousePos, 0), 5, FColor::Red, false, 1.0f);
+	//DrawDebugPoint(GetWorld(), FVector(NewMousePos, 0), 5, FColor::Red, false, 1.0f);
 
 	// Update the mouse location
 	SetMouseLocation(NewMousePos.X, NewMousePos.Y);

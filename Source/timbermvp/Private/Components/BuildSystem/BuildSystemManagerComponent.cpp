@@ -1452,7 +1452,7 @@ FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
 	TrapSnapData.TrapRotation = GetOwner()->GetActorRotation();
 	//TrapSnapData.TrapRotation.Yaw += 90;
 
-	DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 12, FColor::Red, false, 0.1f, 0, 1.0f);
+	//DrawDebugSphere(GetWorld(), ImpactPoint, 5.0f, 12, FColor::Red, false, 0.1f, 0, 1.0f);
 	if (BuildingComponent->FrontCenterSnapPoint && BuildingComponent->BackCenterSnapPoint)
 	{
 		/* Getting Distance from impact point to the closest scene component

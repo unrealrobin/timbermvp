@@ -93,6 +93,17 @@ public:
 	/*UPROPERTY(EditAnywhere)
 	UInputAction* HideBuildMenuAction;*/
 
+	//Not for SHippings Builds.
+	UPROPERTY(EditAnywhere)
+	UInputAction* HighResShotWithUI_InputAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* HighResShot_InputAction;
+
+	/*Development Only*/
+	UFUNCTION()
+	void TakeHighResShotWithUI();
+	UFUNCTION()
+	void TakeHighResShot();
 
 	/*Player Input Functions*/
 	UFUNCTION()

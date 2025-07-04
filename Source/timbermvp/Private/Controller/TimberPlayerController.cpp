@@ -4,6 +4,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
+#include "HighResScreenshot.h"
 #include "Character/TimberAnimInstance.h"
 #include "UI/BuildingComponent.h"
 #include "Character/TimberPlayableCharacter.h"
@@ -90,6 +91,12 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleBuildMenuStatusEffectWindowAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMenuStatusEffectWindow);
 	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
 	//EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
+
+	#if !UE_BUILD_SHIPPING
+	EnhancedInputComponent->BindAction(HighResShotWithUI_InputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::TakeHighResShotWithUI);
+	EnhancedInputComponent->BindAction(HighResShot_InputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::TakeHighResShot);
+	#endif
+	
 }
 
 void ATimberPlayerController::EnableCursor()
@@ -118,6 +125,28 @@ void ATimberPlayerController::SetInteractableItem(IInteractable* Item)
 void ATimberPlayerController::ClearInteractableItem()
 {
 	InteractableItem = nullptr;
+}
+
+void ATimberPlayerController::TakeHighResShotWithUI()
+{
+
+	/*FScreenshotRequest::OnScreenshotRequestProcessed().AddLambda([](const FString& Path)
+	{
+		UE_LOG(LogTemp, Log, TEXT("High-res screenshot WITH UI saved to: %s"), *Path);
+	});*/
+	FScreenshotRequest::RequestScreenshot(true);
+	//GetWorld()->GetGameViewport()->Exec(GetWorld(), TEXT("HighResShot 1920x1080 SHOWUI"), *GLog);
+}
+
+void ATimberPlayerController::TakeHighResShot()
+{
+
+	/*FScreenshotRequest::OnScreenshotRequestProcessed().AddLambda([](const FString& Path)
+	{
+		UE_LOG(LogTemp, Log, TEXT("High-res screenshot WITHOUT UI saved to: %s"), *Path);
+	});*/
+
+	GetWorld()->GetGameViewport()->Exec(GetWorld(), TEXT("HighResShot 1920x1080"), *GLog);
 }
 
 void ATimberPlayerController::Move(const FInputActionValue& Value)

@@ -200,7 +200,7 @@ void AEnemyDrone::GetClosestLabDoorExitLocation()
 	{
 		if (ALabDoorBase* LabDoorBase = Cast<ALabDoorBase>(LabDoor))
 		{
-			DrawDebugSphere(GetWorld(), LabDoor->GetActorLocation(), 50.f, 12, FColor::Green, false, 10.0f);
+			//DrawDebugSphere(GetWorld(), LabDoor->GetActorLocation(), 50.f, 12, FColor::Green, false, 10.0f);
 
 			float DistToLabDoor = FVector::Dist(GetActorLocation(), LabDoorBase->GetActorLocation());
 			
@@ -219,7 +219,7 @@ void AEnemyDrone::GetClosestLabDoorExitLocation()
 		ExitLocation.Z += 200.0f;
 		ExitLocation.Y -= 100.0f;
 		ClosestLabDoorExitLocation = ExitLocation;
-		DrawDebugSphere(GetWorld(), ClosestLabDoorExitLocation, 50.f, 12, FColor::Blue, false, 5.0f);
+		//DrawDebugSphere(GetWorld(), ClosestLabDoorExitLocation, 50.f, 12, FColor::Blue, false, 5.0f);
 	}
 }
 

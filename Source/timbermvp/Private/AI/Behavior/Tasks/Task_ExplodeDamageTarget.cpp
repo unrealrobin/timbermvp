@@ -38,7 +38,7 @@ EBTNodeResult::Type UTask_ExplodeDamageTarget::ExecuteTask(UBehaviorTreeComponen
 	if (!SelfEnemyCharacter) return EBTNodeResult::Failed;
 	//UE_LOG(LogTemp, Warning, TEXT("Self Actor is Valid."));
 
-	UE_LOG(LogTemp, Warning, TEXT("1.UTask_ExplodeDamageTarget- Execute() - Executing Damage on Actor: %s"), *TargetActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("1.UTask_ExplodeDamageTarget- Execute() - Executing Damage on Actor: %s"), *TargetActor->GetName());
 	HandleDamage(TargetActor, SelfEnemyCharacter);
 	
 	return EBTNodeResult::Succeeded;
@@ -57,24 +57,24 @@ void UTask_ExplodeDamageTarget::OnTaskFinished(UBehaviorTreeComponent& OwnerComp
 void UTask_ExplodeDamageTarget::HandleDamage(AActor* ActorToDamage, ATimberEnemyCharacter* SelfActorEnemy)
 {
 	//Damage here can potentially be set on the Owning Actor. Maybe each type of Enemy applies different damage and the value is stored on the Enemy Character?
-	UE_LOG(LogTemp, Warning, TEXT("2.UTask_ExplodeDamageTarget - HandleDamage() - Executing Damage on Actor: %s"), *ActorToDamage->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("2.UTask_ExplodeDamageTarget - HandleDamage() - Executing Damage on Actor: %s"), *ActorToDamage->GetName());
 	ATimberSeeda* DataSeed = Cast<ATimberSeeda>(ActorToDamage);
 	if (DataSeed)
 	{
-		DataSeed->TakeDamage_Seeda(20.0f);
+		DataSeed->TakeDamage_Seeda(DataSeedDamageAmount);
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Could not Cast to Data Seed in HandleDamage()."));
+	//UE_LOG(LogTemp, Warning, TEXT("Could not Cast to Data Seed in HandleDamage()."));
 	
 
 	ATimberBuildingComponentBase* BuildableStructure = Cast<ATimberBuildingComponentBase>(ActorToDamage);
 	if (BuildableStructure)
 	{
-		BuildableStructure->BuildingComponentTakeDamage(DamageAmount * 2, SelfActorEnemy);
+		BuildableStructure->BuildingComponentTakeDamage(BuildableDamageAmount, SelfActorEnemy);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Could not Cast to BuildingComponentBase in HandleDamage()."));
+	//UE_LOG(LogTemp, Warning, TEXT("Could not Cast to BuildingComponentBase in HandleDamage()."));
 	
 }
 

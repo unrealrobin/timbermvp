@@ -13,7 +13,6 @@ UNavigationHelperComponent::UNavigationHelperComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
 // Called when the game starts
 void UNavigationHelperComponent::BeginPlay()
 {
@@ -36,9 +35,7 @@ UNavigationPath* UNavigationHelperComponent::GetOriginalNavPath(FVector Start, F
 		UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Failed to find a valid navigation path!"));
 		return nullptr;
 	}
-	
 	NavPath->IsPartial() ? bIsLastPathPartial = true : bIsLastPathPartial = false;
-
 	return NavPath;
 }
 
@@ -59,7 +56,6 @@ FPathResult UNavigationHelperComponent::CalculatePathToTarget(FVector Start, FVe
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Partial path found - enemy will destroy blocking walls"));
 		}
-
 		return Result;
 	}
 
@@ -116,13 +112,10 @@ FVector UNavigationHelperComponent::FindClosestAccessiblePoint(FVector Start, FV
 				return TestPoint;
 			}
 		}
-
 		SearchRadius += RadiusIncrement;
 	}
-
 	return FVector::ZeroVector;// No accessible point found
 }
-
 
 FVector UNavigationHelperComponent::GetCenterOfNode(NavNodeRef Node)
 {
@@ -147,7 +140,10 @@ FVector UNavigationHelperComponent::GetCenterOfNode(NavNodeRef Node)
 TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start, FVector End)
 {
 	TArray<FVector> PathPoints;
-
+	
+	//DEBUG USE ONLY
+	if (!OwningActor || !OwningActor->GetWorld()) return PathPoints;
+	
 	UNavigationPath* NavPath = GetOriginalNavPath(Start, End);
 
 	//Debug to show the original Path Points in the world.
@@ -176,7 +172,10 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		//We now have access to those Polys IDs
 		const TArray<NavNodeRef>& Corridor = MeshPath->PathCorridor;
 
+		
+
 		//This is the Navigation System the Owning Character is using.
+		
 		UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(OwningActor->GetWorld());
 
 		ARecastNavMesh* RecastMesh = Cast<ARecastNavMesh>(NavSys->GetDefaultNavDataInstance());

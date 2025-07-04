@@ -30,7 +30,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraComponent* BurnTrapInternalsNiagara = nullptr;
 
-	//The amount of time to wait before checking if need to Deactive Niagara System.
+	//The amount of time to wait before checking if need to Deactivate Niagara System.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	float NiagaraCheckTimer = 3.0f;
 
@@ -46,8 +46,8 @@ protected:
 	void HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 INT32);
 	
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	/*// Called every frame
+	virtual void Tick(float DeltaTime) override;*/
 
 private:
 

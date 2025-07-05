@@ -296,6 +296,26 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 	}
 }
 
+void USaveLoadSubsystem::SetupSaveForPublisherDemo()
+{
+	//We are checking their save slot location if the Slot/Save File Exists.
+	if (!UGameplayStatics::DoesSaveGameExist(PubDemoSaveSlot, 0))
+	{
+		//This is the file we added to the project in the Content Folder that has our Save.
+		FString Source = FPaths::ProjectContentDir() + TEXT("Saves/PubDemoSaveSlot.sav");
+
+		//This is where we need to move the file to so that when they begin play, and we call load it will play.
+		FString Destination = FPaths::ProjectSavedDir() + TEXT("SaveGames/PubDemoSaveSlot.sav");
+
+		//Checking if our Save File Exists. (This is what we sent with the game.)
+		if (FPaths::FileExists(Source))
+		{
+			//This is the actual copy function to that directory.
+			IFileManager::Get().Copy(*Destination, *Source);
+		}
+	}
+}
+
 /* Load System */
 void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
 {
@@ -534,27 +554,6 @@ void USaveLoadSubsystem::OnCharacterInitialization()
 	USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(UGameplayStatics::LoadGameFromSlot(PubDemoSaveSlot, 0));
 	LoadPlayerState(LoadGameInstance);
 }
-
-void USaveLoadSubsystem::SetupSaveForPublisherDemo()
-{
-	//We are checking their save slot location if the Slot/Save File Exists.
-	if (!UGameplayStatics::DoesSaveGameExist(PubDemoSaveSlot, 0))
-	{
-		//This is the file we added to the project in the Content Folder that has our Save.
-		FString Source = FPaths::ProjectContentDir() + TEXT("Saves/PubDemoSaveSlot.sav");
-
-		//This is where we need to move the file to so that when they begin play, and we call load it will play.
-		FString Destination = FPaths::ProjectSavedDir() + TEXT("SaveGames/PubDemoSaveSlot.sav");
-
-		//Checking if our Save File Exists. (This is what we sent with the game.)
-		if (FPaths::FileExists(Source))
-		{
-			//This is the actual copy function to that directory.
-			IFileManager::Get().Copy(*Destination, *Source);
-		}
-	}
-}
-
 
 /* Utils */
 

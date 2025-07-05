@@ -271,15 +271,17 @@ void UWaveGameInstanceSubsystem::SpawnWave()
 	//Timer is cleared and finished when all enemies are spawned
 	if(!bAllEnemiesSpawned)
 	{
+		/* Time between spawning Parts of Wave. 3 Parts all spawned in 9 Seconds. */
 		//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnWave() - Spawning Wave - Timer Started"));
 		GetWorld()->GetTimerManager().SetTimer(SpawnPartOfWaveTimerHandle, this, 
-			&UWaveGameInstanceSubsystem::SpawnPartOfWave, TimeBetweenEnemySpawns, true, 1.f);
+			&UWaveGameInstanceSubsystem::SpawnPartOfWave, TimeBetweenEnemySpawns, true, 5.f);
 	}
 }
 
 void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 {
-	HandleBossSpawn();
+	//TODO:: UnComment this when Bosses are added. Bosses need to be Set in the Wave Composition Data Table.
+	//HandleBossSpawn();
 	
 	//1-3 enemies can spawn at once - this will help with spreading out the enemies.
 	int RandomNumberOfEnemiesToSpawnAtOnce = GetNumberOfEnemiesToSpawnPerGroup();
@@ -287,20 +289,20 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 	//We need to adjust the Index used based on whether a boss is or isn't spawned. If we dont, then Total Enemies To Spawn will overflow the EnemiesToSpawn Array which
 	//doesn't include the boss. So if Enemies to Spawn = 20 and Boss = 1, it can try to find EnemiesToSpawn[21] which would overflow, so we adjust that index whether the boss has been spawned.
 	//Always starts at TotalEnemiesSpawned, but needs to adjust first if boss was spawned, by subtracting 1
-	
+	UE_LOG(LogTemp, Warning, TEXT("TotalEnemies Spawned: %d"), TotalEnemiesSpawned);
 	for(int i = 0; i < RandomNumberOfEnemiesToSpawnAtOnce; i++)
 	{
 		int ArrayIndex;
 		if (BossSpawned)
 		{
 			//TotalEnemiesToSpawn = 1
-			ArrayIndex = TotalEnemiesSpawned -1;
+			ArrayIndex = TotalEnemiesSpawned - 1;
 		}
 		else
 		{
 			//This keeps the ArrayIndex Incremented and not starting over.
+			// We use + i here because in the loop we are setting timers to spawn. So each time we set a Timer, we need to increment the Array Index
 			ArrayIndex = TotalEnemiesSpawned;
-			//UE_LOG(LogTemp, Warning, TEXT("Boss not Spawned. ArrayIndex = %d "), ArrayIndex);
 		}
 		/*
 		 * TotalEnemiesToSpawn - Decided in Composition, if Boss, Includes Boss.
@@ -312,7 +314,7 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 		 * Otherwise it is just TotalEnemiesSpawned.
 		 * We use Less than to offset by 1 because iteration starts at 0.
 		 */
-		if(TotalEnemiesSpawned < TotalEnemiesToSpawn)
+		if(TotalEnemiesSpawned < TotalEnemiesToSpawn && ArrayIndex < EnemiesToSpawn.Num())
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy at Array Index: %d"), ArrayIndex);
 			SpawnEnemy(EnemiesToSpawn[ArrayIndex], GetRandomStandardSpawnPointLocation());
@@ -373,15 +375,14 @@ void UWaveGameInstanceSubsystem::SpawnEnemy(TSubclassOf<AActor> ActorToSpawn, FV
 {
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
+	
 	AActor* Actor = GetWorld()->SpawnActor<AActor>(ActorToSpawn, Location, FRotator::ZeroRotator, SpawnParameters);
 	//UE_LOG(LogTemp, Warning, TEXT("Spawned Actor: %s"), *Actor->GetName());
-	if(Cast<ATimberEnemyCharacter>(Actor))
+	if(ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(Actor))
 	{
-		SpawnedEnemies.Add(Cast<ATimberEnemyCharacter>(Actor));
-		TotalEnemiesSpawned += 1;
+		SpawnedEnemies.Add(Enemy);
+		TotalEnemiesSpawned++;
 		//UE_LOG(LogTemp, Warning, TEXT("Incremented Array Index + 1"));
-		//UE_LOG(LogTemp, Warning, TEXT("Total Enemies to Spawn: %d. Total Enemies Spawned: %d"), TotalEnemiesToSpawn, TotalEnemiesSpawned);
 	}
 }
 
@@ -392,11 +393,10 @@ void UWaveGameInstanceSubsystem::CheckArrayForEnemy(ATimberEnemyCharacter* Enemy
 	{
 		//SpawnedEnemies.Remove(Enemy);
 		TotalEnemiesKilled += 1;
-		
-		//UE_LOG(LogTemp, Warning, TEXT("Enemies remaining to Kill: %d"), TotalEnemiesToSpawn - TotalEnemiesKilled);
+		UE_LOG(LogTemp, Warning, TEXT("Total Enemies Spawned: %d. Total Enemies Killed: %d. Enemies Remaining: %d"), TotalEnemiesSpawned, TotalEnemiesKilled, TotalEnemiesToSpawn - TotalEnemiesKilled );
 
 		//Only counting Basic Enemies
-		if(TotalEnemiesKilled == TotalEnemiesToSpawn && bAllEnemiesSpawned)
+		if((TotalEnemiesKilled == TotalEnemiesToSpawn) && bAllEnemiesSpawned)
 		{
 			EndWave(EWaveStopReason::Success);
 		}

@@ -106,8 +106,9 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 		CharacterMovementComponent->NavAgentProps.AgentRadius = 34.0f;
 		CharacterMovementComponent->NavAgentProps.AgentHeight = 180.0f;
 		CharacterMovementComponent->NavAgentProps.AgentStepHeight = 60.0f;
-		
-		CharacterMovementComponent->bUseRVOAvoidance = true;
+
+		//TODO:: Check a way of Reimplementing this in the future. RVO may be beneficial for this. 
+		CharacterMovementComponent->bUseRVOAvoidance = false;
 		CharacterMovementComponent->AvoidanceConsiderationRadius = 2000.0f;
 		CharacterMovementComponent->AvoidanceWeight = 0.5f;
 	}

@@ -14,12 +14,15 @@ void UDialogueManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
+	/*
 	if (GetWorld())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem Initialized."));
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UDialogueManager::LoadNarrativeDialogueLibrary);
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UDialogueManager::LoadNarrativeDialogueSoundMix);
-	}
-	
+	}*/
+	LoadNarrativeDialogueLibrary();
+	LoadNarrativeDialogueSoundMix();
 }
 
 void UDialogueManager::LoadNarrativeDialogueLibrary()
@@ -29,7 +32,7 @@ void UDialogueManager::LoadNarrativeDialogueLibrary()
 	NarrativeDialogueLibrary = LoadObject<UNarrativeDialogueLibrary>(nullptr, *NarrativeDialogueLibraryAssetPath);
 	if (NarrativeDialogueLibrary)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Library."))
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Loaded the Narrative Dialogue Library."))
 	}
 }
 
@@ -74,10 +77,10 @@ UMetaSoundSource* UDialogueManager::GetDialogueVoiceover(FName DialogueName)
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Issue Loading the NarrativeDialogueList"));
+		UE_LOG(LogTemp, Warning, TEXT("Issue Loading the NarrativeDialogueList"));
 	}
 
-	//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - GetDialogueVoiceover() -  Dialogue Voiceover Not Found: %s"), *DialogueName.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - GetDialogueVoiceover() -  Dialogue Voiceover Not Found: %s"), *DialogueName.ToString());
 	return nullptr;
 }
 
@@ -105,12 +108,16 @@ void UDialogueManager::PlayVoiceover(FName VoiceoverName)
 		DialoguePlayer->Stop();
 		DialoguePlayer->SetSound(VoiceoverSound);
 		DialoguePlayer->Play();
-		
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Playing Voiceover: %s"), *VoiceoverName.ToString());
 		/*
 		 * Removing the Mix after the Audio Dialogue is finished playing.
 		 * Theoretically should then Increase the Music and SFX Volume back to standard.
 		 */
 		//UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - Playing Voiceover: %s"), *VoiceoverName.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue Manager Subsystem - PlayVoiceover() -  Voiceover Not Found: %s"), *VoiceoverName.ToString());
 	}
 
 	HandlePlayedDialogue(VoiceoverName);

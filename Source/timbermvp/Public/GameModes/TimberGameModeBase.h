@@ -52,7 +52,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
 	UDataTable* WaveCompositionDataTable;
 	
-	void PlayerIsInitialized();
+	void PlayerIsInitialized(AActor* InitializedPlayer);
 	
 	void PathTracer_RedrawDelegateBinding();\
 	

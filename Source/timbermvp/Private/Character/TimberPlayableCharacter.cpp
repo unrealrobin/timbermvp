@@ -79,7 +79,7 @@ void ATimberPlayableCharacter::BeginPlay()
 	 *Used to eliminate potential Initialization Races
 	 *Set at the bottoms of the Begin Play Function to ensure all other systems are initialized.
 	 */
-		GM->PlayerIsInitialized();
+		GM->PlayerIsInitialized(this);
 	}
 	
 	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()

@@ -111,10 +111,12 @@ void ATimberPlayerController::EnableCursor()
 void ATimberPlayerController::DisableCursor()
 {
 	bShowMouseCursor = false;
-
+	if (TimberCharacter)
+	{
+		USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
+		CharacterSpringArm->bUsePawnControlRotation = true;
+	}
 	
-	USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
-	CharacterSpringArm->bUsePawnControlRotation = true;
 }
 
 void ATimberPlayerController::SetInteractableItem(IInteractable* Item)

@@ -8,7 +8,6 @@
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
-#include "Components/Inventory/InventoryManagerComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Environment/DynamicLab.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -20,10 +19,8 @@
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 
-
 class UDialogueManager;
 class UBuildingComponentPanel;
-
 
 void ATimberGameModeBase::LoadPublisherDemo()
 {
@@ -49,19 +46,26 @@ void ATimberGameModeBase::BeginPlay()
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
-		//GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
 		GetWaveGameInstanceSubsystem()->HandleWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
+
+		//GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
 		/*Subscribing to Player Death Delegate Signature*/
 	}
 	
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
 
+	//TODO:: Remove when not showing Publishers. 
+	UDialogueManager* DialogueManager = GetGameInstance()->GetSubsystem<UDialogueManager>();
+	if (DialogueManager)
 	{
-		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
-		if (DialogueManager)
-		{
-			DialogueManager->BindToGameState();
-		}
+		TWeakObjectPtr<UDialogueManager> WeakDM = DialogueManager;
+		FTimerHandle Handle;
+		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([WeakDM]() {
+			if (WeakDM.IsValid())
+			{
+				WeakDM->PlayVoiceover("Molly_PubDemoIntro");
+			}
+		}), 1.0f, false);
 	}
 	
 	GatherSeedaData();
@@ -72,13 +76,7 @@ void ATimberGameModeBase::BeginPlay()
 		PassDataTableToWaveSubsystem(WaveCompositionDataTable);
 	}
 
-	TimberCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), ATimberPlayableCharacter::StaticClass()));
-
-	if(TimberCharacter)
-	{
-		PathTracer_RedrawDelegateBinding();
-		TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
-	}
+	
 }
 
 void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
@@ -225,10 +223,17 @@ void ATimberGameModeBase::PassDataTableToWaveSubsystem(UDataTable* DataTable)
 }
 
 /* Tells all relying on systems that the character is initialized */
-void ATimberGameModeBase::PlayerIsInitialized()
+void ATimberGameModeBase::PlayerIsInitialized(AActor* InitializedPlayer)
 {
-	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Player Is Initialized."));
-	OnCharacterInitialization.Broadcast();
+	//UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Player Is Initialized."));
+	TimberCharacter = Cast<ATimberPlayableCharacter>(InitializedPlayer);
+	if(TimberCharacter)
+	{
+		TimberCharacter->HandlePlayerDeath_DelegateHandle.RemoveDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
+		TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
+		OnCharacterInitialization.Broadcast();
+		PathTracer_RedrawDelegateBinding();
+	}
 }
 
 //Switches to the Main Menu Level from Game Play Level.

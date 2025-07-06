@@ -25,16 +25,11 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	void MovePulseHitBox(float DeltaTime);
 
 	void MovePulseHitSphere(float DeltaTime);
 
 	UFUNCTION()
 	void FireElectroPulse();
-
-	UFUNCTION()
-	void HandlePulseBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	UFUNCTION()
 	void HandlePulseSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -72,8 +67,6 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
-	void CreatePulseHitBox();
 	
 	void CreatePulseHitSphere();
 };

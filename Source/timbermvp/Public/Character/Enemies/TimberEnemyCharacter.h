@@ -9,6 +9,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+class AFloatingDamageContainer;
 class UMetaSoundSource;
 class UNavigationHelperComponent;
 class UWidgetComponent;
@@ -65,6 +66,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
 	UCharacterMovementComponent* CharacterMovementComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Effects")
+	USceneComponent* DamageEffectUISpawnPoint;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
@@ -133,6 +137,11 @@ public:
 	void SelfDestruct();
 
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	TSubclassOf<AFloatingDamageContainer> FloatingDamageContainerClass;
+	
+	void SpawnDamageUI(float DamageAmount);
 	
 	virtual void Tick(float DeltaSeconds) override;
 	

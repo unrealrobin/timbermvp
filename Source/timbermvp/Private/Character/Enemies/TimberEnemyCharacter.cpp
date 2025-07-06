@@ -23,6 +23,7 @@
 #include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "UI/FloatingDamageNumbers/FloatingDamageContainer.h"
 #include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -35,6 +36,9 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	StatusEffectBarComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
 	StatusEffectBarComponent->SetupAttachment(RootComponent);
 	
+	DamageEffectUISpawnPoint = CreateDefaultSubobject<USceneComponent>("DamageEffectUISpawnPoint");
+	DamageEffectUISpawnPoint->SetupAttachment(RootComponent);
+
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 	NavHelperComponent = CreateDefaultSubobject<UNavigationHelperComponent>("NavHelperComponent");
 
@@ -85,6 +89,24 @@ void ATimberEnemyCharacter::SelfDestruct()
 	
 
 	UE_LOG(LogTemp, Warning, TEXT("Actor Self Destructed."));
+}
+
+void ATimberEnemyCharacter::SpawnDamageUI(float DamageAmount)
+{
+	if (FloatingDamageContainerClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		AActor* FloatingDamageActor = GetWorld()->SpawnActor<AActor>(FloatingDamageContainerClass,
+			DamageEffectUISpawnPoint->GetComponentLocation(),
+			FRotator::ZeroRotator, 
+			SpawnParams);
+
+		if (AFloatingDamageContainer* FloatingDamage = Cast<AFloatingDamageContainer>(FloatingDamageActor))
+		{
+			FloatingDamage->SetDamageAmount(DamageAmount);
+		}
+		
+	}
 }
 
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
@@ -172,6 +194,8 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	
 	//Applying damage to Character Health
 	CurrentHealth -= DamageAmount;
+
+	SpawnDamageUI(DamageAmount);
 	
 	//Chance for Hit React to Play - Hit Reacts Interrupt other Montages like Attack Montage so we want to limit it.
 	float RandFloat = FMath::FRandRange(0.0f, 10.0f);

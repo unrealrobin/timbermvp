@@ -8,9 +8,9 @@
 
 void ADieRobotGameStateBase::ChangeTutorialGameState(ETutorialState NewState)
 {
-	TutorialState = NewState;
+	/*TutorialState = NewState;
 	
 	OnTutorialStateChange.Broadcast(NewState);
 
-	//UE_LOG(LogTemp, Warning, TEXT("Tutorial State Changed - New State: %hhd"), NewState);
+	UE_LOG(LogTemp, Warning, TEXT("Tutorial State Changed - New State: %hhd"), NewState);*/
 }

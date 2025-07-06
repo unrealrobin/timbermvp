@@ -44,11 +44,12 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTutorialStateChange, ETutorialState, NewState);
 	FOnTutorialStateChange OnTutorialStateChange;
 
-	UPROPERTY(VisibleAnywhere, Category = "State")
 	//Tutorial State when Starting Game With Tutorial
+	//UPROPERTY(VisibleAnywhere, Category = "State")
 	//ETutorialState TutorialState = ETutorialState::Wake1;
 
 	//Tutorial state when starting Game outside of Tutorial
+	UPROPERTY(VisibleAnywhere, Category = "State")
 	ETutorialState TutorialState = ETutorialState::TutorialComplete;
 
 	void ChangeTutorialGameState(ETutorialState NewState);

@@ -380,8 +380,36 @@ void ATimberEnemyCharacter::ScaleHealth()
 		 * Wave 2 = 3.5
 		 * Wave 3 = 7
 		 */
+
+		float AdjustmentValue;
+
+		if (WaveNum < 7)
+		{
+			AdjustmentValue = 3.5f;
+		}
+		else if (WaveNum < 12)
+		{
+			AdjustmentValue = 7.5f;
+		}
+		else if (WaveNum < 12)
+		{
+			AdjustmentValue = 9.5f;
+		}
+		else if (WaveNum < 18)
+		{
+			AdjustmentValue = 11.5f;
+		}
+		else if (WaveNum < 23)
+		{
+			AdjustmentValue = 13.5f;
+		}
+		else
+		{
+			AdjustmentValue = 15.5f;
+		}
 		
-		float ScaleValue = (WaveNum - 1) * 3.5 / 100;
+		
+		float ScaleValue = (WaveNum - 1) * AdjustmentValue / 100;
 		float ScaledHealth = BaseMaxHealth + (BaseMaxHealth * ScaleValue);
 
 		MaxHealth = ScaledHealth;

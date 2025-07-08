@@ -31,7 +31,7 @@ void AEnemyLootDropBase::BeginPlay()
 	Super::BeginPlay();
 
 	//Auto Destroy Loot that is not picked up within 60 seconds.
-	//If for any reason the loot is spawned outside of the map.
+	//If for any reason the loot is spawned outside the map.
 	FTimerHandle NoPickUpTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(NoPickUpTimerHandle,this, &AEnemyLootDropBase::NoPickupAutoDestroy, 360, 
 	false );

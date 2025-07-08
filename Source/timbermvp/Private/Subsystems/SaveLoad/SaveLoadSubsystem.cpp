@@ -448,8 +448,14 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			Cast<APlayerController>(TimberCharacter->GetController())->FlushPressedKeys();
 			TimberCharacter->GetCharacterMovement()->StopMovementImmediately();
 			
-			TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 			TimberCharacter->bIsPlayerDead = false;
+			
+			TimberCharacter->PlayerGainHealth(TimberCharacter->MaxHealth);
+			
+
+			if (TimberCharacter->VignetteComponent)
+			{}
+			
 			
 			//Reverting player Inventory to last save.
 			APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());

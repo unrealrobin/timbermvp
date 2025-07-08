@@ -42,24 +42,10 @@ void ALootHealthDrop::HandlePlayerOverlap(
 	
 	if (PlayerCharacter)
 	{
-		float MaxHealth = PlayerCharacter->MaxHealth;
-		float CurrentHealth = PlayerCharacter->CurrentHealth;
+		PlayerCharacter->PlayerGainHealth(HealthGainAmount);
 
-		// Avoid Pickup if at Max Health
-		if (MaxHealth == CurrentHealth) return;
-
-		//If the health gain amount is greater than the max health, set the player's health to max health - No Overcapping
-		if (CurrentHealth + HealthGainAmount > MaxHealth)
-		{
-			PlayerCharacter->CurrentHealth = MaxHealth;
-			HandleDestroy();
-		}
-		else
-		{
-			PlayerCharacter->CurrentHealth += HealthGainAmount;
-			HandleDestroy();
-		}
-			PlaySFX();
+		HandleDestroy();
+		PlaySFX();
 	}
 }
 

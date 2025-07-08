@@ -21,7 +21,7 @@ void UNavigationHelperComponent::BeginPlay()
 	OwningActor = GetOwner();
 	if (!OwningActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Owning character is not set or invalid!"));
+		//UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Owning character is not set or invalid!"));
 	}
 }
 
@@ -32,7 +32,7 @@ UNavigationPath* UNavigationHelperComponent::GetOriginalNavPath(FVector Start, F
 
 	if (!NavPath->IsValid() || NavPath->PathPoints.Num() == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Failed to find a valid navigation path!"));
+		//UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Failed to find a valid navigation path!"));
 		return nullptr;
 	}
 	NavPath->IsPartial() ? bIsLastPathPartial = true : bIsLastPathPartial = false;

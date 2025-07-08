@@ -7,19 +7,21 @@
 #include "PlayerVignetteComponent.generated.h"
 
 UENUM(BlueprintType)
-enum EDamageVignetteState
+enum class EDamageVignetteState: uint8
 {
 	FullHealth UMETA(DisplayName = "100%"),
 	LightDamage UMETA(DisplayName = "80%"),
 	HighDamage UMETA(DisplayName = "50%"),
 	Critical UMETA(DisplayName = "25%"),
-	Default UMETA(DisplayName = "Default"),
 };
 
 USTRUCT(BlueprintType)
 struct FDamageVignetteState
 {
 	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	EDamageVignetteState State = EDamageVignetteState::FullHealth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DamageIntensity = 0.0f;
@@ -28,16 +30,14 @@ struct FDamageVignetteState
 	float EdgeFalloff = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FLinearColor VignetteColor = FLinearColor::Black;
+	FLinearColor VignetteColor = FLinearColor::Red;
 
 	FDamageVignetteState() {}
 
-	FDamageVignetteState(float InIntensity, float InFalloff, FLinearColor InColor)
-		: DamageIntensity(InIntensity), EdgeFalloff(InFalloff), VignetteColor(InColor)
+	FDamageVignetteState(EDamageVignetteState S, float InIntensity, float InFalloff, FLinearColor InColor)
+		: State(S) , DamageIntensity(InIntensity), EdgeFalloff(InFalloff), VignetteColor(InColor)
 	{}
 };
-
-
 
 class UPostProcessComponent;
 
@@ -49,6 +49,8 @@ class TIMBERMVP_API UPlayerVignetteComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UPlayerVignetteComponent();
+
+	void BeginDestroy() override;
 
 	//Where the Vignette gets added and modified.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -64,33 +66,35 @@ public:
 
 	//Tracks the Current State of the Vignette.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Vignette")
-	EDamageVignetteState CurrentVignetteState = FullHealth;
+	EDamageVignetteState CurrentVignetteState = EDamageVignetteState::FullHealth;
+
+	UFUNCTION()
+	void HandleHealthChange(float HealthPercent);
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Vignette State")
-	FDamageVignetteState CurrentState = FDamageVignetteState(0.0f, 0.0f, FLinearColor::Red);
+	FDamageVignetteState CurrentState = FDamageVignetteState(EDamageVignetteState::FullHealth, 0.0f, 0.0f, FLinearColor::Red);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Vignette State")
-	FDamageVignetteState FullState = FDamageVignetteState(0.0f, 0.0f, FLinearColor::Red);
+	FDamageVignetteState FullState = FDamageVignetteState(EDamageVignetteState::FullHealth, 0.0f, 0.0f, FLinearColor::Red);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Vignette State")
-	FDamageVignetteState LightState = FDamageVignetteState(2.0f, 5.0f, FLinearColor::Red);
+	FDamageVignetteState LightState = FDamageVignetteState(EDamageVignetteState::LightDamage,2.0f, 5.0f, FLinearColor::Red);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Vignette State")
-	FDamageVignetteState HighState = FDamageVignetteState(4.0f, 4.0f, FLinearColor::Red);
+	FDamageVignetteState HighState = FDamageVignetteState(EDamageVignetteState::HighDamage,4.0f, 4.0f, FLinearColor::Red);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Vignette State")
-	FDamageVignetteState CriticalState = FDamageVignetteState(5.0f, 3.0f, FLinearColor::Red);
+	FDamageVignetteState CriticalState = FDamageVignetteState(EDamageVignetteState::Critical,5.0f, 3.0f, FLinearColor::Red);
 
+	//Gets the Damage Vignette Params at Any Point in Time.
 	FDamageVignetteState GetCurrentDamageVignetteState();
+	
 private:
 
-	UFUNCTION()
+	//Current Vignette Lerp Timer. Destroyed in BeginDestroyed()
+	FTimerHandle DamageVignetteTimerHandle;
+	
 	void InitializeVignetteDynamicMaterial();
-
-	UFUNCTION()
-	void HandleHealthChange(float HealthPercent);
-
+	
 	void LerpDamageVignetteState(FDamageVignetteState From, FDamageVignetteState To, float Time);
-	
-	
 };

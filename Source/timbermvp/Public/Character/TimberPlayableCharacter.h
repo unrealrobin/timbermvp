@@ -9,6 +9,7 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+class UPlayerVignetteComponent;
 class UCombatComponent;
 enum class ETutorialState : uint8;
 class ABuildableBase;
@@ -73,6 +74,8 @@ public:
 	UInventoryManagerComponent* InventoryManager;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat Component")
 	UCombatComponent* CombatComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Vignette Component")
+	UPlayerVignetteComponent* VignetteComponent;
 	
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
@@ -101,7 +104,6 @@ public:
 	FTimerHandle RotationTimerHandle;
 	//Handles that actual timing and set of the Rotation
 	void StartLerpRotation(const FRotator& TargetRotation, float DurationOfRotation);
-	
 	
 	/*Animation Properties*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
@@ -150,6 +152,8 @@ public:
 
 	/*Damage*/
 	void PlayerTakeDamage(float DamageAmount);
+	
+	void PlayerGainHealth(float HealthAmount);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
 	float DamageModifierValue = 1.f;

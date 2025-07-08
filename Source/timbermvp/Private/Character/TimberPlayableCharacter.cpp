@@ -12,6 +12,7 @@
 #include "Character/TimberAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Combat/CombatComponent.h"
+#include "Components/Vignette/PlayerVignetteComponent.h"
 #include "Containers/Ticker.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
@@ -31,6 +32,7 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 	BuildSystemManager = CreateDefaultSubobject<UBuildSystemManagerComponent>("BuildSystemManager");
 	InventoryManager = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
+	VignetteComponent = CreateDefaultSubobject<UPlayerVignetteComponent>("VignetteComponent");
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("DR_PlayerCharacterCapsule"));
 	GetMesh()->SetCollisionProfileName(TEXT("DR_AestheticMeshOnly"));
@@ -280,6 +282,13 @@ void ATimberPlayableCharacter::ResetDeleteIcon()
 void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 {
 	CurrentHealth -= DamageAmount;
+
+	if (VignetteComponent)
+	{
+		VignetteComponent->HandleHealthChange(CurrentHealth/MaxHealth);
+	}
+
+	
 	if (CurrentHealth <= 0.f)
 	{
 		bIsPlayerDead = true;
@@ -289,6 +298,28 @@ void ATimberPlayableCharacter::PlayerTakeDamage(float DamageAmount)
 	{
 		AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f );
 	}
+}
+
+void ATimberPlayableCharacter::PlayerGainHealth(float HealthAmount)
+{
+	if (bIsPlayerDead) return;
+	if (MaxHealth == CurrentHealth) return;
+
+	if (CurrentHealth + HealthAmount > MaxHealth)
+	{
+		CurrentHealth = MaxHealth;
+	}
+	else
+	{
+		CurrentHealth += HealthAmount;
+	}
+
+	if (VignetteComponent)
+	{
+		VignetteComponent->HandleHealthChange(CurrentHealth/MaxHealth);
+		UE_LOG(LogTemp, Warning, TEXT("Player Gain Health: %f"), CurrentHealth);
+	}
+	
 }
 
 /*Weapon Stuff*/

@@ -14,15 +14,20 @@ struct FStatusEffect
 
 	// --- Required: Identity & Behavior ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
-	FGameplayTag EffectIdTag; // e.g., Status.Wet, Status.Corrosive
+	FGameplayTag EffectIdTag;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
+	FGameplayTagContainer ModifierTagContainer;
+
+	//TODO:: To be Removed.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
 	FGameplayTagContainer MetaTagContainer;
 
+	//TODO:: To be Removed.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
 	FGameplayTagContainer TypeTagContainer;
 
-	//Duration of the effect before removal.
+	//Duration of the effect before Automatic removal.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration = 5.f; // How long the status lasts
 
@@ -43,14 +48,11 @@ struct FStatusEffect
 	int CurrentStacks = 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int MaxStacks = 5;
+	int MaxStacks = 100;
 	
-	// --- Runtime-Only ---
 
-	// Time Remaining before removal.
+	/* Used for Runtime Effect Tracking - Not to Be Modified*/
 	float TimeRemaining = 0.f;
-
-	//Time tracker between ticks
 	float TickAccumulator = 0.f;
 };
 

@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "TrapBase.generated.h"
 
+class UStatusEffectDefinition;
+class UStatusConditionManager;
 class UStatusEffectBase;
 class ATimberEnemyCharacter;
 class ATimberBuildingComponentBase;
@@ -27,10 +29,19 @@ class TIMBERMVP_API ATrapBase : public ABuildableBase
 
 public:
 	ATrapBase();
+	
 	void ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef);
 
+	/* v1 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	UStatusEffectBase* StatusEffectDataAsset;
+
+	/* v2 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status Effects")
+	UStatusConditionManager* EffectConditionManager;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status Effects")
+	TArray<UStatusEffectDefinition*> StatusEffectDefinitions;
 
 protected:
 	virtual void BeginPlay() override;

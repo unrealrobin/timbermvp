@@ -7,6 +7,89 @@
 #include "Engine/DataAsset.h"
 #include "StatusEffectBase.generated.h"
 
+
+
+UENUM(BlueprintType)
+enum class EStatusEffectLevel : uint8
+{
+	Minor UMETA(DisplayName = "Level 1"),
+	Major UMETA(DisplayName = "Level 2"),
+	Critical UMETA(DisplayName = "Level 3"),
+	Default UMETA(DisplayName = "Default")
+};
+
+USTRUCT(BlueprintType)
+struct FStatusEffectFontSize
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Level")
+	EStatusEffectLevel EffectLevel = EStatusEffectLevel::Default;
+
+	int32 GetStatusEffectFontSize() const
+	{
+		switch (EffectLevel)
+		{
+			case EStatusEffectLevel::Minor:
+				return 12;
+			case EStatusEffectLevel::Major:
+				return 14;
+			case EStatusEffectLevel::Critical:
+				return 16;
+			default:
+				return 12;
+		}
+	}
+};
+
+UENUM(BlueprintType)
+enum class EStatusEffectColorType : uint8
+{
+	Fire UMETA(DisplayName = "Fire"),
+	Frost UMETA(DisplayName = "Frost"), 
+	Corrosion UMETA(DisplayName = "Corrosion"),
+	Arc UMETA(DisplayName = "Arc"),
+	Physical UMETA(DisplayName = "Physical"),
+	Default UMETA(DisplayName = "Default")
+};
+
+USTRUCT(BlueprintType)
+struct FStatusEffectColors
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Effect Color Type")
+	EStatusEffectColorType EffectColorType = EStatusEffectColorType::Default;
+
+	/* Default Colors for Each Element Type */
+	FLinearColor FireColor = FColor::FromHex(TEXT("FF7800")).ReinterpretAsLinear();     
+	FLinearColor FrostColor = FColor::FromHex(TEXT("00DAFF")).ReinterpretAsLinear();      
+	FLinearColor Arc = FColor::FromHex(TEXT("F6FF02")).ReinterpretAsLinear();       
+	FLinearColor Corrosion = FColor::FromHex(TEXT("00FF1C")).ReinterpretAsLinear();   
+	FLinearColor Physical = FColor::FromHex(TEXT("B8BBB8")).ReinterpretAsLinear();
+	
+	FLinearColor GetColorFromType(EStatusEffectColorType ColorType) const
+	{
+		switch (ColorType)
+		{
+			case EStatusEffectColorType::Fire:
+				return FireColor;
+			case EStatusEffectColorType::Frost:
+				return FrostColor;
+			case EStatusEffectColorType::Corrosion:
+				return Corrosion;
+			case EStatusEffectColorType::Arc:
+				return Arc;
+			case EStatusEffectColorType::Physical:
+				return Physical;
+			default:
+				return FLinearColor::White;
+		}
+	}
+
+};
+
+
 USTRUCT(BlueprintType)
 struct FStatusEffect
 {
@@ -49,8 +132,34 @@ struct FStatusEffect
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxStacks = 100;
-	
 
+	/* Color
+	 *
+	 * We Choose A Type in Editor for Each Status effect, depending on the Effects Element Type
+	 * The Color can then be accessed through GetEffectColor()
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Colors")
+	EStatusEffectColorType EffectColorType = EStatusEffectColorType::Default;
+	
+	FLinearColor GetEffectColor() const
+	{
+		static const FStatusEffectColors StatusEffectColors;
+		return StatusEffectColors.GetColorFromType(EffectColorType);
+	}
+
+	/* Size
+	 * This is defined similarly to the Color.
+	 * A Status Effect Type will define the Size of the Text displayed on Screen.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Size")
+	EStatusEffectLevel EffectLevel = EStatusEffectLevel::Default;
+	
+	int32 GetEffectTextSize() const
+	{
+		static const FStatusEffectFontSize StatusEffectFontSize;
+		return StatusEffectFontSize.GetStatusEffectFontSize();
+	}
+	
 	/* Used for Runtime Effect Tracking - Not to Be Modified*/
 	float TimeRemaining = 0.f;
 	float TickAccumulator = 0.f;

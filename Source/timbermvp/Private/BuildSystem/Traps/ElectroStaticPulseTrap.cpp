@@ -6,6 +6,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/StatusEffect/StatusConditionManager.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 
@@ -78,14 +79,9 @@ void AElectroStaticPulseTrap::CreatePulseHitSphere()
 void AElectroStaticPulseTrap::HandlePulseSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
-
-	//UE_LOG(LogTemp, Warning, TEXT("HandlePulseSphereOverlap - %ls"), *OtherActor->GetName());
-
-	//Apply Initial Damage to Enemy.
-	if (Enemy)
+	if (OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
 	{
-		AddEffectToEnemy(Enemy, StatusEffectDataAsset->StatusEffect);
+		EffectConditionManager->ResolveEffect(StatusEffectDefinitions, OtherActor);
 	}
 }
 

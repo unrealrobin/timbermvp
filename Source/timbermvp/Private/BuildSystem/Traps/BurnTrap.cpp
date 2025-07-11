@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/StatusEffect/StatusConditionManager.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 
@@ -38,14 +39,10 @@ void ABurnTrap::BeginPlay()
 
 void ABurnTrap::HandleTrapBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (BurnTrapInternalsNiagara && Cast<ATimberEnemyCharacter>(OtherActor))
+	if (BurnTrapInternalsNiagara && EffectConditionManager && Cast<ATimberEnemyCharacter>(OtherActor))
 	{
 		BurnTrapInternalsNiagara->ActivateSystem();
-	}
-	
-	if (StatusEffectDataAsset)
-	{
-		AddEffectToEnemy(OtherActor, StatusEffectDataAsset->StatusEffect);
+		EffectConditionManager->ResolveEffect(StatusEffectDefinitions, OtherActor);
 	}
 }
 

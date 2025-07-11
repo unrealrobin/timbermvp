@@ -6,6 +6,7 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Types/Combat/DamagePayload.h"
 
 
 UChargedSwing::UChargedSwing()
@@ -100,7 +101,10 @@ void UChargedSwing::HandleCollisionSphereBeginOverlap(UPrimitiveComponent* Overl
 	{
 		//TODO:: Add Potential Stun Here with Timer. Make use of Status Effects?
 		ActorsToIgnore.Add(EnemyCharacter);
-		EnemyCharacter->TakeDamage(PerEnemyHitDamage, AbilityContext.Instigator);
+
+		FDamagePayload Payload;
+		Payload.DamageAmount = PerEnemyHitDamage;
+		EnemyCharacter->TakeDamage(Payload);
 	}
 }
 

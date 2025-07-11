@@ -3,6 +3,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Interfaces/DamageableEnemy.h"
+#include "Types/Combat/DamagePayload.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
 class IDamageableEnemy;
@@ -52,7 +53,10 @@ void ATimberPlayerProjectile::HandleBlocked(
 		if (PlayerProjectileOwner)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Owning Weapon is Valid."));
-			HitEnemy->TakeDamage(CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner())), PlayerProjectileOwner);
+			//HitEnemy->TakeDamage(CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner())), PlayerProjectileOwner, TODO);
+			FDamagePayload Payload;
+			Payload.DamageAmount = CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner()));
+			HitEnemy->TakeDamage(Payload);
 		}
 		else
 		{

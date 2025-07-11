@@ -29,7 +29,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	USceneComponent* LootDropLocation;
 
-	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+	virtual void TakeDamage(FDamagePayload DamagePayload) override;
 
 	UFUNCTION()
 	void HandleDeath(AActor* DeadActor);

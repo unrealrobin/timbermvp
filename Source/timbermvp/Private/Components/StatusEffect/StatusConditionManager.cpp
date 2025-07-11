@@ -3,6 +3,7 @@
 
 #include "Components/StatusEffect/StatusConditionManager.h"
 
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectDefinition.h"
 #include "Types/EffectConditionTypes.h"
 
@@ -61,7 +62,10 @@ void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> Eff
 
 		if (bConditionMet)
 		{
-			Context.TargetStatusEffectHandlerComponent->AddStatusEffectToComponent(EffectDefinition->StatusEffect->StatusEffect);
+			if (ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(Context.TargetActor))
+			{
+				Enemy->StatusEffectHandler->AddStatusEffectToComponent(EffectDefinition->StatusEffectAsset->StatusEffect, Context.SourceActor);
+			}
 		}
 	}
 

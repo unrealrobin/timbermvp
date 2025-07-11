@@ -23,6 +23,7 @@
 #include "Loot/EnemyLootDropBase.h"
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "Types/Combat/DamagePayload.h"
 #include "UI/FloatingDamageNumbers/FloatingDamageContainer.h"
 #include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
@@ -91,7 +92,7 @@ void ATimberEnemyCharacter::SelfDestruct()
 	UE_LOG(LogTemp, Warning, TEXT("Actor Self Destructed."));
 }
 
-void ATimberEnemyCharacter::SpawnDamageUI(float DamageAmount)
+void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 {
 	if (FloatingDamageContainerClass)
 	{
@@ -103,7 +104,9 @@ void ATimberEnemyCharacter::SpawnDamageUI(float DamageAmount)
 
 		if (AFloatingDamageContainer* FloatingDamage = Cast<AFloatingDamageContainer>(FloatingDamageActor))
 		{
-			FloatingDamage->SetDamageAmount(DamageAmount);
+			FloatingDamage->SetDamageAmount(DamagePayload.DamageAmount);
+			FloatingDamage->SetDamageColor(DamagePayload.StatusEffect.GetEffectColor());
+			FloatingDamage->SetDamageSize(DamagePayload.StatusEffect.GetEffectTextSize());
 		}
 		
 	}
@@ -185,17 +188,24 @@ void ATimberEnemyCharacter::HandleOnLanded(const FHitResult& Hit)
 	}
 }
 
-void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstigator)
+void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 {
-	if (DamageInstigator)
+	if (DamagePayload.DamageInstigator)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyCharacter - TakeDamage() - %s took %f damage from %s."), *GetName(), DamageAmount, *DamageInstigator->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("EnemyCharacter - TakeDamage() - %s took %f damage from %s."), *GetName(), DamagePayload.DamageAmount, *DamagePayload.DamageInstigator->GetName());
 	}
 	
 	//Applying damage to Character Health
-	CurrentHealth -= DamageAmount;
+	CurrentHealth -= DamagePayload.DamageAmount;
 
-	SpawnDamageUI(DamageAmount);
+
+	//TODO:: I want that the Damage Number reflects what gave damage to the character.
+	// Player : Orange Damage - Standard Size
+	// Effect : Lvl1 - Effect Color -  Lvl1 Size
+	// Effect : Lvl2 - Effect Color -  Lvl2 Size
+	// Effect : Lvl3 - Effect Color -  Lvl3 Size
+	
+	SpawnDamageUI(DamagePayload);
 	
 	//Chance for Hit React to Play - Hit Reacts Interrupt other Montages like Attack Montage so we want to limit it.
 	float RandFloat = FMath::FRandRange(0.0f, 10.0f);
@@ -208,7 +218,7 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 	AddOverlayMaterialToCharacter(HitMarkerOverlayMaterial, 0.3f);
 	
 	//Adding new damage to the accumulated damage window
-	DamageAccumulatedDuringWindow += DamageAmount;
+	DamageAccumulatedDuringWindow += DamagePayload.DamageAmount;
 	
 	//Starting Damage Accumulation Window / Used for Aggro Conditions
 	StartDamageTimerWindow();
@@ -239,10 +249,10 @@ void ATimberEnemyCharacter::TakeDamage(float DamageAmount, AActor* DamageInstiga
 		//Drops Any Loot set on the Characters Loot Drop
 		OnDeath_DropLoot();
 	}
-	else if (DamageInstigator)
+	else if (DamagePayload.DamageInstigator)
 	{
 		//TODO:: Potential Removed from Game. - Delete Later is Unused still.
-		bHasBeenAggroByPlayer = HandleAggroCheck(DamageInstigator, DamageAmount, DamageAccumulatedDuringWindow);
+		bHasBeenAggroByPlayer = HandleAggroCheck(DamagePayload.DamageInstigator, DamagePayload.DamageAmount, DamageAccumulatedDuringWindow);
 		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
 }

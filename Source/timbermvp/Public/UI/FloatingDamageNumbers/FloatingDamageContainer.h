@@ -28,7 +28,9 @@ public:
 
 	float ElapsedTime = 0.0f;
 	
-	void SetDamageAmount(float DamageAmount);
+	void SetDamageAmount(float InDamageAmount);
+	void SetDamageColor(FLinearColor InDamageColor);
+	void SetDamageSize(float InDamageSize);
 	
 protected:
 	void HandleDestroy();

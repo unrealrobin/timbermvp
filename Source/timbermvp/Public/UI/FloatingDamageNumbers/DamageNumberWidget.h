@@ -21,4 +21,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
 	float DamageNumber = 0.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
+	float DamageSize = 0.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
+	FLinearColor DamageColor = FLinearColor::White;
 };

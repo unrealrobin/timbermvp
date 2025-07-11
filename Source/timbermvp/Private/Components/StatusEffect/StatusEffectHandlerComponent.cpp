@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Types/Combat/DamagePayload.h"
 #include "UI/StatusEffects/StatusEffectBar.h"
 
 UStatusEffectHandlerComponent::UStatusEffectHandlerComponent()
@@ -37,7 +38,12 @@ void UStatusEffectHandlerComponent::HandleDotEffects(FStatusEffect& StatusEffect
 			{
 				//Stacks multiply the Damage per Tick.
 				float TotalDamage = StatusEffect.DamagePerTick * StatusEffect.CurrentStacks;
-				OwningEnemyCharacter->TakeDamage(TotalDamage, nullptr);
+
+				FDamagePayload Payload;
+				Payload.DamageAmount = TotalDamage;
+				Payload.StatusEffect = StatusEffect;
+				OwningEnemyCharacter->TakeDamage(Payload);
+				
 				//UE_LOG(LogTemp, Warning, TEXT ("Applied Total Damage Dot: %f"), TotalDamage);
 				//Resetting the Tick Accumulator
 				StatusEffect.TickAccumulator = 0;
@@ -82,7 +88,11 @@ void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Eff
 {
 	if (Effect.InitialDamage > 0.f)
 	{
-		OwningEnemyCharacter->TakeDamage(Effect.InitialDamage, nullptr);
+		FDamagePayload Payload;
+		//Superfluous
+		Payload.DamageAmount = Effect.InitialDamage;
+		Payload.StatusEffect = Effect;
+		OwningEnemyCharacter->TakeDamage(Payload);
 	}
 }
 
@@ -200,7 +210,7 @@ void UStatusEffectHandlerComponent::RemoveEffectFromStatusEffectBar(FGameplayTag
 	}
 }
 
-void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Effect)
+void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Effect, AActor* EffectInstigator)
 {
 	//Does this unique id already exist in the container?
 	bool bTagExists = CheckIfTagAlreadyExists(Effect.EffectIdTag);
@@ -211,7 +221,7 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 		
 		ActiveStatusEffects.Add(Effect);
 
-		//Initializing TimeRemaining to Start at Effect Duration
+		//Initializing TimeRemaining to Start at Effect Duration - We subtract from Time Remaining Every Tick.
 		Effect.TimeRemaining = Effect.Duration;
 		
 		/*Handle Any Initial Damage*/
@@ -241,7 +251,6 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 
 bool UStatusEffectHandlerComponent::CheckIfTagAlreadyExists(FGameplayTag TagToCheck)
 {
-	//It is a unique tag and should be exact.
 	 return StatusEffectIdTagContainer.HasTagExact(TagToCheck);
 }
 

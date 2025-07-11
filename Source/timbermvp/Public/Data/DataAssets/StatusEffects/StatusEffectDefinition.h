@@ -19,7 +19,7 @@ class TIMBERMVP_API UStatusEffectDefinition : public UDataAsset
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status Effect")
-	UStatusEffectBase* StatusEffect;
+	UStatusEffectBase* StatusEffectAsset;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status Effect")
 	UEffectConditionBase* StatusEffectCondition;

@@ -29,7 +29,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Tags")
 	FGameplayTagContainer StatusEffectIdTagContainer;
 
-	void AddStatusEffectToComponent(FStatusEffect& Effect);
+	void AddStatusEffectToComponent(FStatusEffect& Effect, AActor* EffectInstigator);
 
 protected:
 	// Called when the game starts

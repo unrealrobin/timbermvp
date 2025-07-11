@@ -38,7 +38,7 @@ public:
 	UFUNCTION()
 	void HandleSpikeOutAttack();
 	
-	void AppleStatusEffectToEnemy();
+	void ApplyStatusEffectToEnemy();
 
 	/*Timeline Animation*/
 	void SetupTimelineComponents();

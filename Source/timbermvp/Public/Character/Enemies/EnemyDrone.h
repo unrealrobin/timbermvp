@@ -71,7 +71,7 @@ protected:
 	float CurrentDistanceAlongSplinePath = 0.0f; // Distance along the spline path
 
 	UFUNCTION()
-	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+	virtual void TakeDamage(FDamagePayload DamagePayload) override;
 
 	UFUNCTION()
 	void DestroyAfterDelay();

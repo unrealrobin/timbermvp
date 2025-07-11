@@ -79,11 +79,11 @@ void ABuildableBase::SetGUID(FGuid NewGUID)
 	BuildSystemGUID = NewGUID;
 }
 
-void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
+/*void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
 {
 	/*
 	 * Used for Traps and Constructs that add effects to enemies.
-	 */
+	 #1#
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(EnemyActor);
 	if (EnemyCharacter && !EnemyCharacter->IsPendingKillPending() && EnemyCharacter->StatusEffectHandler)
 	{
@@ -91,7 +91,7 @@ void ABuildableBase::AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect)
 		EnemyCharacter->StatusEffectHandler->AddStatusEffectToComponent(Effect);
 		//UE_LOG(LogTemp, Warning, TEXT("Added %s to Enemy: %s"), *Effect.EffectIdTag.ToString(), *EnemyCharacter->GetName());
 	}
-}
+}*/
 
 void ABuildableBase::GetAllStaticMeshComponents()
 {

@@ -20,14 +20,40 @@ AFloatingDamageContainer::AFloatingDamageContainer()
 	
 }
 
-void AFloatingDamageContainer::SetDamageAmount(float DamageAmount)
+void AFloatingDamageContainer::SetDamageAmount(float InDamageAmount)
 {
 	if (DamageNumberWidgetComponent)
 	{
 		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
 		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
 		{
-			DamageNumberWidgetCast->DamageNumber = DamageAmount;
+			DamageNumberWidgetCast->DamageNumber = InDamageAmount;
+		}
+		
+	}
+}
+
+void AFloatingDamageContainer::SetDamageColor(FLinearColor InDamageColor)
+{
+	if (DamageNumberWidgetComponent)
+	{
+		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
+		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		{
+			DamageNumberWidgetCast->DamageColor = InDamageColor;
+		}
+		
+	}
+}
+
+void AFloatingDamageContainer::SetDamageSize(float InDamageSize)
+{
+	if (DamageNumberWidgetComponent)
+	{
+		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
+		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		{
+			DamageNumberWidgetCast->DamageSize = InDamageSize;
 		}
 		
 	}

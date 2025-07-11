@@ -13,6 +13,7 @@
 #include "Environment/EnemyDroneSplinePath.h"
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Types/Combat/DamagePayload.h"
 #include "Weapons/Projectiles/DroneProjectile.h"
 
 
@@ -223,9 +224,10 @@ void AEnemyDrone::GetClosestLabDoorExitLocation()
 	}
 }
 
-void AEnemyDrone::TakeDamage(float DamageAmount, AActor* DamageInstigator)
+void AEnemyDrone::TakeDamage(FDamagePayload DamagePayload)
 {
-	Super::TakeDamage(DamageAmount, DamageInstigator);
+	FDamagePayload Payload;
+	Super::TakeDamage(Payload);
 
 	if (CurrentHealth <= 0)
 	{

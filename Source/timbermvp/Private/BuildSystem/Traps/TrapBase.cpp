@@ -9,6 +9,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/StatusEffect/StatusConditionManager.h"
+#include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 
 
 ATrapBase::ATrapBase()

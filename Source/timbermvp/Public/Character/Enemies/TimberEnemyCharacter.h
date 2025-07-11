@@ -53,7 +53,8 @@ public:
 	void HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+	
+	virtual void TakeDamage(FDamagePayload DamagePayload) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Damage)
 	UStatusEffectHandlerComponent* StatusEffectHandler;
@@ -141,7 +142,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<AFloatingDamageContainer> FloatingDamageContainerClass;
 	
-	void SpawnDamageUI(float DamageAmount);
+	void SpawnDamageUI(FDamagePayload DamagePayload);
 	
 	virtual void Tick(float DeltaSeconds) override;
 	

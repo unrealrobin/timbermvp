@@ -133,7 +133,7 @@ public:
 	UFUNCTION()
 	void SetGUID(FGuid NewGUID);
 
-	void AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect);
+	/*void AddEffectToEnemy(AActor* EnemyActor, FStatusEffect& Effect);*/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Buildable Data")
 	TArray<UStaticMeshComponent*> StaticMeshComponents;

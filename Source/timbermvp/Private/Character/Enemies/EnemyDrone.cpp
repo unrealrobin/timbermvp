@@ -224,10 +224,9 @@ void AEnemyDrone::GetClosestLabDoorExitLocation()
 	}
 }
 
-void AEnemyDrone::TakeDamage(FDamagePayload DamagePayload)
+void AEnemyDrone::TakeDamage(const FDamagePayload DamagePayload)
 {
-	FDamagePayload Payload;
-	Super::TakeDamage(Payload);
+	Super::TakeDamage(DamagePayload);
 
 	if (CurrentHealth <= 0)
 	{

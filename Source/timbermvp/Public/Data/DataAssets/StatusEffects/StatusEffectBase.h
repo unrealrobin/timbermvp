@@ -26,16 +26,16 @@ struct FStatusEffectFontSize
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Level")
 	EStatusEffectLevel EffectLevel = EStatusEffectLevel::Default;
 
-	int32 GetStatusEffectFontSize() const
+	int32 GetStatusEffectFontSize(const EStatusEffectLevel InEffectLevel) const
 	{
-		switch (EffectLevel)
+		switch (InEffectLevel)
 		{
 			case EStatusEffectLevel::Minor:
-				return 12;
+				return 24;
 			case EStatusEffectLevel::Major:
-				return 14;
+				return 36;
 			case EStatusEffectLevel::Critical:
-				return 16;
+				return 54;
 			default:
 				return 12;
 		}
@@ -157,7 +157,7 @@ struct FStatusEffect
 	int32 GetEffectTextSize() const
 	{
 		static const FStatusEffectFontSize StatusEffectFontSize;
-		return StatusEffectFontSize.GetStatusEffectFontSize();
+		return StatusEffectFontSize.GetStatusEffectFontSize(EffectLevel);
 	}
 	
 	/* Used for Runtime Effect Tracking - Not to Be Modified*/

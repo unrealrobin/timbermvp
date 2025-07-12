@@ -29,9 +29,9 @@ void UStatusEffectHandlerComponent::BeginPlay()
 void UStatusEffectHandlerComponent::HandleDotEffects(FStatusEffect& StatusEffect, float DeltaTime)
 {
 	//Handle Any DOT Tags
-	for (FGameplayTag Tag : StatusEffect.TypeTagContainer)
+	for (FGameplayTag Tag : StatusEffect.ModifierTagContainer)
 	{
-		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Type.DOT"))
+		if (Tag == FGameplayTag::RequestGameplayTag("SynergySystem.Modifier.Debuff.HasDOT"))
 		{
 			StatusEffect.TickAccumulator += DeltaTime;
 			if (StatusEffect.TickAccumulator >= StatusEffect.TickInterval)
@@ -42,6 +42,7 @@ void UStatusEffectHandlerComponent::HandleDotEffects(FStatusEffect& StatusEffect
 				FDamagePayload Payload;
 				Payload.DamageAmount = TotalDamage;
 				Payload.StatusEffect = StatusEffect;
+				
 				OwningEnemyCharacter->TakeDamage(Payload);
 				
 				//UE_LOG(LogTemp, Warning, TEXT ("Applied Total Damage Dot: %f"), TotalDamage);
@@ -68,7 +69,7 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 			//Applying any DOT Effects if Valid
 			HandleDotEffects(StatusEffect, DeltaTime);
 
-			HandleMetaPerpetualRemovals(StatusEffect);
+			//HandleMetaPerpetualRemovals(StatusEffect);
 		}
 		else
 		{
@@ -96,7 +97,7 @@ void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Eff
 	}
 }
 
-void UStatusEffectHandlerComponent::HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect)
+/*void UStatusEffectHandlerComponent::HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect)
 {
 	//Looping through Type Tags Array of any Active Status Effects to Check if there is a Meta Tag
 	for (FGameplayTag Tag : StatusEffect.MetaTagContainer) //Ex. Status Effect = Burn Effect 
@@ -121,10 +122,10 @@ void UStatusEffectHandlerComponent::HandleMetaPerpetualRemovals(FStatusEffect& S
 void UStatusEffectHandlerComponent::HandleMetaInitialRemovals(FStatusEffect& StatusEffect)
 {
 	//Looping through Type Tags Array of any Active Status Effects to Check if there is a Meta Tag
-	for (FGameplayTag Tag : StatusEffect.MetaTagContainer) //Ex. Status Effect = Burn Effect 
+	for (FGameplayTag Tag : StatusEffect.ModifierTagContainer) //Ex. Status Effect = Burn Effect 
 	{
 		//Does the Burn status effect have a Meta Tag that removes Slow?
-		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Meta.Initial.Removes.Slow")) // Burn effect has this Tag in the Meta Tag Container
+		if (Tag == FGameplayTag::RequestGameplayTag("SynergySystem.Modifier.Removal")) 
 		{
 			
 			//Check all existing Status Effects to see if there is a Slow Effect that needs to be removed.
@@ -138,7 +139,7 @@ void UStatusEffectHandlerComponent::HandleMetaInitialRemovals(FStatusEffect& Sta
 			}
 		}
 	}
-}
+}*/
 
 void UStatusEffectHandlerComponent::HandleIsStackableEffect(FStatusEffect* Effect)
 {
@@ -158,10 +159,16 @@ void UStatusEffectHandlerComponent::HandleIsStackableEffect(FStatusEffect* Effec
 
 void UStatusEffectHandlerComponent::HandleSlowTags(const FStatusEffect& Effect, float MaxWalkSpeedBaseMultiplier)
 {
-	/*Handle Slow Tags*/
-	for (FGameplayTag Tag : Effect.TypeTagContainer)
+	/*
+	 * When adding a Slow tag, this modifies the Speed to .5x
+	 * When removing it reverts back to 1.0x
+	 *
+	 * Potential issue here if more than 1 effect can apply a slow, or if there are stacks, this totally removes any slow effects.
+	 * Potential Solution is we have Slow States, and they evaluate every tick. Expensive.
+	 */
+	for (FGameplayTag Tag : Effect.ModifierTagContainer)
 	{
-		if (Tag == FGameplayTag::RequestGameplayTag("BuildableEffects.Type.Slow"))
+		if (Tag == FGameplayTag::RequestGameplayTag("SynergySystem.Modifier.Debuff.IsSlowed"))
 		{
 			OwningEnemyCharacter->GetCharacterMovement()->MaxWalkSpeed = OwningEnemyCharacter->MaxWalkSpeedBase *  MaxWalkSpeedBaseMultiplier; 
 			//UE_LOG(LogTemp, Warning, TEXT("Slowed Enemy: %s"), *OwningEnemyCharacter->GetName());
@@ -228,7 +235,7 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 		HandleEffectInitialDamage(Effect);
 
 		/*Handle Any Initial Removals*/
-		HandleMetaInitialRemovals(Effect);
+		//HandleMetaInitialRemovals(Effect);
 
 		//Handle Any Slow Tags on the Status Effect. (There can be multiple Tags on this Effect.)
 		HandleSlowTags(Effect, 0.5f); //50% slower

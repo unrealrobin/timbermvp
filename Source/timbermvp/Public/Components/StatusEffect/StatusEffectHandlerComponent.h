@@ -35,9 +35,10 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	void HandleDotEffects(FStatusEffect& StatusEffect, float DeltaTime);
-	
-	void HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect);
-	void HandleMetaInitialRemovals(FStatusEffect& StatusEffect);
+
+	//TODO:: Handle Removal Modifiers Laters.
+	/*void HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect);
+	void HandleMetaInitialRemovals(FStatusEffect& StatusEffect);*/
 
 	/*
 	 * Checks if the Tag (EffectIdTag) already exists in the StatusEffectIdTagContainer.

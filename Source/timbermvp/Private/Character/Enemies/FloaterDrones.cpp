@@ -42,7 +42,6 @@ void AFloaterDrones::TakeDamage(FDamagePayload DamagePayload)
 {
 	if (DroneState == EDroneState::Damageable)
 	{
-		//Take Damage
 		CurrentHealth = CurrentHealth - DamagePayload.DamageAmount;
 		if (CurrentHealth <= 0)
 		{

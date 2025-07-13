@@ -311,17 +311,26 @@ void UStatusEffectHandlerComponent::ResetEffectDuration(FStatusEffect& Effect)
 
 void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Duration)
 {
-	StatusEffectIdTagContainer.AddTag(Tag);
-	UE_LOG(LogTemp, Warning, TEXT("Status Effect Handler Component - Added Emergent Tag: %s"), *Tag.ToString());
-	
-	//TODO:: Have a visual representation of Emergent Tag.
-	// Similar to floating damage numbers.
 
-	if (OwningEnemyCharacter)
+	StatusEffectIdTagContainer.AddTag(Tag);
+
+	/*
+	 * We still do not Add an Emergent Status Effect to the Array of Status Effects. The Actual effects
+	 * dont do anything, they simply store information about the type of effect. Used for UI Information.
+	 */
+	
+	//LoadStatusEffect from Tag.
+	USynergySystem* SynergySub = GetWorld()->GetGameInstance()->GetSubsystem<USynergySystem>();
+	if (SynergySub)
 	{
-		//TODO:: Update this to Match the Emergent Tags Color Identity.
-		FName TagName = GetLastNameOfTag(Tag);
-		OwningEnemyCharacter->SpawnEffectNameUI(TagName);
+		UStatusEffectBase* EmergentStatusEffect = SynergySub->EmergentEffectsMap[Tag];
+
+		if (OwningEnemyCharacter)
+		{
+			// SynergySystem.EmergentEffect.Wet -> Wet
+			FName TagName = GetLastNameOfTag(Tag);
+			OwningEnemyCharacter->SpawnEffectNameUI(TagName, EmergentStatusEffect);
+		}
 	}
 
 	FTimerHandle EmergentTimerHandle;

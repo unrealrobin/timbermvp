@@ -7,6 +7,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SynergySystem.generated.h"
 
+struct FStatusEffect;
+class UStatusEffectBase;
 class UStatusEffectHandlerComponent;
 
 USTRUCT(BlueprintType)
@@ -40,9 +42,12 @@ class TIMBERMVP_API USynergySystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Synergy Subsystem")
+	//Rules needed to Generate Emergent Tags.
 	TMap<FGameplayTag, TArray<FSynergyRules>> SynergyRules;
 
+	UPROPERTY()
+	TMap<FGameplayTag, UStatusEffectBase*> EmergentEffectsMap;
+	
 	UFUNCTION()
 	void ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandlerComponent* StatusEffectComponent);
 
@@ -50,5 +55,7 @@ private:
 	void CreateSynergyRule(FName Tag1, FName Tag2, FName EmergentTag);
 
 	void SetupEmergentEffectRules();
+
+	TMap<FGameplayTag, UStatusEffectBase*> LoadEmergentEffects();
 	
 };

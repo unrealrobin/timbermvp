@@ -12,9 +12,10 @@
 UENUM(BlueprintType)
 enum class EStatusEffectLevel : uint8
 {
-	Minor UMETA(DisplayName = "Level 1"),
-	Major UMETA(DisplayName = "Level 2"),
-	Critical UMETA(DisplayName = "Level 3"),
+	Minor UMETA(DisplayName = "Minor"),
+	Major UMETA(DisplayName = "Major"),
+	Critical UMETA(DisplayName = "Critical"),
+	Emergent UMETA(DisplayName = "Emergent"),
 	Default UMETA(DisplayName = "Default")
 };
 
@@ -33,6 +34,8 @@ struct FStatusEffectFontSize
 			case EStatusEffectLevel::Minor:
 				return 24;
 			case EStatusEffectLevel::Major:
+				return 36;
+			case EStatusEffectLevel::Emergent:
 				return 36;
 			case EStatusEffectLevel::Critical:
 				return 54;

@@ -112,7 +112,7 @@ void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 	}
 }
 
-void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName)
+void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName, UStatusEffectBase* StatusEffect)
 {
 	if (FloatingDamageContainerClass)
 	{
@@ -126,8 +126,8 @@ void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName)
 		{
 			FloatingDamage->SetIsDamage(false);
 			FloatingDamage->SetEffectText(EffectName);
-			FloatingDamage->SetColor(FLinearColor::White);	
-			FloatingDamage->SetSize(24.0f);
+			FloatingDamage->SetColor(StatusEffect->StatusEffect.GetEffectColor());	
+			FloatingDamage->SetSize(StatusEffect->StatusEffect.GetEffectTextSize());
 		}
 		
 	}

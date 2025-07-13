@@ -3,13 +3,15 @@
 
 #include "Subsystems/SynergySystem/SynergySystem.h"
 
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
-
+#include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 void USynergySystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
+	EmergentEffectsMap = LoadEmergentEffects();
 	SetupEmergentEffectRules();
 	//UE_LOG(LogTemp, Warning, TEXT("Synergy System Subsystem - Synergy Rules Created."));
 }
@@ -69,4 +71,28 @@ void USynergySystem::SetupEmergentEffectRules()
 	/* Emergent - Corroded */
 	CreateSynergyRule(FName("SynergySystem.Effect.Corrosion.Degrade"), FName("SynergySystem.Effect.Arc.Static"), FName("SynergySystem.EmergentEffect.Corroded"));
 	CreateSynergyRule(FName("SynergySystem.Effect.Corrosion.Degrade"), FName("SynergySystem.Effect.Frost.Freeze"), FName("SynergySystem.EmergentEffect.Corroded"));
+}
+
+TMap<FGameplayTag, UStatusEffectBase*> USynergySystem::LoadEmergentEffects()
+{
+	TMap<FGameplayTag, UStatusEffectBase*> TagToEffectMap;
+	FString FilePathToEmergentEffects = TEXT("/Game/Data/StatusEffects/Emergent");
+	
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	
+	TArray<FAssetData> DataAssetsBase;
+	
+	AssetRegistryModule.Get().GetAssetsByPath(FName(*FilePathToEmergentEffects), DataAssetsBase, false, true);
+
+	for (const FAssetData& Data : DataAssetsBase)
+	{
+		if (UStatusEffectBase* LoadedAsset = Cast<UStatusEffectBase>(Data.GetAsset()))
+		{
+			FGameplayTag EffectIdTag = LoadedAsset->StatusEffect.EffectIdTag;
+			// Add to the map using the EffectIdTag as the key
+			TagToEffectMap.Add(EffectIdTag, LoadedAsset);
+		}
+	}
+
+	return TagToEffectMap;
 }

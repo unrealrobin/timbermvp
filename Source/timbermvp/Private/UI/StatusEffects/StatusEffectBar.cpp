@@ -10,29 +10,25 @@
 void UStatusEffectBar::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	//AController* Controller = GetOwner()->GetController();
 }
 
 void UStatusEffectBar::AddEffectToBar(FGameplayTag EffectTag)
 {
-	//TODO:: Status Effect Component to Call this when adding a new Status Effect to Status Effect Container.
-
 	UUserWidget* NewIcon = CreateWidget<UUserWidget>(GetWorld(), StatusEffectBarIconClass);
 	if (UStatusEffectBarIcon* IconWidget = Cast<UStatusEffectBarIcon>(NewIcon))
 	{
 		//Checking the ID of the Effect Tag to determine the tint color for the icon.
-		if (EffectTag == FGameplayTag::RequestGameplayTag("BuildableEffects.Id.Burn.Fire"))
+		if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.Effect.Fire.Burn"))
 		{
-			IconWidget->StatusBarIconTint = FLinearColor((219.0f / 255.0f), (115.0f / 255.0), (76.0f / 255.0f), 1.0f); // Blue tint for Wet
+			IconWidget->StatusBarIconTint = FLinearColor((219.0f / 255.0f), (115.0f / 255.0), (76.0f / 255.0f), 1.0f); 
 		}
-		else if (EffectTag == FGameplayTag::RequestGameplayTag("BuildableEffects.Id.Corrosive"))
+		else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.Effect.Corrosion.Erode"))
 		{
-			IconWidget->StatusBarIconTint = FLinearColor(0.0f, 1.0f, 0.0f, 1.0f); // Green tint for Corrosive
+			IconWidget->StatusBarIconTint = FLinearColor(0.0f, 1.0f, 0.0f, 1.0f); 
 		}
-		else if (EffectTag == FGameplayTag::RequestGameplayTag("BuildableEffects.Id.Slow.Frost"))
+		else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.Effect.Frost.Chill"))
 		{
-			IconWidget->StatusBarIconTint = FLinearColor(0.0f, 0.0f, 1.0f, 1.0f); // Red tint for Burning
+			IconWidget->StatusBarIconTint = FLinearColor(0.0f, 0.0f, 1.0f, 1.0f); 
 		}
 		else
 		{
@@ -53,8 +49,6 @@ void UStatusEffectBar::AddEffectToBar(FGameplayTag EffectTag)
 
 void UStatusEffectBar::RemoveEffectFromBar(FGameplayTag EffectTag)
 {
-	//TODO:: Status Effect Component to Call this when removing an existing Status Effect from the Status Effect Container.
-
 	if (StatusEffectIconContainer)
 	{
 		TArray<UWidget*> IconWidgetsArray = StatusEffectIconContainer->GetAllChildren();
@@ -72,6 +66,6 @@ void UStatusEffectBar::RemoveEffectFromBar(FGameplayTag EffectTag)
 			}
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Removed Effect: %s from Status Effect Bar"), *EffectTag.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Removed Effect: %s from Status Effect Bar"), *EffectTag.ToString());
 	}
 }

@@ -317,7 +317,7 @@ void ATimberPlayableCharacter::PlayerGainHealth(float HealthAmount)
 	if (VignetteComponent)
 	{
 		VignetteComponent->HandleHealthChange(CurrentHealth/MaxHealth);
-		UE_LOG(LogTemp, Warning, TEXT("Player Gain Health: %f"), CurrentHealth);
+		//UE_LOG(LogTemp, Warning, TEXT("Player Gain Health: %f"), CurrentHealth);
 	}
 	
 }

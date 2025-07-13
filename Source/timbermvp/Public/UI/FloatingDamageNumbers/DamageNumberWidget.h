@@ -15,9 +15,12 @@ class TIMBERMVP_API UDamageNumberWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-
-	/*UFUNCTION(BlueprintCallable)
-	void Init(float DamageAmount, FLinearColor DamageColor);*/
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Damage Number")
+	bool bIsDamage = true;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Text")
+	FName EffectName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
 	float DamageNumber = 0.f;

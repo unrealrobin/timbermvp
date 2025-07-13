@@ -20,6 +20,18 @@ AFloatingDamageContainer::AFloatingDamageContainer()
 	
 }
 
+void AFloatingDamageContainer::SetEffectText(FName EffectName)
+{
+	if (DamageNumberWidgetComponent)
+	{
+		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
+		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		{
+			DamageNumberWidgetCast->EffectName = EffectName;
+		}
+	}
+}
+
 void AFloatingDamageContainer::SetDamageAmount(float InDamageAmount)
 {
 	if (DamageNumberWidgetComponent)
@@ -33,7 +45,7 @@ void AFloatingDamageContainer::SetDamageAmount(float InDamageAmount)
 	}
 }
 
-void AFloatingDamageContainer::SetDamageColor(FLinearColor InDamageColor)
+void AFloatingDamageContainer::SetColor(FLinearColor InDamageColor)
 {
 	if (DamageNumberWidgetComponent)
 	{
@@ -46,7 +58,7 @@ void AFloatingDamageContainer::SetDamageColor(FLinearColor InDamageColor)
 	}
 }
 
-void AFloatingDamageContainer::SetDamageSize(float InDamageSize)
+void AFloatingDamageContainer::SetSize(float InDamageSize)
 {
 	if (DamageNumberWidgetComponent)
 	{

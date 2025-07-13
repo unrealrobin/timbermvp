@@ -30,7 +30,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 1;
+	int CurrentWaveNumber = 8;
 	
 	void SetCurrentWaveNumber(int InWaveNumber);
 

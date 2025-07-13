@@ -21,7 +21,6 @@ public:
 	// Sets default values for this component's properties
 	UStatusEffectHandlerComponent();
 	
-	void HandleEffectInitialDamage(FStatusEffect& Effect);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Status Effects")
 	TArray<FStatusEffect> ActiveStatusEffects;
@@ -29,16 +28,27 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Tags")
 	FGameplayTagContainer StatusEffectIdTagContainer;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
+	ATimberEnemyCharacter* OwningEnemyCharacter = nullptr;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	void HandleEffectInitialDamage(FStatusEffect& Effect);
 	void AddStatusEffectToComponent(FStatusEffect& Effect, AActor* EffectInstigator);
+	void RemoveEffectFromComponent(const FStatusEffect& Effect);
+	void RemoveMultipleEffectsFromComponent(TArray<FStatusEffect>& Effects);
+	void ResetEffectDuration(FStatusEffect& Effect);
+	void AddEmergentTag(FGameplayTag Tag, float Duration);
 
 protected:
-	// Called when the game starts
+
 	virtual void BeginPlay() override;
+	
 	void HandleDotEffects(FStatusEffect& StatusEffect, float DeltaTime);
 
-	//TODO:: Handle Removal Modifiers Laters.
-	/*void HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect);
-	void HandleMetaInitialRemovals(FStatusEffect& StatusEffect);*/
+	//TODO:: Need to be Updated to match new Modifier Tags.
+	void HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect);
+	void HandleMetaInitialRemovals(FStatusEffect& StatusEffect);
 
 	/*
 	 * Checks if the Tag (EffectIdTag) already exists in the StatusEffectIdTagContainer.
@@ -59,17 +69,6 @@ protected:
 	void AddEffectToStatusEffectBar(FGameplayTag EffectTag);
 	void RemoveEffectFromStatusEffectBar(FGameplayTag EffectTag);
 
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
-	void RemoveEffectFromComponent(const FStatusEffect& Effect);
-	void RemoveMultipleEffectsFromComponent(TArray<FStatusEffect>& Effects);
-	void ResetEffectDuration(FStatusEffect& Effect);
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
-	ATimberEnemyCharacter* OwningEnemyCharacter = nullptr;
-
 private:
 	/*
 	 * Why do we Stage For Removal?
@@ -79,4 +78,6 @@ private:
 	TArray<FStatusEffect> StagedForRemoval;
 
 	FStatusEffect* FindEffectByIdTag(const FGameplayTag& Tag);
+
+	void ProcessTagForSynergy(const FGameplayTag& Tag);
 };

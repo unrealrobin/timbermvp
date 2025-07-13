@@ -200,7 +200,7 @@ void UPlayerVignetteComponent::LerpDamageVignetteState(FDamageVignetteState From
             GetWorld()->GetTimerManager().ClearTimer(DamageVignetteTimerHandle);
         }
 
-    	UE_LOG(LogTemp, Warning, TEXT("Lerp Damage Vignette State: %f"), Alpha);
+    	//UE_LOG(LogTemp, Warning, TEXT("Lerp Damage Vignette State: %f"), Alpha);
     };
     
     // Start the timer with the lambda

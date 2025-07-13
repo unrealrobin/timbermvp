@@ -87,7 +87,6 @@ public:
 	virtual void PlayProjectileHitSound(FHitResult HitResult) override;
 	virtual void PlayMeleeWeaponHitSound(FHitResult HitResult) override;
 	
-	
 	void SetupCharacterMovementData();
 	
 	/*Base Data*/

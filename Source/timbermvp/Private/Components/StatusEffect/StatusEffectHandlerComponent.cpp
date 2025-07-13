@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Subsystems/SynergySystem/SynergySystem.h"
 #include "Types/Combat/DamagePayload.h"
 #include "UI/StatusEffects/StatusEffectBar.h"
 
@@ -97,7 +98,7 @@ void UStatusEffectHandlerComponent::HandleEffectInitialDamage(FStatusEffect& Eff
 	}
 }
 
-/*void UStatusEffectHandlerComponent::HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect)
+void UStatusEffectHandlerComponent::HandleMetaPerpetualRemovals(FStatusEffect& StatusEffect)
 {
 	//Looping through Type Tags Array of any Active Status Effects to Check if there is a Meta Tag
 	for (FGameplayTag Tag : StatusEffect.MetaTagContainer) //Ex. Status Effect = Burn Effect 
@@ -139,7 +140,7 @@ void UStatusEffectHandlerComponent::HandleMetaInitialRemovals(FStatusEffect& Sta
 			}
 		}
 	}
-}*/
+}
 
 void UStatusEffectHandlerComponent::HandleIsStackableEffect(FStatusEffect* Effect)
 {
@@ -254,6 +255,9 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 			HandleIsStackableEffect(ExisitingStatusEffect);
 		}
 	}
+
+	//TODO:: Pass Newly Added Tag and StatusEffectIdTagContainer to Synergy Subsystem to check for Lvl3 Synergies.
+	ProcessTagForSynergy(Effect.EffectIdTag);
 }
 
 bool UStatusEffectHandlerComponent::CheckIfTagAlreadyExists(FGameplayTag TagToCheck)
@@ -305,12 +309,45 @@ void UStatusEffectHandlerComponent::ResetEffectDuration(FStatusEffect& Effect)
 	Effect.TimeRemaining = Effect.Duration;
 }
 
+void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Duration)
+{
+	StatusEffectIdTagContainer.AddTag(Tag);
+	UE_LOG(LogTemp, Warning, TEXT("Status Effect Handler Component - Added Emergent Tag: %s"), *Tag.ToString());
+	
+	//TODO:: Have a visual representation of Emergent Tag.
+	// Similar to floating damage numbers.
+
+	FTimerHandle EmergentTimerHandle;
+
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().SetTimer(EmergentTimerHandle, [this, Tag]()
+		{
+			if (StatusEffectIdTagContainer.HasTagExact(Tag))
+			{
+				StatusEffectIdTagContainer.RemoveTag(Tag);
+			}
+		}, Duration, false);
+	}
+}
+
 FStatusEffect* UStatusEffectHandlerComponent::FindEffectByIdTag(const FGameplayTag& Tag)
 {
 	return ActiveStatusEffects.FindByPredicate([&Tag]( FStatusEffect& Effect)
 	{
 		return Effect.EffectIdTag == Tag;
 	});
+}
+
+void UStatusEffectHandlerComponent::ProcessTagForSynergy(const FGameplayTag& Tag)
+{
+	//Call to Synergy Subsystem to check for Synergies.
+	//Synergy subsystem handles the application of Tags - Effect Logic for Lvl 3 Synergies.
+	USynergySystem* SynSub = GetWorld()->GetGameInstance()->GetSubsystem<USynergySystem>();
+	if (SynSub)
+	{
+		SynSub->ProcessTagForSynergy(Tag, this);
+	}
 }
 
 

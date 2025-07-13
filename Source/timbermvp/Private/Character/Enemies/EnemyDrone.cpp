@@ -128,7 +128,7 @@ void AEnemyDrone::ClearCurrentTarget()
 	if (CurrentTarget)
 	{
 		CurrentTarget = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("No Current Target"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Target"));
 	}
 }
 
@@ -157,7 +157,7 @@ void AEnemyDrone::ShootTarget()
 		
 		if (SpawnedProjectile)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Drone Projectile Spawned."));
+			//UE_LOG(LogTemp, Warning, TEXT("Drone Projectile Spawned."));
 		}
 	}
 	
@@ -303,7 +303,7 @@ void AEnemyDrone::GatherTargets()
 				if (Hit.GetActor() == PotentialTarget)
 				{
 					CurrentTarget = PotentialTarget;
-					UE_LOG(LogTemp, Warning, TEXT("Found Current Target: %s. Has Line of Sight."), *CurrentTarget->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Found Current Target: %s. Has Line of Sight."), *CurrentTarget->GetName());
 					DrawDebugSphere(GetWorld(), CurrentTarget->GetActorLocation(), 50.f, 12, FColor::Red, false, 5.0f);
 				}
 			}
@@ -311,7 +311,7 @@ void AEnemyDrone::GatherTargets()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Potential Building Component Targets Found"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Potential Building Component Targets Found"));
 	}
 }
 

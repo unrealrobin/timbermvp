@@ -105,8 +105,8 @@ void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 		if (AFloatingDamageContainer* FloatingDamage = Cast<AFloatingDamageContainer>(FloatingDamageActor))
 		{
 			FloatingDamage->SetDamageAmount(DamagePayload.DamageAmount);
-			FloatingDamage->SetDamageColor(DamagePayload.StatusEffect.GetEffectColor());
-			FloatingDamage->SetDamageSize(DamagePayload.StatusEffect.GetEffectTextSize());
+			FloatingDamage->SetColor(DamagePayload.StatusEffect.GetEffectColor());
+			FloatingDamage->SetSize(DamagePayload.StatusEffect.GetEffectTextSize());
 		}
 		
 	}
@@ -425,7 +425,7 @@ void ATimberEnemyCharacter::ScaleHealth()
 		MaxHealth = ScaledHealth;
 		CurrentHealth = ScaledHealth;
 
-		UE_LOG(LogTemp, Warning, TEXT("Base Health: %f. Scaled Health: %f, Scale Value: %f."), BaseMaxHealth, ScaledHealth, ScaleValue);
+		//UE_LOG(LogTemp, Warning, TEXT("Base Health: %f. Scaled Health: %f, Scale Value: %f."), BaseMaxHealth, ScaledHealth, ScaleValue);
 	}
 	
 }

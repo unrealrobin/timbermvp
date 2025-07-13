@@ -1,0 +1,72 @@
+﻿// Property of Paracosm.
+
+
+#include "Subsystems/SynergySystem/SynergySystem.h"
+
+#include "Components/StatusEffect/StatusEffectHandlerComponent.h"
+
+
+void USynergySystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	SetupEmergentEffectRules();
+	//UE_LOG(LogTemp, Warning, TEXT("Synergy System Subsystem - Synergy Rules Created."));
+}
+
+void USynergySystem::ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandlerComponent* StatusEffectComponent)
+{
+	if (!SynergyRules.Contains(Tag)) return;
+	
+	for (FSynergyRules Rule: *SynergyRules.Find(Tag))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Synergy System Subsystem - Checking Tag for Synergy: %s"), *Tag.ToString());
+		if (StatusEffectComponent->StatusEffectIdTagContainer.HasAll(Rule.SynergyTags))
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Synergy System Subsystem - Found Matching Synergy: %s"), *Tag.ToString());
+			StatusEffectComponent->AddEmergentTag(Rule.EmergentTag, 5.0f);
+		}
+	}
+}
+
+void USynergySystem::CreateSynergyRule(FName Tag1, FName Tag2, FName EmergentTag)
+{
+	//Creation of Rule - Takes 2 Tags FName
+	FGameplayTagContainer TagContainer;
+	TagContainer.AddTag(FGameplayTag::RequestGameplayTag(Tag1));
+	TagContainer.AddTag(FGameplayTag::RequestGameplayTag(Tag2));
+
+	//Settings of Emergent Tag
+	FSynergyRules NewRule(TagContainer, FGameplayTag::RequestGameplayTag(EmergentTag));
+
+	for (FGameplayTag Tag: TagContainer)
+	{
+		SynergyRules.FindOrAdd(Tag).Add(NewRule);
+	}
+	
+}
+
+void USynergySystem::SetupEmergentEffectRules()
+{
+	// --- Ensure Proper Spelling of Gameplay Tags with SynergySystemTags.ini - Will cause Crashes if Misspelled ---
+	
+	/* Emergent - Wet */
+	CreateSynergyRule(FName("SynergySystem.Effect.Fire.Scorch"), FName("SynergySystem.Effect.Frost.Freeze"), FName("SynergySystem.EmergentEffect.Wet"));
+	CreateSynergyRule(FName("SynergySystem.Effect.Arc.Static"), FName("SynergySystem.Effect.Frost.Freeze"), FName("SynergySystem.EmergentEffect.Wet"));
+
+	/* Emergent - Charred */
+	CreateSynergyRule(FName("SynergySystem.Effect.Fire.Scorch"), FName("SynergySystem.Effect.Corrosion.Degrade"), FName("SynergySystem.EmergentEffect.Charred"));
+	CreateSynergyRule(FName("SynergySystem.Effect.Fire.Scorch"), FName("SynergySystem.Effect.Physical.Crush"), FName("SynergySystem.EmergentEffect.Charred"));
+
+	/* Emergent - Sparked */
+	CreateSynergyRule(FName("SynergySystem.Effect.Arc.Static"), FName("SynergySystem.Effect.Physical.Crush"), FName("SynergySystem.EmergentEffect.Sparked"));
+	CreateSynergyRule(FName("SynergySystem.Effect.Arc.Static"), FName("SynergySystem.Effect.Fire.Scorch"), FName("SynergySystem.EmergentEffect.Sparked"));
+
+	/* Emergent - Demolished */
+	CreateSynergyRule(FName("SynergySystem.Effect.Corrosion.Degrade"), FName("SynergySystem.Effect.Physical.Crush"), FName("SynergySystem.EmergentEffect.Demolish"));
+	CreateSynergyRule(FName("SynergySystem.Effect.Frost.Freeze"), FName("SynergySystem.Effect.Physical.Crush"), FName("SynergySystem.EmergentEffect.Demolish"));
+
+	/* Emergent - Corroded */
+	CreateSynergyRule(FName("SynergySystem.Effect.Corrosion.Degrade"), FName("SynergySystem.Effect.Arc.Static"), FName("SynergySystem.EmergentEffect.Corroded"));
+	CreateSynergyRule(FName("SynergySystem.Effect.Corrosion.Degrade"), FName("SynergySystem.Effect.Frost.Freeze"), FName("SynergySystem.EmergentEffect.Corroded"));
+}

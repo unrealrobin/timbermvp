@@ -317,6 +317,13 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 	//TODO:: Have a visual representation of Emergent Tag.
 	// Similar to floating damage numbers.
 
+	if (OwningEnemyCharacter)
+	{
+		//TODO:: Update this to Match the Emergent Tags Color Identity.
+		FName TagName = GetLastNameOfTag(Tag);
+		OwningEnemyCharacter->SpawnEffectNameUI(TagName);
+	}
+
 	FTimerHandle EmergentTimerHandle;
 
 	if (GetWorld())
@@ -348,6 +355,17 @@ void UStatusEffectHandlerComponent::ProcessTagForSynergy(const FGameplayTag& Tag
 	{
 		SynSub->ProcessTagForSynergy(Tag, this);
 	}
+}
+
+FName UStatusEffectHandlerComponent::GetLastNameOfTag(FGameplayTag Tag)
+{
+	FString TagName = Tag.GetTagName().ToString();
+	TArray<FString> Parts;
+	TagName.ParseIntoArray(Parts, TEXT("."), true);
+
+	FName EffectName = Parts.Num() > 0 ? FName(*Parts.Last()) : NAME_None;
+
+	return EffectName;
 }
 
 

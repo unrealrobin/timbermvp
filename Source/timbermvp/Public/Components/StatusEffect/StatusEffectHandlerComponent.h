@@ -80,4 +80,6 @@ private:
 	FStatusEffect* FindEffectByIdTag(const FGameplayTag& Tag);
 
 	void ProcessTagForSynergy(const FGameplayTag& Tag);
+
+	FName GetLastNameOfTag(FGameplayTag Tag);
 };

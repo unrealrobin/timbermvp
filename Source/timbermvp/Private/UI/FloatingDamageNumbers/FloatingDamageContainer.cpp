@@ -20,6 +20,18 @@ AFloatingDamageContainer::AFloatingDamageContainer()
 	
 }
 
+void AFloatingDamageContainer::SetIsDamage(bool bIsThisDamage)
+{
+	if (DamageNumberWidgetComponent)
+	{
+		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
+		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		{
+			DamageNumberWidgetCast->bIsDamage = bIsThisDamage;
+		}
+	}
+}
+
 void AFloatingDamageContainer::SetEffectText(FName EffectName)
 {
 	if (DamageNumberWidgetComponent)

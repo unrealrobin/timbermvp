@@ -136,6 +136,7 @@ public:
 	UFUNCTION()
 	void SelfDestruct();
 
+	void SpawnEffectNameUI(FName EffectName);
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")

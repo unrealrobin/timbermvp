@@ -26,10 +26,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
 	float TimeUntilDestroy = 1.0f;
 	float ElapsedTime = 0.0f;
-	
+
+	void SetIsDamage(bool bIsThisDamage);
 	void SetEffectText(FName EffectName);
 	void SetDamageAmount(float InDamageAmount);
-	
 	void SetColor(FLinearColor InDamageColor);
 	void SetSize(float InDamageSize);
 	

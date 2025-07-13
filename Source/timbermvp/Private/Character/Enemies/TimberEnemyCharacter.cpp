@@ -112,6 +112,27 @@ void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 	}
 }
 
+void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName)
+{
+	if (FloatingDamageContainerClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		AActor* FloatingDamageActor = GetWorld()->SpawnActor<AActor>(FloatingDamageContainerClass,
+			DamageEffectUISpawnPoint->GetComponentLocation(),
+			FRotator::ZeroRotator, 
+			SpawnParams);
+
+		if (AFloatingDamageContainer* FloatingDamage = Cast<AFloatingDamageContainer>(FloatingDamageActor))
+		{
+			FloatingDamage->SetIsDamage(false);
+			FloatingDamage->SetEffectText(EffectName);
+			FloatingDamage->SetColor(FLinearColor::White);	
+			FloatingDamage->SetSize(24.0f);
+		}
+		
+	}
+}
+
 void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -197,13 +218,6 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 	
 	//Applying damage to Character Health
 	CurrentHealth -= DamagePayload.DamageAmount;
-
-
-	//TODO:: I want that the Damage Number reflects what gave damage to the character.
-	// Player : Orange Damage - Standard Size
-	// Effect : Lvl1 - Effect Color -  Lvl1 Size
-	// Effect : Lvl2 - Effect Color -  Lvl2 Size
-	// Effect : Lvl3 - Effect Color -  Lvl3 Size
 	
 	SpawnDamageUI(DamagePayload);
 	

@@ -24,7 +24,7 @@
 #include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Types/Combat/DamagePayload.h"
-#include "UI/FloatingDamageNumbers/FloatingDamageContainer.h"
+#include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
 #include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -102,7 +102,7 @@ void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 			FRotator::ZeroRotator, 
 			SpawnParams);
 
-		if (AFloatingDamageContainer* FloatingDamage = Cast<AFloatingDamageContainer>(FloatingDamageActor))
+		if (AFloatingDataContainer* FloatingDamage = Cast<AFloatingDataContainer>(FloatingDamageActor))
 		{
 			FloatingDamage->SetDamageAmount(DamagePayload.DamageAmount);
 			FloatingDamage->SetColor(DamagePayload.StatusEffect.GetEffectColor());
@@ -122,7 +122,7 @@ void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName)
 			FRotator::ZeroRotator, 
 			SpawnParams);
 
-		if (AFloatingDamageContainer* FloatingDamage = Cast<AFloatingDamageContainer>(FloatingDamageActor))
+		if (AFloatingDataContainer* FloatingDamage = Cast<AFloatingDataContainer>(FloatingDamageActor))
 		{
 			FloatingDamage->SetIsDamage(false);
 			FloatingDamage->SetEffectText(EffectName);

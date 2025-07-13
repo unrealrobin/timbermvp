@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "DamageNumberWidget.generated.h"
+#include "FloatingDataWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TIMBERMVP_API UDamageNumberWidget : public UUserWidget
+class TIMBERMVP_API UFloatingDataWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

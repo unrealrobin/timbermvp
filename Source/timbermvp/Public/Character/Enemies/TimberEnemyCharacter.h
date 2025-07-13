@@ -9,7 +9,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
-class AFloatingDamageContainer;
+class AFloatingDataContainer;
 class UMetaSoundSource;
 class UNavigationHelperComponent;
 class UWidgetComponent;
@@ -140,7 +140,7 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	TSubclassOf<AFloatingDamageContainer> FloatingDamageContainerClass;
+	TSubclassOf<AFloatingDataContainer> FloatingDamageContainerClass;
 	
 	void SpawnDamageUI(FDamagePayload DamagePayload);
 	

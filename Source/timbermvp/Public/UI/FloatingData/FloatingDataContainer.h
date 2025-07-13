@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "FloatingDamageContainer.generated.h"
+#include "FloatingDataContainer.generated.h"
 
 class UWidgetComponent;
 
 UCLASS()
-class TIMBERMVP_API AFloatingDamageContainer : public AActor
+class TIMBERMVP_API AFloatingDataContainer : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AFloatingDamageContainer();
+	AFloatingDataContainer();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene Component")
 	USceneComponent* RootSceneComponent;

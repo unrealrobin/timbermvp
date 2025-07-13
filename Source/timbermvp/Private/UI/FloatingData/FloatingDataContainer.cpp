@@ -1,14 +1,14 @@
 ﻿// Property of Paracosm.
 
 
-#include "UI/FloatingDamageNumbers/FloatingDamageContainer.h"
+#include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
 
 #include "Components/WidgetComponent.h"
-#include "UI/FloatingDamageNumbers/DamageNumberWidget.h"
+#include "timbermvp/Public/UI/FloatingData/FloatingDataWidget.h"
 
 
 // Sets default values
-AFloatingDamageContainer::AFloatingDamageContainer()
+AFloatingDataContainer::AFloatingDataContainer()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -20,36 +20,36 @@ AFloatingDamageContainer::AFloatingDamageContainer()
 	
 }
 
-void AFloatingDamageContainer::SetIsDamage(bool bIsThisDamage)
+void AFloatingDataContainer::SetIsDamage(bool bIsThisDamage)
 {
 	if (DamageNumberWidgetComponent)
 	{
 		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
-		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		if (UFloatingDataWidget* DamageNumberWidgetCast = Cast<UFloatingDataWidget>(DamageNumberWidget))
 		{
 			DamageNumberWidgetCast->bIsDamage = bIsThisDamage;
 		}
 	}
 }
 
-void AFloatingDamageContainer::SetEffectText(FName EffectName)
+void AFloatingDataContainer::SetEffectText(FName EffectName)
 {
 	if (DamageNumberWidgetComponent)
 	{
 		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
-		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		if (UFloatingDataWidget* DamageNumberWidgetCast = Cast<UFloatingDataWidget>(DamageNumberWidget))
 		{
 			DamageNumberWidgetCast->EffectName = EffectName;
 		}
 	}
 }
 
-void AFloatingDamageContainer::SetDamageAmount(float InDamageAmount)
+void AFloatingDataContainer::SetDamageAmount(float InDamageAmount)
 {
 	if (DamageNumberWidgetComponent)
 	{
 		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
-		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		if (UFloatingDataWidget* DamageNumberWidgetCast = Cast<UFloatingDataWidget>(DamageNumberWidget))
 		{
 			DamageNumberWidgetCast->DamageNumber = InDamageAmount;
 		}
@@ -57,12 +57,12 @@ void AFloatingDamageContainer::SetDamageAmount(float InDamageAmount)
 	}
 }
 
-void AFloatingDamageContainer::SetColor(FLinearColor InDamageColor)
+void AFloatingDataContainer::SetColor(FLinearColor InDamageColor)
 {
 	if (DamageNumberWidgetComponent)
 	{
 		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
-		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		if (UFloatingDataWidget* DamageNumberWidgetCast = Cast<UFloatingDataWidget>(DamageNumberWidget))
 		{
 			DamageNumberWidgetCast->DamageColor = InDamageColor;
 		}
@@ -70,12 +70,12 @@ void AFloatingDamageContainer::SetColor(FLinearColor InDamageColor)
 	}
 }
 
-void AFloatingDamageContainer::SetSize(float InDamageSize)
+void AFloatingDataContainer::SetSize(float InDamageSize)
 {
 	if (DamageNumberWidgetComponent)
 	{
 		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
-		if (UDamageNumberWidget* DamageNumberWidgetCast = Cast<UDamageNumberWidget>(DamageNumberWidget))
+		if (UFloatingDataWidget* DamageNumberWidgetCast = Cast<UFloatingDataWidget>(DamageNumberWidget))
 		{
 			DamageNumberWidgetCast->DamageSize = InDamageSize;
 		}
@@ -83,13 +83,13 @@ void AFloatingDamageContainer::SetSize(float InDamageSize)
 	}
 }
 
-void AFloatingDamageContainer::HandleDestroy()
+void AFloatingDataContainer::HandleDestroy()
 {
 	Destroy();
 }
 
 // Called when the game starts or when spawned
-void AFloatingDamageContainer::BeginPlay()
+void AFloatingDataContainer::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -99,12 +99,12 @@ void AFloatingDamageContainer::BeginPlay()
 	EndLocation = StartLocation + FVector(0, 0, VerticalRiseAmount);
 	
 	FTimerHandle DamageNumberTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DamageNumberTimerHandle, this, &AFloatingDamageContainer::HandleDestroy, TimeUntilDestroy, false);
+	GetWorld()->GetTimerManager().SetTimer(DamageNumberTimerHandle, this, &AFloatingDataContainer::HandleDestroy, TimeUntilDestroy, false);
 	
 }
 
 // Called every frame
-void AFloatingDamageContainer::Tick(float DeltaTime)
+void AFloatingDataContainer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 

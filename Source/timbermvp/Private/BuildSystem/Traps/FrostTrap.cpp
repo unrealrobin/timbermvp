@@ -27,7 +27,6 @@ AFrostTrap::AFrostTrap()
 	FrostTrapNiagaraComponent->SetupAttachment(FrostTrapFanMesh);
 
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapBeginOverlap);
-	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapEndOverlap);
 	
 }
 
@@ -59,9 +58,4 @@ void AFrostTrap::HandleFrostTrapBeginOverlap(
 	}
 }
 
-void AFrostTrap::HandleFrostTrapEndOverlap(
-	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	//TODO:: Anything we need to happen once ending overlap. 
-}
 

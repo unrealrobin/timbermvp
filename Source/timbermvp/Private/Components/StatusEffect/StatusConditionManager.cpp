@@ -14,7 +14,6 @@ UStatusConditionManager::UStatusConditionManager()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
 // Called when the game starts
 void UStatusConditionManager::BeginPlay()
 {
@@ -22,14 +21,12 @@ void UStatusConditionManager::BeginPlay()
 	
 	Owner = GetOwner();
 
-	if (!Owner)
+	if (!IsValid(Owner))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Status Condition Manager: Owner is not set or invalid!"));
 	}
-	
 }
 
-//TODO:: This also need an Input of Status Effect Definition which has a StatusEffect and EffectCondition DA stored on it.
 FEffectConditionContext UStatusConditionManager::GenerateEffectConditionContext(AActor* TargetActor)
 {
 	FEffectConditionContext EffectConditionContext;
@@ -45,10 +42,10 @@ FEffectConditionContext UStatusConditionManager::GenerateEffectConditionContext(
 
 void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> EffectDefinitionsArray, AActor* TargetActor)
 {
+	if (!IsValid(TargetActor)) return;
+	
 	FEffectConditionContext Context = GenerateEffectConditionContext(TargetActor);
-
-	//loops over each of the traps effect. Each effect is checked everytime.
-	//TODO:: Need to check the order in which these get called, maybe the best way is reverse order.
+	
 	for (UStatusEffectDefinition* EffectDefinition : EffectDefinitionsArray)
 	{
 		/*
@@ -64,11 +61,18 @@ void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> Eff
 		{
 			if (ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(Context.TargetActor))
 			{
+				if (!IsValid(Enemy)) return;
+				
+				//Displays the Critical Synergy Effect Name in Floating Damage UI.
+				if (EffectDefinition->StatusEffectAsset->StatusEffect.EffectLevel == EStatusEffectLevel::Critical)
+				{
+					FName TagName = Enemy->StatusEffectHandler->GetLastNameOfTag(EffectDefinition->StatusEffectAsset->StatusEffect.EffectIdTag);
+					Enemy->SpawnEffectNameUI(TagName, EffectDefinition->StatusEffectAsset);
+				}
 				Enemy->StatusEffectHandler->AddStatusEffectToComponent(EffectDefinition->StatusEffectAsset->StatusEffect, Context.SourceActor);
 			}
 		}
 	}
-
 }
 
 

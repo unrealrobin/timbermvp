@@ -105,13 +105,9 @@ struct FStatusEffect
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
 	FGameplayTagContainer ModifierTagContainer;
 
-	//TODO:: To be Removed.
+	//Only gets checked if Modifier TagContainer contains a Removal Modifier.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
-	FGameplayTagContainer MetaTagContainer;
-
-	//TODO:: To be Removed.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
-	FGameplayTagContainer TypeTagContainer;
+	FGameplayTagContainer TagsToRemove;
 
 	//Duration of the effect before Automatic removal.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

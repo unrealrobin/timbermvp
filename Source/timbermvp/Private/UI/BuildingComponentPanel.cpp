@@ -1,4 +1,4 @@
-// Property of Paracosm Industries. Dont use my shit.
+// Property of Paracosm Industries.
 
 
 #include "UI/BuildingComponentPanel.h"
@@ -76,7 +76,7 @@ void UBuildingComponentPanel::PrepareStatusEffectForMenu()
 						InitialDamageTextBlock->SetVisibility(ESlateVisibility::Collapsed);
 					}
 
-					if (StatusEffectData.TypeTagContainer.Num() > 0)
+					/*if (StatusEffectData.TypeTagContainer.Num() > 0)
 					{
 						for (FGameplayTag Tag : StatusEffectData.TypeTagContainer)
 						{
@@ -107,16 +107,16 @@ void UBuildingComponentPanel::PrepareStatusEffectForMenu()
 							}
 							
 						}
-					}
+					}*/
 
 					//Array for storing all Removal Effect Types
 					//TODO:: This wont appear nicely if Removal has multiple types/effects.
 					// We can add a loop to iterate through the MetaTagContainer if needed with proper formatting conditions to handle additional removal types.
-					if (StatusEffectData.MetaTagContainer.Num() > 0)
+					/*if (StatusEffectData.MetaTagContainer.Num() > 0)
 					{
 						RemovesTextBlock->SetVisibility(ESlateVisibility::Visible);
 						RemovesTextBlock->SetText(FText::FromString("Removes: Slow"));
-					}
+					}*/
 				}
 			}
 		}

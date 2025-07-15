@@ -27,15 +27,15 @@ void UInventoryWidget::InitializeInventoryWidget()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Inventory Widget - Initializing Inventory Widget"));
 	ATimberPlayerController* PlayerController = Cast<ATimberPlayerController>(GetOwningPlayer());
-	if(PlayerController)
+	if(IsValid(PlayerController))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Inventory Widget - Player Controller Initialized"));
 		PlayerCharacter = Cast<ATimberPlayableCharacter>(PlayerController->GetPawn());
-		if(PlayerCharacter)
+		if(IsValid(PlayerCharacter))
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Inventory Widget - Player Character Initialized"));
 			PlayerInventory = PlayerCharacter->InventoryObject;
-			if(PlayerInventory)
+			if(IsValid(PlayerInventory))
 			{
 				//UE_LOG(LogTemp, Warning, TEXT("Inventory Widget has access to the Players Inventory Object."))
 				/* All widget required data is loaded at this point gauranteed based on the Game Mode Initialization Delegate Call, started at Character Begin Play*/

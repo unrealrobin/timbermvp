@@ -189,10 +189,10 @@ void AEnemyDrone::GetClosestLabDoorExitLocation()
 	TArray<AActor*> LabDoorExitActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), LabDoorExitActors);
 
-	if (LabDoorExitActors.Num() > 0)
+	/*if (LabDoorExitActors.Num() > 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT(" Found Lab Doors."));
-	}
+	}*/
 	ALabDoorBase* ClosestLabDoor = nullptr;
 	
 	float DistToClosestLabDoor = UE_MAX_FLT;
@@ -304,7 +304,7 @@ void AEnemyDrone::GatherTargets()
 				{
 					CurrentTarget = PotentialTarget;
 					//UE_LOG(LogTemp, Warning, TEXT("Found Current Target: %s. Has Line of Sight."), *CurrentTarget->GetName());
-					DrawDebugSphere(GetWorld(), CurrentTarget->GetActorLocation(), 50.f, 12, FColor::Red, false, 5.0f);
+					//DrawDebugSphere(GetWorld(), CurrentTarget->GetActorLocation(), 50.f, 12, FColor::Red, false, 5.0f);
 				}
 			}
 		}

@@ -47,9 +47,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	void DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh);
-
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
-	bool CanTrapBeFinalized = false;*/
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
 	TArray<AActor*> InsideHitBoxArray;

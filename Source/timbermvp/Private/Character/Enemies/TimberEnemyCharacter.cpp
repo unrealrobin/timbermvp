@@ -42,8 +42,6 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 	NavHelperComponent = CreateDefaultSubobject<UNavigationHelperComponent>("NavHelperComponent");
-
-	
 }
 
 void ATimberEnemyCharacter::BeginPlay()
@@ -68,8 +66,6 @@ void ATimberEnemyCharacter::SelfDestruct()
 {
 	//TODO:: Add VFX for Destruction of Enemy.
 	//Potentially need to delay the rest of this logic for the end of the Destruction VFX.
-
-	
 	StopAiControllerBehaviorTree();
 
 	//We want this actor not collidable so nothing interrupts the Montage about to play.
@@ -83,7 +79,7 @@ void ATimberEnemyCharacter::SelfDestruct()
 
 
 	//Calling Destroy in Animation Notify on this Montage.
-	if (SelfDestructMontage)
+	if (IsValid(SelfDestructMontage))
 	{
 		PlayAnimMontage(SelfDestructMontage, 1);
 	}
@@ -104,6 +100,7 @@ void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 
 		if (AFloatingDataContainer* FloatingDamage = Cast<AFloatingDataContainer>(FloatingDamageActor))
 		{
+			if (!IsValid(FloatingDamage)) return;
 			FloatingDamage->SetDamageAmount(DamagePayload.DamageAmount);
 			FloatingDamage->SetColor(DamagePayload.StatusEffect.GetEffectColor());
 			FloatingDamage->SetSize(DamagePayload.StatusEffect.GetEffectTextSize());
@@ -121,13 +118,15 @@ void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName, UStatusEffectBas
 			DamageEffectUISpawnPoint->GetComponentLocation(),
 			FRotator::ZeroRotator, 
 			SpawnParams);
-
-		if (AFloatingDataContainer* FloatingDamage = Cast<AFloatingDataContainer>(FloatingDamageActor))
+		
+		if (AFloatingDataContainer* FloatingDataContainer = Cast<AFloatingDataContainer>(FloatingDamageActor))
 		{
-			FloatingDamage->SetIsDamage(false);
-			FloatingDamage->SetEffectText(EffectName);
-			FloatingDamage->SetColor(StatusEffect->StatusEffect.GetEffectColor());	
-			FloatingDamage->SetSize(StatusEffect->StatusEffect.GetEffectTextSize());
+			if (!IsValid(FloatingDataContainer)) return;
+			
+			FloatingDataContainer->SetIsDamage(false);
+			FloatingDataContainer->SetEffectText(EffectName);
+			FloatingDataContainer->SetColor(StatusEffect->StatusEffect.GetEffectColor());	
+			FloatingDataContainer->SetSize(StatusEffect->StatusEffect.GetEffectTextSize());
 		}
 		
 	}
@@ -140,7 +139,7 @@ void ATimberEnemyCharacter::Tick(float DeltaSeconds)
 
 void ATimberEnemyCharacter::SetupCharacterMovementData()
 {
-	if (CharacterMovementComponent)
+	if (IsValid(CharacterMovementComponent))
 	{
 		CharacterMovementComponent->SetWalkableFloorAngle(65.0f);
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
@@ -163,7 +162,7 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 void ATimberEnemyCharacter::SetupCharacterMovementDelegates()
 {
 	CharacterMovementComponent = GetCharacterMovement();
-	if (CharacterMovementComponent)
+	if (IsValid(CharacterMovementComponent))
 	{
 		MovementModeChangedDelegate.AddDynamic(this, &ATimberEnemyCharacter::HandleOnMovementModeChanged);
 		LandedDelegate.AddDynamic(this, &ATimberEnemyCharacter::HandleOnLanded);
@@ -180,7 +179,7 @@ void ATimberEnemyCharacter::HandleOnMovementModeChanged(class ACharacter* Charac
 	if (Character)
 	{
 		ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
-		if (AiController)
+		if (IsValid(AiController))
 		{
 			switch (Character->GetCharacterMovement()->MovementMode.GetValue())
 			{
@@ -199,10 +198,10 @@ void ATimberEnemyCharacter::HandleOnLanded(const FHitResult& Hit)
 {
 	//Ai Controller to Restart Ai Controller Brain - this should restart the pathing solution.
 	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
-	if (AiController)
+	if (IsValid(AiController))
 	{
 		//Restarting the Behavior tree Logic if the AI Controller is not already running.
-		if (AiController->BehaviorTreeComponent && !AiController->BehaviorTreeComponent->IsRunning())
+		if (IsValid(AiController->BehaviorTreeComponent) && !AiController->BehaviorTreeComponent->IsRunning())
 		{
 			AiController->BehaviorTreeComponent->StartLogic();
 		}
@@ -211,7 +210,7 @@ void ATimberEnemyCharacter::HandleOnLanded(const FHitResult& Hit)
 
 void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 {
-	if (DamagePayload.DamageInstigator)
+	if (IsValid(DamagePayload.DamageInstigator))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyCharacter - TakeDamage() - %s took %f damage from %s."), *GetName(), DamagePayload.DamageAmount, *DamagePayload.DamageInstigator->GetName());
 	}
@@ -255,7 +254,7 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 		OnDeath_HandleCollision();
 
 		//Plays Death Animation
-		if (DeathMontage)
+		if (IsValid(DeathMontage))
 		{
 			PlayMontageAtRandomSection(DeathMontage);
 		}
@@ -263,7 +262,7 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 		//Drops Any Loot set on the Characters Loot Drop
 		OnDeath_DropLoot();
 	}
-	else if (DamagePayload.DamageInstigator)
+	else if (IsValid(DamagePayload.DamageInstigator))
 	{
 		//TODO:: Potential Removed from Game. - Delete Later is Unused still.
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamagePayload.DamageInstigator, DamagePayload.DamageAmount, DamageAccumulatedDuringWindow);
@@ -308,7 +307,7 @@ void ATimberEnemyCharacter::StartDamageTimerWindow()
 void ATimberEnemyCharacter::PlayProjectileHitSound(FHitResult HitResult)
 {
 	FVector HitLocation = HitResult.ImpactPoint;
-	if (ProjectileHitSound_MetaSound)
+	if (IsValid(ProjectileHitSound_MetaSound))
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ProjectileHitSound_MetaSound, HitLocation);
 	}
@@ -328,14 +327,17 @@ void ATimberEnemyCharacter::PlayMeleeWeaponHitSound(FHitResult HitResult)
 
 void ATimberEnemyCharacter::OnDeath_HandleCollision()
 {
-	GetCapsuleComponent()->SetCollisionProfileName("DR_DeadCharacter");
+	if (IsValid(GetCapsuleComponent()))
+	{
+		GetCapsuleComponent()->SetCollisionProfileName("DR_DeadCharacter");
+	}
 }
 
 void ATimberEnemyCharacter::OnDeath_DropLoot()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Enemy Destroyed. Dropping Loot."))
 	//Get the Loot Table
-	if (LootTable)
+	if (IsValid(LootTable))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Loot Table is Valid."))
 		//Loot Table has an array that will be looped over.
@@ -363,25 +365,28 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 				//We then spawn the loot using the SpawnLoot() function.
 				for (int i = 0; i < AmountToSpawn; i++)
 				{
-					AActor* SpawnedLootActor = GetWorld()->SpawnActor<AActor>(Items.LootItemClass,
-						GetActorLocation(),
-						FRotator::ZeroRotator, 
-						SpawnParams);
-
-					if (SpawnedLootActor)
+					if (IsValid(Items.LootItemClass))
 					{
-						// Try to apply an upward impulse
-						UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(SpawnedLootActor->GetRootComponent());
-						if (PrimitiveComp && PrimitiveComp->IsSimulatingPhysics())
-						{
-							FVector Impulse = FVector(
-								FMath::FRandRange(-100.0f, 100.0f), // small random left/right push
-								FMath::FRandRange(-100.0f, 100.0f), // small random forward/backward push
-								FMath::FRandRange(400.0f, 600.0f)   // strong upward push
-							);
+						AActor* SpawnedLootActor = GetWorld()->SpawnActor<AActor>(Items.LootItemClass,
+							GetActorLocation(),
+							FRotator::ZeroRotator, 
+							SpawnParams);
 
-							PrimitiveComp->AddImpulse(Impulse, NAME_None, false);
-						}//UE_LOG(LogTemp, Warning, TEXT("Spawned Loot Actor: %s"), *SpawnedLootActor->GetName());
+						if (IsValid(SpawnedLootActor))
+						{
+							// Try to apply an upward impulse
+							UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(SpawnedLootActor->GetRootComponent());
+							if (IsValid(PrimitiveComp) && PrimitiveComp->IsSimulatingPhysics())
+							{
+								FVector Impulse = FVector(
+									FMath::FRandRange(-100.0f, 100.0f), // small random left/right push
+									FMath::FRandRange(-100.0f, 100.0f), // small random forward/backward push
+									FMath::FRandRange(400.0f, 600.0f)   // strong upward push
+								);
+
+								PrimitiveComp->AddImpulse(Impulse, NAME_None, false);
+							}
+						}
 					}
 				}
 			}
@@ -392,7 +397,7 @@ void ATimberEnemyCharacter::OnDeath_DropLoot()
 void ATimberEnemyCharacter::ScaleHealth()
 {
 	UWaveGameInstanceSubsystem* WaveGameInstance = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
-	if (WaveGameInstance)
+	if (IsValid(WaveGameInstance))
 	{
 		float WaveNum = WaveGameInstance->CurrentWaveNumber;
 
@@ -432,7 +437,6 @@ void ATimberEnemyCharacter::ScaleHealth()
 			AdjustmentValue = 15.5f;
 		}
 		
-		
 		float ScaleValue = (WaveNum - 1) * AdjustmentValue / 100;
 		float ScaledHealth = BaseMaxHealth + (BaseMaxHealth * ScaleValue);
 
@@ -446,7 +450,7 @@ void ATimberEnemyCharacter::ScaleHealth()
 
 void ATimberEnemyCharacter::HandleRemoveStatusEffectComponent()
 {
-	if (StatusEffectHandler)
+	if (IsValid(StatusEffectHandler))
 	{
 		StatusEffectHandler->DestroyComponent();
 	}
@@ -460,7 +464,7 @@ void ATimberEnemyCharacter::HandleToggleDataView(FInputActionValue Input)
 	 */
 	if (Input.Get<bool>()) //true
 	{
-		if (StatusEffectBarComponent && StatusEffectBarComponent->GetUserWidgetObject() && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
+		if (IsValid(StatusEffectBarComponent) && IsValid(StatusEffectBarComponent->GetUserWidgetObject()) && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
 		{
 			//Toggles the visibility of the Status Effect Bar
 			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Visible);
@@ -469,7 +473,7 @@ void ATimberEnemyCharacter::HandleToggleDataView(FInputActionValue Input)
 	}
 	else //false
 	{
-		if (StatusEffectBarComponent && StatusEffectBarComponent->GetUserWidgetObject() && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
+		if (IsValid(StatusEffectBarComponent) && IsValid(StatusEffectBarComponent->GetUserWidgetObject()) && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
 		{
 			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Hidden);
 		}
@@ -487,7 +491,7 @@ void ATimberEnemyCharacter::HandleWeaponDestruction()
 	ATimberEnemyMeleeWeaponBase* MeleeWeaponEnemy = Cast<ATimberEnemyMeleeWeaponBase>(this);
 	ATimberEnemyRangedBase* RangedWeaponEnemy = Cast<ATimberEnemyRangedBase>(this);
 
-	if (MeleeWeaponEnemy)
+	if (IsValid(MeleeWeaponEnemy))
 	{
 		if (MeleeWeaponEnemy->EquippedWeapon)
 		{
@@ -495,7 +499,7 @@ void ATimberEnemyCharacter::HandleWeaponDestruction()
 		}
 	}
 
-	if (RangedWeaponEnemy)
+	if (IsValid(RangedWeaponEnemy))
 	{
 		if (RangedWeaponEnemy->EquippedWeapon)
 		{
@@ -512,7 +516,7 @@ float ATimberEnemyCharacter::CalculateOutputDamage(float Damage)
 void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
 {
 	ATimberAiControllerBase* AiController = Cast<ATimberAiControllerBase>(GetController());
-	if (AiController && AiController->BehaviorTreeComponent)
+	if (IsValid(AiController) && IsValid(AiController->BehaviorTreeComponent))
 	{
 		//Does not abort the current task, but does FinishtheTask
 		AiController->BehaviorTreeComponent->StopLogic("Enemy has been killed");
@@ -521,7 +525,7 @@ void ATimberEnemyCharacter::StopAiControllerBehaviorTree()
 
 void ATimberEnemyCharacter::PlayMontageAtRandomSection(UAnimMontage* Montage)
 {
-	if(Montage)
+	if(IsValid(Montage))
 	{
 		int NumberOfMontageSections = Montage->GetNumSections();
 		int RandomSection = FMath::RandRange(0, NumberOfMontageSections - 1);
@@ -549,6 +553,8 @@ ATimberBuildingComponentBase* ATimberEnemyCharacter::LineTraceToSeeda()
 	{
 		for (FHitResult HitActors : HitResults)
 		{
+			if (!IsValid(HitActors.GetActor())) continue;
+			
 			if (HitActors.GetActor()->IsA(ATimberBuildingComponentBase::StaticClass()))
 			{
 				return Cast<ATimberBuildingComponentBase>(HitActors.GetActor());
@@ -580,7 +586,7 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, f
 		//UE_LOG(LogTemp, Warning, TEXT("Actor Type Found In Array"));
 		for (FHitResult Hit : HitResults)
 		{
-			if (Hit.GetActor()->IsA(ActorToSweepFor))
+			if (IsValid(Hit.GetActor()) && Hit.GetActor()->IsA(ActorToSweepFor))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Actor Found: %p"), Hit.GetActor()->GetClass());
 				SweepHitActor = Hit.GetActor();
@@ -597,19 +603,19 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, f
 
 void ATimberEnemyCharacter::SetupStatusEffectBar()
 {
-	if (StatusEffectBarComponent && StatusEffectBarComponent->GetWidget())
+	if (IsValid(StatusEffectBarComponent) && IsValid(StatusEffectBarComponent->GetWidget()))
 	{
 		StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
 	}
 	
 	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarComponent->GetWidget());
-	if (StatusEffectBarWidget)
+	if (IsValid(StatusEffectBarWidget))
 	{
 		ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
-		if (PlayerCharacter)
+		if (IsValid(PlayerCharacter))
 		{
 			ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
-			if (PC)		
+			if (IsValid(PC))		
 			{
 				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
 			}

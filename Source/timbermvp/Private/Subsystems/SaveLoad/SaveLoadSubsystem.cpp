@@ -440,7 +440,7 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 	if (GameMode)
 	{
 		ATimberPlayableCharacter* TimberCharacter = GameMode->TimberCharacter;
-		if (TimberCharacter)
+		if (IsValid(TimberCharacter))
 		{
 			TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
 			TimberCharacter->SetActorRotation(LoadGameInstance->PlayerData.PlayerRotation);
@@ -452,14 +452,13 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			
 			TimberCharacter->PlayerGainHealth(TimberCharacter->MaxHealth);
 			
-
 			if (TimberCharacter->VignetteComponent)
 			{}
 			
 			
 			//Reverting player Inventory to last save.
 			APlayerStateBase* PS = Cast<APlayerStateBase>(TimberCharacter->GetPlayerState());
-			if (PS)
+			if (IsValid(PS))
 			{
 				PS->MainInventory->NumberOfParts = LoadGameInstance->PlayerData.PlayerInventory.NumberOfParts;
 				PS->MainInventory->NumberOfMechanism = LoadGameInstance->PlayerData.PlayerInventory.NumberOfMechanism;
@@ -477,12 +476,14 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			//Ensuring weapons are loaded
 			if (ATimberWeaponRangedBase* RangedWeapon = TimberCharacter->CombatComponent->RangedWeaponInstance)
 			{
+				if (!IsValid(RangedWeapon)) return;
 				//Loading the Ammo of the Weapon
 				RangedWeapon->CurrentAmmo = RangedWeapon->MaxAmmo;
 			}
 			//Ensuring Sword energy is at 100%
 			if (ATimberWeaponMeleeBase* MeleeWeapon = TimberCharacter->CombatComponent->MeleeWeaponInstance)
 			{
+				if (!IsValid(MeleeWeapon)) return;
 				MeleeWeapon->CurrentWeaponEnergy = MeleeWeapon->MaxWeaponEnergy;
 			}
 		}
@@ -497,10 +498,8 @@ void USaveLoadSubsystem::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 {
 	ATimberSeeda* Seeda = Cast<ATimberSeeda>(UGameplayStatics::GetActorOfClass(this, ATimberSeeda::StaticClass()));
 
-	if (!Seeda)
+	if (!IsValid(Seeda))
 	{
-		//Should not be called, Seeda Object Instance should not get destroyed.
-		check(SeedaClass);
 		//This is the load situation if Seeda Was destroyed.
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

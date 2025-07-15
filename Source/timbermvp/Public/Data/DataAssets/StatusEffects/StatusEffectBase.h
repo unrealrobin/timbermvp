@@ -7,6 +7,7 @@
 #include "Engine/DataAsset.h"
 #include "StatusEffectBase.generated.h"
 
+class UEffectAbilityHandlerBase;
 
 
 UENUM(BlueprintType)
@@ -158,6 +159,10 @@ struct FStatusEffect
 		static const FStatusEffectFontSize StatusEffectFontSize;
 		return StatusEffectFontSize.GetStatusEffectFontSize(EffectLevel);
 	}
+
+	/*Ability Effect Logic*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Ability")
+	TSubclassOf<UEffectAbilityHandlerBase> EffectAbilityHandlerClass;
 	
 	/* Used for Runtime Effect Tracking - Not to Be Modified*/
 	float TimeRemaining = 0.f;

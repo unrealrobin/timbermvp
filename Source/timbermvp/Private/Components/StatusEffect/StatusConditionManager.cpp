@@ -69,6 +69,7 @@ void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> Eff
 					FName TagName = Enemy->StatusEffectHandler->GetLastNameOfTag(EffectDefinition->StatusEffectAsset->StatusEffect.EffectIdTag);
 					Enemy->SpawnEffectNameUI(TagName, EffectDefinition->StatusEffectAsset);
 				}
+				
 				Enemy->StatusEffectHandler->AddStatusEffectToComponent(EffectDefinition->StatusEffectAsset->StatusEffect, Context.SourceActor);
 			}
 		}

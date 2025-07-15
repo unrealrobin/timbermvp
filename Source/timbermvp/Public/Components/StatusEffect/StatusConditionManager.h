@@ -24,7 +24,6 @@ class TIMBERMVP_API UStatusConditionManager : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	
 	UStatusConditionManager();
 
 	void ResolveEffect(TArray<UStatusEffectDefinition*> EffectDefinitionsArray, AActor* TargetActor);

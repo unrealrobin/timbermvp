@@ -32,8 +32,9 @@ public:
 	
 	void AddStatusEffectToComponent(FStatusEffect& Effect, AActor* EffectInstigator);
 	void AddEmergentTag(FGameplayTag Tag, float Duration);
-	
+	void RemoveEmergentTag(FGameplayTag Tag);
 	FName GetLastNameOfTag(FGameplayTag Tag);
+	
 protected:
 
 	virtual void BeginPlay() override;
@@ -70,6 +71,6 @@ private:
 
 	FStatusEffect* FindEffectByIdTag(const FGameplayTag& Tag);
 
-	void ProcessTagForSynergy(const FGameplayTag& Tag);
+	void ProcessTagForSynergy(const FGameplayTag& Tag, FStatusEffect& Effect);
 
 };

@@ -4,8 +4,10 @@
 #include "Subsystems/SynergySystem/SynergySystem.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
+#include "Synergy/EffectLogic/EffectAbilityHandlerBase.h"
 
 void USynergySystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -16,7 +18,22 @@ void USynergySystem::Initialize(FSubsystemCollectionBase& Collection)
 	//UE_LOG(LogTemp, Warning, TEXT("Synergy System Subsystem - Synergy Rules Created."));
 }
 
-void USynergySystem::ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandlerComponent* StatusEffectComponent)
+UEffectAbilityHandlerBase* USynergySystem::GetOrSetAbilityEffect(FGameplayTag Tag, FStatusEffect StatusEffect)
+{
+	if (EffectAbilityMap.Find(Tag))
+	{
+		return EffectAbilityMap.FindChecked(Tag);
+	}
+
+	//Creating the Instance of the Handler Class for the Unique Tag Type.
+	//Polymorphism uses the Runtime Execute of the Derived Class.
+	UEffectAbilityHandlerBase* NewEffectAbilityHandler = NewObject<UEffectAbilityHandlerBase>(this, StatusEffect.EffectAbilityHandlerClass);
+	EffectAbilityMap.Add(Tag, NewEffectAbilityHandler);
+	return NewEffectAbilityHandler;
+	
+}
+
+void USynergySystem::HandleEmergentTagChecks(FGameplayTag Tag, UStatusEffectHandlerComponent* StatusEffectComponent)
 {
 	if (!SynergyRules.Contains(Tag)) return;
 	
@@ -29,6 +46,46 @@ void USynergySystem::ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandler
 			StatusEffectComponent->AddEmergentTag(Rule.EmergentTag, 5.0f);
 		}
 	}
+}
+
+void USynergySystem::HandleCriticalEffectsLogic(FGameplayTag Tag, UStatusEffectHandlerComponent* StatusEffectComponent,
+	const FStatusEffect& Effect)
+{
+	if (IsValid(Effect.EffectAbilityHandlerClass))
+	{
+		UEffectAbilityHandlerBase* Handler = GetOrSetAbilityEffect(Tag, Effect);
+		if (IsValid(Handler))
+		{
+			AActor* Target = StatusEffectComponent->OwningEnemyCharacter;
+			if (IsValid(Target))
+			{
+				Handler->ExecuteEffect(Target, Effect);
+			}
+		}
+	}
+}
+
+void USynergySystem::ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandlerComponent* StatusEffectComponent, FStatusEffect& Effect)
+{
+
+	switch (Effect.EffectLevel)
+	{
+	case EStatusEffectLevel::Major:
+		HandleEmergentTagChecks(Tag, StatusEffectComponent);
+		break;
+	case EStatusEffectLevel::Critical:
+		HandleCriticalEffectsLogic(Tag, StatusEffectComponent, Effect);
+		break;
+	case EStatusEffectLevel::Default:
+		UE_LOG(LogTemp, Warning, TEXT("Synergy System Subsystem - Tag not Synergizable."));
+		break;
+	default: break;
+	}
+}
+
+void USynergySystem::ExecuteEffectHandlerLogic(UEffectAbilityHandlerBase* EffectHandler)
+{
+	//Logic.
 }
 
 void USynergySystem::CreateSynergyRule(FName Tag1, FName Tag2, FName EmergentTag)

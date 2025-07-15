@@ -89,11 +89,13 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 		}
 	}
 	
-	ProcessTagForSynergy(Effect.EffectIdTag);
+	ProcessTagForSynergy(Effect.EffectIdTag, Effect);
 }
 
 void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Duration)
 {
+	/* Emergent Tags do not use Regular Channels for Addition. They don't use AddStatusEffectToComponent(), Avoiding ProcessTagForSynergy.*/
+	
 	if (!IsValid(OwningEnemyCharacter)) return;
 	
 	StatusEffectIdTagContainer.AddTag(Tag);
@@ -101,7 +103,6 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 	 * We still do not Add an Emergent Status Effect to the Array of Status Effects. The Actual effects
 	 * dont do anything, they simply store information about the type of effect. Used for UI Information.
 	 */
-	
 	//LoadStatusEffect from Tag.
 	USynergySystem* SynergySub = GetWorld()->GetGameInstance()->GetSubsystem<USynergySystem>();
 	if (SynergySub)
@@ -115,7 +116,6 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 	}
 
 	FTimerHandle EmergentTimerHandle;
-
 	TWeakObjectPtr<UStatusEffectHandlerComponent> WeakThis(this);
 	if (GetWorld())
 	{
@@ -132,14 +132,19 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 	}
 }
 
-void UStatusEffectHandlerComponent::ProcessTagForSynergy(const FGameplayTag& Tag)
+void UStatusEffectHandlerComponent::RemoveEmergentTag(FGameplayTag Tag)
+{
+	StatusEffectIdTagContainer.RemoveTag(Tag);
+}
+
+void UStatusEffectHandlerComponent::ProcessTagForSynergy(const FGameplayTag& Tag, FStatusEffect& Effect)
 {
 	//Call to Synergy Subsystem to check for Synergies.
 	//Synergy subsystem handles the application of Tags - Effect Logic for Lvl 3 Synergies.
 	USynergySystem* SynSub = GetWorld()->GetGameInstance()->GetSubsystem<USynergySystem>();
 	if (SynSub)
 	{
-		SynSub->ProcessTagForSynergy(Tag, this);
+		SynSub->ProcessTagForSynergy(Tag, this, Effect);
 	}
 }
 

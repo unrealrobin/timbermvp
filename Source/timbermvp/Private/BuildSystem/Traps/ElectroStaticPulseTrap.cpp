@@ -8,8 +8,6 @@
 #include "Components/SphereComponent.h"
 #include "Components/StatusEffect/StatusConditionManager.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
-
-
 AElectroStaticPulseTrap::AElectroStaticPulseTrap()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -21,11 +19,16 @@ AElectroStaticPulseTrap::AElectroStaticPulseTrap()
 void AElectroStaticPulseTrap::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	FireElectroPulse();
+}
 
-	//Continuously Fire the Electro-Pulse ever X Seconds
-	if (!bIsProxy)
+void AElectroStaticPulseTrap::BeginDestroy()
+{
+	Super::BeginDestroy();
+	if (PulseSphereMeshComponent)
 	{
-		GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  &AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
+		PulseSphereMeshComponent->DestroyComponent();
 	}
 }
 
@@ -72,6 +75,7 @@ void AElectroStaticPulseTrap::CreatePulseHitSphere()
 			PulseSphereMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			PulseSphereMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 			PulseSphereMeshComponent->SetStaticMesh(PulseSphereMesh);
+			PulseSphereMeshComponent->SetRelativeScale3D(FVector(0.7f, 0.7f, 0.7f));
 		}
 	}
 }
@@ -113,9 +117,15 @@ void AElectroStaticPulseTrap::MovePulseHitSphere(float DeltaTime)
 			//We don't set this to nullptr as we define the shape in the editor
 			PulseSphereMeshComponent->DestroyComponent();
 
-			//Continuously Fire the Electro-Pulse ever @PARAM: FireElectroPulseCooldown Seconds
-			GetWorld()->GetTimerManager().SetTimer(FireElectroPulseTimerHandle, this,  
-			&AElectroStaticPulseTrap::FireElectroPulse, FireElectroPulseCooldown, false );
+			FTimerHandle CooldownTimer;
+			TWeakObjectPtr<AElectroStaticPulseTrap> WeakThis = this;
+			GetWorld()->GetTimerManager().SetTimer(CooldownTimer, [WeakThis]()
+			{
+				if (WeakThis.IsValid())
+				{
+					WeakThis->FireElectroPulse();
+				}
+			}, 1.0f, false);
 			
 			//UE_LOG(LogTemp, Warning, TEXT("PulseHitBox Destroyed"));
 		}

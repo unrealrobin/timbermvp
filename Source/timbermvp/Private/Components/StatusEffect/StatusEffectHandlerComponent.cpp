@@ -75,7 +75,7 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 		HandleModifierTags(Effect);
 		
 		//This adds the Effect Icon to the Status Effect Bar on the Enemy Character.
-		AddEffectToStatusEffectBar(Effect.EffectIdTag);
+		//AddEffectToStatusEffectBar(Effect.EffectIdTag);
 	}
 	else
 	{
@@ -95,8 +95,9 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Duration)
 {
 	/* Emergent Tags do not use Regular Channels for Addition. They don't use AddStatusEffectToComponent(), Avoiding ProcessTagForSynergy.*/
-	
 	if (!IsValid(OwningEnemyCharacter)) return;
+	
+	AddEffectToStatusEffectBar(Tag);
 	
 	StatusEffectIdTagContainer.AddTag(Tag);
 	/*
@@ -353,7 +354,7 @@ void UStatusEffectHandlerComponent::AddEffectToStatusEffectBar(FGameplayTag Effe
 				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);
 				if (IsValid(StatusEffectBar))
 				{
-					StatusEffectBar->AddEffectToBar(EffectTag);
+					StatusEffectBar->AddEmergentTagToBar(EffectTag);
 				}
 			}
 		}
@@ -395,8 +396,6 @@ void UStatusEffectHandlerComponent::RemoveEffectFromComponent(const FStatusEffec
 	HandleModifierDebuffIsSlowed(Effect, 1.0f); //Back to normal speed
 
 	HandleStunEffectRemoval(Effect);
-
-
 	
 	//This would remove all status effects, even if there are multiple stacks/instances of the same effect.(Imagine 2 Slow traps in the same location.)
 	ActiveStatusEffects.RemoveAll([Effect](const FStatusEffect& ActiveEffect)

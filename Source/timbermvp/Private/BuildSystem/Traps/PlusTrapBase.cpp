@@ -5,7 +5,7 @@
 
 #include "BuildSystem/BuildingComponents/TimberBuildingComponentBase.h"
 #include "Components/BoxComponent.h"
-#include "Kismet/KismetMathLibrary.h"
+
 
 
 // Sets default values
@@ -26,7 +26,7 @@ void APlusTrapBase::BeginPlay()
 	RaycastForHitBoxLength();
 	
 	FTimerHandle RaycastForBoxLengthTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(RaycastForBoxLengthTimerHandle, this, &APlusTrapBase::RaycastForHitBoxLength, 2.0f, true);
+	GetWorld()->GetTimerManager().SetTimer(RaycastForBoxLengthTimerHandle, this, &APlusTrapBase::RaycastForHitBoxLength, 0.3f, true);
 }
 
 void APlusTrapBase::RaycastForHitBoxLength()
@@ -106,6 +106,7 @@ void APlusTrapBase::RaycastForHitBoxLength()
 void APlusTrapBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	RaycastForHitBoxLength();
 	
 }
 

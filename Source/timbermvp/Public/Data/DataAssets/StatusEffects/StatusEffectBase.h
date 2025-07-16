@@ -15,7 +15,7 @@ enum class EStatusEffectLevel : uint8
 {
 	Minor UMETA(DisplayName = "Minor"),
 	Major UMETA(DisplayName = "Major"),
-	Critical UMETA(DisplayName = "Critical"),
+	Ultimate UMETA(DisplayName = "Ultimate"),
 	Emergent UMETA(DisplayName = "Emergent"),
 	Default UMETA(DisplayName = "Default")
 };
@@ -38,7 +38,7 @@ struct FStatusEffectFontSize
 				return 36;
 			case EStatusEffectLevel::Emergent:
 				return 36;
-			case EStatusEffectLevel::Critical:
+			case EStatusEffectLevel::Ultimate:
 				return 54;
 			default:
 				return 12;

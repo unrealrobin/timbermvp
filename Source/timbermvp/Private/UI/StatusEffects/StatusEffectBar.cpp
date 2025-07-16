@@ -12,44 +12,52 @@ void UStatusEffectBar::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UStatusEffectBar::AddEffectToBar(FGameplayTag EffectTag)
+void UStatusEffectBar::AddEmergentTagToBar(FGameplayTag EffectTag)
 {
-	UUserWidget* NewIcon = CreateWidget<UUserWidget>(GetWorld(), StatusEffectBarIconClass);
-	if (UStatusEffectBarIcon* IconWidget = Cast<UStatusEffectBarIcon>(NewIcon))
+	
+	if (!ActiveWidgetTags.HasTagExact(EffectTag))
 	{
-		//Checking the ID of the Effect Tag to determine the tint color for the icon.
-		if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.Effect.Fire.Burn"))
+		UUserWidget* NewIcon = CreateWidget<UUserWidget>(GetWorld(), StatusEffectBarIconClass);
+		if (UStatusEffectBarIcon* IconWidget = Cast<UStatusEffectBarIcon>(NewIcon))
 		{
-			IconWidget->StatusBarIconTint = FLinearColor((219.0f / 255.0f), (115.0f / 255.0), (76.0f / 255.0f), 1.0f); 
-		}
-		else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.Effect.Corrosion.Erode"))
-		{
-			IconWidget->StatusBarIconTint = FLinearColor(0.0f, 1.0f, 0.0f, 1.0f); 
-		}
-		else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.Effect.Frost.Chill"))
-		{
-			IconWidget->StatusBarIconTint = FLinearColor(0.0f, 0.0f, 1.0f, 1.0f); 
-		}
-		else
-		{
-			//For Status Effect attacks that shouldn't have an icon. These are Initial Damage only Effects.
-			return;
-		}
+			//Checking the ID of the Effect Tag to determine the tint color for the icon.
+			if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.EmergentEffect.Charred"))
+			{
+				IconWidget->StatusBarIconTint = FLinearColor::Red; 
+			}
+			else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.EmergentEffect.Corroded"))
+			{
+				IconWidget->StatusBarIconTint = FLinearColor::Green; 
+			}
+			else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.EmergentEffect.Wet"))
+			{
+				IconWidget->StatusBarIconTint = FLinearColor::Blue; 
+			}
+			else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.EmergentEffect.Demolish"))
+			{
+				IconWidget->StatusBarIconTint = FLinearColor::Gray; 
+			}
+			else if (EffectTag == FGameplayTag::RequestGameplayTag("SynergySystem.EmergentEffect.Sparked"))
+			{
+				IconWidget->StatusBarIconTint = FLinearColor::Yellow; 
+			}
+			else
+			{
+				//For Status Effect attacks that shouldn't have an icon. These are Initial Damage only Effects.
+				return;
+			}
 
-		//Setting the GameplayTag on the Widget - Used for Removal
-		IconWidget->AssociatedEffectTag = EffectTag; // Set the associated effect tag
-		
-		StatusEffectIconContainer->AddChild(IconWidget);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to cast NewIcon to UStatusEffectBarIcon"));
+			//Setting the GameplayTag on the Widget - Used for Removal
+			IconWidget->AssociatedEffectTag = EffectTag;
+			ActiveWidgetTags.AddTag(EffectTag);
+			StatusEffectIconContainer->AddChild(IconWidget);
+		}
 	}
 }
 
 void UStatusEffectBar::RemoveEffectFromBar(FGameplayTag EffectTag)
 {
-	if (StatusEffectIconContainer)
+	if (IsValid(StatusEffectIconContainer))
 	{
 		TArray<UWidget*> IconWidgetsArray = StatusEffectIconContainer->GetAllChildren();
 		for (UWidget* Widget : IconWidgetsArray)
@@ -61,6 +69,10 @@ void UStatusEffectBar::RemoveEffectFromBar(FGameplayTag EffectTag)
 				if (IconWidget->AssociatedEffectTag == EffectTag)
 				{
 					StatusEffectIconContainer->RemoveChild(IconWidget);
+					if (ActiveWidgetTags.HasTagExact(EffectTag))
+					{
+						ActiveWidgetTags.RemoveTag(EffectTag);
+					}
 					break;
 				}
 			}

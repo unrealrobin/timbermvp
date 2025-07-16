@@ -73,7 +73,7 @@ void USynergySystem::ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandler
 	case EStatusEffectLevel::Major:
 		HandleEmergentTagChecks(Tag, StatusEffectComponent);
 		break;
-	case EStatusEffectLevel::Critical:
+	case EStatusEffectLevel::Ultimate:
 		HandleCriticalEffectsLogic(Tag, StatusEffectComponent, Effect);
 		break;
 	case EStatusEffectLevel::Default:

@@ -24,8 +24,6 @@ void UEffectAbilityHandlerBase::ExecuteEffect(AActor* TargetActor,
 		FGameplayTag TagToRemove = StatusEffect.TagsToRemove.GetByIndex(0);
 		RemoveEmergentTagFromActor(TargetActor, TagToRemove);
 	}
-	
-	//Custom Logic here for Each Unique Effect with Abilties.
 }
 
 void UEffectAbilityHandlerBase::HandleSFX(AActor* TargetActor, const FStatusEffect& StatusEffect)
@@ -54,24 +52,41 @@ TArray<AActor*> UEffectAbilityHandlerBase::SortActorsByDistance(TArray<AActor*> 
 {
 	//Target Actor Cache is a Stored Ref to the initial Actor the rest of this should be based on.
 	//Target Actors is already retrieved.
-	if (TargetActors.Num() > 1 && IsValid(TargetActorCache))
+	if (!TargetActorCache || TargetActors.Num() < 2)
 	{
-		TargetActors.Sort([this](const AActor* ActorA, const AActor* ActorB)
-		{
-			return FVector::DistSquared(TargetActorCache->GetActorLocation(), ActorA->GetActorLocation() ) > FVector::DistSquared(TargetActorCache->GetActorLocation(), ActorB->GetActorLocation());
-		});
+		return TargetActors;
 	}
 
-	if (!bReturnAllActors && HowManyToReturn >= 1)
+	// Sort by distance to the cached target actor
+	TargetActors.Sort([this](const AActor& A, const AActor& B)
 	{
-		if (TargetActors.IsValidIndex(HowManyToReturn - 1))
+		float DistanceA = FVector::DistSquared(A.GetActorLocation(), TargetActorCache->GetActorLocation());
+		float DistanceB = FVector::DistSquared(B.GetActorLocation(), TargetActorCache->GetActorLocation());
+		return DistanceA < DistanceB;
+	});
+
+	if (bReturnAllActors)
+	{
+		return TargetActors;
+	}
+    
+	// Return only the specified number of closest actors
+	// We are not 100% sure how many actors we have in Range so we verify each index.
+	TArray<AActor*> ResultActors;
+	int32 NumToReturn = FMath::Min(HowManyToReturn, TargetActors.Num());
+	for (int32 i = 0; i < NumToReturn; i++)
+	{
+		if (ResultActors.IsValidIndex(i))
 		{
-			TargetActors.RemoveAt(HowManyToReturn - 1, TargetActors.Num() - HowManyToReturn, false);
+			ResultActors.Add(TargetActors[i]);
+		}
+		else
+		{
+			break;
 		}
 	}
-
-	return TargetActors;
-
+    
+	return ResultActors;
 }
 
 TArray<AActor*> UEffectAbilityHandlerBase::GetActorsInRadius_IncludeTarget(AActor* SourceActor, float Radius)
@@ -93,7 +108,10 @@ TArray<AActor*> UEffectAbilityHandlerBase::GetActorsInRadius_IncludeTarget(AActo
 				//Checking Z Diffrence of Hit Actor and Source Actor
 				if (FMath::Abs(SourceActor->GetActorLocation().Z - OverlapResult.GetActor()->GetActorLocation().Z) < VerticalOffsetAmount)
 				{
-					ActorsInRadius.Add(OverlapResult.GetActor());
+					if (OverlapResult.GetActor()->IsA(ATimberEnemyCharacter::StaticClass()))
+					{
+						ActorsInRadius.Add(OverlapResult.GetActor());
+					}
 				}
 			}
 		}

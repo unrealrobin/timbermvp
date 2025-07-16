@@ -64,7 +64,7 @@ void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> Eff
 				if (!IsValid(Enemy)) return;
 				
 				//Displays the Critical Synergy Effect Name in Floating Damage UI.
-				if (EffectDefinition->StatusEffectAsset->StatusEffect.EffectLevel == EStatusEffectLevel::Critical)
+				if (EffectDefinition->StatusEffectAsset->StatusEffect.EffectLevel == EStatusEffectLevel::Ultimate)
 				{
 					FName TagName = Enemy->StatusEffectHandler->GetLastNameOfTag(EffectDefinition->StatusEffectAsset->StatusEffect.EffectIdTag);
 					Enemy->SpawnEffectNameUI(TagName, EffectDefinition->StatusEffectAsset);

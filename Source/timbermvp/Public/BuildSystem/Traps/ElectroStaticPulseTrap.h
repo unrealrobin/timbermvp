@@ -25,6 +25,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
 
 	void MovePulseHitSphere(float DeltaTime);
 
@@ -38,7 +39,7 @@ protected:
 	float InitialHitDamage = 10.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	float SphereRadius = 120.f;
+	float SphereRadius = 80.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* PulseHitBox = nullptr;
@@ -49,16 +50,13 @@ protected:
 	FTimerHandle FireElectroPulseTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cooldown")
-	float FireElectroPulseCooldown = 3.f;
+	float FireElectroPulseCooldown = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMesh* PulseMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMesh* PulseSphereMesh = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* PulseMeshComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* PulseSphereMeshComponent = nullptr;

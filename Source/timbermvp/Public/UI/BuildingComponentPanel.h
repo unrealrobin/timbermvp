@@ -69,6 +69,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetHasStatusEffect(bool bNewHasStatusEffect);
 
+	/* Build Menu Trap Data Panel */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* InitialDamageTextBlock;
 	UPROPERTY(meta = (BindWidget))

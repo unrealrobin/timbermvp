@@ -55,7 +55,7 @@ void UStatusEffectHandlerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	}
 }
 
-void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Effect, AActor* EffectInstigator)
+void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Effect)
 {
 	if (!IsValid(OwningEnemyCharacter)) return;
 	

@@ -133,6 +133,9 @@ struct FStatusEffect
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxStacks = 100;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Secondary Effect")
+	UStatusEffectBase* SecondaryEffect = nullptr;
+
 	/* Color
 	 *
 	 * We Choose A Type in Editor for Each Status effect, depending on the Effects Element Type

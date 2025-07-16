@@ -25,12 +25,14 @@ public:
 	virtual void ExecuteEffect(AActor* TargetActor, const FStatusEffect& StatusEffect);
 
 protected:
-
-	/* Removes some @Tag
-	 * Level 3 Effects - Removes the Causing Emergent Tag
-	 */
-	void RemoveEmergentTagFromActor(AActor* TargetActor, FGameplayTag Tag);
-
+	UPROPERTY()
+	TObjectPtr<AActor> TargetActorCache = nullptr;
 	
-	TArray<AActor*> GetActorsInRadius(AActor* SourceActor, float Radius);
+	virtual void HandleVFX(AActor* TargetActor, const FStatusEffect& StatusEffect);
+	virtual void HandleSFX(AActor* TargetActor, const FStatusEffect& StatusEffect);
+
+	TArray<AActor*> GetActorsInRadius_IncludeTarget(AActor* SourceActor, float Radius);
+	void RemoveEmergentTagFromActor(AActor* TargetActor, FGameplayTag Tag);
+	TArray<AActor*> SortActorsByDistance(TArray<AActor*> TargetActors, bool bReturnAllActors = true, int HowManyToReturn = 0);
+	
 };

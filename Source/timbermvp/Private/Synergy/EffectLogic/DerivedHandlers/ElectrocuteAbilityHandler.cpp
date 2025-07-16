@@ -12,5 +12,8 @@ void UElectrocuteAbilityHandler::ExecuteEffect(AActor* TargetActor,
 {
 	Super::ExecuteEffect(TargetActor, StatusEffect);
 
+
+	TArray<AActor*> ActorsInRadius = GetActorsInRadius_IncludeTarget(TargetActor, 500.0f);
+	
 	UE_LOG(LogTemp, Warning, TEXT("Electrocute Ability Executed."));
 }

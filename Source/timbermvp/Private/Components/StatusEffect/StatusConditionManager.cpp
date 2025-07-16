@@ -70,7 +70,7 @@ void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> Eff
 					Enemy->SpawnEffectNameUI(TagName, EffectDefinition->StatusEffectAsset);
 				}
 				
-				Enemy->StatusEffectHandler->AddStatusEffectToComponent(EffectDefinition->StatusEffectAsset->StatusEffect, Context.SourceActor);
+				Enemy->StatusEffectHandler->AddStatusEffectToComponent(EffectDefinition->StatusEffectAsset->StatusEffect);
 			}
 		}
 	}

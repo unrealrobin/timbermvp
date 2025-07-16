@@ -30,7 +30,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
 	ATimberEnemyCharacter* OwningEnemyCharacter = nullptr;
 	
-	void AddStatusEffectToComponent(FStatusEffect& Effect, AActor* EffectInstigator);
+	void AddStatusEffectToComponent(FStatusEffect& Effect);
 	void AddEmergentTag(FGameplayTag Tag, float Duration);
 	void RemoveEmergentTag(FGameplayTag Tag);
 	FName GetLastNameOfTag(FGameplayTag Tag);

@@ -83,6 +83,18 @@ void USynergySystem::ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandler
 	}
 }
 
+FName USynergySystem::GetLastNameOfGameplayTag(FGameplayTag Tag)
+{
+	FString TagName = Tag.GetTagName().ToString();
+	TArray<FString> Parts;
+	TagName.ParseIntoArray(Parts, TEXT("."), true);
+
+	//Converts the String to Uppercase
+	FName EffectName = Parts.Num() > 0 ? FName(*Parts.Last().ToUpper()) : NAME_None;
+
+	return EffectName;
+}
+
 void USynergySystem::ExecuteEffectHandlerLogic(UEffectAbilityHandlerBase* EffectHandler)
 {
 	//Logic.

@@ -63,6 +63,10 @@ public:
 	UFUNCTION()
 	void ProcessTagForSynergy(FGameplayTag Tag, UStatusEffectHandlerComponent* StatusEffectComponent, FStatusEffect& Effect);
 
+	UFUNCTION(BlueprintCallable)
+	FName GetLastNameOfGameplayTag(FGameplayTag Tag);
+
+
 private:
 
 	void ExecuteEffectHandlerLogic(UEffectAbilityHandlerBase* EffectHandler);

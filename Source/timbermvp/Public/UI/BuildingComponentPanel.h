@@ -6,9 +6,12 @@
 #include "Blueprint/UserWidget.h"
 #include "BuildingComponentPanel.generated.h"
 
+class UEffectDefinitionItem;
+class UVerticalBox;
 class FAssetRegistryModule;
 class ATrapBase;
 class UTextBlock;
+
 
 /**
  * 
@@ -36,6 +39,15 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void PrepareStatusEffectForMenu();
+
+	UFUNCTION(BlueprintCallable)
+	void PrepareTrapEffectList();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveTrapEffectList();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build Menu")
+	TSubclassOf<UEffectDefinitionItem> EffectDefinitionItemClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Build Menu")
 	UDataAsset* BuildMenuHoveredIconDataAsset;
@@ -86,5 +98,6 @@ protected:
 	UTextBlock* MetaTextBlock;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* RemovesTextBlock;
-	
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* TrapDetailsVerticalBox;
 };

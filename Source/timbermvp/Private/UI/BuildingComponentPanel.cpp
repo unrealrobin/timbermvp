@@ -5,8 +5,11 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "BuildSystem/Traps/TrapBase.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
 #include "Data/DataAssets/BuildComponentDataAsset.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
+#include "Data/DataAssets/StatusEffects/StatusEffectDefinition.h"
+#include "UI/StatusEffects/EffectDefinitionItem.h"
 
 
 void UBuildingComponentPanel::LoadAllDataAssetsForMenu()
@@ -125,6 +128,52 @@ void UBuildingComponentPanel::PrepareStatusEffectForMenu()
 	{
 		bHasStatusEffect = false;
 		UE_LOG(LogTemp, Warning, TEXT("Hovered Building Component Icon Class has NO Status Effect Data Asset!"));
+	}
+}
+
+void UBuildingComponentPanel::PrepareTrapEffectList()
+{
+	//Get the DA for the Status Effect.
+	//Get the default settings on the status Effect from the Status Effect CLass.
+	if (BuildMenuHoveredIconDataAsset && EffectDefinitionItemClass)
+	{
+		if (UBuildComponentDataAsset* BuildComponentDataAsset = Cast<UBuildComponentDataAsset>(BuildMenuHoveredIconDataAsset))
+		{
+			if (BuildComponentDataAsset->BuildingComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			{
+				ATrapBase* TrapBase = BuildComponentDataAsset->BuildingComponentClass->GetDefaultObject<ATrapBase>();
+				//Loop through the Status Effect Definitions.
+				//For Each Definition
+				for (UStatusEffectDefinition* EffectDefinition: TrapBase->StatusEffectDefinitions)
+				{
+					//Create an Effect Definition Info Widget
+					UEffectDefinitionItem* EffectDefinitionWidget = CreateWidget<UEffectDefinitionItem>(this, EffectDefinitionItemClass);
+					if (EffectDefinitionWidget)
+					{
+						EffectDefinitionWidget->EffectDefinition = EffectDefinition;
+						EffectDefinitionWidget->TrapDefaultObject = TrapBase;
+						EffectDefinitionWidget->ConfigureDataDisplay();
+						TrapDetailsVerticalBox->AddChild(EffectDefinitionWidget);
+					}
+				}
+			}
+		}
+	}
+}
+
+void UBuildingComponentPanel::RemoveTrapEffectList()
+{
+	if (TrapDetailsVerticalBox->GetChildrenCount() > 0)
+	{
+		TArray<UWidget*> ChildrenWidgets = TrapDetailsVerticalBox->GetAllChildren();
+		for (UWidget* Child : ChildrenWidgets)
+		{
+			if (Child->IsA(UEffectDefinitionItem::StaticClass()))
+			{
+				TrapDetailsVerticalBox->RemoveChild(Child);
+			}
+		}
+		ChildrenWidgets.Empty();
 	}
 }
 

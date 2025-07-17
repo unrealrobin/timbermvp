@@ -33,6 +33,7 @@ public:
 	void AddStatusEffectToComponent(FStatusEffect& Effect);
 	void AddEmergentTag(FGameplayTag Tag, float Duration);
 	void RemoveEmergentTag(FGameplayTag Tag);
+	
 	FName GetLastNameOfTag(FGameplayTag Tag);
 	
 protected:

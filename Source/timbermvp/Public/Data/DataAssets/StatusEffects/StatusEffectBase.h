@@ -103,6 +103,9 @@ struct FStatusEffect
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
 	FGameplayTag EffectIdTag;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Description")
+	FText EffectDescription;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Tags")
 	FGameplayTagContainer ModifierTagContainer;
 

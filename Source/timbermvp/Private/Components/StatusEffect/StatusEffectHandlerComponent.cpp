@@ -109,7 +109,8 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 	if (SynergySub)
 	{
 		UStatusEffectBase* EmergentStatusEffect = SynergySub->EmergentEffectsMap[Tag];
-		
+
+		//TODO:: Replace with functions for Synergy Subsystem. 
 		// SynergySystem.EmergentEffect.Wet -> Wet
 		FName TagName = GetLastNameOfTag(Tag);
 		

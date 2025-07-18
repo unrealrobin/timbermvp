@@ -4,6 +4,7 @@
 #include "UI/StatusEffects/EffectDefinitionItem.h"
 
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
 #include "Components/WrapBox.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectDefinition.h"
 #include "Data/DataAssets/StatusEffects/EffectConditions/EffectCondition_Chance.h"
@@ -37,6 +38,10 @@ void UEffectDefinitionItem::ConfigureDataDisplay()
 		if (EffectLevel == EStatusEffectLevel::Ultimate)
 		{
 			GetTagsForEmergentCombos(EffectDefinition);
+		}
+		else
+		{
+			EmergentTagDisplay->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 	else
@@ -224,35 +229,18 @@ void UEffectDefinitionItem::GetTagsForEmergentCombos(UStatusEffectDefinition* De
 		if (UEffectCondition_HasTag* HasTagCondition = Cast<UEffectCondition_HasTag>(Def->StatusEffectCondition))
 		{
 			
-			if (TArray<FSynergyRules>* ArrayOfRules = SynSub->SynergyRules.Find(HasTagCondition->Tag))
+			if (TArray<FGameplayTagContainer>* ArrayOfGPTContainers = SynSub->EmergentEffectComboRequirements.Find(HasTagCondition->Tag))
 			{
-				//ArrayOfRules->Append(*SynSub->SynergyRules.Find(HasTagCondition->Tag));
-				if (ArrayOfRules->Num() > 0)
+				if (ArrayOfGPTContainers->Num() == 2)
 				{
-					for (const FSynergyRules& Rules : *ArrayOfRules)
-					{
-						EmergentTagRuleContainers.Add(Rules.SynergyTags);
-					}
-					if (EmergentTagRuleContainers.Num() > 0 && SynSub)
-					{
-						FGameplayTagContainer Container1 = EmergentTagRuleContainers[0];
-						FGameplayTagContainer Container2 = EmergentTagRuleContainers[1];
-
-						//Ew gross fix after finding a publisher. At least I am checking the values exist.
-						if (Container1.GetByIndex(0).IsValid() &&
-							Container1.GetByIndex(1).IsValid() &&
-							Container2.GetByIndex(0).IsValid() &&
-							Container2.GetByIndex(1).IsValid() )
-						{
-							Rule1Value1 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container1.GetByIndex(0)));
-							Rule1Value2 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container1.GetByIndex(1)));
-							Rule2Value1 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container2.GetByIndex(0)));
-							Rule2Value2 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container2.GetByIndex(0)));
-						}
-					}
+					//Ew gross fix after finding a publisher. At least I am checking the values exist.
+					TArray<FGameplayTagContainer> DerefArray = *ArrayOfGPTContainers;
+					Rule1Value1 = FText::FromName(SynSub->GetLastNameOfGameplayTag(DerefArray[0].GetByIndex(0)));
+					Rule1Value2 = FText::FromName(SynSub->GetLastNameOfGameplayTag(DerefArray[0].GetByIndex(1)));
+					Rule2Value1 = FText::FromName(SynSub->GetLastNameOfGameplayTag(DerefArray[1].GetByIndex(0)));
+					Rule2Value2 = FText::FromName(SynSub->GetLastNameOfGameplayTag(DerefArray[1].GetByIndex(1)));
 				}
 			}
-
 		}
 	}
 }

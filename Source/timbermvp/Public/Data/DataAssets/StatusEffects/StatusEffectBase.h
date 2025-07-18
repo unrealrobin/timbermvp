@@ -70,7 +70,7 @@ struct FStatusEffectColors
 	FLinearColor FrostColor = FColor::FromHex(TEXT("00DAFF")).ReinterpretAsLinear();      
 	FLinearColor Arc = FColor::FromHex(TEXT("F6FF02")).ReinterpretAsLinear();       
 	FLinearColor Corrosion = FColor::FromHex(TEXT("00FF1C")).ReinterpretAsLinear();   
-	FLinearColor Physical = FColor::FromHex(TEXT("B8BBB8")).ReinterpretAsLinear();
+	FLinearColor Physical = FColor::FromHex(TEXT("BB2928")).ReinterpretAsLinear();
 	
 	FLinearColor GetColorFromType(EStatusEffectColorType ColorType) const
 	{

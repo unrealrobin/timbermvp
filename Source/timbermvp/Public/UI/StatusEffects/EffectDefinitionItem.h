@@ -9,6 +9,7 @@
 #include "EffectDefinitionItem.generated.h"
 
 
+class UVerticalBox;
 class UHorizontalBox;
 class UWrapBox;
 enum class EEffectConditionType : uint8;
@@ -92,7 +93,8 @@ protected:
 	TArray<FGameplayTagContainer> EmergentTagRuleContainers;
 
 	//TODO:: Fix Later as I am Hard Coding Emergent Rule Value linking here.
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget)) 
+	UVerticalBox* EmergentTagDisplay; 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmergentTagRuleNames")
 	FText ConditionEmergentTag;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmergentTagRuleNames")
@@ -112,5 +114,6 @@ private:
 	void GetEffectName(FStatusEffect& StatusEffect);
 	void ProcessDOTInfo(FStatusEffect& StatusEffect);
 	void GetTagsForEmergentCombos(UStatusEffectDefinition* Def);
+	
 	
 };

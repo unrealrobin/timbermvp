@@ -43,8 +43,11 @@ class TIMBERMVP_API USynergySystem : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	//Rules needed to Generate Emergent Tags.
+	//Rules needed to Generate Emergent Tags. Keys = Lvl 2 Tags
+	//Used for Searching if a newly applied tag can synergy into an emergent tag.
 	TMap<FGameplayTag, TArray<FSynergyRules>> SynergyRules;
+	//Emergent to Required Tags Map. Keys = Emergent Tags
+	TMap<FGameplayTag, TArray<FGameplayTagContainer>> EmergentEffectComboRequirements;
 
 	UPROPERTY()
 	TMap<FGameplayTag, UStatusEffectBase*> EmergentEffectsMap;

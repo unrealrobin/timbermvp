@@ -107,7 +107,10 @@ void USynergySystem::CreateSynergyRule(FName Tag1, FName Tag2, FName EmergentTag
 	TagContainer.AddTag(FGameplayTag::RequestGameplayTag(Tag1));
 	TagContainer.AddTag(FGameplayTag::RequestGameplayTag(Tag2));
 
-	//Settings of Emergent Tag
+	//Populates EmergentEffectComboRequirements
+	EmergentEffectComboRequirements.FindOrAdd(FGameplayTag::RequestGameplayTag(EmergentTag)).Add(TagContainer);
+	
+	//Populates SynergyRules TMap
 	FSynergyRules NewRule(TagContainer, FGameplayTag::RequestGameplayTag(EmergentTag));
 
 	for (FGameplayTag Tag: TagContainer)

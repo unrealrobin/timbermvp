@@ -4,6 +4,7 @@
 #include "UI/StatusEffects/EffectDefinitionItem.h"
 
 #include "Components/TextBlock.h"
+#include "Components/WrapBox.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectDefinition.h"
 #include "Data/DataAssets/StatusEffects/EffectConditions/EffectCondition_Chance.h"
 #include "Data/DataAssets/StatusEffects/EffectConditions/EffectCondition_HasTag.h"
@@ -26,7 +27,7 @@ void UEffectDefinitionItem::ConfigureDataDisplay()
 		FStatusEffect StatusEffectStruct = EffectDefinition->StatusEffectAsset->StatusEffect;
 		EStatusEffectLevel EffectLevel = StatusEffectStruct.EffectLevel;
 		EffectColor = StatusEffectStruct.GetEffectColor();
-
+		SetEffectLevelInfo(EffectLevel);
 		GetEffectName(StatusEffectStruct);
 		HandleEffectConditionType(EffectDefinition->StatusEffectCondition);
 		CheckForInitialDamage(StatusEffectStruct);
@@ -35,7 +36,7 @@ void UEffectDefinitionItem::ConfigureDataDisplay()
 
 		if (EffectLevel == EStatusEffectLevel::Ultimate)
 		{
-			ConfigureUltimateEffect(StatusEffectStruct);
+			GetTagsForEmergentCombos(EffectDefinition);
 		}
 	}
 	else
@@ -51,54 +52,84 @@ void UEffectDefinitionItem::ConfigureDataDisplay()
 	}
 }
 
+void UEffectDefinitionItem::SetEffectLevelInfo(EStatusEffectLevel EffectLevel)
+{
+	EffectLevelType = EffectLevel;
+	switch (EffectLevel)
+	{
+	case EStatusEffectLevel::Minor:
+		EffectLevelValue = FText::FromString("Minor");
+		break;
+	case EStatusEffectLevel::Major:
+		EffectLevelValue = FText::FromString("Major");
+		break;
+	case EStatusEffectLevel::Ultimate:
+		EffectLevelValue = FText::FromString("Ultimate");
+		break;
+	case EStatusEffectLevel::Default:
+		EffectLevelValue = FText::FromString("DEV_FIX");
+		break;
+	default:
+		EffectLevelValue = FText::FromString("DEV_FIX");
+		break;
+	}
+}
+
 void UEffectDefinitionItem::CheckForInitialDamage(FStatusEffect& StatusEffect)
 {
 	if (StatusEffect.InitialDamage > 0)
 	{
 		InitialDamageTextBlock->SetText(FText::AsNumber(StatusEffect.InitialDamage));
 	}
+	else
+	{
+		InitialDamageTextBlock->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void UEffectDefinitionItem::CheckForModifiers(FStatusEffect& StatusEffect)
 {
-	for (FGameplayTag ModifierTag : StatusEffect.ModifierTagContainer)
+	if (StatusEffect.ModifierTagContainer.Num() > 0)
 	{
-		if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsSlowed"))
+		for (FGameplayTag ModifierTag : StatusEffect.ModifierTagContainer)
 		{
-			ModifierList.Add(FName("Slow"));
-			continue;
-		}
+			if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsSlowed"))
+			{
+				ModifierList.Add(FName("Slow"));
+				continue;
+			}
 
-		if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsStunned"))
-		{
-			ModifierList.Add(FName("Stun"));
-			continue;
-		}
+			if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsStunned"))
+			{
+				ModifierList.Add(FName("Stun"));
+				continue;
+			}
 
-		if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("HasDOT"))
-		{
-			ModifierList.Add(FName("DOT"));
-			ProcessDOTInfo(StatusEffect);
-			continue;
-		}
+			if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("HasDOT"))
+			{
+				ModifierList.Add(FName("DOT"));
+				ProcessDOTInfo(StatusEffect);
+				continue;
+			}
 
-		if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsTakesMoreDamage"))
-		{
-			ModifierList.Add(FName("Takes Increased Damage"));
-			continue;
-		}
+			if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsTakesMoreDamage"))
+			{
+				ModifierList.Add(FName("+Damage"));
+				continue;
+			}
 
-		if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsIncreasedSpeed"))
-		{
-			ModifierList.Add(FName("Speed Increased"));
-			continue;	
-		}
+			if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("IsIncreasedSpeed"))
+			{
+				ModifierList.Add(FName("+Speed"));
+				continue;	
+			}
 
-		if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("Removal"))
-		{
-			FGameplayTag RemovedEffectTag = StatusEffect.TagsToRemove.First();
-			FName RemovedEffectName = SynSub->GetLastNameOfGameplayTag(RemovedEffectTag);
-			RemovesEffectTagList.Add(RemovedEffectName);
+			if (SynSub->GetLastNameOfGameplayTag(ModifierTag) == FName("Removal"))
+			{
+				FGameplayTag RemovedEffectTag = StatusEffect.TagsToRemove.First();
+				FName RemovedEffectName = SynSub->GetLastNameOfGameplayTag(RemovedEffectTag);
+				RemovesEffectTagList.Add(RemovedEffectName);
+			}
 		}
 	}
 }
@@ -143,8 +174,8 @@ void UEffectDefinitionItem::HandleEffectConditionType(UEffectConditionBase* Effe
 			ConditionValue = FText::AsNumber(ChanceCondition->Chance);
 		}
 		break;
-	case EEffectConditionType::Default:
-		break;
+	default:
+		ConditionValueTextBlock->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -166,18 +197,62 @@ void UEffectDefinitionItem::ProcessDOTInfo(FStatusEffect& StatusEffect)
 	DamagePerTickValue = StatusEffect.DamagePerTick;
 	Duration = StatusEffect.Duration;
 	TickInterval = StatusEffect.TickInterval;
+
+	if (DamagePerTickValue <= 0)
+	{
+		DamagePerTickTextBlock->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (Duration <= 0)
+	{
+		DOTDurationTextBlock->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (TickInterval <= 0){
+		TickIntervalTextBlock->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
-void UEffectDefinitionItem::ConfigureMinorEffect()
+void UEffectDefinitionItem::GetTagsForEmergentCombos(UStatusEffectDefinition* Def)
 {
-}
+	if (SynSub)
+	{
+		if (Def->StatusEffectCondition && Def->StatusEffectCondition->EffectConditionType == EEffectConditionType::HasTag)
+		{
+			ConditionEmergentTag = FText::FromName(SynSub->GetLastNameOfGameplayTag(Cast<UEffectCondition_HasTag>(Def->StatusEffectCondition)->Tag));
+		}
+		if (UEffectCondition_HasTag* HasTagCondition = Cast<UEffectCondition_HasTag>(Def->StatusEffectCondition))
+		{
+			
+			if (TArray<FSynergyRules>* ArrayOfRules = SynSub->SynergyRules.Find(HasTagCondition->Tag))
+			{
+				//ArrayOfRules->Append(*SynSub->SynergyRules.Find(HasTagCondition->Tag));
+				if (ArrayOfRules->Num() > 0)
+				{
+					for (const FSynergyRules& Rules : *ArrayOfRules)
+					{
+						EmergentTagRuleContainers.Add(Rules.SynergyTags);
+					}
+					if (EmergentTagRuleContainers.Num() > 0 && SynSub)
+					{
+						FGameplayTagContainer Container1 = EmergentTagRuleContainers[0];
+						FGameplayTagContainer Container2 = EmergentTagRuleContainers[1];
 
-void UEffectDefinitionItem::ConfigureMajorEffect()
-{
-}
+						//Ew gross fix after finding a publisher. At least I am checking the values exist.
+						if (Container1.GetByIndex(0).IsValid() &&
+							Container1.GetByIndex(1).IsValid() &&
+							Container2.GetByIndex(0).IsValid() &&
+							Container2.GetByIndex(1).IsValid() )
+						{
+							Rule1Value1 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container1.GetByIndex(0)));
+							Rule1Value2 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container1.GetByIndex(1)));
+							Rule2Value1 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container2.GetByIndex(0)));
+							Rule2Value2 = FText::FromName(SynSub->GetLastNameOfGameplayTag(Container2.GetByIndex(0)));
+						}
+					}
+				}
+			}
 
-void UEffectDefinitionItem::ConfigureUltimateEffect(FStatusEffect& StatusEffect)
-{
-	//Create a Emergent Tag Widget
+		}
+	}
 }
-

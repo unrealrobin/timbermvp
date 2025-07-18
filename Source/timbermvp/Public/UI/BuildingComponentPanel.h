@@ -37,8 +37,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateBuildableIconsInMenu();
 
-	UFUNCTION(BlueprintCallable)
-	void PrepareStatusEffectForMenu();
+	/*UFUNCTION(BlueprintCallable)
+	void PrepareStatusEffectForMenu();*/
 
 	UFUNCTION(BlueprintCallable)
 	void PrepareTrapEffectList();
@@ -80,9 +80,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SetHasStatusEffect(bool bNewHasStatusEffect);
-
-	/* Build Menu Trap Data Panel */
 	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* TrapDetailsVerticalBox;
+	/* Build Menu Trap Data Panel */
+	/*UPROPERTY(meta = (BindWidget))
 	UTextBlock* InitialDamageTextBlock;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DOTTextBlock;
@@ -98,6 +99,5 @@ protected:
 	UTextBlock* MetaTextBlock;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* RemovesTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UVerticalBox* TrapDetailsVerticalBox;
+	*/
 };

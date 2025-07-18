@@ -90,7 +90,7 @@ void ATimberEnemyCharacter::SelfDestruct()
 
 void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 {
-	if (FloatingDamageContainerClass)
+	if (!IsValid(FloatingDamageContainerActor) && FloatingDamageContainerClass)
 	{
 		FActorSpawnParameters SpawnParams;
 		AActor* FloatingDamageActor = GetWorld()->SpawnActor<AActor>(FloatingDamageContainerClass,
@@ -98,15 +98,31 @@ void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 			FRotator::ZeroRotator, 
 			SpawnParams);
 
+		FloatingDamageActor->AttachToComponent(DamageEffectUISpawnPoint, FAttachmentTransformRules::KeepRelativeTransform);
+		
 		if (AFloatingDataContainer* FloatingDamage = Cast<AFloatingDataContainer>(FloatingDamageActor))
 		{
+			
 			if (!IsValid(FloatingDamage)) return;
+			FloatingDamageContainerActor = FloatingDamage;
+			FloatingDamage->OwningActor = this;
+			
 			FloatingDamage->SetDamageAmount(DamagePayload.DamageAmount);
 			FloatingDamage->SetColor(DamagePayload.StatusEffect.GetEffectColor());
 			FloatingDamage->SetSize(DamagePayload.StatusEffect.GetEffectTextSize());
 		}
-		
 	}
+	else
+	{
+		FloatingDamageContainerActor->SetDamageAmount(DamagePayload.DamageAmount);
+		FloatingDamageContainerActor->SetColor(DamagePayload.StatusEffect.GetEffectColor());
+		FloatingDamageContainerActor->SetSize(DamagePayload.StatusEffect.GetEffectTextSize());
+	}
+}
+
+void ATimberEnemyCharacter::ClearFloatingDamageRef()
+{
+	FloatingDamageContainerActor = nullptr;
 }
 
 void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName, UStatusEffectBase* StatusEffect)

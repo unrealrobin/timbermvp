@@ -7,7 +7,7 @@
 #include "FloatingDataContainer.generated.h"
 
 class UWidgetComponent;
-
+class ATimberEnemyCharacter;
 UCLASS()
 class TIMBERMVP_API AFloatingDataContainer : public AActor
 {
@@ -24,8 +24,11 @@ public:
 	UWidgetComponent* DamageNumberWidgetComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
-	float TimeUntilDestroy = 1.0f;
+	float TimeUntilDestroy = 2.0f;
 	float ElapsedTime = 0.0f;
+
+	UPROPERTY()
+	TObjectPtr<ATimberEnemyCharacter> OwningActor;
 
 	void SetIsDamage(bool bIsThisDamage);
 	void SetEffectText(FName EffectName);

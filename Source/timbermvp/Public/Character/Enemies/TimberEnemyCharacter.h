@@ -53,7 +53,6 @@ public:
 	void HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	
 	virtual void TakeDamage(FDamagePayload DamagePayload) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Damage)
@@ -70,7 +69,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Effects")
 	USceneComponent* DamageEffectUISpawnPoint;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
 	EEnemyWeaponState EnemyWeaponType = EEnemyWeaponState::NoWeaponEquipped;
@@ -135,14 +133,19 @@ public:
 
 	UFUNCTION()
 	void SelfDestruct();
-
+	void ClearFloatingDamageRef();
 	void SpawnEffectNameUI(FName EffectName, UStatusEffectBase* StatusEffect);
+	
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<AFloatingDataContainer> FloatingDamageContainerClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Damage")
+	TObjectPtr<AFloatingDataContainer> FloatingDamageContainerActor;
 	
 	void SpawnDamageUI(FDamagePayload DamagePayload);
+	
 	
 	virtual void Tick(float DeltaSeconds) override;
 	

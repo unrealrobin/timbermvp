@@ -21,7 +21,7 @@ public:
 	float HealthThreshold = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health Threshold")
-	bool bIsPercentage = false;
+	bool bIsPercentage = true;
 
 	bool EvaluateCondition(const FEffectConditionContext& Context) const override;
 };

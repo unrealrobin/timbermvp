@@ -3,6 +3,7 @@
 
 #include "UI/StatusEffects/EffectDefinitionItem.h"
 
+#include "Components/HorizontalBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/WrapBox.h"
@@ -88,7 +89,7 @@ void UEffectDefinitionItem::CheckForInitialDamage(FStatusEffect& StatusEffect)
 	}
 	else
 	{
-		InitialDamageTextBlock->SetVisibility(ESlateVisibility::Collapsed);
+		InitialDamageBox->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -141,8 +142,8 @@ void UEffectDefinitionItem::CheckForModifiers(FStatusEffect& StatusEffect)
 
 void UEffectDefinitionItem::HandleEffectConditionType(UEffectConditionBase* EffectCondition)
 {
-	EEffectConditionType EffectConditionType = EffectCondition->EffectConditionType;
-	switch (EffectConditionType)
+	ConditionType = EffectCondition->EffectConditionType;
+	switch (ConditionType)
 	{
 	case EEffectConditionType::Always:
 		ConditionValue = FText::FromString("Always Triggers");
@@ -176,7 +177,7 @@ void UEffectDefinitionItem::HandleEffectConditionType(UEffectConditionBase* Effe
 	case EEffectConditionType::Chance:
 		if (UEffectCondition_Chance* ChanceCondition = Cast<UEffectCondition_Chance>(EffectCondition))
 		{
-			ConditionValue = FText::AsNumber(ChanceCondition->Chance);
+			ConditionValue = FText::AsNumber(ChanceCondition->Chance * 100);
 		}
 		break;
 	default:

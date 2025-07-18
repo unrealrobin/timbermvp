@@ -44,53 +44,50 @@ protected:
 	/*Effect Level Data*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UTextBlock* EffectLevelTextBlock;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
-	FText EffectLevelValue;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
-	EStatusEffectLevel EffectLevelType;
-	/* Names */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UTextBlock* EffectNameTextBlock;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
-	FText EffectName;
-	/*Condition for Effect*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UTextBlock* ConditionValueTextBlock;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
-	FText ConditionValue;
-	/*InitialDamage*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
+	UHorizontalBox* InitialDamageBox;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UTextBlock* InitialDamageTextBlock;
-	/*DOT Info*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UTextBlock* DamagePerTickTextBlock;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
-	float DamagePerTickValue = 0.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UTextBlock* DOTDurationTextBlock;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
-	float Duration = 0.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UTextBlock* TickIntervalTextBlock;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
-	float TickInterval = 0.f;
-	/*Effect Modifiers*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UHorizontalBox* ModifierListContainer;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	TArray<FName> ModifierList;
-	/*Modifier Removal Tags*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	UHorizontalBox* RemovalEffectTagList;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget))
 	TArray<FName> RemovesEffectTagList;
-	/*Colors*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StatusEffects")
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	FText EffectLevelValue;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	FText EffectName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	FText ConditionValue;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	float DamagePerTickValue = 0.f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	float Duration = 0.f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	float TickInterval = 0.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data")
 	FLinearColor EffectColor;
-
-	//Holds containers with FGameplayTags that when combined create some Emergent Tag.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
-	TArray<FGameplayTagContainer> EmergentTagRuleContainers;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	EStatusEffectLevel EffectLevelType;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effect Data")
+	EEffectConditionType ConditionType;
 
 	//TODO:: Fix Later as I am Hard Coding Emergent Rule Value linking here.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect Data", meta = (BindWidget)) 
@@ -114,6 +111,4 @@ private:
 	void GetEffectName(FStatusEffect& StatusEffect);
 	void ProcessDOTInfo(FStatusEffect& StatusEffect);
 	void GetTagsForEmergentCombos(UStatusEffectDefinition* Def);
-	
-	
 };

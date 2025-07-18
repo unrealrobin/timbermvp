@@ -3,6 +3,7 @@
 
 #include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
 
+#include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/WidgetComponent.h"
 #include "timbermvp/Public/UI/FloatingData/FloatingDataWidget.h"
 
@@ -51,7 +52,8 @@ void AFloatingDataContainer::SetDamageAmount(float InDamageAmount)
 		UUserWidget* DamageNumberWidget = DamageNumberWidgetComponent->GetWidget();
 		if (UFloatingDataWidget* DamageNumberWidgetCast = Cast<UFloatingDataWidget>(DamageNumberWidget))
 		{
-			DamageNumberWidgetCast->DamageNumber = InDamageAmount;
+			DamageNumberWidgetCast->DamageNumber += InDamageAmount; 
+			//DamageNumberWidgetCast->DamageNumber = InDamageAmount;
 		}
 		
 	}
@@ -85,6 +87,10 @@ void AFloatingDataContainer::SetSize(float InDamageSize)
 
 void AFloatingDataContainer::HandleDestroy()
 {
+	if (IsValid(OwningActor))
+	{
+		OwningActor->ClearFloatingDamageRef();
+	}
 	Destroy();
 }
 
@@ -116,8 +122,11 @@ void AFloatingDataContainer::Tick(float DeltaTime)
 	//Used for Bounce Effect.
 	float BounceAlpha = FMath::InterpEaseOut(0.f, 1.f, Alpha, 4.0f);
 
-	FVector NewLocation = FMath::Lerp(StartLocation, EndLocation, BounceAlpha);
-	SetActorLocation(NewLocation);
+	FVector StartLocationRef = StartLocation;
+	
+	float NewZLocation = FMath::Lerp(StartLocation.Z, EndLocation.Z, BounceAlpha);
+	FVector FinalAdjustedLocation = FVector(StartLocationRef.X, StartLocationRef.Y, NewZLocation);
+	SetActorLocation(FinalAdjustedLocation);
 	
 }
 

@@ -9,6 +9,7 @@
 #include "Character/TimberSeeda.h"
 #include "Components/Combat/CombatComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Components/Vignette/PlayerVignetteComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
@@ -450,10 +451,11 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			
 			TimberCharacter->bIsPlayerDead = false;
 			
-			TimberCharacter->PlayerGainHealth(TimberCharacter->MaxHealth);
-			
-			if (TimberCharacter->VignetteComponent)
-			{}
+			TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
+			if (IsValid(TimberCharacter->VignetteComponent))
+			{
+				TimberCharacter->VignetteComponent->HandleHealthChange(100);
+			}
 			
 			
 			//Reverting player Inventory to last save.

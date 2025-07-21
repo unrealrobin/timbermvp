@@ -33,6 +33,7 @@ public:
 	void ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef);
 
 	/* v1 */
+	//TODO:: To be DELETED. Using StatusEffectDefinitions Array. 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	UStatusEffectBase* StatusEffectDataAsset;
 
@@ -40,6 +41,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status Effects")
 	UStatusConditionManager* EffectConditionManager;
 
+	//[Minor, Major, Ultimate] Order is Important Here!
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status Effects")
 	TArray<UStatusEffectDefinition*> StatusEffectDefinitions;
 

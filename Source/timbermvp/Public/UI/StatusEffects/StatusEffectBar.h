@@ -38,6 +38,4 @@ public:
 	UFUNCTION()
 	void RemoveEffectFromBar(FGameplayTag EffectTag);
 
-	/*Icon Colors*/
-	
 };

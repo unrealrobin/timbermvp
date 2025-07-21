@@ -21,8 +21,9 @@ APowerPlate::APowerPlate()
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>("CollisionBox");
 	CollisionBox->SetupAttachment(RootComponent);
 	CollisionBox->SetCollisionProfileName(TEXT("DR_HitEventOnly"));
-	
-	
+	PlateCenter = CreateDefaultSubobject<UStaticMeshComponent>("Plate Center");
+	PlateCenter->SetupAttachment(StaticMeshComponent);
+	PlateCenter->SetCollisionProfileName(TEXT("DR_BuildableBlockEverything"));
 }
 
 // Called when the game starts or when spawned

@@ -33,13 +33,13 @@ struct FStatusEffectFontSize
 		switch (InEffectLevel)
 		{
 			case EStatusEffectLevel::Minor:
-				return 24;
+				return 12;
 			case EStatusEffectLevel::Major:
-				return 36;
+				return 16;
 			case EStatusEffectLevel::Emergent:
-				return 36;
+				return 18;
 			case EStatusEffectLevel::Ultimate:
-				return 54;
+				return 20;
 			default:
 				return 12;
 		}

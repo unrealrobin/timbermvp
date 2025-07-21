@@ -45,7 +45,7 @@ void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> Eff
 {
 	if (!IsValid(TargetActor)) return;
 
-	USynergySystem* SynSub = GetWorld()->GetSubsystem<USynergySystem>();
+	USynergySystem* SynSub = GetWorld()->GetGameInstance()->GetSubsystem<USynergySystem>();
 	if (!IsValid(SynSub)) return;
 	
 	FEffectConditionContext Context = GenerateEffectConditionContext(TargetActor);

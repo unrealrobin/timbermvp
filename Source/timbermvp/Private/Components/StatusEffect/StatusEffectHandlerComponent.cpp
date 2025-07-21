@@ -88,7 +88,8 @@ void UStatusEffectHandlerComponent::AddStatusEffectToComponent(FStatusEffect& Ef
 			HandleIsStackableEffect(ExisitingStatusEffect);
 		}
 	}
-	
+
+	//Only needs to be done if the Status Effect is a Major Effect.
 	ProcessTagForSynergy(Effect.EffectIdTag, Effect);
 }
 
@@ -347,9 +348,9 @@ void UStatusEffectHandlerComponent::AddEffectToStatusEffectBar(FGameplayTag Effe
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
 	if (IsValid(EnemyCharacter))
 	{
-		if (IsValid(EnemyCharacter->StatusEffectBarComponent))
+		if (IsValid(EnemyCharacter->StatusEffectBarWidgetComponent))
 		{
-			UUserWidget* Widget = EnemyCharacter->StatusEffectBarComponent->GetUserWidgetObject();
+			UUserWidget* Widget = EnemyCharacter->StatusEffectBarWidgetComponent->GetUserWidgetObject();
 			if (IsValid(Widget))
 			{
 				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);
@@ -367,9 +368,9 @@ void UStatusEffectHandlerComponent::RemoveEffectFromStatusEffectBar(FGameplayTag
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
 	if (IsValid(EnemyCharacter))
 	{
-		if (IsValid(EnemyCharacter->StatusEffectBarComponent))
+		if (IsValid(EnemyCharacter->StatusEffectBarWidgetComponent))
 		{
-			UUserWidget* Widget = EnemyCharacter->StatusEffectBarComponent->GetUserWidgetObject();
+			UUserWidget* Widget = EnemyCharacter->StatusEffectBarWidgetComponent->GetUserWidgetObject();
 			if (IsValid(Widget))
 			{
 				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);

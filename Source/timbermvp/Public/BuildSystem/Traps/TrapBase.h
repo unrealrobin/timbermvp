@@ -33,11 +33,12 @@ public:
 	void ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef);
 
 	/* v1 */
-	//TODO:: To be DELETED. Using StatusEffectDefinitions Array. 
+	//TODO: To be DELETED. Using StatusEffectDefinitions Array. 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	UStatusEffectBase* StatusEffectDataAsset;
 
 	/* v2 */
+	//Processes whether or not an Effect should Resolve and be applied on the Enemy.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status Effects")
 	UStatusConditionManager* EffectConditionManager;
 

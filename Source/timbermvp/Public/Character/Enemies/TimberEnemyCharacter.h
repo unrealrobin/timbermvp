@@ -48,12 +48,12 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 
 public:
 	ATimberEnemyCharacter();
-	
-	UFUNCTION()
-	void HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void TakeDamage(FDamagePayload DamagePayload) override;
+	
+	UFUNCTION()
+	void HandleOnMovementModeChanged(class ACharacter* Character, EMovementMode PrevMovementMode, uint8 PreviousCustomMode);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Damage)
 	UStatusEffectHandlerComponent* StatusEffectHandler;
@@ -62,14 +62,14 @@ public:
 	UNavigationHelperComponent* NavHelperComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status Effects")
-	UWidgetComponent* StatusEffectBarComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
-	UCharacterMovementComponent* CharacterMovementComponent;
+	UWidgetComponent* StatusEffectBarWidgetComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Effects")
-	USceneComponent* DamageEffectUISpawnPoint;
-
+	TObjectPtr<USceneComponent> FloatingDataSpawnLocation;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
+	UCharacterMovementComponent* CharacterMovementComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon State")
 	EEnemyWeaponState EnemyWeaponType = EEnemyWeaponState::NoWeaponEquipped;
 
@@ -137,6 +137,8 @@ public:
 	void SpawnEffectNameUI(FName EffectName, UStatusEffectBase* StatusEffect);
 	
 protected:
+	virtual void Tick(float DeltaSeconds) override;
+	virtual float CalculateOutputDamage(float Damage);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<AFloatingDataContainer> FloatingDamageContainerClass;
@@ -145,14 +147,8 @@ protected:
 	TObjectPtr<AFloatingDataContainer> FloatingDamageContainerActor;
 	
 	void SpawnDamageUI(FDamagePayload DamagePayload);
-	
-	
-	virtual void Tick(float DeltaSeconds) override;
-	
 	void StopAiControllerBehaviorTree();
 	
-	virtual float CalculateOutputDamage(float Damage);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
 
@@ -178,7 +174,6 @@ protected:
 	void OnDeath_DropLoot();
 
 private:
-
 	void ScaleHealth();
 	
 	void HandleRemoveStatusEffectComponent();

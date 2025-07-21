@@ -2,7 +2,6 @@
 
 
 #include "Character/Enemies/TimberEnemyCharacter.h"
-
 #include "MetasoundSource.h"
 #include "AI/TimberAiControllerBase.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -21,25 +20,23 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Loot/EnemyLootDropBase.h"
-#include "Sound/SoundCue.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Types/Combat/DamagePayload.h"
 #include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
 #include "UI/StatusEffects/StatusEffectBar.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
-
 ATimberEnemyCharacter::ATimberEnemyCharacter()
 {
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
 
-	StatusEffectBarComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
-	StatusEffectBarComponent->SetupAttachment(RootComponent);
+	StatusEffectBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
+	StatusEffectBarWidgetComponent->SetupAttachment(RootComponent);
 	
-	DamageEffectUISpawnPoint = CreateDefaultSubobject<USceneComponent>("DamageEffectUISpawnPoint");
-	DamageEffectUISpawnPoint->SetupAttachment(RootComponent);
-
+	FloatingDataSpawnLocation = CreateDefaultSubobject<USceneComponent>("DamageEffectUISpawnPoint");
+	FloatingDataSpawnLocation->SetupAttachment(RootComponent);
+	
 	StatusEffectHandler = CreateDefaultSubobject<UStatusEffectHandlerComponent>("StatusEffectHandler");
 	NavHelperComponent = CreateDefaultSubobject<UNavigationHelperComponent>("NavHelperComponent");
 }
@@ -90,23 +87,25 @@ void ATimberEnemyCharacter::SelfDestruct()
 
 void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 {
+	//If there isn't a valid container actor ref and there is a valid container class.
 	if (!IsValid(FloatingDamageContainerActor) && FloatingDamageContainerClass)
 	{
 		FActorSpawnParameters SpawnParams;
+		
 		AActor* FloatingDamageActor = GetWorld()->SpawnActor<AActor>(FloatingDamageContainerClass,
-			DamageEffectUISpawnPoint->GetComponentLocation(),
+			FloatingDataSpawnLocation->GetRelativeLocation(),
 			FRotator::ZeroRotator, 
 			SpawnParams);
 
-		FloatingDamageActor->AttachToComponent(DamageEffectUISpawnPoint, FAttachmentTransformRules::KeepRelativeTransform);
-		
+		//FloatingDamageActor->AttachToComponent(FloatingDataSpawnLocation, FAttachmentTransformRules::KeepRelativeTransform);
 		if (AFloatingDataContainer* FloatingDamage = Cast<AFloatingDataContainer>(FloatingDamageActor))
 		{
-			
 			if (!IsValid(FloatingDamage)) return;
-			FloatingDamageContainerActor = FloatingDamage;
-			FloatingDamage->OwningActor = this;
 			
+			FloatingDamage->SpawnSceneComponentRef = FloatingDataSpawnLocation;
+			
+			//Set for Reuse during animation.
+			FloatingDamageContainerActor = FloatingDamage;
 			FloatingDamage->SetDamageAmount(DamagePayload.DamageAmount);
 			FloatingDamage->SetColor(DamagePayload.StatusEffect.GetEffectColor());
 			FloatingDamage->SetSize(DamagePayload.StatusEffect.GetEffectTextSize());
@@ -114,6 +113,8 @@ void ATimberEnemyCharacter::SpawnDamageUI(FDamagePayload DamagePayload)
 	}
 	else
 	{
+		//Updating existing Spawned Actor.
+		//FloatingDamageContainerActor->SpawnSceneComponentRef = FloatingDataSpawnLocation;
 		FloatingDamageContainerActor->SetDamageAmount(DamagePayload.DamageAmount);
 		FloatingDamageContainerActor->SetColor(DamagePayload.StatusEffect.GetEffectColor());
 		FloatingDamageContainerActor->SetSize(DamagePayload.StatusEffect.GetEffectTextSize());
@@ -131,14 +132,14 @@ void ATimberEnemyCharacter::SpawnEffectNameUI(FName EffectName, UStatusEffectBas
 	{
 		FActorSpawnParameters SpawnParams;
 		AActor* FloatingDamageActor = GetWorld()->SpawnActor<AActor>(FloatingDamageContainerClass,
-			DamageEffectUISpawnPoint->GetComponentLocation(),
+			FloatingDataSpawnLocation->GetComponentLocation(),
 			FRotator::ZeroRotator, 
 			SpawnParams);
 		
 		if (AFloatingDataContainer* FloatingDataContainer = Cast<AFloatingDataContainer>(FloatingDamageActor))
 		{
 			if (!IsValid(FloatingDataContainer)) return;
-			
+			FloatingDataContainer->SpawnSceneComponentRef = FloatingDataSpawnLocation;
 			FloatingDataContainer->SetIsDamage(false);
 			FloatingDataContainer->SetEffectText(EffectName);
 			FloatingDataContainer->SetColor(StatusEffect->StatusEffect.GetEffectColor());	
@@ -161,7 +162,7 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 		CharacterMovementComponent->MaxWalkSpeed = MaxWalkSpeedBase;
 		CharacterMovementComponent->MaxStepHeight = 60.0f;
 
-		//Used to not slow down inbetween Nav Points.
+		//Used to not slow down in between Nav Points.
 		CharacterMovementComponent->BrakingDecelerationWalking = 0.0f;
 		
 		CharacterMovementComponent->NavAgentProps.AgentRadius = 34.0f;
@@ -170,7 +171,7 @@ void ATimberEnemyCharacter::SetupCharacterMovementData()
 
 		//TODO:: Check a way of Reimplementing this in the future. RVO may be beneficial for this. 
 		CharacterMovementComponent->bUseRVOAvoidance = false;
-		CharacterMovementComponent->AvoidanceConsiderationRadius = 2000.0f;
+		CharacterMovementComponent->AvoidanceConsiderationRadius = 400.0f;
 		CharacterMovementComponent->AvoidanceWeight = 0.5f;
 	}
 }
@@ -480,18 +481,18 @@ void ATimberEnemyCharacter::HandleToggleDataView(FInputActionValue Input)
 	 */
 	if (Input.Get<bool>()) //true
 	{
-		if (IsValid(StatusEffectBarComponent) && IsValid(StatusEffectBarComponent->GetUserWidgetObject()) && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
+		if (IsValid(StatusEffectBarWidgetComponent) && IsValid(StatusEffectBarWidgetComponent->GetUserWidgetObject()) && StatusEffectBarWidgetComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
 		{
 			//Toggles the visibility of the Status Effect Bar
-			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Visible);
+			StatusEffectBarWidgetComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Visible);
 			
 		}
 	}
 	else //false
 	{
-		if (IsValid(StatusEffectBarComponent) && IsValid(StatusEffectBarComponent->GetUserWidgetObject()) && StatusEffectBarComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
+		if (IsValid(StatusEffectBarWidgetComponent) && IsValid(StatusEffectBarWidgetComponent->GetUserWidgetObject()) && StatusEffectBarWidgetComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
 		{
-			StatusEffectBarComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Hidden);
+			StatusEffectBarWidgetComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -619,12 +620,12 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, f
 
 void ATimberEnemyCharacter::SetupStatusEffectBar()
 {
-	if (IsValid(StatusEffectBarComponent) && IsValid(StatusEffectBarComponent->GetWidget()))
+	if (IsValid(StatusEffectBarWidgetComponent) && IsValid(StatusEffectBarWidgetComponent->GetWidget()))
 	{
-		StatusEffectBarComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
+		StatusEffectBarWidgetComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
 	}
 	
-	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarComponent->GetWidget());
+	UStatusEffectBar* StatusEffectBarWidget = Cast<UStatusEffectBar>(StatusEffectBarWidgetComponent->GetWidget());
 	if (IsValid(StatusEffectBarWidget))
 	{
 		ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
@@ -638,5 +639,3 @@ void ATimberEnemyCharacter::SetupStatusEffectBar()
 		}
 	}
 }
-
-

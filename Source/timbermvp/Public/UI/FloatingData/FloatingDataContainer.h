@@ -22,6 +22,12 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
 	UWidgetComponent* DamageNumberWidgetComponent;
+	
+	UPROPERTY()
+	TObjectPtr<USceneComponent> SpawnSceneComponentRef;
+
+	UPROPERTY()
+	ATimberEnemyCharacter* DataActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
 	float TimeUntilDestroy = 2.0f;
@@ -47,7 +53,7 @@ protected:
 	FVector EndLocation = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Number")
-	float VerticalRiseAmount = 50.0f;
+	float VerticalRiseAmount = 100.0f;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

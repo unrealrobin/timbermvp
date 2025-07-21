@@ -2,7 +2,6 @@
 
 
 #include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
-
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/WidgetComponent.h"
 #include "timbermvp/Public/UI/FloatingData/FloatingDataWidget.h"
@@ -18,8 +17,16 @@ AFloatingDataContainer::AFloatingDataContainer()
 	
 	DamageNumberWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("DamageNumberWidgetComponent");
 	DamageNumberWidgetComponent->SetupAttachment(RootComponent);
-	
 }
+
+void AFloatingDataContainer::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FTimerHandle DestroyTimer;
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimer, this, &AFloatingDataContainer::HandleDestroy, TimeUntilDestroy, false);
+}
+
 
 void AFloatingDataContainer::SetIsDamage(bool bIsThisDamage)
 {
@@ -91,42 +98,31 @@ void AFloatingDataContainer::HandleDestroy()
 	{
 		OwningActor->ClearFloatingDamageRef();
 	}
+	SpawnSceneComponentRef = nullptr;
 	Destroy();
 }
 
-// Called when the game starts or when spawned
-void AFloatingDataContainer::BeginPlay()
-{
-	Super::BeginPlay();
-
-	StartLocation = GetActorLocation();
-
-	//Directly over Spawn Location with Vertical Rise Offset.
-	EndLocation = StartLocation + FVector(0, 0, VerticalRiseAmount);
-	
-	FTimerHandle DamageNumberTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DamageNumberTimerHandle, this, &AFloatingDataContainer::HandleDestroy, TimeUntilDestroy, false);
-	
-}
-
-// Called every frame
 void AFloatingDataContainer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!SpawnSceneComponentRef)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Scene Component Ref."));
+		return;
+	}
 	ElapsedTime += DeltaTime;
 
-	//Can be used Directly for Linear Interpolation.
+	//How much to Scale Z by.
 	float Alpha = FMath::Clamp(ElapsedTime / TimeUntilDestroy, 0.0f, 1.0f);
-
-	//Used for Bounce Effect.
+	//Used as an effect for the ALpha
 	float BounceAlpha = FMath::InterpEaseOut(0.f, 1.f, Alpha, 4.0f);
+	//Setting of the Z Value
+	float NewZLocation = FMath::Lerp(0, VerticalRiseAmount, BounceAlpha);
 
-	FVector StartLocationRef = StartLocation;
-	
-	float NewZLocation = FMath::Lerp(StartLocation.Z, EndLocation.Z, BounceAlpha);
-	FVector FinalAdjustedLocation = FVector(StartLocationRef.X, StartLocationRef.Y, NewZLocation);
+	FVector FinalAdjustedLocation = SpawnSceneComponentRef->GetComponentLocation() + FVector(0, 0, NewZLocation);
+
 	SetActorLocation(FinalAdjustedLocation);
-	
+
 }
 

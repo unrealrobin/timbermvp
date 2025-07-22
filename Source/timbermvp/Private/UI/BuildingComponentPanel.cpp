@@ -14,7 +14,7 @@
 void UBuildingComponentPanel::LoadAllDataAssetsForMenu()
 {
 	//TO BE CALLED FROM THE GAME MODE BEGIN PLAY
-	FString PathToBuildableDataAssets = TEXT("/Game/BuildingComponents/DataAssets/BuildingComponentDataAsset");
+	FString PathToBuildableDataAssets = TEXT("/Game/Assets/Buildables/00_DataAssets/BuildingComponentDataAsset");
 	//Loading Asset Registry Module
 	FAssetRegistryModule& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	if (AssetRegistry.IsValid())

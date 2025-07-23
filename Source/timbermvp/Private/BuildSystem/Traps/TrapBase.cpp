@@ -8,6 +8,8 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/StatusEffect/StatusConditionManager.h"
+#include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 
 
 ATrapBase::ATrapBase()
@@ -23,6 +25,9 @@ ATrapBase::ATrapBase()
 
 	//Only Generates Hit Events on Pawns and Building Components
 	HitBoxComponent->SetCollisionProfileName(TEXT("DR_HitEventOnly"));
+
+	//Evaluates Application of Status Effects.
+	EffectConditionManager = CreateDefaultSubobject<UStatusConditionManager>("EffectConditionManager");
 }
 
 void ATrapBase::BeginPlay()

@@ -13,6 +13,7 @@
 #include "Environment/EnemyDroneSplinePath.h"
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Types/Combat/DamagePayload.h"
 #include "Weapons/Projectiles/DroneProjectile.h"
 
 
@@ -127,7 +128,7 @@ void AEnemyDrone::ClearCurrentTarget()
 	if (CurrentTarget)
 	{
 		CurrentTarget = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("No Current Target"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Current Target"));
 	}
 }
 
@@ -156,7 +157,7 @@ void AEnemyDrone::ShootTarget()
 		
 		if (SpawnedProjectile)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Drone Projectile Spawned."));
+			//UE_LOG(LogTemp, Warning, TEXT("Drone Projectile Spawned."));
 		}
 	}
 	
@@ -188,10 +189,10 @@ void AEnemyDrone::GetClosestLabDoorExitLocation()
 	TArray<AActor*> LabDoorExitActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALabDoorBase::StaticClass(), LabDoorExitActors);
 
-	if (LabDoorExitActors.Num() > 0)
+	/*if (LabDoorExitActors.Num() > 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT(" Found Lab Doors."));
-	}
+	}*/
 	ALabDoorBase* ClosestLabDoor = nullptr;
 	
 	float DistToClosestLabDoor = UE_MAX_FLT;
@@ -223,9 +224,9 @@ void AEnemyDrone::GetClosestLabDoorExitLocation()
 	}
 }
 
-void AEnemyDrone::TakeDamage(float DamageAmount, AActor* DamageInstigator)
+void AEnemyDrone::TakeDamage(const FDamagePayload DamagePayload)
 {
-	Super::TakeDamage(DamageAmount, DamageInstigator);
+	Super::TakeDamage(DamagePayload);
 
 	if (CurrentHealth <= 0)
 	{
@@ -302,15 +303,15 @@ void AEnemyDrone::GatherTargets()
 				if (Hit.GetActor() == PotentialTarget)
 				{
 					CurrentTarget = PotentialTarget;
-					UE_LOG(LogTemp, Warning, TEXT("Found Current Target: %s. Has Line of Sight."), *CurrentTarget->GetName());
-					DrawDebugSphere(GetWorld(), CurrentTarget->GetActorLocation(), 50.f, 12, FColor::Red, false, 5.0f);
+					//UE_LOG(LogTemp, Warning, TEXT("Found Current Target: %s. Has Line of Sight."), *CurrentTarget->GetName());
+					//DrawDebugSphere(GetWorld(), CurrentTarget->GetActorLocation(), 50.f, 12, FColor::Red, false, 5.0f);
 				}
 			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Potential Building Component Targets Found"));
+		//UE_LOG(LogTemp, Warning, TEXT("No Potential Building Component Targets Found"));
 	}
 }
 

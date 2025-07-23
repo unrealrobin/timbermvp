@@ -7,6 +7,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Types/Combat/DamagePayload.h"
 #include "UObject/FastReferenceCollector.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -138,7 +139,9 @@ void UKnockbackBlast::HandleOverlap(
 			}
 			Enemy->GetCharacterMovement()->AddImpulse(ImpulseDirection * ImpulseForce, true);
 
-			Enemy->TakeDamage(DamageAmount, LocalContext.Instigator);
+			FDamagePayload Payload;
+			Payload.DamageAmount = DamageAmount;
+			Enemy->TakeDamage(Payload);
 		
 		}
 	}

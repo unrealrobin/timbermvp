@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Loot/LootHealthDrop.h"
 #include "States/DieRobotGameStateBase.h"
+#include "Types/Combat/DamagePayload.h"
 
 
 // Sets default values
@@ -33,9 +34,10 @@ void ATutorialDummy::BeginPlay()
 	
 }
 
-void ATutorialDummy::TakeDamage(float DamageAmount, AActor* DamageInstigator)
+void ATutorialDummy::TakeDamage(FDamagePayload DamagePayload)
 {
-	Super::TakeDamage(DamageAmount, DamageInstigator);
+	FDamagePayload Payload;
+	Super::TakeDamage(Payload);
 	
 	if (CurrentHealth <= 0.f)
 	{

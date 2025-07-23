@@ -38,12 +38,11 @@ void AFloaterDrones::HandleLolaStunChange(bool bIsLolaStunned)
 	bIsLolaStunnedLocal = bIsLolaStunned;
 }
 
-void AFloaterDrones::TakeDamage(float DamageAmount, AActor* DamageInstigator)
+void AFloaterDrones::TakeDamage(FDamagePayload DamagePayload)
 {
 	if (DroneState == EDroneState::Damageable)
 	{
-		//Take Damage
-		CurrentHealth = CurrentHealth - DamageAmount;
+		CurrentHealth = CurrentHealth - DamagePayload.DamageAmount;
 		if (CurrentHealth <= 0)
 		{
 			HandleDroneDeath();

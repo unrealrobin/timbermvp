@@ -12,6 +12,7 @@
 #include "Components/Combat/CombatComponent.h"
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Types/Combat/DamagePayload.h"
 
 // Sets default value
 ATimberWeaponMeleeBase::ATimberWeaponMeleeBase()
@@ -109,7 +110,10 @@ void ATimberWeaponMeleeBase::OnPlayerWeaponOverlap(UPrimitiveComponent* Overlapp
 		}
 		ActorsToIgnore.Add(HitEnemy);
 		HitEnemy->PlayMeleeWeaponHitSound(SweepResult);
-		HitEnemy->TakeDamage(TotalWeaponDamage, GetOwner());
+
+		FDamagePayload Payload;
+		Payload.DamageAmount = BaseWeaponDamage;
+		HitEnemy->TakeDamage(Payload);
 	}
 }
 

@@ -23,15 +23,14 @@ void ATimberAiControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	OwningCharacter = Cast<ATimberEnemyCharacter>(GetPawn());
-	if (!OwningCharacter)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Ai Controller could not get Owning Character!"));
-	}
+	
 }
 
 
 void ATimberAiControllerBase::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+	
+	OwningCharacter = Cast<ATimberEnemyCharacter>(InPawn);
+	
 }

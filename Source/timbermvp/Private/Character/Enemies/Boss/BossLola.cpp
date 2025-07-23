@@ -11,6 +11,7 @@
 #include "Character/Enemies/FloaterDrones.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Types/Combat/DamagePayload.h"
 
 
 // Sets default values
@@ -118,7 +119,7 @@ void ABossLola::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ABossLola::TakeDamage(float DamageAmount, AActor* DamageInstigator)
+void ABossLola::TakeDamage(FDamagePayload DamagePayload)
 {
 	/*This won't ALWAYS fire because the collision settings change periodically.
 	See the SetLolaToDamageable() and SetLolaNotDamageable() functions.
@@ -128,8 +129,8 @@ void ABossLola::TakeDamage(float DamageAmount, AActor* DamageInstigator)
 	{
 		return;
 	}
-	
-	Super::TakeDamage(DamageAmount, DamageInstigator);
+	FDamagePayload Payload;
+	Super::TakeDamage(Payload);
 }
 
 void ABossLola::BindToDroneDeathDelegates()

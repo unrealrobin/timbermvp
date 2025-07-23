@@ -96,7 +96,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+	virtual void TakeDamage(FDamagePayload DamagePayload) override;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetLolaToNotStunned();

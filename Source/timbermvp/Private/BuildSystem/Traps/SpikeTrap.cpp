@@ -7,6 +7,7 @@
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/StatusEffect/StatusConditionManager.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
 
@@ -74,23 +75,19 @@ void ASpikeTrap::HandleSpikeOutAttack()
 {
 	PlaySpikeOutTimeline();
 	
-	AppleStatusEffectToEnemy();
+	ApplyStatusEffectToEnemy();
 }
 
-void ASpikeTrap::AppleStatusEffectToEnemy()
+void ASpikeTrap::ApplyStatusEffectToEnemy()
 {
 	if (InsideHitBoxArray.Num() > 0)
 	{
 		TArray<AActor*> InsideHitBoxArrayCopy = InsideHitBoxArray;
-		for (AActor* Actors : InsideHitBoxArrayCopy)
+		for (AActor* HitActor : InsideHitBoxArrayCopy)
 		{
-			if (ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(Actors))
+			if (HitActor->IsA(ATimberEnemyCharacter::StaticClass()))
 			{
-				AddEffectToEnemy(EnemyCharacter, StatusEffectDataAsset->StatusEffect);
-				UE_LOG(LogTemp, Display, TEXT("Damage: %f"), StatusEffectDataAsset->StatusEffect.InitialDamage);
-
-				//Originally used to Apply Damage - Using Status Effects Now - Remove if unused
-				//EnemyCharacter->TakeDamage(SpikeDamage, this);
+				EffectConditionManager->ResolveEffect(StatusEffectDefinitions, HitActor);
 			}
 		}
 	}

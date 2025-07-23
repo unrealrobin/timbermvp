@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/StatusEffect/StatusConditionManager.h"
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
 
@@ -26,7 +27,6 @@ AFrostTrap::AFrostTrap()
 	FrostTrapNiagaraComponent->SetupAttachment(FrostTrapFanMesh);
 
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapBeginOverlap);
-	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AFrostTrap::HandleFrostTrapEndOverlap);
 	
 }
 
@@ -52,12 +52,10 @@ void AFrostTrap::HandleFrostTrapBeginOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	AddEffectToEnemy(OtherActor, StatusEffectDataAsset->StatusEffect);
+	if (OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
+	{
+		EffectConditionManager->ResolveEffect(StatusEffectDefinitions, OtherActor);
+	}
 }
 
-void AFrostTrap::HandleFrostTrapEndOverlap(
-	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	
-}
 

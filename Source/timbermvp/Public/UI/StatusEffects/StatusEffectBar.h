@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Blueprint/UserWidget.h"
 #include "StatusEffectBar.generated.h"
 
 class UHorizontalBox;
 class UStatusEffectBarIcon;
+
 /**
  * 
  */
@@ -24,15 +26,16 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UHorizontalBox* StatusEffectIconContainer;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StatusEffects")
+	FGameplayTagContainer ActiveWidgetTags;
+
 	void NativeConstruct() override;
 	
 	//Takes a GameplayTag and adds a Specific Icon for that Effect to the Status Effect Bar.
 	UFUNCTION()
-	void AddEffectToBar(FGameplayTag EffectTag);
+	void AddEmergentTagToBar(FGameplayTag EffectTag);
 
 	UFUNCTION()
 	void RemoveEffectFromBar(FGameplayTag EffectTag);
 
-	/*Icon Colors*/
-	
 };

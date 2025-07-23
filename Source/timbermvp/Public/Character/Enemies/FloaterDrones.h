@@ -34,7 +34,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	virtual void TakeDamage(float DamageAmount, AActor* DamageInstigator) override;
+	virtual void TakeDamage(FDamagePayload DamagePayload) override;
 
 	UFUNCTION()
 	void HandleDroneDeath();

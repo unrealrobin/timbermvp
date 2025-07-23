@@ -6,9 +6,12 @@
 #include "Blueprint/UserWidget.h"
 #include "BuildingComponentPanel.generated.h"
 
+class UEffectDefinitionItem;
+class UVerticalBox;
 class FAssetRegistryModule;
 class ATrapBase;
 class UTextBlock;
+
 
 /**
  * 
@@ -34,8 +37,17 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateBuildableIconsInMenu();
 
+	/*UFUNCTION(BlueprintCallable)
+	void PrepareStatusEffectForMenu();*/
+
 	UFUNCTION(BlueprintCallable)
-	void PrepareStatusEffectForMenu();
+	void PrepareTrapEffectList();
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveTrapEffectList();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Build Menu")
+	TSubclassOf<UEffectDefinitionItem> EffectDefinitionItemClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Build Menu")
 	UDataAsset* BuildMenuHoveredIconDataAsset;
@@ -68,8 +80,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SetHasStatusEffect(bool bNewHasStatusEffect);
-
 	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* TrapDetailsVerticalBox;
+	/* Build Menu Trap Data Panel */
+	/*UPROPERTY(meta = (BindWidget))
 	UTextBlock* InitialDamageTextBlock;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DOTTextBlock;
@@ -85,5 +99,5 @@ protected:
 	UTextBlock* MetaTextBlock;
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* RemovesTextBlock;
-	
+	*/
 };

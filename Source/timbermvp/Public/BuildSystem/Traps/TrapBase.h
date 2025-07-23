@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "TrapBase.generated.h"
 
+class UStatusEffectDefinition;
+class UStatusConditionManager;
 class UStatusEffectBase;
 class ATimberEnemyCharacter;
 class ATimberBuildingComponentBase;
@@ -27,18 +29,27 @@ class TIMBERMVP_API ATrapBase : public ABuildableBase
 
 public:
 	ATrapBase();
+	
 	void ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef);
 
+	/* v1 */
+	//TODO: To be DELETED. Using StatusEffectDefinitions Array. 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
 	UStatusEffectBase* StatusEffectDataAsset;
+
+	/* v2 */
+	//Processes whether or not an Effect should Resolve and be applied on the Enemy.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Status Effects")
+	UStatusConditionManager* EffectConditionManager;
+
+	//[Minor, Major, Ultimate] Order is Important Here!
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Status Effects")
+	TArray<UStatusEffectDefinition*> StatusEffectDefinitions;
 
 protected:
 	virtual void BeginPlay() override;
 
 	void DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh);
-
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Trap Components")
-	bool CanTrapBeFinalized = false;*/
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
 	TArray<AActor*> InsideHitBoxArray;

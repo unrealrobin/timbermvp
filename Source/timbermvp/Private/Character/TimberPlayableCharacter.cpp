@@ -41,14 +41,14 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 void ATimberPlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	/* Load Inventory */
-	GetPlayerInventoryFromPlayerState();
-
+	
 	/* Set Character Movement Defaults*/
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
 
 	PlayerController = Cast<ATimberPlayerController>(GetController());
+	
+	/* Load Inventory */
+	GetPlayerInventoryFromPlayerState();
 
 	/*Initialize Anim Instance*/
 	UTimberAnimInstance* Anim = Cast<UTimberAnimInstance>(GetMesh()->GetAnimInstance());
@@ -96,8 +96,6 @@ void ATimberPlayableCharacter::BeginPlay()
 		PlayWakeAnimationMontage();
 	}
 }
-
-/*Delegate Stuff*/
 
 void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
 {
@@ -246,7 +244,7 @@ void ATimberPlayableCharacter::HandlePlayerDeath(bool bIsPlayerDeadNow)
 {
 	if (bIsPlayerDeadNow)
 	{
-		if (PlayerController)
+		if (IsValid(PlayerController))
 		{
 			PlayerController->FlushPressedKeys();		
 		}
@@ -267,9 +265,17 @@ void ATimberPlayableCharacter::PlayDeathAnimation()
 
 void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
 {
-	if (GetController()->GetPlayerState<APlayerStateBase>()->MainInventory)
+	if (IsValid(PlayerController))
 	{
-		InventoryObject = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
+		if (PlayerController->GetPlayerState<APlayerStateBase>()->MainInventory)
+		{
+			InventoryObject = GetController()->GetPlayerState<APlayerStateBase>()->MainInventory;
+		}
+	}
+
+	if (!IsValid(InventoryObject))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player Character - Inventory Object Not Found."));
 	}
 }
 
@@ -305,7 +311,7 @@ void ATimberPlayableCharacter::PlayerGainHealth(float HealthAmount)
 	if (bIsPlayerDead) return;
 	if (MaxHealth == CurrentHealth) return;
 
-	if (CurrentHealth + HealthAmount > MaxHealth)
+	if (CurrentHealth + HealthAmount >= MaxHealth)
 	{
 		CurrentHealth = MaxHealth;
 	}
@@ -317,7 +323,7 @@ void ATimberPlayableCharacter::PlayerGainHealth(float HealthAmount)
 	if (VignetteComponent)
 	{
 		VignetteComponent->HandleHealthChange(CurrentHealth/MaxHealth);
-		UE_LOG(LogTemp, Warning, TEXT("Player Gain Health: %f"), CurrentHealth);
+		//UE_LOG(LogTemp, Warning, TEXT("Player Gain Health: %f"), CurrentHealth);
 	}
 	
 }
@@ -339,7 +345,7 @@ ETutorialState ATimberPlayableCharacter::GetTutorialState()
 void ATimberPlayableCharacter::StopAllAnimMontages()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance)
+	if (IsValid(AnimInstance))
 	{
 		AnimInstance->StopAllMontages(0.25f);
 	}

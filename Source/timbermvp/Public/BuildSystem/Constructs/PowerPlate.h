@@ -21,10 +21,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* StaticMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* PlateCenter;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UBoxComponent* CollisionBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UMaterialInstanceDynamic* MaterialInstanceDynamic;
 
 protected:
 	// Called when the game starts or when spawned
@@ -43,8 +48,4 @@ protected:
 
 	UFUNCTION()
 	virtual void HitBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 };

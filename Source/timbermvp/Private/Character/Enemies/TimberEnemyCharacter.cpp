@@ -33,6 +33,9 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 
 	StatusEffectBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
 	StatusEffectBarWidgetComponent->SetupAttachment(RootComponent);
+
+	DataClusterWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("DataClusterWidgetComponent");
+	DataClusterWidgetComponent->SetupAttachment(RootComponent);
 	
 	FloatingDataSpawnLocation = CreateDefaultSubobject<USceneComponent>("DamageEffectUISpawnPoint");
 	FloatingDataSpawnLocation->SetupAttachment(RootComponent);

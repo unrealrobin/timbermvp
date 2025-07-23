@@ -12,6 +12,14 @@ class FAssetRegistryModule;
 class ATrapBase;
 class UTextBlock;
 
+UENUM(BlueprintType)
+enum class EActiveTab: uint8
+{
+	StructureTab UMETA(DisplayName = "Structure"),
+	TrapTab UMETA(DisplayName = "Trap"),
+	ConstructTab UMETA(DisplayName = "Construct")
+};
+
 
 /**
  * 
@@ -26,6 +34,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleStatusEffectDetails();
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Tabs Status")
+	EActiveTab ActiveTab = EActiveTab::StructureTab;
+
 protected:
 
 	UFUNCTION()
@@ -36,9 +47,6 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateBuildableIconsInMenu();
-
-	/*UFUNCTION(BlueprintCallable)
-	void PrepareStatusEffectForMenu();*/
 
 	UFUNCTION(BlueprintCallable)
 	void PrepareTrapEffectList();
@@ -82,22 +90,5 @@ protected:
 	void SetHasStatusEffect(bool bNewHasStatusEffect);
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* TrapDetailsVerticalBox;
-	/* Build Menu Trap Data Panel */
-	/*UPROPERTY(meta = (BindWidget))
-	UTextBlock* InitialDamageTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* DOTTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* DOTDamageTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* DOTDurationTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* MaxStacksTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SlowsTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* MetaTextBlock;
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* RemovesTextBlock;
-	*/
+	
 };

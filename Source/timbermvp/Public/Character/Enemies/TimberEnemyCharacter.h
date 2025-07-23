@@ -48,6 +48,7 @@ class TIMBERMVP_API ATimberEnemyCharacter : public ATimberCharacterBase, public 
 
 public:
 	ATimberEnemyCharacter();
+	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void TakeDamage(FDamagePayload DamagePayload) override;
@@ -60,12 +61,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Navigation")
 	UNavigationHelperComponent* NavHelperComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status Effects")
-	UWidgetComponent* StatusEffectBarWidgetComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Effects")
-	TObjectPtr<USceneComponent> FloatingDataSpawnLocation;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
 	UCharacterMovementComponent* CharacterMovementComponent;
@@ -98,6 +93,7 @@ public:
 	bool bHasBeenAggroByPlayer = false;
 	
 	/* Montages */
+	//TODO:: These can potentially be moved to the Characters Anim Instance. 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
 	UAnimMontage* DeathMontage;
 	
@@ -134,57 +130,53 @@ public:
 	UFUNCTION()
 	void SelfDestruct();
 	void ClearFloatingDamageRef();
+
+	/*UI*/
 	void SpawnEffectNameUI(FName EffectName, UStatusEffectBase* StatusEffect);
+	UFUNCTION()
+	void HandleToggleDataView(FInputActionValue Input);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status Effects")
+	UWidgetComponent* StatusEffectBarWidgetComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data Cluster")
+	UWidgetComponent* DataClusterWidgetComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Effects")
+	TObjectPtr<USceneComponent> FloatingDataSpawnLocation;
 	
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual float CalculateOutputDamage(float Damage);
-
+	void SpawnDamageUI(FDamagePayload DamagePayload);
+	void StopAiControllerBehaviorTree();
+	void OnDeath_HandleCollision();
+	void PlayMontageAtRandomSection(UAnimMontage* Montage);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	TSubclassOf<AFloatingDataContainer> FloatingDamageContainerClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Damage")
 	TObjectPtr<AFloatingDataContainer> FloatingDamageContainerActor;
 	
-	void SpawnDamageUI(FDamagePayload DamagePayload);
-	void StopAiControllerBehaviorTree();
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Enemy Components")
 	USceneComponent* RaycastStartPoint;
-
-	/* Death */
-	void OnDeath_HandleCollision();
 	
-	/* Animation */
-	void PlayMontageAtRandomSection(UAnimMontage* Montage);
-
-	bool HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float DamageAccumulatedDuringWindow);
-
 	/* Damage effects Aggro */
 	FTimerHandle DamageWindowTimerHandle;
 	float DamageWindowTime = 3.0f;
 	float DamageAccumulatedDuringWindow = 0.f;
 	void ResetDamageWindow();
 	void StartDamageTimerWindow();
+	bool HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float DamageAccumulatedDuringWindow);
 
 	/* Loot */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	ULootTable* LootTable = nullptr;
-	
 	void OnDeath_DropLoot();
 
 private:
-	void ScaleHealth();
-	
-	void HandleRemoveStatusEffectComponent();
-
-	UFUNCTION()
-	void HandleToggleDataView(FInputActionValue Input);
-
-	void SetupStatusEffectBar();
-	
 	UFUNCTION()
 	void HandleOnLanded(const FHitResult& Hit);
-	
+	void ScaleHealth();
+	void HandleRemoveStatusEffectComponent();
 	void SetupCharacterMovementDelegates();
+	void SetupStatusEffectBar();
 };

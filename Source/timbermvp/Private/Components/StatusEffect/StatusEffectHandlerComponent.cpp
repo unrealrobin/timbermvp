@@ -139,6 +139,9 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 void UStatusEffectHandlerComponent::RemoveEmergentTag(FGameplayTag Tag)
 {
 	StatusEffectIdTagContainer.RemoveTag(Tag);
+
+	//Removes the Visual Representation from the Data Cluster on Enemies.
+	RemoveEffectFromStatusEffectBar(Tag);
 }
 
 void UStatusEffectHandlerComponent::ProcessTagForSynergy(const FGameplayTag& Tag, FStatusEffect& Effect)

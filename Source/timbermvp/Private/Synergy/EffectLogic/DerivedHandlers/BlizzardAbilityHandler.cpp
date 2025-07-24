@@ -27,7 +27,6 @@ void UBlizzardAbilityHandler::ExecuteEffect(AActor* TargetActor,
 			{
 				//Adds the Freeze Effect to all Enemies.
 				Enemy->StatusEffectHandler->AddStatusEffectToComponent(StatusEffect.SecondaryEffect->StatusEffect);
-				//Removes Wet from all effected Enemies.
 				RemoveEmergentTagFromActor(Enemy, StatusEffect.TagsToRemove.GetByIndex(0));
 			}
 		}

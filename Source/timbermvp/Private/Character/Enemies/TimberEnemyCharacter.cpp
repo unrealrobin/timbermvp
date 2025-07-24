@@ -23,7 +23,7 @@
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Types/Combat/DamagePayload.h"
 #include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
-#include "UI/StatusEffects/StatusEffectBar.h"
+#include "UI/EnemyDataCluster/EnemyDataCluster.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
@@ -31,8 +31,8 @@ ATimberEnemyCharacter::ATimberEnemyCharacter()
 	RaycastStartPoint = CreateDefaultSubobject<USceneComponent>("RaycastStartPoint");
 	RaycastStartPoint->SetupAttachment(RootComponent);
 
-	StatusEffectBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
-	StatusEffectBarWidgetComponent->SetupAttachment(RootComponent);
+	/*StatusEffectBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("StatusEffectBar");
+	StatusEffectBarWidgetComponent->SetupAttachment(RootComponent);*/
 
 	DataClusterWidgetComponent = CreateDefaultSubobject<UWidgetComponent>("DataClusterWidgetComponent");
 	DataClusterWidgetComponent->SetupAttachment(RootComponent);
@@ -48,7 +48,7 @@ void ATimberEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetupStatusEffectBar();
+	SetupDataClusterComponent();
 	
 	SetupCharacterMovementDelegates();
 	
@@ -484,18 +484,21 @@ void ATimberEnemyCharacter::HandleToggleDataView(FInputActionValue Input)
 	 */
 	if (Input.Get<bool>()) //true
 	{
-		if (IsValid(StatusEffectBarWidgetComponent) && IsValid(StatusEffectBarWidgetComponent->GetUserWidgetObject()) && StatusEffectBarWidgetComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
+		if (IsValid(DataClusterWidgetComponent) &&
+			IsValid(DataClusterWidgetComponent->GetUserWidgetObject()) &&
+			DataClusterWidgetComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Hidden)
 		{
 			//Toggles the visibility of the Status Effect Bar
-			StatusEffectBarWidgetComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Visible);
-			
+			DataClusterWidgetComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 	else //false
 	{
-		if (IsValid(StatusEffectBarWidgetComponent) && IsValid(StatusEffectBarWidgetComponent->GetUserWidgetObject()) && StatusEffectBarWidgetComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
+		if (IsValid(DataClusterWidgetComponent) &&
+			IsValid(DataClusterWidgetComponent->GetUserWidgetObject()) &&
+			DataClusterWidgetComponent->GetUserWidgetObject()->GetVisibility() == ESlateVisibility::Visible)
 		{
-			StatusEffectBarWidgetComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Hidden);
+			DataClusterWidgetComponent->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -621,9 +624,33 @@ void ATimberEnemyCharacter::SweepForActor(TSubclassOf<AActor> ActorToSweepFor, f
 	}
 }
 
-void ATimberEnemyCharacter::SetupStatusEffectBar()
+void ATimberEnemyCharacter::SetupDataClusterComponent()
 {
-	if (IsValid(StatusEffectBarWidgetComponent) && IsValid(StatusEffectBarWidgetComponent->GetWidget()))
+	if (DataClusterWidgetComponent)
+	{
+		if (!DataClusterWidgetComponent->GetWidget()) return;
+
+		//Initializing the Widget to Hidden. Will be showing with Player Input.
+		if (UEnemyDataCluster* DCW = Cast<UEnemyDataCluster>(DataClusterWidgetComponent->GetWidget()))
+		{
+			DCW->EnemyOwner = this;
+		}
+		DataClusterWidgetComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
+
+		ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(this, ATimberPlayableCharacter::StaticClass()));
+		if (IsValid(PlayerCharacter))
+		{
+			ATimberPlayerController* PC = Cast<ATimberPlayerController>(PlayerCharacter->GetController());
+			if (IsValid(PC))		
+			{
+				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
+			}
+		}
+
+		
+	}
+	
+	/*if (IsValid(StatusEffectBarWidgetComponent) && IsValid(StatusEffectBarWidgetComponent->GetWidget()))
 	{
 		StatusEffectBarWidgetComponent->GetWidget()->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -640,5 +667,5 @@ void ATimberEnemyCharacter::SetupStatusEffectBar()
 				PC->ToggleDataView_DelegateHandle.AddDynamic(this, &ATimberEnemyCharacter::HandleToggleDataView);
 			}
 		}
-	}
+	}*/
 }

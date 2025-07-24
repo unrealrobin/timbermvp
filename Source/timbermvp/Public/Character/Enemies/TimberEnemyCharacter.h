@@ -133,10 +133,10 @@ public:
 
 	/*UI*/
 	void SpawnEffectNameUI(FName EffectName, UStatusEffectBase* StatusEffect);
+	
 	UFUNCTION()
 	void HandleToggleDataView(FInputActionValue Input);
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status Effects")
-	UWidgetComponent* StatusEffectBarWidgetComponent;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data Cluster")
 	UWidgetComponent* DataClusterWidgetComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Effects")
@@ -178,5 +178,5 @@ private:
 	void ScaleHealth();
 	void HandleRemoveStatusEffectComponent();
 	void SetupCharacterMovementDelegates();
-	void SetupStatusEffectBar();
+	void SetupDataClusterComponent();
 };

@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Subsystems/SynergySystem/SynergySystem.h"
 #include "Types/Combat/DamagePayload.h"
+#include "UI/EnemyDataCluster/EnemyDataCluster.h"
 #include "UI/StatusEffects/StatusEffectBar.h"
 
 UStatusEffectHandlerComponent::UStatusEffectHandlerComponent()
@@ -348,15 +349,20 @@ void UStatusEffectHandlerComponent::AddEffectToStatusEffectBar(FGameplayTag Effe
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
 	if (IsValid(EnemyCharacter))
 	{
-		if (IsValid(EnemyCharacter->StatusEffectBarWidgetComponent))
+		if (IsValid(EnemyCharacter->DataClusterWidgetComponent))
 		{
-			UUserWidget* Widget = EnemyCharacter->StatusEffectBarWidgetComponent->GetUserWidgetObject();
+			UUserWidget* Widget = EnemyCharacter->DataClusterWidgetComponent->GetWidget();
 			if (IsValid(Widget))
 			{
-				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);
-				if (IsValid(StatusEffectBar))
+				UEnemyDataCluster* DC = Cast<UEnemyDataCluster>(Widget);
+				if (IsValid(DC) && IsValid(DC->StatusEffectBarWidget))
 				{
-					StatusEffectBar->AddEmergentTagToBar(EffectTag);
+					DC->AddEffectToStatusEffectBar(EffectTag);
+					UE_LOG(LogTemp, Warning, TEXT("Added Effect to Status Effect Bar: %s"), *EffectTag.ToString())
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Status Effect Bar Widget is Null"));
 				}
 			}
 		}
@@ -368,15 +374,15 @@ void UStatusEffectHandlerComponent::RemoveEffectFromStatusEffectBar(FGameplayTag
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
 	if (IsValid(EnemyCharacter))
 	{
-		if (IsValid(EnemyCharacter->StatusEffectBarWidgetComponent))
+		if (IsValid(EnemyCharacter->DataClusterWidgetComponent))
 		{
-			UUserWidget* Widget = EnemyCharacter->StatusEffectBarWidgetComponent->GetUserWidgetObject();
+			UUserWidget* Widget = EnemyCharacter->DataClusterWidgetComponent->GetWidget();
 			if (IsValid(Widget))
 			{
-				UStatusEffectBar* StatusEffectBar = Cast<UStatusEffectBar>(Widget);
-				if (IsValid(StatusEffectBar))
+				UEnemyDataCluster* DC = Cast<UEnemyDataCluster>(Widget);
+				if (IsValid(DC) && IsValid(DC->StatusEffectBarWidget))
 				{
-					StatusEffectBar->RemoveEffectFromBar(EffectTag);
+					DC->RemoveEffectFromStatusEffectBar(EffectTag);
 				}
 			}
 		}

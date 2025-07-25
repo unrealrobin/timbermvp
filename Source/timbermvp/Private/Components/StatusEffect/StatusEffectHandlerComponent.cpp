@@ -2,7 +2,6 @@
 
 
 #include "Components/StatusEffect/StatusEffectHandlerComponent.h"
-
 #include "AI/TimberAiControllerBase.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -12,7 +11,6 @@
 #include "Subsystems/SynergySystem/SynergySystem.h"
 #include "Types/Combat/DamagePayload.h"
 #include "UI/EnemyDataCluster/EnemyDataCluster.h"
-#include "UI/StatusEffects/StatusEffectBar.h"
 
 UStatusEffectHandlerComponent::UStatusEffectHandlerComponent()
 {

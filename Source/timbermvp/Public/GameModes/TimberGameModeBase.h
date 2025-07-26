@@ -51,6 +51,9 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
 	UDataTable* WaveCompositionDataTable;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Wave Data")
+	UDataAsset* WaveCompositionCurveTable;
 	
 	void PlayerIsInitialized(AActor* InitializedPlayer);
 	

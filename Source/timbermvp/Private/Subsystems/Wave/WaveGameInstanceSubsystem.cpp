@@ -7,6 +7,7 @@
 #include "Character/Enemies/TimberEnemyRangedBase.h"
 #include "Character/Enemies/Boss/BossBase.h"
 #include "Data/WaveData.h"
+#include "Data/DataAssets/WaveDA/WaveCompDataAsset.h"
 #include "Environment/BossSpawnLocation.h"
 #include "Environment/DynamicLab.h"
 #include "Environment/GarageDoorBase.h"
@@ -47,20 +48,25 @@ void UWaveGameInstanceSubsystem::SetWaveCompositionDataTable(UDataTable* DataTab
 	WaveCompositionTable = DataTable;
 }
 
+void UWaveGameInstanceSubsystem::SetWaveCompositionCurveTable(UDataAsset* WaveCompDataAsset)
+{
+	WaveCurveCompositionTable = WaveCompDataAsset;
+}
+
 void UWaveGameInstanceSubsystem::PrepareSpawnPoints()
 {
-	GatherAllStandardSpawnPoints();
-	GatherAllStandardSpawnPointLocations();
+	GetAllStandardSpawnPointsInLab();
+	StageAllStandardSpawnPointLocations();
 	GetBossSpawnPointLocation();
 	GetGarageDoor();
 }
 
-void UWaveGameInstanceSubsystem::GatherAllStandardSpawnPoints()
+void UWaveGameInstanceSubsystem::GetAllStandardSpawnPointsInLab()
 {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimberEnemySpawnLocations::StaticClass(), StandardSpawnPoints);
 }
 
-void UWaveGameInstanceSubsystem::GatherAllStandardSpawnPointLocations()
+void UWaveGameInstanceSubsystem::StageAllStandardSpawnPointLocations()
 {
 	if(StandardSpawnPoints.Num() > 0)
 	{
@@ -124,9 +130,6 @@ void UWaveGameInstanceSubsystem::StartWave()
 		//This saves all builds/Inventory stats right before a wave is started.
 		SaveLoadSubsystem->SaveCurrentGame();
 	}
-
-	//Timer to allow SFX to play before actually start wave.
-	//TODO:: Test Opening lab doors here.
 	
 	FTimerHandle WaveDelayHandle;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -141,7 +144,8 @@ void UWaveGameInstanceSubsystem::StartWave()
 				{
 					//UE_LOG(LogTemp, Warning, TEXT("WaveGameInstanceSubsystem - StartWave() - Starting Wave %d"), CurrentWaveNumber);
 					//Prepares the Wave Composition
-					ComposeWaveFromDataTable();
+					//ComposeWaveFromDataTable();
+					ComposeWaveFromCurveTable();
 					
 					//Process of Opening Doors - Doors Open Finish Animations Start the Wave.
 					OpenLabDoorHandle.Broadcast();
@@ -211,6 +215,63 @@ void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
 	}
 }
 
+void UWaveGameInstanceSubsystem::ComposeWaveFromCurveTable()
+{
+	if (UWaveCompDataAsset* WaveCompDA = Cast<UWaveCompDataAsset>(WaveCurveCompositionTable))
+	{
+		UCurveTable* WaveCompCurve = WaveCompDA->SpawningCurveTable;
+		if (WaveCompCurve)
+		{
+			//Getting the Horizontal value of the Curve based on CurrentWaveNumber.
+			const FRealCurve* BasicRobotCurve = WaveCompCurve->FindCurve("Basic", "Basic Robot Spawning");
+			const FRealCurve* MeleeRobotCurve = WaveCompCurve->FindCurve("Melee", "Melee Robot Spawning");
+			const FRealCurve* RangedRobotCurve = WaveCompCurve->FindCurve("Basic", "Ranged Robot Spawning");
+			const FRealCurve* DroneCurve = WaveCompCurve->FindCurve("Drones", "Drone Spawning");
+			
+			if (BasicRobotCurve)
+			{
+				int NumberOfEnemies = FMath::RoundToInt(BasicRobotCurve->Eval(CurrentWaveNumber));
+				if (NumberOfEnemies > 0)
+				{
+					AddClassToEnemiesToSpawnArray(WaveCompDA->BasicRobotClass, NumberOfEnemies);
+				}
+			}
+
+			if (MeleeRobotCurve)
+			{
+				int NumberOfEnemies = FMath::RoundToInt(MeleeRobotCurve->Eval(CurrentWaveNumber));
+				if (NumberOfEnemies > 0)
+				{
+					AddClassToEnemiesToSpawnArray(WaveCompDA->MeleeRobotClass, NumberOfEnemies);
+				}
+			}
+
+			if (RangedRobotCurve)
+			{
+				int NumberOfEnemies = FMath::RoundToInt(RangedRobotCurve->Eval(CurrentWaveNumber));
+				if (NumberOfEnemies > 0)
+				{
+					AddClassToEnemiesToSpawnArray(WaveCompDA->RangedRobotClass, NumberOfEnemies);
+				}
+			}
+
+			if (DroneCurve)
+			{
+				int NumberOfEnemies = FMath::RoundToInt(DroneCurve->Eval(CurrentWaveNumber));
+				if (NumberOfEnemies > 0)
+				{
+					AddClassToEnemiesToSpawnArray(WaveCompDA->DroneClass, NumberOfEnemies);
+				}
+			}
+
+			if (EnemiesToSpawn.Num() > 0)
+			{
+				ShuffleEnemiesToSpawn();
+			}
+		}
+	}
+}
+
 void UWaveGameInstanceSubsystem::ShuffleEnemiesToSpawn()
 {
 	if (EnemiesToSpawn.Num() > 0)
@@ -260,30 +321,21 @@ void UWaveGameInstanceSubsystem::EarlyStartWave()
 
 void UWaveGameInstanceSubsystem::SpawnWave()
 {
-	//Called at the end of the LabDoorOpening Timeline Animation.
-	
+	//Called at the end of the LabDoorOpening Timeline Animation in Lab Door Class.
 	if (bIsWaveActive) return;
 	
-	UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnWave() - Starting Wave"));
 	bIsWaveActive = true;
 	
-	//Sets a looping timer to spawn random parts of the wave with a delay between each spawn
-	//Timer is cleared and finished when all enemies are spawned
 	if(!bAllEnemiesSpawned)
 	{
-		/* Time between spawning Parts of Wave. 3 Parts all spawned in 9 Seconds. */
-		//UE_LOG(LogTemp, Warning, TEXT("Wave Subsystem - SpawnWave() - Spawning Wave - Timer Started"));
 		GetWorld()->GetTimerManager().SetTimer(SpawnPartOfWaveTimerHandle, this, 
-			&UWaveGameInstanceSubsystem::SpawnPartOfWave, TimeBetweenEnemySpawns, true, 5.f);
+			&UWaveGameInstanceSubsystem::SpawnPartOfWave, TimeBetweenEnemySpawns, true, 3.f);
 	}
 }
 
 void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 {
-	//TODO:: UnComment this when Bosses are added. Bosses need to be Set in the Wave Composition Data Table.
 	//HandleBossSpawn();
-	
-	//1-3 enemies can spawn at once - this will help with spreading out the enemies.
 	int RandomNumberOfEnemiesToSpawnAtOnce = GetNumberOfEnemiesToSpawnPerGroup();
 	
 	//We need to adjust the Index used based on whether a boss is or isn't spawned. If we dont, then Total Enemies To Spawn will overflow the EnemiesToSpawn Array which
@@ -304,19 +356,8 @@ void UWaveGameInstanceSubsystem::SpawnPartOfWave()
 			// We use + i here because in the loop we are setting timers to spawn. So each time we set a Timer, we need to increment the Array Index
 			ArrayIndex = TotalEnemiesSpawned;
 		}
-		/*
-		 * TotalEnemiesToSpawn - Decided in Composition, if Boss, Includes Boss.
-		 * TotalEnemiesSpawned - Incremented in SpawnEnemy()
-		 *
-		 * Ex. 5 Basic 1 Boss
-		 * Iteration Starts at 0, but TotalEnemiesSpawned is 1
-		 * Iteration is 0 on boss because always set Array Index to TotalEnemiesSpawned - 1
-		 * Otherwise it is just TotalEnemiesSpawned.
-		 * We use Less than to offset by 1 because iteration starts at 0.
-		 */
 		if(TotalEnemiesSpawned < TotalEnemiesToSpawn && ArrayIndex < EnemiesToSpawn.Num())
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy at Array Index: %d"), ArrayIndex);
 			SpawnEnemy(EnemiesToSpawn[ArrayIndex], GetRandomStandardSpawnPointLocation());
 		}
 		else
@@ -468,7 +509,7 @@ int UWaveGameInstanceSubsystem::GetNumberOfEnemiesToSpawnPerGroup()
 
 	if (CurrentWaveNumber <= 3) // 1,2,3
 	{
-		NumEnemiesToSpawn = FMath::RandRange(1, 3);
+		NumEnemiesToSpawn = FMath::RandRange(1, 2);
 	}
 	else if (CurrentWaveNumber <= 6) // 4,5,6
 	{
@@ -563,6 +604,16 @@ void UWaveGameInstanceSubsystem::PlayBossSpawnSound()
 	if (SFXManager)
 	{
 		SFXManager->OnBossSpawn.Broadcast();
+	}
+}
+
+void UWaveGameInstanceSubsystem::AddClassToEnemiesToSpawnArray(TSubclassOf<ATimberEnemyCharacter> ClassToAdd,
+	int NumberToAdd)
+{
+	for (int i = 0; i < NumberToAdd; i++)
+	{
+		EnemiesToSpawn.Add(ClassToAdd);
+		TotalEnemiesToSpawn += 1;
 	}
 }
 

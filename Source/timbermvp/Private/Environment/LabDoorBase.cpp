@@ -88,7 +88,7 @@ void ALabDoorBase::HandleTimelineFinished()
 		UWaveGameInstanceSubsystem* WGS = GetWorld()->GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 		if (WGS)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Lab Door Call to Wave Subsystem."));
+			//UE_LOG(LogTemp, Warning, TEXT("Lab Door Call to Wave Subsystem."));
 			WGS->SpawnWave();
 		}
 	}

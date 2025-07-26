@@ -51,19 +51,24 @@ public:
 	FOnBossSpawned OnBossSpawned;
 
 	/* Data Table */
+	//V1
 	UFUNCTION()
 	void SetWaveCompositionDataTable(UDataTable* DataTable);
-	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Wave Data")
 	UDataTable* WaveCompositionTable;
+	//V2
+	UFUNCTION()
+	void SetWaveCompositionCurveTable(UDataAsset* WaveCompDataAsset);
+	UPROPERTY(VisibleAnywhere, Category = "Wave Data")
+	UDataAsset* WaveCurveCompositionTable;
 
 	/* Preparing SpawnPoints for Enemies */
 	UFUNCTION()
 	void PrepareSpawnPoints();
 	UFUNCTION()
-	void GatherAllStandardSpawnPoints();
+	void GetAllStandardSpawnPointsInLab();
 	UFUNCTION()
-	void GatherAllStandardSpawnPointLocations();
+	void StageAllStandardSpawnPointLocations();
 	UFUNCTION()
 	void GetBossSpawnPointLocation();
 	UFUNCTION()
@@ -82,6 +87,8 @@ public:
 	void StartWave();
 	UFUNCTION()
 	void ComposeWaveFromDataTable();
+	UFUNCTION()
+	void ComposeWaveFromCurveTable();
 	UFUNCTION()
 	void HandleBossSpawn();
 	UFUNCTION()
@@ -168,7 +175,7 @@ public:
 	void PlayBossSpawnSound();
 
 private:
-	
+	void AddClassToEnemiesToSpawnArray(TSubclassOf<ATimberEnemyCharacter> ClassToAdd, int NumberToAdd);
 	int GetNumberOfEnemiesToSpawnPerGroup(); //Scales Number of enemies to spawn per "Grouping" by wave Number.
 };
 

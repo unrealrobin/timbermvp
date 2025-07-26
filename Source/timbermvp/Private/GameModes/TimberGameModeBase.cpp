@@ -41,8 +41,7 @@ void ATimberGameModeBase::BeginPlay()
 	LoadPublisherDemo();
 	
 	InitializeGameState();
-
-
+	
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
@@ -71,12 +70,15 @@ void ATimberGameModeBase::BeginPlay()
 	GatherSeedaData();
 	GatherAllLabDoors();
 
-	if(WaveCompositionDataTable)
+	/*if(WaveCompositionDataTable)
 	{
 		PassDataTableToWaveSubsystem(WaveCompositionDataTable);
-	}
+	}*/
 
-	
+	if (WaveCompositionCurveTable)
+	{
+		GetWaveGameInstanceSubsystem()->SetWaveCompositionCurveTable(WaveCompositionCurveTable);
+	}
 }
 
 void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
@@ -178,7 +180,7 @@ void ATimberGameModeBase::SpawnDummyForTutorial()
 	if (DummyBPClass)
 	{
 		FActorSpawnParameters SpawnParams;
-		ATimberEnemyCharacter* DummyActor = GetWorld()->SpawnActor<ATimberEnemyCharacter>(DummyBPClass, SpawnLocation, SpawnRotation, SpawnParams);
+		GetWorld()->SpawnActor<ATimberEnemyCharacter>(DummyBPClass, SpawnLocation, SpawnRotation, SpawnParams);
 	}
 	else
 	{

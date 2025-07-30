@@ -148,7 +148,6 @@ void UTask_MoveThroughCorridorPathV2::OnMoveFinished(FAIRequestID RequestID, con
     }
     else if (bIsBlocked)
     {
-        //Path has become blocked during movement of full path /  or partial path
         //UE_LOG(LogTemp, Warning, TEXT("Blocked Path."));
         HandleBlockedPath();
     }

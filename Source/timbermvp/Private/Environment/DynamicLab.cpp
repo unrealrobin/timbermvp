@@ -514,15 +514,11 @@ void ADynamicLab::GenerateInstancedWallStaticMeshComponent(FVector Location, FRo
 {
 	const FTransform InstanceTransform(Rotation, Location);
 	InstancedWallStaticMesh->AddInstance(InstanceTransform);
-	// Disable shadow casting (no light blocking)
+
+	//Used for Lighting Cube Map Pass Through
 	InstancedWallStaticMesh->SetCastShadow(false);
-
-	// Optional: disable dynamic indirect lighting (Lumen bounce)
 	InstancedWallStaticMesh->bAffectDynamicIndirectLighting = false;
-
-	// Optional: disable distance field lighting (affects Lumen/GI)
 	InstancedWallStaticMesh->bAffectDistanceFieldLighting = false;
-
 	InstancedWallStaticMesh->MarkRenderStateDirty();
 	
 	NumberOfWalls++;

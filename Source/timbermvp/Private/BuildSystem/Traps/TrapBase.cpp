@@ -36,7 +36,11 @@ void ATrapBase::BeginPlay()
 	
 	HitBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ATrapBase::HitBoxBeginOverlap);
 	HitBoxComponent->OnComponentEndOverlap.AddDynamic(this, &ATrapBase::HitBoxEndOverlap);
+
 	
+	FTimerHandle ClearDeadEnemiesTimerHandle;
+	float RandomTimerOffset = FMath::FRandRange(0.0f, 3.0f);
+	GetWorld()->GetTimerManager().SetTimer(ClearDeadEnemiesTimerHandle, this, &ATrapBase::ClearDeadEnemiesFromArray, 0.1f, true, RandomTimerOffset);
 }
 
 void ATrapBase::DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh)
@@ -102,8 +106,7 @@ void ATrapBase::HitBoxBeginOverlap(
 	bool bFromSweep, const FHitResult& SweepResult)
 {
 	//GEngine->AddOnScreenDebugMessage(13, 3.0f, FColor::Red, "Trap HitBox Overlap");
-	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
-	if (Enemy)
+	if (IsValid(OtherActor) && OtherActor->IsA(ATimberEnemyCharacter::StaticClass()) && !InsideHitBoxArray.Contains(OtherActor))
 	{
 		AddEnemyToInsideHitBoxArray(OtherActor);
 	}
@@ -112,10 +115,9 @@ void ATrapBase::HitBoxBeginOverlap(
 void ATrapBase::HitBoxEndOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
-	if (Enemy)
+	if (IsValid(OtherActor) && OtherActor->IsA(ATimberEnemyCharacter::StaticClass()) && InsideHitBoxArray.Contains(OtherActor))
 	{
-		RemoveEnemyFromInsideHitBoxArray(Enemy);
+		RemoveEnemyFromInsideHitBoxArray(OtherActor);
 	}
 }
 
@@ -127,6 +129,14 @@ void ATrapBase::AddEnemyToInsideHitBoxArray(AActor* Enemy)
 void ATrapBase::RemoveEnemyFromInsideHitBoxArray(AActor* Enemy)
 {
 	InsideHitBoxArray.Remove(Enemy);
+}
+
+void ATrapBase::ClearDeadEnemiesFromArray()
+{
+	InsideHitBoxArray.RemoveAll([](const TWeakObjectPtr<AActor>& EnemyPtr)
+	{
+		return !EnemyPtr.IsValid();
+	});
 }
 
 void ATrapBase::ConfigureStaticMeshWalkableSlope(AActor* ParentBuildableRef)

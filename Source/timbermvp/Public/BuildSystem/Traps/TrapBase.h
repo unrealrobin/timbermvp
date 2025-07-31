@@ -51,8 +51,8 @@ protected:
 
 	void DisableAllStaticMeshCollisions(UStaticMeshComponent* SomeMesh);
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Hit Enemies")
-	TArray<AActor*> InsideHitBoxArray;
+	UPROPERTY(VisibleAnywhere, Category="Hit Enemies")
+	TArray<TWeakObjectPtr<AActor>> InsideHitBoxArray;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -104,6 +104,13 @@ public:
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void AddEnemyToInsideHitBoxArray(AActor* Enemy);
-	
 	void RemoveEnemyFromInsideHitBoxArray(AActor* Enemy);
+
+	/*
+	 * InsideHitBoxArray now stores TWeakObjPtrs
+	 * If an Actor dies while still in the HitBox we need a Way to clean up the HitBox Array of Nullptrs because
+	 * they never hit the EndOverlap function
+	 * This handles that clean up on a timer with an offset to spread the clean up.
+	 */
+	void ClearDeadEnemiesFromArray();
 };

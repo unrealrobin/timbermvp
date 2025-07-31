@@ -39,7 +39,7 @@ void ABurnTrap::BeginPlay()
 
 void ABurnTrap::HandleTrapBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (BurnTrapInternalsNiagara && EffectConditionManager && Cast<ATimberEnemyCharacter>(OtherActor))
+	if (BurnTrapInternalsNiagara && EffectConditionManager && OtherActor->IsA(ATimberEnemyCharacter::StaticClass()))
 	{
 		BurnTrapInternalsNiagara->ActivateSystem();
 		EffectConditionManager->ResolveEffect(StatusEffectDefinitions, OtherActor);
@@ -50,7 +50,7 @@ void ABurnTrap::HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, A
 	UPrimitiveComponent* OtherComp, int32 INT32)
 {
 	//Check if anyone is still in hit-box, if not, turn off the effect.
-	if (Cast<ATimberEnemyCharacter>(OtherActor) && InsideHitBoxArray.Num() == 0 )
+	if (OtherActor->IsA(ATimberEnemyCharacter::StaticClass()) && InsideHitBoxArray.Num() == 0 )
 	{
 		if (BurnTrapInternalsNiagara)
 		{
@@ -62,9 +62,26 @@ void ABurnTrap::HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, A
 
 void ABurnTrap::CheckNiagaraActive()
 {
-	if (BurnTrapInternalsNiagara && BurnTrapInternalsNiagara->IsActive() && InsideHitBoxArray.Num() == 0)
+	if (BurnTrapInternalsNiagara)
 	{
-		BurnTrapInternalsNiagara->Deactivate();
+		if (BurnTrapInternalsNiagara->IsActive() && InsideHitBoxArray.Num() == 0)
+		{
+			BurnTrapInternalsNiagara->Deactivate();
+		}
+
+		if (InsideHitBoxArray.Num() > 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Enemies still inside Hit Box."));
+		}
+
+		if (!BurnTrapInternalsNiagara->IsActive())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Burn Trap Niagra is Inactive."));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Burn Trap - Burn Trap Internals Niagara is NULL!"));
 	}
 }
 

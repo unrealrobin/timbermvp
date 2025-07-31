@@ -44,10 +44,6 @@ protected:
 
 	UFUNCTION()
 	void HandleTrapEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 INT32);
-	
-public:
-	/*// Called every frame
-	virtual void Tick(float DeltaTime) override;*/
 
 private:
 

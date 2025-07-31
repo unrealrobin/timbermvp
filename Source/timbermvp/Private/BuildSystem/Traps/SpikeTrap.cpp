@@ -82,12 +82,11 @@ void ASpikeTrap::ApplyStatusEffectToEnemy()
 {
 	if (InsideHitBoxArray.Num() > 0)
 	{
-		TArray<AActor*> InsideHitBoxArrayCopy = InsideHitBoxArray;
-		for (AActor* HitActor : InsideHitBoxArrayCopy)
+		for (TWeakObjectPtr HitActor : InsideHitBoxArray)
 		{
-			if (HitActor->IsA(ATimberEnemyCharacter::StaticClass()))
+			if (HitActor.IsValid() && HitActor->IsA(ATimberEnemyCharacter::StaticClass()))
 			{
-				EffectConditionManager->ResolveEffect(StatusEffectDefinitions, HitActor);
+				EffectConditionManager->ResolveEffect(StatusEffectDefinitions, HitActor.Get());
 			}
 		}
 	}

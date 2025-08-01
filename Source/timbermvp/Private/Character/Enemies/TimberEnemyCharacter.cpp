@@ -230,10 +230,10 @@ void ATimberEnemyCharacter::HandleOnLanded(const FHitResult& Hit)
 
 void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 {
-	if (IsValid(DamagePayload.DamageInstigator))
+	/*if (IsValid(DamagePayload.DamageInstigator))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyCharacter - TakeDamage() - %s took %f damage from %s."), *GetName(), DamagePayload.DamageAmount, *DamagePayload.DamageInstigator->GetName());
-	}
+	}*/
 	
 	//Applying damage to Character Health
 	CurrentHealth -= DamagePayload.DamageAmount;
@@ -259,6 +259,7 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 	//Things to do after Death - 0 Life.
 	if (CurrentHealth <= 0.f)
 	{
+		
 		HandleRemoveStatusEffectComponent();
 		
 		//Checking if the enemy was part of the wave spawn system and thus needs to be tracked.
@@ -276,7 +277,17 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 		//Plays Death Animation
 		if (IsValid(DeathMontage))
 		{
-			PlayMontageAtRandomSection(DeathMontage);
+			//Some Effects Freeze Anim Rate Scale (Set to 0.0), and an Anim Notify is what calls the Death/Destroy functionality.
+			if (GetMesh())
+			{
+				GetMesh()->GlobalAnimRateScale = 1.0f;
+				PlayMontageAtRandomSection(DeathMontage);
+			}
+			else
+			{
+				//Fall back if there is an issue with the Animation or Mesh Call.
+				HandleEnemyDeath();
+			}
 		}
 
 		//Drops Any Loot set on the Characters Loot Drop

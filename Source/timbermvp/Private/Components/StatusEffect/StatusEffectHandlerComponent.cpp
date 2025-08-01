@@ -181,7 +181,7 @@ void UStatusEffectHandlerComponent::HandleModifierTags(FStatusEffect& StatusEffe
 		}
 		//Stacks
 
-		//Stunned
+		//Stunned (Freeze)
 		if (ModifierTag.MatchesTagExact(FGameplayTag::RequestGameplayTag("SynergySystem.Modifier.Debuff.IsStunned")))
 		{
 			HandleModifierDebuffIsStunned(StatusEffect);

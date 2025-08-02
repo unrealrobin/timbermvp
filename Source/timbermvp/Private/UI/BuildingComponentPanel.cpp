@@ -23,7 +23,7 @@ void UBuildingComponentPanel::LoadAllDataAssetsForMenu()
 		AssetRegistry.Get().ScanPathsSynchronous({PathToBuildableDataAssets});
 
 		//Get all assets at this path and populate the AssetData (not data asset) into AssetDataArray<FAssetData>
-		AssetRegistry.Get().GetAssetsByPath(FName(*PathToBuildableDataAssets), AssetDataArray, false);
+		AssetRegistry.Get().GetAssetsByPath(FName(*PathToBuildableDataAssets), AssetDataArray, true);
 
 		for (FAssetData& AssetData : AssetDataArray)
 		{
@@ -37,6 +37,25 @@ void UBuildingComponentPanel::LoadAllDataAssetsForMenu()
 				}
 			}
 		}
+
+		/*
+		 * Each DA has some Sort Value set in BP's so the order in the UI Widget is Predetermined.
+		 */
+		if (AllBuildablesArray.Num() > 0)
+		{
+			AllBuildablesArray.Sort([](const UDataAsset& A, const UDataAsset& B )
+			{
+				const UBuildComponentDataAsset* AssetA = Cast<const UBuildComponentDataAsset>(&A);
+				const UBuildComponentDataAsset* AssetB = Cast<const UBuildComponentDataAsset>(&B);
+
+				if (!AssetA || !AssetB)
+				{
+					return false;
+				}
+
+				return AssetA->SortValue < AssetB->SortValue;
+			});
+		}
 	}
 }
 
@@ -48,7 +67,7 @@ void UBuildingComponentPanel::PrepareTrapEffectList()
 	{
 		if (UBuildComponentDataAsset* BuildComponentDataAsset = Cast<UBuildComponentDataAsset>(BuildMenuHoveredIconDataAsset))
 		{
-			if (BuildComponentDataAsset->BuildingComponentClass->IsChildOf(ATrapBase::StaticClass()))
+			if (BuildComponentDataAsset->BuildingComponentClass && BuildComponentDataAsset->BuildingComponentClass->IsChildOf(ATrapBase::StaticClass()))
 			{
 				ATrapBase* TrapBase = BuildComponentDataAsset->BuildingComponentClass->GetDefaultObject<ATrapBase>();
 				//Loop through the Status Effect Definitions.

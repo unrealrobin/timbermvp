@@ -10,7 +10,7 @@
 UENUM(BlueprintType) // Allows usage in Blueprints
 enum class EBuildableClassification : uint8
 {
-	BuildingComponent UMETA(DisplayName = "Building Component"), // Enum value with display name
+	Structure UMETA(DisplayName = "Structure"), // Enum value with display name
 	Trap UMETA(DisplayName = "Trap"),
 	Construct UMETA(DisplayName = "Construct"),
 	Default UMETA(DisplayName = "Default")
@@ -30,4 +30,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ABuildableBase> BuildingComponentClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SortValue = 0;
 };

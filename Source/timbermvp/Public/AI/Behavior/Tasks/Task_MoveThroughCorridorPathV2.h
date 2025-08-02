@@ -163,9 +163,9 @@ private:
     FVector GetCurrentWaypoint() const;
     
     // Debug helpers
-    //void LogPathState(const FString& Context) const;
-    //void DrawDebugPath() const;
-    //void DrawDebugCurrentWaypoint() const;
+    void LogPathState(const FString& Context) const;
+    void DrawDebugPath() const;
+    void DrawDebugCurrentWaypoint() const;
 
 public:
     // Public accessors for debugging/monitoring
@@ -181,8 +181,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Debug")
     TArray<FVector> GetCurrentPath() const { return CorridorPathPoints; }
 
-    /*UFUNCTION(BlueprintCallable, Category = "Debug")
-    FString GetTaskStatus() const;*/
+    UFUNCTION(BlueprintCallable, Category = "Debug")
+    FString GetTaskStatus() const;
 
     UFUNCTION(BlueprintCallable, Category = "Debug")
     void ForceRecalculatePath();

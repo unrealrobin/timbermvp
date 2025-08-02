@@ -60,12 +60,17 @@ EBTNodeResult::Type UTask_MoveThroughCorridorPathV2::ExecuteTask(UBehaviorTreeCo
         //UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: No valid path found"));
         return EBTNodeResult::Failed;
     }
-    
+
+    //Binding to function when reaching the next point.
     PathFollowingComponent->OnRequestFinished.AddUObject(this, &UTask_MoveThroughCorridorPathV2::OnMoveFinished);
+
+    if (bEnableDebugDrawing)
+    {
+        DrawDebugPath();
+    }
     
     MoveToNextWaypoint();
-    //UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Started moving to waypoint %d/%d"), CurrentWaypointIndex + 1, TotalCorridorPoints);
-    //LogPathState("Task Started");
+
     return EBTNodeResult::InProgress;
 }
 
@@ -115,40 +120,20 @@ void UTask_MoveThroughCorridorPathV2::OnTaskFinished(UBehaviorTreeComponent& Own
 
 void UTask_MoveThroughCorridorPathV2::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-    /*UE_LOG(LogTemp, Error, TEXT("=== OnMoveFinished DEBUG ==="));
-    UE_LOG(LogTemp, Error, TEXT("Received RequestID: %d"), RequestID.GetID());
-    UE_LOG(LogTemp, Error, TEXT("Expected RequestID: %d"), CurrentMoveRequestID.GetID());
-    UE_LOG(LogTemp, Error, TEXT("Result Code: %s"), *UEnum::GetValueAsString(Result.Code));
-    UE_LOG(LogTemp, Error, TEXT("Result Flags: Success=%s, Blocked=%s"), 
-           Result.HasFlag(EPathFollowingResult::Success) ? TEXT("TRUE") : TEXT("FALSE"),
-           Result.HasFlag(EPathFollowingResult::Blocked) ? TEXT("TRUE") : TEXT("FALSE"));
-    UE_LOG(LogTemp, Error, TEXT("Current Waypoint: %d/%d"), CurrentWaypointIndex, TotalCorridorPoints);*/
-
     bool bIsSuccess = (Result.Code == EPathFollowingResult::Success);
     bool bIsBlocked = (Result.Code == EPathFollowingResult::Blocked);
     bool bIsAborted = (Result.Code == EPathFollowingResult::Aborted);
-
-    /*UE_LOG(LogTemp, Error, TEXT("CORRECT Flags: Success=%s, Blocked=%s, Aborted=%s"), 
-          bIsSuccess ? TEXT("TRUE") : TEXT("FALSE"),
-          bIsBlocked ? TEXT("TRUE") : TEXT("FALSE"),
-          bIsAborted ? TEXT("TRUE") : TEXT("FALSE"));*/
+    bool bIsInvalid = (Result.Code == EPathFollowingResult::Invalid);
     
-    //UE_LOG(LogTemp, Warning, TEXT("On Move Finished Called."));
-    //TODO:: This shit never works. It only gives problems.
-    /*if (RequestID != CurrentMoveRequestID)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Request ID: %d !=  CurrentMoveRequestID: %d"), RequestID.GetID(), CurrentMoveRequestID.GetID());
-        return; 
-    }*/
-
+    UE_LOG(LogTemp, Warning, TEXT("Move Finished - Result: %s"), *UEnum::GetValueAsString(Result.Code));
     if (bIsSuccess)
     {
-        //UE_LOG(LogTemp, Warning, TEXT("Successfully Move."));
+        UE_LOG(LogTemp, Warning, TEXT("Move To Point Successfull."));
         HandleSuccessfulMove();
     }
-    else if (bIsBlocked)
+    else if (bIsBlocked || bIsInvalid)
     {
-        //UE_LOG(LogTemp, Warning, TEXT("Blocked Path."));
+        UE_LOG(LogTemp, Warning, TEXT("Move To Point BLOCKED."));
         HandleBlockedPath();
     }
     else if (bIsAborted)
@@ -209,17 +194,13 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
         SetBlackboardValue(LastPointInPathKey.SelectedKeyName, CorridorPathPoints.Last());
         SetBlackboardValue(bMovementBlockedKey.SelectedKeyName, false); // Always False in this Case
         SetBlackboardValue(bShouldDestroyWallKey.SelectedKeyName, false); // Always False in this Case
-
-        if (bEnableDebugDrawing)
-        {
-            //DrawDebugPath();
-        }
     }
     else
     {
+        //This Failure is handled in the outer Execute function
+        //Should also never happen as the CalculatePathToTarget function returns partial paths.
         SetBlackboardValue(bHasValidPathKey.SelectedKeyName, false);
-        //UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to calculate valid path"));
-        
+        UE_LOG(LogTemp, Error, TEXT("Task_MoveThroughCorridorPathV2: Failed to calculate valid path"));
     }
 }
 
@@ -275,21 +256,6 @@ void UTask_MoveThroughCorridorPathV2::MoveToNextWaypoint()
         CurrentMoveRequestID = PathFollowingComponent->GetCurrentRequestId();
         //UE_LOG(LogTemp, Error, TEXT("MoveToNextWaypoint() - CurrentMoveRequest: %d"), CurrentMoveRequestID.GetID());
     }
-    else
-    {
-        //UE_LOG(LogTemp, Error, TEXT("PathFollowingComponent is NULL!"));
-        return;
-    }
-
-    //UE_LOG(LogTemp, Warning, TEXT("USING RequestID: %d for waypoint %d"), CurrentMoveRequestID.GetID(), CurrentWaypointIndex + 1);
-
-    if (bEnableDebugDrawing)
-    {
-        //DrawDebugCurrentWaypoint();
-    }
-
-    //UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Moving to waypoint %d/%d"), CurrentWaypointIndex + 1, TotalCorridorPoints);
-
 }
 
 void UTask_MoveThroughCorridorPathV2::HandleSuccessfulMove()
@@ -322,25 +288,9 @@ void UTask_MoveThroughCorridorPathV2::HandleSuccessfulMove()
 
 void UTask_MoveThroughCorridorPathV2::HandleBlockedPath()
 {
-    BlockedAttempts++;
-    //UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Path blocked (Attempt %d/%d)"), BlockedAttempts, MaxBlockedAttempts);
-
-    if (BlockedAttempts >= MaxBlockedAttempts)
-    {
-        HandleMultipleBlockages();
-        return;
-    }
-
+    //HandleMultipleBlockages();
     //Attempting to find another open route to the target - 3 Trys
-    if (bRecalculateOnBlocked)
-    {
-        RecalculatePathFromCurrentPosition();
-    }
-    else
-    {
-        // Simple MoveToNextWaypoint() on a Timer
-        RetryMovementAfterDelay(); // Will trigger another loop of this function.
-    }
+    RecalculatePathFromCurrentPosition();
 }
 
 void UTask_MoveThroughCorridorPathV2::HandleMultipleBlockages()
@@ -442,17 +392,23 @@ void UTask_MoveThroughCorridorPathV2::RecalculatePathFromCurrentPosition()
 
     if (NewPathResult.bIsValid && NewPathResult.PathPoints.Num() > 0)
     {
+        CorridorPathPoints.Empty();
         CorridorPathPoints = NewPathResult.PathPoints;
         TotalCorridorPoints = CorridorPathPoints.Num();
         CurrentWaypointIndex = 0;
         bIsPathPartial = NewPathResult.bIsPartial;
-
-        //UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Successfully recalculated path"));
+        
+         if (bEnableDebugDrawing)
+         {
+             DrawDebugPath();
+         }
+        
+        UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2: Successfully recalculated path"));
         MoveToNextWaypoint();
     }
     else
     {
-        //UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Failed to recalculate path"));
+        UE_LOG(LogTemp, Warning, TEXT("Task_MoveThroughCorridorPathV2: Failed to recalculate path"));
         FinishLatentTask(*BehaviorTreeComponent, EBTNodeResult::Failed);
     }
 }
@@ -595,7 +551,7 @@ UObject* UTask_MoveThroughCorridorPathV2::GetBlackboardValue(const FName& KeyNam
 }
 
 // Debug Functions
-/*void UTask_MoveThroughCorridorPathV2::LogPathState(const FString& Context) const
+void UTask_MoveThroughCorridorPathV2::LogPathState(const FString& Context) const
 {
     UE_LOG(LogTemp, Log, TEXT("Task_MoveThroughCorridorPathV2 [%s]: Waypoint %d/%d, Blocked Attempts: %d, Partial: %s, Fallback: %s"),
            *Context,
@@ -604,9 +560,8 @@ UObject* UTask_MoveThroughCorridorPathV2::GetBlackboardValue(const FName& KeyNam
            BlockedAttempts,
            bIsPathPartial ? TEXT("Yes") : TEXT("No"),
            bIsExecutingFallbackPath ? TEXT("Yes") : TEXT("No"));
-}*/
+}
 
-/*
 void UTask_MoveThroughCorridorPathV2::DrawDebugPath() const
 {
     if (!bEnableDebugDrawing || !GetWorld())
@@ -669,10 +624,10 @@ void UTask_MoveThroughCorridorPathV2::DrawDebugCurrentWaypoint() const
         false,
         1.0f
     );
-}*/
+}
 
 // Blueprint Debug Functions
-/*FString UTask_MoveThroughCorridorPathV2::GetTaskStatus() const
+FString UTask_MoveThroughCorridorPathV2::GetTaskStatus() const
 {
     return FString::Printf(TEXT("Waypoint: %d/%d | Blocked: %d | Partial: %s | Fallback: %s"),
                           CurrentWaypointIndex + 1,
@@ -680,7 +635,7 @@ void UTask_MoveThroughCorridorPathV2::DrawDebugCurrentWaypoint() const
                           BlockedAttempts,
                           bIsPathPartial ? TEXT("Yes") : TEXT("No"),
                           bIsExecutingFallbackPath ? TEXT("Yes") : TEXT("No"));
-}*/
+}
 
 void UTask_MoveThroughCorridorPathV2::ForceRecalculatePath()
 {

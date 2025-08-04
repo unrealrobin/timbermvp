@@ -477,10 +477,6 @@ void ATimberPlayerController::ToggleBuildMenuStatusEffectWindow(const FInputActi
 		HUD->ToggleBuildMenuStatusEffectDetails();
 		//UE_LOG(LogTemp, Warning, TEXT("RMB Pressed in Build Mode"));
 	}
-	else
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("HUD Unable To Cast."));
-	}
 	
 }
 

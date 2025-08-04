@@ -45,7 +45,7 @@ protected:
 	UFUNCTION()
 	void LoadAllDataAssetsForMenu();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void CreateBuildableIconsInMenu();
 
 	UFUNCTION(BlueprintCallable)

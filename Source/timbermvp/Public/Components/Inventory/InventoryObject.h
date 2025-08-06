@@ -17,12 +17,12 @@ class TIMBERMVP_API UInventoryObject : public UObject
 public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory Items")
-	int NumberOfParts = 100;
+	int NumberOfParts = 40;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory Items")
-	int NumberOfMechanism = 100;
+	int NumberOfMechanism = 20;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory Items")
-	int NumberOfUniques = 1;
+	int NumberOfUniques = 4;
 };
 

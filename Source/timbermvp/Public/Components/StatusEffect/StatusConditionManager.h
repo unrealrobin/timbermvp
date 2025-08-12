@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraSystem.h"
 #include "Components/ActorComponent.h"
 #include "StatusConditionManager.generated.h"
 
@@ -36,5 +37,10 @@ protected:
 	AActor* Owner = nullptr;
 
 	FEffectConditionContext GenerateEffectConditionContext( AActor* TargetActor);
+
+private:
+
+	void PlayEffectVFX(TObjectPtr<UNiagaraSystem> VFX, AActor* TargetActor);
+	//void PlayEffectSFX(TObjectPtr<UMetaSoundSource>, AActor* TargetActor);
 	
 };

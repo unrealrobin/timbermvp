@@ -3,7 +3,9 @@
 
 #include "Components/StatusEffect/StatusConditionManager.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Data/DataAssets/StatusEffects/StatusEffectDefinition.h"
 #include "Subsystems/SynergySystem/SynergySystem.h"
 #include "Types/EffectConditionTypes.h"
@@ -41,6 +43,8 @@ FEffectConditionContext UStatusConditionManager::GenerateEffectConditionContext(
 	return EffectConditionContext;
 }
 
+
+
 void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> EffectDefinitionsArray, AActor* TargetActor)
 {
 	if (!IsValid(TargetActor)) return;
@@ -72,39 +76,39 @@ void UStatusConditionManager::ResolveEffect(TArray<UStatusEffectDefinition*> Eff
 				}
 				
 				Enemy->StatusEffectHandler->AddStatusEffectToComponent(EffectDefinition->StatusEffectAsset->StatusEffect);
+
+				//Play Trap Effect VFX
+				if (EffectDefinition->StatusEffectAsset->StatusEffect.PrimaryNiagaraVFX)
+				{
+					PlayEffectVFX(EffectDefinition->StatusEffectAsset->StatusEffect.PrimaryNiagaraVFX, Enemy);
+				}
+				
+				//Play Trap Effect SFX, should be played at Target Actor Location and should use Range Based Attenuation.
 			}
 			break;
 		}
-		
 	}
-	//Loops through each Effect and Applies it. Can apply each level all at once.
-	/*for (UStatusEffectDefinition* EffectDefinition : EffectDefinitionsArray)
-	{
-		/*
-		 * Evaluates the Status Effects Pair Condition
-		 * Status Effect Definition
-		 *	- Status Effect
-		 *	- Effect Condition <--Rules to check if should apply.
-		 #1#
-		bool bConditionMet = EffectDefinition->StatusEffectCondition->EvaluateCondition(Context);
+}
 
-		if (bConditionMet)
-		{
-			if (ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(Context.TargetActor))
-			{
-				if (!IsValid(Enemy)) return;
-				
-				//Displays the Critical Synergy Effect Name in Floating Damage UI.
-				if (EffectDefinition->StatusEffectAsset->StatusEffect.EffectLevel == EStatusEffectLevel::Ultimate)
-				{
-					FName TagName = SynSub->GetLastNameOfGameplayTag(EffectDefinition->StatusEffectAsset->StatusEffect.EffectIdTag);
-					Enemy->SpawnEffectNameUI(TagName, EffectDefinition->StatusEffectAsset);
-				}
-				
-				Enemy->StatusEffectHandler->AddStatusEffectToComponent(EffectDefinition->StatusEffectAsset->StatusEffect);
-			}
-		}
-	}*/
+//TODO:: THis plays all VFX at the Center of the Actor on the floor or at the Bottom of the Root Capsule Component. (Wont work for Each VFX type. Needs to be expanded.)
+void UStatusConditionManager::PlayEffectVFX(TObjectPtr<UNiagaraSystem> VFX, AActor* TargetActor)
+{
+	if (VFX->IsValid() && GetWorld())
+	{
+		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(TargetActor->GetRootComponent());
+
+		if (!Capsule) return;
+
+		float CapsuleHalfHeight = Capsule->GetScaledCapsuleHalfHeight();
+
+		//This is the middle location of the Capsule Component (Waist Area)
+		FVector TargetLocation = TargetActor->GetActorLocation();
+
+		//Offsetting Down the Z by the HalfHeight of the Capsule.
+		FVector AdjustedLocation = FVector(TargetLocation.X, TargetLocation.Y, TargetLocation.Z - CapsuleHalfHeight);
+		
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), VFX, AdjustedLocation, FRotator::ZeroRotator);
+	}
 }
 
 

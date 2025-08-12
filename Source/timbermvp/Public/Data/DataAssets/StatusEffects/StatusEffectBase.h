@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "NiagaraSystem.h"
 #include "Engine/DataAsset.h"
 #include "StatusEffectBase.generated.h"
 
@@ -138,6 +139,9 @@ struct FStatusEffect
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Secondary Effect")
 	UStatusEffectBase* SecondaryEffect = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	TObjectPtr<UNiagaraSystem> PrimaryNiagaraVFX;
 
 	/* Color
 	 *

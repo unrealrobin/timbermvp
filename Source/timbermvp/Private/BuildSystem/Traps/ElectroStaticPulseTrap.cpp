@@ -19,8 +19,17 @@ AElectroStaticPulseTrap::AElectroStaticPulseTrap()
 void AElectroStaticPulseTrap::BeginPlay()
 {
 	Super::BeginPlay();
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+	{
+		if (bIsProxy) return;
+
+		FireElectroPulse();
+	});
 	
-	FireElectroPulse();
+	/*if (!bIsProxy)
+	{
+		FireElectroPulse();
+	}*/
 }
 
 void AElectroStaticPulseTrap::BeginDestroy()
@@ -36,13 +45,14 @@ void AElectroStaticPulseTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//MovePulseHitBox(DeltaTime);
-	MovePulseHitSphere(DeltaTime);
+	if (!bIsProxy)
+	{
+		MovePulseHitSphere(DeltaTime);
+	}
 }
 
 void AElectroStaticPulseTrap::FireElectroPulse()
 {
-	//CreatePulseHitBox();
 	CreatePulseHitSphere();
 }
 

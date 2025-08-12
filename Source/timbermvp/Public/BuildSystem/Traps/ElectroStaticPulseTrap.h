@@ -38,28 +38,30 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float InitialHitDamage = 10.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	float SphereRadius = 80.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UBoxComponent* PulseHitBox = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	USphereComponent* PulseSphereHitComponent = nullptr;
 	
+
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UBoxComponent* PulseHitBox = nullptr;*/
 	FTimerHandle FireElectroPulseTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cooldown")
 	float FireElectroPulseCooldown = 1.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USphereComponent* PulseSphereHitComponent = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UStaticMeshComponent* PulseSphereMeshComponent = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	float SphereRadius = 80.f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMesh* PulseMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMesh* PulseSphereMesh = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* PulseSphereMeshComponent = nullptr;
 
 	
 public:

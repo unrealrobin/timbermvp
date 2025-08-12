@@ -138,9 +138,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category="Build System Info")
 	float BuildRaycastDistance = 2000.f;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
-	bool ShouldRaycast = true;
+	bool bIsTheBuildMenuOpen = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Build System Info")
 	ABuildableBase* HoveredBuildingComponent;

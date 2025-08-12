@@ -23,6 +23,8 @@
 
 ATimberPlayableCharacter::ATimberPlayableCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	Camera->SetupAttachment(CameraSpringArm);
@@ -59,11 +61,9 @@ void ATimberPlayableCharacter::BeginPlay()
 	}
 	
 	/*Delegate Binding*/
-	if (Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD()))
+	if (ATimberHUDBase* HUD = Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD()))
 	{
-		Cast<ATimberHUDBase>(Cast<ATimberPlayerController>(GetController())->GetHUD())->bIsBuildMenuOpen.AddDynamic(
-			this,
-			&ATimberPlayableCharacter::HandleBuildMenuOpen);
+		HUD->bIsBuildMenuOpen.AddDynamic(this,&ATimberPlayableCharacter::HandleBuildMenuOpen);
 	}
 	
 	//Binding to the GameMode Delegate to know when the Seeda is Initialized and then Binding to the Seeda Delegates
@@ -133,51 +133,43 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	//Initiated From Player Controller Input
-	if (CharacterState == ECharacterState::Building && ShouldRaycast)
+	if (CharacterState == ECharacterState::Building && !bIsTheBuildMenuOpen)
 	{
 		PerformBuildSystemRaycast();
 	}
-
-	/*//TODO:: This can be made more efficient by only calling this for like 2 seconds after last movement or rotation.
-	//Used for aligning Projectile Direction with center of screen
-	if (CurrentWeaponState == EWeaponState::RangedEquipped)
-	{
-		RaycastController->PerformReticuleAlignment_Raycast();
-	}*/
 }
 
 /*Build System Stuff*/
 
 void ATimberPlayableCharacter::PerformBuildSystemRaycast()
 {
-	if (CharacterState == ECharacterState::Building)
+	if (PlayerController)
 	{
-		if (PlayerController)
-		{
-			FVector RaycastStart;
-			FRotator PlayerRotation;
-			Controller->GetPlayerViewPoint(RaycastStart, PlayerRotation);
+		FVector RaycastStart;
+		FRotator PlayerRotation;
+		Controller->GetPlayerViewPoint(RaycastStart, PlayerRotation);
 
-			//1000 is the range to perform the Raycast.
-			FVector RaycastEnd = RaycastStart + (PlayerRotation.Vector() * BuildRaycastDistance);
+		//1000 is the range to perform the Raycast.
+		FVector RaycastEnd = RaycastStart + (PlayerRotation.Vector() * BuildRaycastDistance);
 
-			/* Ignore the Player Raycasting and the Weapon*/
-			FCollisionQueryParams CollisionParams;
-			CollisionParams.AddIgnoredActor(this);
-			CollisionParams.AddIgnoredActor(this->CurrentlyEquippedWeapon);
+		/* Ignore the Player Raycasting and the Weapon*/
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+		CollisionParams.AddIgnoredActor(this->CurrentlyEquippedWeapon);
 
-			/*Multiple Hits*/
-			bool bHits = GetWorld()->LineTraceMultiByChannel(
-				HitResults,
-				RaycastStart,
-				RaycastEnd,
-				ECC_Visibility,
-				CollisionParams);
+		/*Multiple Hits*/
+		bool bHits = GetWorld()->LineTraceMultiByChannel(
+			HitResults,
+			RaycastStart,
+			RaycastEnd,
+			ECC_Visibility,
+			CollisionParams);
 
-			HandleShowDeleteWidget();
-			
-			HandleRaycastHitConditions(bHits);
-		}
+		//DrawDebugSphere(GetWorld(), RaycastEnd, 40.f, 8, FColor::Red, false, 0.1f);
+		
+		HandleShowDeleteWidget();
+		
+		HandleRaycastHitConditions(bHits);
 	}
 }
 
@@ -236,7 +228,11 @@ bool ATimberPlayableCharacter::HandleShowDeleteWidget()
 
 void ATimberPlayableCharacter::HandleBuildMenuOpen(bool bIsBuildMenuOpen)
 {
-	ShouldRaycast = !bIsBuildMenuOpen;
+	/*
+	 * We are looking for a state where the character is in Buildmode and the Build Menu is Closed.
+	 * This lets us know that the build menu is closed.
+	 */
+	bIsTheBuildMenuOpen = bIsBuildMenuOpen; 
 }
 
 /*Death & Damage*/

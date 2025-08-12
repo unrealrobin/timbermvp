@@ -1378,8 +1378,6 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 	else
 	{
 		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
-		/*MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);
-		BuildableProxyInstance->bCanBuildableBeFinalized = false;*/
 		MakeBuildableNotFinalizable(BuildableProxyInstance);
 	}
 }

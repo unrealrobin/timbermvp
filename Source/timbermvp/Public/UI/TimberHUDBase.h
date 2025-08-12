@@ -42,7 +42,6 @@ public:
 	
 	/* Delegates */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIsBuildMenuOpen, bool, bIsBuildMenuOpen);
-	
 	UPROPERTY()
 	FIsBuildMenuOpen bIsBuildMenuOpen;
 

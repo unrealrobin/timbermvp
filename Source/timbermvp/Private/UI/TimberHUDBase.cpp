@@ -306,8 +306,7 @@ void ATimberHUDBase::CloseBuildPanelMenu()
 		FInputModeGameOnly GameOnlyInputMode;
 		TimberPlayerController->SetInputMode(GameOnlyInputMode);
 		TimberPlayerController->DisableCursor();
-
-		//Only Shows delete icon when the build menu is closed.
+		
 		HideDeleteBuildingComponentWidget();
 	}
 }

@@ -30,6 +30,18 @@ void ATeleportConstruct::BeginPlay()
 	PlayerCharacter = Cast<ATimberPlayableCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), 
 	ATimberPlayableCharacter::StaticClass()));
 	//UE_LOG(LogTemp, Warning, TEXT("Begin Play Teleporter GUID: %s"), *BuildSystemGUID.ToString());
+
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+	{
+		if (bIsProxy)
+		{
+			//We dont want to Square Mesh Plane to show in the proxy.
+			if (TeleportEffectMesh)
+			{
+				TeleportEffectMesh->DestroyComponent();
+			}
+		}
+	});
 }
 
 // Called every frame

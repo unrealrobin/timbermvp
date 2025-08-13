@@ -25,7 +25,8 @@ public class timbermvp : ModuleRules
 			"CoreOnline",
 			"OnlineServicesCommon",
 			"OnlineServicesEOS",
-			"NavigationSystem"
+			"NavigationSystem",
+			"Sentry"
 		});
 	}
 }

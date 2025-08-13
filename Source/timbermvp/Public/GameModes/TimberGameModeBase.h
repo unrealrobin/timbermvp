@@ -158,5 +158,8 @@ protected:
 	void PlayBuildMusic();
 	UFUNCTION()
 	void PlayAttackMusic();
+
+private:
+	void TestSentry();
 	
 };

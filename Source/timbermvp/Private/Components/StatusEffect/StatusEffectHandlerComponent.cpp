@@ -96,9 +96,9 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 {
 	/* Emergent Tags do not use Regular Channels for Addition. They don't use AddStatusEffectToComponent(), Avoiding ProcessTagForSynergy.*/
 	if (!IsValid(OwningEnemyCharacter)) return;
+	UE_LOG(LogTemp, Warning, TEXT("Emergent Tag: %s"), *Tag.ToString())
 	
 	AddEffectToStatusEffectBar(Tag);
-	
 	StatusEffectIdTagContainer.AddTag(Tag);
 	/*
 	 * We still do not Add an Emergent Status Effect to the Array of Status Effects. The Actual effects
@@ -108,13 +108,17 @@ void UStatusEffectHandlerComponent::AddEmergentTag(FGameplayTag Tag, float Durat
 	USynergySystem* SynergySub = GetWorld()->GetGameInstance()->GetSubsystem<USynergySystem>();
 	if (SynergySub)
 	{
-		UStatusEffectBase* EmergentStatusEffect = SynergySub->EmergentEffectsMap[Tag];
-
-		//TODO:: Replace with functions for Synergy Subsystem. 
-		// SynergySystem.EmergentEffect.Wet -> Wet
-		FName TagName = GetLastNameOfTag(Tag);
-		
-		OwningEnemyCharacter->SpawnEffectNameUI(TagName, EmergentStatusEffect);
+		//TODO:: Double look up, fix later - Map doesn't change.
+		if (SynergySub->EmergentEffectsMap.Find(Tag))
+		{
+			//No Dereferencing a null ptr.
+			UStatusEffectBase* EmergentStatusEffect = *SynergySub->EmergentEffectsMap.Find(Tag);
+			if (IsValid(EmergentStatusEffect))
+			{
+				FName TagName = GetLastNameOfTag(Tag);
+				OwningEnemyCharacter->SpawnEffectNameUI(TagName, EmergentStatusEffect);
+			}
+		}
 	}
 
 	FTimerHandle EmergentTimerHandle;

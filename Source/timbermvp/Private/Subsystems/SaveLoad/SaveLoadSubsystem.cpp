@@ -134,6 +134,10 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 		for (AActor* BuildableActor : CurrentBuildingComponents)
 		{
 			ABuildableBase* Buildable = Cast<ABuildableBase>(BuildableActor);
+
+			//Skip Buildable if it's a proxy. It will be saved at the next save.
+			if (Buildable->bIsProxy) continue;
+			
 			if (Buildable && Buildable->BuildableType != EBuildableType::Environment && !Buildable->IsPendingKillPending())
 			{
 				//Creating the Building Component Struct to pass to the Save System's Building Component Array
@@ -184,11 +188,9 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 								BuildableData.AttachedBuildablesArray.Add(AttachedComponent->GetGUID());
 							}
 							//UE_LOG(LogTemp, Warning, TEXT("Attachment: %s. Attachment GUID: %s"), *AttachedComponent->GetName(), *AttachedComponent->GetGUID().ToString());
-
 						}
 						//UE_LOG(LogTemp, Warning, TEXT("AttachedBuildablesArray Size: %d"), BuildableData.AttachedBuildablesArray.Num());
 					}
-
 					//Checks each potential snap point for the Building Component and saves the GUID of the attached Buildable.
 					CheckBuildingComponentForSnapAttachments(BuildableData, BuildingComponent);
 				}
@@ -197,22 +199,26 @@ void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
 				//Linking the Parent Building Component to the Trap
 				if (ATrapBase* Trap = Cast<ATrapBase>(Buildable))
 				{
+					if (IsValid(Trap->ParentBuildable))
+					{
+						BuildableData.ParentBuildableGUID = Trap->ParentBuildable->GetGUID();
+						//Setting the Direction of the Trap on the Building Component
+						BuildableData.TrapDirection = Trap->BuildingComponentTrapDirection;
+						
+						/*UE_LOG(LogTemp, Warning, TEXT("Trap: %s. Trap GUID: %s. Parent: %s. Parent GUID: %s"), 
+							*Trap->GetName(),
+							*Trap->GetGUID().ToString(),
+							*Trap->ParentBuildable->GetName(),
+							*Trap->ParentBuildable->GetGUID().ToString());*/
+					}
 					//Saving the GUID of the Parent Building Component
-					BuildableData.ParentBuildableGUID = Trap->ParentBuildable->GetGUID();
-					//Setting the Direction of the Trap on the Building Component
-					BuildableData.TrapDirection = Trap->BuildingComponentTrapDirection;
-					/*UE_LOG(LogTemp, Warning, TEXT("Trap: %s. Trap GUID: %s. Parent: %s. Parent GUID: %s"), 
-						*Trap->GetName(),
-						*Trap->GetGUID().ToString(),
-						*Trap->ParentBuildable->GetName(),
-						*Trap->ParentBuildable->GetGUID().ToString());*/
 				}
 
 				/*Construct Specific*/
 				//Linking the Parent Building Component to the Construct
 				if (AConstructBase* Construct = Cast<AConstructBase>(Buildable))
 				{
-					if (Construct->ParentBuildable)
+					if (IsValid(Construct->ParentBuildable))
 					{
 						BuildableData.ParentBuildableGUID = Construct->ParentBuildable->GetGUID();
 					}

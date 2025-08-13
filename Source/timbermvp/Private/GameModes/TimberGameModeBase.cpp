@@ -1,6 +1,4 @@
-;// Property of Paracosm Industries. Dont use my shit.
-
-
+// Property of Paracosm Industries.
 #include "GameModes/TimberGameModeBase.h"
 
 #include "BrainComponent.h"
@@ -18,6 +16,7 @@
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
+#include "SentrySubsystem.h"
 
 class UDialogueManager;
 class UBuildingComponentPanel;
@@ -79,6 +78,8 @@ void ATimberGameModeBase::BeginPlay()
 	{
 		GetWaveGameInstanceSubsystem()->SetWaveCompositionCurveTable(WaveCompositionCurveTable);
 	}
+
+	//TestSentry();
 }
 
 void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
@@ -291,6 +292,14 @@ void ATimberGameModeBase::PlayAttackMusic()
 			MusicManager->PlayMusic("Attack1", 1.0f);	
 		}), 1.0f, false);
 	}
+}
+
+void ATimberGameModeBase::TestSentry()
+{
+	//UGameInstance* GameInstance = GetGameInstance();
+	USentrySubsystem* SentrySubsystem = GEngine->GetEngineSubsystem<USentrySubsystem>();
+	SentrySubsystem->CaptureMessage(TEXT("Captured Message from Die Robot"));
+	
 }
 
 void ATimberGameModeBase::GatherAllLabDoors()

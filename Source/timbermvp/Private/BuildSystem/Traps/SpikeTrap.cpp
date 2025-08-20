@@ -82,7 +82,11 @@ void ASpikeTrap::ApplyStatusEffectToEnemy()
 {
 	if (InsideHitBoxArray.Num() > 0)
 	{
-		for (TWeakObjectPtr HitActor : InsideHitBoxArray)
+		//Creating a shallow copy here to avoid modifications to InsideHitBoxArray during execution of Resolve Effect
+		//Causing Ensure Condition Failure.
+		const TArray<TWeakObjectPtr<AActor>> Snapshot = InsideHitBoxArray;
+		
+		for (TWeakObjectPtr HitActor : Snapshot)
 		{
 			if (HitActor.IsValid() && HitActor->IsA(ATimberEnemyCharacter::StaticClass()))
 			{

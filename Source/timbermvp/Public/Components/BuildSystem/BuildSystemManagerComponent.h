@@ -66,7 +66,7 @@ protected:
 	FRotator SnapToRotation(FRotator CharactersRotation);
 	FRotator SavedRotation = FRotator::ZeroRotator;
 
-	/*Component Snapping*/
+	/*Structure Snapping (Walls & Floors)*/
 	int SnappingCondition(EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2);
 	int QuadrantCondition(FString QuadrantName);
 	UFUNCTION()
@@ -83,12 +83,9 @@ protected:
 	/*Static Mesh Utilities*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component")
 	TArray<UStaticMeshComponent*> StaticMeshs;
-	
-	void GetStaticMeshComponents(AActor* BuildingComponentActor);
-	
 	UFUNCTION()
 	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
-	
+	void GetStaticMeshComponents(AActor* BuildingComponentActor);
 	void AddToBuildableAttachments(ABuildableBase* AttachingBuildable);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
 	UMaterial* RedHoloMaterial = nullptr;

@@ -901,7 +901,15 @@ void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBas
 	 * 1. So that the player can walk through the proxy.
 	 * 2. So proxy doesn't trigger the Overlap Check on other building components.
 	 */
-	BuildingComponent->SetActorEnableCollision(false);
+	//BuildingComponent->SetActorEnableCollision(false);
+	BuildingComponent->GetAllStaticMeshComponents();
+	if (BuildingComponent->StaticMeshComponents.Num() > 0)
+	{
+		for (UStaticMeshComponent* MeshComponent : BuildingComponent->StaticMeshComponents)
+		{
+			MeshComponent->SetCollisionProfileName("DR_ProxyBuildable");
+		}
+	}
 }
 
 USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResult HitResult)
@@ -952,6 +960,12 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 {
 	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(BuildableProxyInstance);
 
+	if (BuildableProxyInstance && BuildableProxyInstance->bIsOverlappingPerimeter)
+	{
+		MakeBuildableNotFinalizable(BuildableProxyInstance);
+		return;
+	}
+	
 	//This Floor Component Section just ensures the placed component is a floor component that we dont place it on the Floor of the lab.
 	if (FloorComponent)
 	{
@@ -992,6 +1006,8 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		ATimberBuildingComponentBase* ActiveBuildingComponentProxy = Cast<ATimberBuildingComponentBase>(BuildableProxyInstance);
 		if (ActiveBuildingComponentProxy)
 		{
+
+			
 			/*Simple Move to Location*/
 			MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, ActiveBuildingComponentProxy);
 			
@@ -1008,15 +1024,15 @@ void UBuildSystemManagerComponent::MoveBuildable(
 {
 	if (BuildingComponent)
 	{
+		BuildingComponent->SetActorLocation(Location, true);
 		//OnHits we will pass in the Rotation of the HitActor so the Components Match its Rotation
 		if (Rotation != FRotator::ZeroRotator)
 		{
 			//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Green, "Rotated Trap to match Building Component.");
 			BuildingComponent->SetActorRotation(Rotation);
 		}
-		
-		BuildingComponent->SetActorLocation(Location, true);
 	}
+	
 }
 
 void UBuildSystemManagerComponent::CleanUpBuildSystemManagerComponent()

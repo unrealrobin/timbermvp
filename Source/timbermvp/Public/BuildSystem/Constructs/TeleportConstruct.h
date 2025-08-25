@@ -103,6 +103,8 @@ public:
 	
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	void SpawnLoot();
+
 private:
 	UPROPERTY()
 	ATimberPlayableCharacter* PlayerCharacter = nullptr;

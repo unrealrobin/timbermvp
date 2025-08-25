@@ -1034,7 +1034,7 @@ void UBuildSystemManagerComponent::MoveBuildable(
 
 void UBuildSystemManagerComponent::CleanUpBuildSystemManagerComponent()
 {
-	ClearTeleporterTMap();
+	ClearTeleporterTPair();
 	RemoveBuildingComponentProxies_All();
 	ResetBuildableComponents();
 }
@@ -1063,8 +1063,24 @@ void UBuildSystemManagerComponent::RemoveBuildingComponentProxies_All()
 	}
 }
 
-void UBuildSystemManagerComponent::ClearTeleporterTMap()
+void UBuildSystemManagerComponent::ClearTeleporterTPair()
 {
+	if (IsValid(TeleportTempPair.Key))
+	{
+		TObjectPtr<ATeleportConstruct> TeleportConstructAlpha = TeleportTempPair.Key;
+		if (IsValid(TeleportConstructAlpha) && TeleportConstructAlpha->TeleportConstructState == ETeleportConstructState::Temporary)
+		{
+			TeleportConstructAlpha->SpawnLoot();
+			
+			if (TObjectPtr<ATimberBuildingComponentBase> BC = Cast<ATimberBuildingComponentBase>(TeleportConstructAlpha->ParentBuildable))
+			{
+				if(BC->AttachedBuildingComponents.Contains(TeleportConstructAlpha))
+				{
+					BC->AttachedBuildingComponents.Remove(TeleportConstructAlpha);	
+				};
+			}
+		}
+	}
 	TeleportTempPair.Key = nullptr;
 	TeleportTempPair.Value = nullptr;
 }

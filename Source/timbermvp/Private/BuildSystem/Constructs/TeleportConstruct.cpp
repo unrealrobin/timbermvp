@@ -194,5 +194,10 @@ void ATeleportConstruct::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
+void ATeleportConstruct::SpawnLoot()
+{
+	SpawnLootInRange(BuildableCost.CostOfParts, BuildableCost.CostOfMechanisms, BuildableCost.CostOfUniques);
+}
+
 
 

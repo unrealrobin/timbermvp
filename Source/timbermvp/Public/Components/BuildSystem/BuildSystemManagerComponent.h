@@ -152,7 +152,7 @@ public:
 	void CleanUpBuildSystemManagerComponent();
 	void ResetBuildableComponents();
 	void RemoveBuildingComponentProxies_All();
-	void ClearTeleporterTMap();
+	void ClearTeleporterTPair();
 	
 	/*Building Component Placement Variables*/
 	FVector FinalSpawnLocation;

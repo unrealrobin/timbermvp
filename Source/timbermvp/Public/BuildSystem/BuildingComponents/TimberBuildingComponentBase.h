@@ -63,8 +63,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Component Info")
 	EBuildingComponentType BuildingComponentType = EBuildingComponentType::Default;
-
-
 	
 	virtual void HandleDeletionOfBuildable() override;
 

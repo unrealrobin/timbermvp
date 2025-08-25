@@ -7,7 +7,6 @@
 #include "Components/ActorComponent.h"
 #include "BuildSystemManagerComponent.generated.h"
 
-
 enum class EBuildingComponentOrientation : uint8;
 enum class EBuildingComponentTrapDirection : uint8;
 class ATeleportConstruct;
@@ -20,8 +19,7 @@ USTRUCT(BlueprintType)
 struct FBuildablePlacementData
 {
 	GENERATED_BODY()
-
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Snap Data")
 	FVector TrapLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Trup Snap Data")

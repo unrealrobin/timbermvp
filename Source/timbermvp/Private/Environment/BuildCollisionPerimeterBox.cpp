@@ -38,11 +38,11 @@ void ABuildCollisionPerimeterBox::HandleOverlap(UPrimitiveComponent* OverlappedC
 		if (IsValid(Buildable) && OtherComp->IsA(UStaticMeshComponent::StaticClass()))
 		{
 			Buildable->bIsOverlappingPerimeter = true;
-			UE_LOG(LogTemp, Warning, TEXT("Buildable overlapping Perimeter."));
+			//UE_LOG(LogTemp, Warning, TEXT("Buildable overlapping Perimeter."));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Buildable is not valid!"));
+			//UE_LOG(LogTemp, Warning, TEXT("Buildable is not valid!"));
 		}
 	}
 }
@@ -56,11 +56,11 @@ void ABuildCollisionPerimeterBox::HandleEndOverlap(UPrimitiveComponent* Overlapp
 		if (IsValid(Buildable) && Buildable->bIsOverlappingPerimeter == true)
 		{
 			Buildable->bIsOverlappingPerimeter = false;
-			UE_LOG(LogTemp, Warning, TEXT("Buildable NOT overlapping Perimeter."));
+			//UE_LOG(LogTemp, Warning, TEXT("Buildable NOT overlapping Perimeter."));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Buildable is not valid!"));
+			//UE_LOG(LogTemp, Warning, TEXT("Buildable is not valid!"));
 		}
 	}
 }

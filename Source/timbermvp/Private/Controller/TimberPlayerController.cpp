@@ -5,6 +5,7 @@
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
 #include "HighResScreenshot.h"
+#include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "Character/TimberAnimInstance.h"
 #include "UI/BuildingComponent.h"
 #include "Character/TimberPlayableCharacter.h"
@@ -545,12 +546,14 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 			
 			TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
 
+			//Need to Spawn 2 Loot Amounts.
+			if (TimberCharacter->HoveredBuildingComponent->IsA(ATeleportConstruct::StaticClass()))
+			{
+				TimberCharacter->HoveredBuildingComponent->HandleDeletionOfBuildable();
+			}
+
 			//Reset the value of HoveredBuildingComponent after deletion.
 			TimberCharacter->HoveredBuildingComponent = nullptr;
-
-			//Broadcasting that a Buildable has Been Deleted.
-			// Potentially Redraws Routes for Enemies.
-			OnBuildableDeleted.Broadcast();
 
 			//Broadcasting to Game Mode to update the Path Tracer.
 			TimberCharacter->BuildSystemManager->RedrawPathTraceHandle.Broadcast();

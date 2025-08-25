@@ -557,54 +557,59 @@ void UBuildSystemManagerComponent::SpawnFinalBuildable()
 	if(ActiveBuildableComponentClass && BuildableProxyInstance)
 	{
 		// If a player can afford the transaction, apply the transaction and spawn the final building component.
-		if(Cast<ATimberPlayableCharacter>(GetOwner()) && Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager && Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bCanAffordCost(BuildableProxyInstance->BuildableCost))
+		if (ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner()))
 		{
-			FActorSpawnParameters SpawnParameters;
-
-			switch (BuildableProxyInstance->SnapCondition)
+			if(PlayerCharacter->InventoryManager && PlayerCharacter->InventoryManager->bCanAffordCost(BuildableProxyInstance->BuildableCost))
 			{
-			//Walls, Floors, Etc.
-			case ESnapCondition::BuildingComponent:
-				SpawnFinalBuildingComponent(SpawnParameters);
-				break;
-			case ESnapCondition::CenterSnap:
-				SpawnFinalCenterSnapBuildable(SpawnParameters);
-				break;
-			case ESnapCondition::FloorCenterSnapTopOnly:
-				SpawnFinalFloorCenterSnapTopOnlyBuildable(SpawnParameters);
-				break;
-			case ESnapCondition::Ramp:
-				SpawnFinalRampBuildable(SpawnParameters);
-				break;
-			case ESnapCondition::FloorEdgeSnapTopOnly:
-				SpawnFinalFloorEdgeSnapTopOnlyBuildable(SpawnParameters);
-				break;
-			default:
-				//UE_LOG(LogTemp, Warning, TEXT("SpawnFinalBuildable() - No Set Snap Condition."))
-				break;
-			}
+				FActorSpawnParameters SpawnParameters;
 
-
-			/*Tutorial Stuff.*/
-			ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
-			if (DieRobotGameStateBase)
-			{
-				ETutorialState CurrentState = DieRobotGameStateBase->TutorialState;
-				if (CurrentState == ETutorialState::Building1)
+				switch (BuildableProxyInstance->SnapCondition)
 				{
-					TutorialBuildsPlaced += 1;
-					if (TutorialBuildsPlaced == 2)
+				//Walls, Floors, Etc.
+				case ESnapCondition::BuildingComponent:
+					SpawnFinalBuildingComponent(SpawnParameters);
+					break;
+				case ESnapCondition::CenterSnap:
+					SpawnFinalCenterSnapBuildable(SpawnParameters);
+					break;
+				case ESnapCondition::FloorCenterSnapTopOnly:
+					SpawnFinalFloorCenterSnapTopOnlyBuildable(SpawnParameters);
+					break;
+				case ESnapCondition::Ramp:
+					SpawnFinalRampBuildable(SpawnParameters);
+					break;
+				case ESnapCondition::FloorEdgeSnapTopOnly:
+					SpawnFinalFloorEdgeSnapTopOnlyBuildable(SpawnParameters);
+					break;
+				default:
+					UE_LOG(LogTemp, Warning, TEXT("UBuildSystemManagerComponent::SpawnFinalBuildable() - No Valid Snap Condition to Spawn too."));
+					PlayBuildDeniedSound();
+					return;
+				}
+
+
+				/*Tutorial Stuff.*/
+				ADieRobotGameStateBase* DieRobotGameStateBase = Cast<ADieRobotGameStateBase>(GetWorld()->GetGameState());
+				if (DieRobotGameStateBase)
+				{
+					ETutorialState CurrentState = DieRobotGameStateBase->TutorialState;
+					if (CurrentState == ETutorialState::Building1)
 					{
-						//Wave Ready to begin.
-						DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
+						TutorialBuildsPlaced += 1;
+						if (TutorialBuildsPlaced == 2)
+						{
+							//Wave Ready to begin.
+							DieRobotGameStateBase->ChangeTutorialGameState(ETutorialState::Building2);
+						}
 					}
 				}
+				
 			}
-		}
-		else
-		{
-			//UE_LOG(LogTemp, Error, TEXT("BSMC - Player Can Not Afford this Buildable"));
-			PlayBuildDeniedSound();
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("UBuildSystemManagerComponent::SpawnFinalBuildable() - Player can not afford buildable."));
+				PlayBuildDeniedSound();
+			}
 		}
 	}
 	else
@@ -744,30 +749,37 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 
 void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters)
 {
-	/*Classes Using This Snap:
+	/*
+	 * Classes Using This Snap:
 	 * Teleporters
 	 */
 	
 	if (BuildableProxyInstance && BuildableProxyInstance->bCanBuildableBeFinalized)
 	{
-		//Spawn the Teleport half.
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(
 			ActiveBuildableComponentClass,
 			BuildableProxyInstance->GetActorLocation(),
 			BuildableProxyInstance->GetActorRotation(),
 			SpawnParameters);
 
+		/* Setting Parent Buildable*/
 		if (ABuildableBase* SpawnedBuildable = Cast<ABuildableBase>(SpawnedActor))
 		{
 			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
-			SpawnedBuildable->ParentBuildable = Cast<ATimberBuildingComponentBase>(Cast<ATimberPlayableCharacter>(GetOwner())->HoveredBuildingComponent);
+			ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
+			if (IsValid(PlayerCharacter) && IsValid(PlayerCharacter->HoveredBuildingComponent))
+			{
+				SpawnedBuildable->ParentBuildable = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent);
+			}
 		}
 
 		if (SpawnedActor)
 		{
-			//Attaching EdgeSnapBuildable to the Player Character Hovered Building Component, when Destroyed Teleporter handles destruction of its own pair.
+			//Adding Buildable to Parent Buildable Attachments Array.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
+			
 			BroadcastControllerUpdateNewBuildable(SpawnedActor);
+			
 			PlayBuildablePlacementSound();
 			
 			ATeleportConstruct* TeleportConstruct = Cast<ATeleportConstruct>(SpawnedActor);
@@ -849,15 +861,14 @@ void UBuildSystemManagerComponent::HandleIsTeleporter(ATeleportConstruct* Telepo
 		//This is the first half of the Teleport Construct - storing in Memory and preparing for the second half.
 		TeleportConstruct->TeleportConstructState = ETeleportConstructState::Temporary;
 	}
-	else if (TeleportTempPair.Key && TeleportTempPair.Value == nullptr)
+	else if (IsValid(TeleportTempPair.Key) && !TeleportTempPair.Value)
 	{
 		//Second Half of the Teleport Construct - Setting the Pairing - Stored on BSM
 		TeleportTempPair.Value = TeleportConstruct;
 
-		/*Now there is a full Pair of teleporters -> Clean up*/
-				
-		//Resetting Local Value to new value
-		// Temp Local Value       -     Stored on BSM
+		/* Now there is a full Pair of teleporters -> Linking & Clean up */
+		
+		// Temp Local Value       -						Stored on BSM
 		ATeleportConstruct* TeleportConstructAlpha = TeleportTempPair.Key;
 		ATeleportConstruct* TeleportConstructBeta = TeleportTempPair.Value;
 				
@@ -961,13 +972,6 @@ void UBuildSystemManagerComponent::BroadcastControllerUpdateNewBuildable(AActor*
 void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
 	if (!BuildableProxyInstance) return;
-	
-	/*if (BuildableProxyInstance->bIsOverlappingPerimeter)
-	{
-		MakeBuildableNotFinalizable(BuildableProxyInstance);
-		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance);
-		return;
-	}*/
 
 	ATimberBuildingComponentBase* FirstHitBuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
 	
@@ -1127,7 +1131,44 @@ void UBuildSystemManagerComponent::PlayBuildDeniedSound()
 	}
 }
 
-/*Build Flow V2*/
+/* Placement */
+AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> ActiveBuildableClass, FVector SpawnLocation, FRotator SpawnRotation)
+{
+	FActorSpawnParameters SpawnParams;
+	
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ActiveBuildableClass, SpawnLocation, SpawnRotation, SpawnParams);
+	if (SpawnedActor)
+	{
+		if (ABuildableBase* SpawnedBuildingComponent = Cast<ABuildableBase>(SpawnedActor))
+		{
+			//We need to set this to proxy to ensure that the overlap check box is created.
+			//UE_LOG(LogTemp, Warning, TEXT("Spawned Building Component Proxy"));
+			SpawnedBuildingComponent->bIsProxy = true;
+		}
+		
+		DisableBuildableProxyCollisions(Cast<ABuildableBase>(SpawnedActor));
+		MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
+		return SpawnedActor;
+	}
+	return nullptr;
+}
+
+FHitResult UBuildSystemManagerComponent::FirstHitBuildingComponentHitResult(TArray<FHitResult> HitResults)
+{
+	//We return the First Hit Building Component, else, we return the first hit result that can be anything.
+	FHitResult FirstHitBuildingComponentHitResult;
+	for (FHitResult Hit : HitResults)
+	{
+		if (Cast<ATimberBuildingComponentBase>(Hit.GetActor()) && Hit.GetActor() != BuildableProxyInstance)
+		{
+			FirstHitBuildingComponentHitResult = Hit;
+			return FirstHitBuildingComponentHitResult;
+		}
+	}
+	
+	return HitResults[0];
+}
+
 void UBuildSystemManagerComponent::HandleProxyPlacement(TArray<FHitResult> HitResults, TSubclassOf<ABuildableBase> BuildableProxyClass)
 {
 	//Called Every Tick
@@ -1185,43 +1226,6 @@ void UBuildSystemManagerComponent::HandleProxyPlacement(TArray<FHitResult> HitRe
 			break;
 		}
 	}
-}
-
-AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> ActiveBuildableClass, FVector SpawnLocation, FRotator SpawnRotation)
-{
-	FActorSpawnParameters SpawnParams;
-	
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ActiveBuildableClass, SpawnLocation, SpawnRotation, SpawnParams);
-	if (SpawnedActor)
-	{
-		if (ABuildableBase* SpawnedBuildingComponent = Cast<ABuildableBase>(SpawnedActor))
-		{
-			//We need to set this to proxy to ensure that the overlap check box is created.
-			//UE_LOG(LogTemp, Warning, TEXT("Spawned Building Component Proxy"));
-			SpawnedBuildingComponent->bIsProxy = true;
-		}
-		
-		DisableBuildableProxyCollisions(Cast<ABuildableBase>(SpawnedActor));
-		MakeMaterialHoloColor(SpawnedActor, BlueHoloMaterial);
-		return SpawnedActor;
-	}
-	return nullptr;
-}
-
-FHitResult UBuildSystemManagerComponent::FirstHitBuildingComponentHitResult(TArray<FHitResult> HitResults)
-{
-	//We return the First Hit Building Component, else, we return the first hit result that can be anything.
-	FHitResult FirstHitBuildingComponentHitResult;
-	for (FHitResult Hit : HitResults)
-	{
-		if (Cast<ATimberBuildingComponentBase>(Hit.GetActor()) && Hit.GetActor() != BuildableProxyInstance)
-		{
-			FirstHitBuildingComponentHitResult = Hit;
-			return FirstHitBuildingComponentHitResult;
-		}
-	}
-	
-	return HitResults[0];
 }
 
 void UBuildSystemManagerComponent::HandleCenterSnapPlacement(FHitResult FirstHitBuildingComponentHitResult)
@@ -1319,38 +1323,30 @@ void UBuildSystemManagerComponent::HandleFloorCenterSnapTopOnlyPlacement(FHitRes
 void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
 	/*
-	 *Classes Using this:
+	 * Classes Using this:
 	 * Teleporter
 	 */
 	
-	ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(FirstHitBuildingComponentHitResult.GetActor());
-	if (FloorComponent)
+	if (ATimberHorizontalBuildingComponent* FloorComponent = Cast<ATimberHorizontalBuildingComponent>(FirstHitBuildingComponentHitResult.GetActor()))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Hovering Over Floor Component: %s"), *FloorComponent->GetName());
+		/* Getting Top Snap Points */
 		TArray<USceneComponent*> AllSceneComponents;
 		TArray<USceneComponent*> FilteredSnapPoints;
-		
 		FloorComponent->GetComponents<USceneComponent>(AllSceneComponents);
-		
-		//Get all Edge Snap Points and Filter to Ensure they are the correct ones.
 		for (USceneComponent* SnapPoint : AllSceneComponents )
 		{
 			FString ComponentName = SnapPoint->GetName();
-			//These are the only Snap Points I want to Snap To.
 			if (ComponentName == TEXT("LeftSnap") || ComponentName == TEXT("RightSnap") || ComponentName == TEXT("TopSnap") || ComponentName == TEXT("BottomSnap"))
 			{
 				FilteredSnapPoints.Add(SnapPoint);
-				//UE_LOG(LogTemp, Warning, TEXT("Snap Point: %s added to FilteredSnapPoints"), *SnapPoint->GetName());
 			}
 		}
 		if (FilteredSnapPoints.Num() <= 0)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Could not find any matching Snap Points."));
 			return;
 		}
 
-		//Check distance between Raycast Hit and Snap Point
-		//Get the Closest Snap Point
+		//Check the distance between Raycast Hit and Snap Point && Save the closest one.
 		float DistanceToClosestSnapPoint = 0;
 		USceneComponent* ClosestSnapPoint = nullptr;
 		for (USceneComponent* SnapPoint : FilteredSnapPoints)
@@ -1362,40 +1358,43 @@ void UBuildSystemManagerComponent::HandleFloorEdgeSnapTopOnlyPlacement(FHitResul
 				ClosestSnapPoint = SnapPoint;
 			}
 		}
-
-		//UE_LOG(LogTemp, Warning, TEXT("Closest Snap Point: %s"), *ClosestSnapPoint->GetName());
 		
-		//Orienting the Proxy to Face the Floors Center
+		/* Orientation & Placement */ 
 		FVector BuildableProxy = BuildableProxyInstance->GetActorLocation();
 		FVector FloorCenter = FloorComponent->CenterSnap->GetComponentLocation();
-		//Finding the Rotation for ForwardVector of BuildableProxy to Look at Floor Center
 		FRotator RotateToFace = UKismetMathLibrary::FindLookAtRotation(BuildableProxy, FloorCenter);
-		//Applying that Rotation to the Proxy
-		BuildableProxyInstance->SetActorRotation(RotateToFace);
-		//Setting Location to Closeset Snap Point.
-		BuildableProxyInstance->SetActorLocation(ClosestSnapPoint->GetComponentLocation());
 		
-		//Specific Functionality required for the Teleporter.
-		if(Cast<ATeleportConstruct>(BuildableProxyInstance))
+		MoveBuildable(ClosestSnapPoint->GetComponentLocation(), BuildableProxyInstance, RotateToFace);
+
+		if (BuildableProxyInstance->bIsOverlappingPerimeter)
 		{
-			//If the Buildable is a Teleport Construct, we want to move it to the Closest Snap Point.
+			MakeBuildableNotFinalizable(BuildableProxyInstance);
+		}
+		else
+		{
+			MakeBuildableFinalizable(BuildableProxyInstance);
+		}
+		
+		
+		//Teleporters Have Addition Construct States due to the need of Multiple Placements.
+		if(BuildableProxyInstance->IsA(ATeleportConstruct::StaticClass()))
+		{
 			Cast<ATeleportConstruct>(BuildableProxyInstance)->TeleportConstructState = ETeleportConstructState::Proxy;
 		}
 
-		BuildableProxyInstance->bCanBuildableBeFinalized = true;
+		return;
 	}
-	else
-	{
-		MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
-		MakeBuildableNotFinalizable(BuildableProxyInstance);
-	}
+	
+	MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, BuildableProxyInstance, FRotator::ZeroRotator);
+	MakeBuildableNotFinalizable(BuildableProxyInstance);
+	
 }
 
 void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildingComponentHitResult)
 {
 	ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(FirstHitBuildingComponentHitResult.GetActor());
 	ARampBase* ActiveRampComponentProxy = Cast<ARampBase>(BuildableProxyInstance);
-	//LOCATION PLACEMENT OF THE RAMP
+	
 	if (ActiveRampComponentProxy)
 	{
 		if (BuildingComponent)

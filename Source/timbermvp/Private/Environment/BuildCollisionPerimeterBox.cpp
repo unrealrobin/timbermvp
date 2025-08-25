@@ -35,7 +35,7 @@ void ABuildCollisionPerimeterBox::HandleOverlap(UPrimitiveComponent* OverlappedC
 	if (OtherActor->IsA(ABuildableBase::StaticClass()))
 	{
 		TObjectPtr<ABuildableBase> Buildable = Cast<ABuildableBase>(OtherActor);
-		if (IsValid(Buildable))
+		if (IsValid(Buildable) && OtherComp->IsA(UStaticMeshComponent::StaticClass()))
 		{
 			Buildable->bIsOverlappingPerimeter = true;
 			UE_LOG(LogTemp, Warning, TEXT("Buildable overlapping Perimeter."));
@@ -53,7 +53,7 @@ void ABuildCollisionPerimeterBox::HandleEndOverlap(UPrimitiveComponent* Overlapp
 	if (OtherActor->IsA(ABuildableBase::StaticClass()))
 	{
 		TObjectPtr<ABuildableBase> Buildable = Cast<ABuildableBase>(OtherActor);
-		if (IsValid(Buildable))
+		if (IsValid(Buildable) && Buildable->bIsOverlappingPerimeter == true)
 		{
 			Buildable->bIsOverlappingPerimeter = false;
 			UE_LOG(LogTemp, Warning, TEXT("Buildable NOT overlapping Perimeter."));

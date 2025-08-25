@@ -70,11 +70,11 @@ protected:
 	int SnappingCondition(EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2);
 	int QuadrantCondition(FString QuadrantName);
 	UFUNCTION()
-	void SameOrientationSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void SameOrientationSnapCondition(FHitResult HitResult);
 	UFUNCTION()
-	void VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void VerticalToHorizontalSnapCondition(FHitResult HitResult);
 	UFUNCTION()
-	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void HorizontalToVerticalSnapCondition(FHitResult HitResult);
 	UFUNCTION()
 	void MoveBuildingComponentProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
 	UFUNCTION()

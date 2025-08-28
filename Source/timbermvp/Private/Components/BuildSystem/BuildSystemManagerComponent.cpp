@@ -47,7 +47,6 @@ void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult Hi
 			// Returns the condition to snap based on Orientation
 			int SnappingConditionNum = SnappingCondition(ProxyBuildingComponentOrientation, PlacedBuildingComponentOrientation);
 			
-			//TODO:: If everything here is working cleanly, remove the second input for these functions. This is the same HitResult being passed in twice.
 			switch (SnappingConditionNum)
 			{
 			case 1:
@@ -1000,7 +999,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		if(FirstHitBuildingComponentHitResult.GetComponent()->IsA(UBoxComponent::StaticClass()))
 		{
 			HandleBuildingComponentSnapping(FirstHitBuildingComponentHitResult);
-			if (BuildableProxyInstance->bIsOverlappingPerimeter)
+			if (BuildableProxyInstance->bIsOverlappingPerimeter || BuildableProxyInstance->GetActorLocation().Z < 0)
 			{
 				MakeBuildableNotFinalizable(BuildableProxyInstance);
 			}

@@ -179,7 +179,8 @@ void UTask_MoveThroughCorridorPathV2::InitializePath()
         TargetActor->GetActorLocation()
     );
 
-    if (PathResult.bIsValid && PathResult.PathPoints.Num() > 0)
+    //PathResult.bIsValid &&
+    if ( PathResult.PathPoints.Num() > 0)
     {
         
         CorridorPathPoints = PathResult.PathPoints;

@@ -103,6 +103,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
 	bool bCanBuildableBeFinalized = true;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
+	bool bIsOverlappingPerimeter = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable Type")
 	ESnapCondition SnapCondition = ESnapCondition::Default;

@@ -7,7 +7,6 @@
 #include "Components/ActorComponent.h"
 #include "BuildSystemManagerComponent.generated.h"
 
-
 enum class EBuildingComponentOrientation : uint8;
 enum class EBuildingComponentTrapDirection : uint8;
 class ATeleportConstruct;
@@ -20,8 +19,7 @@ USTRUCT(BlueprintType)
 struct FBuildablePlacementData
 {
 	GENERATED_BODY()
-
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Snap Data")
 	FVector TrapLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Trup Snap Data")
@@ -66,15 +64,15 @@ protected:
 	FRotator SnapToRotation(FRotator CharactersRotation);
 	FRotator SavedRotation = FRotator::ZeroRotator;
 
-	/*Component Snapping*/
+	/*Structure Snapping (Walls & Floors)*/
 	int SnappingCondition(EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2);
 	int QuadrantCondition(FString QuadrantName);
 	UFUNCTION()
-	void SameOrientationSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void SameOrientationSnapCondition(FHitResult HitResult);
 	UFUNCTION()
-	void VerticalToHorizontalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void VerticalToHorizontalSnapCondition(FHitResult HitResult);
 	UFUNCTION()
-	void HorizontalToVerticalSnapCondition(FHitResult HitActor, FHitResult HitQuadrant);
+	void HorizontalToVerticalSnapCondition(FHitResult HitResult);
 	UFUNCTION()
 	void MoveBuildingComponentProxyToSnapLocation(FVector ProxySnapLocation, FVector SnapLocation);
 	UFUNCTION()
@@ -83,12 +81,9 @@ protected:
 	/*Static Mesh Utilities*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component")
 	TArray<UStaticMeshComponent*> StaticMeshs;
-	
-	void GetStaticMeshComponents(AActor* BuildingComponentActor);
-	
 	UFUNCTION()
 	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
-	
+	void GetStaticMeshComponents(AActor* BuildingComponentActor);
 	void AddToBuildableAttachments(ABuildableBase* AttachingBuildable);
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Building Component")
 	UMaterial* RedHoloMaterial = nullptr;
@@ -157,7 +152,7 @@ public:
 	void CleanUpBuildSystemManagerComponent();
 	void ResetBuildableComponents();
 	void RemoveBuildingComponentProxies_All();
-	void ClearTeleporterTMap();
+	void ClearTeleporterTPair();
 	
 	/*Building Component Placement Variables*/
 	FVector FinalSpawnLocation;

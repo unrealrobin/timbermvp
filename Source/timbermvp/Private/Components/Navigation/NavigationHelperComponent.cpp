@@ -30,7 +30,7 @@ UNavigationPath* UNavigationHelperComponent::GetOriginalNavPath(FVector Start, F
 {
 	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), Start, End);
 
-	if (!NavPath->IsValid() || NavPath->PathPoints.Num() == 0)
+	if (!NavPath || !IsValid(NavPath) || NavPath->PathPoints.Num() == 0)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("NavigationHelperComponent: Failed to find a valid navigation path!"));
 		return nullptr;
@@ -145,24 +145,20 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 	if (!OwningActor || !OwningActor->GetWorld()) return PathPoints;
 	
 	UNavigationPath* NavPath = GetOriginalNavPath(Start, End);
-
-	//Debug to show the original Path Points in the world.
-	if (NavPath)
+	
+	// Retrieving the real object with all the Low Level Data
+	if (NavPath && IsValid(NavPath))
 	{
+		//Debug to show the original Path Points in the world.
 		/*for (FVector OriginalPathPoint : NavPath->PathPoints)
 		{
 			DrawDebugSphere(GetWorld(), OriginalPathPoint, 10, 10, FColor::Red, true);
 		}*/
-	}
-
-	// Retrieving the real object with all the Low Level Data
-	if (NavPath)
-	{
+		
 		FNavPathSharedPtr NavPathSharedPtr = NavPath->GetPath();
-
 		FNavMeshPath*  MeshPath = static_cast<FNavMeshPath*>(NavPathSharedPtr.Get());
 
-		if (!MeshPath)
+		if (NavPath->PathPoints.Num()  == 0 || !MeshPath)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("UNavigationHelperComponent: Failed to retrieve the NavMesh Path!"));
 			return PathPoints;
@@ -171,11 +167,8 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		//Nav Mesh Poly Ids for Corridor Path - The Path Points lie within these polys, All the polys are connected and form a corridor.
 		//We now have access to those Polys IDs
 		const TArray<NavNodeRef>& Corridor = MeshPath->PathCorridor;
-
 		
-
 		//This is the Navigation System the Owning Character is using.
-		
 		UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(OwningActor->GetWorld());
 
 		ARecastNavMesh* RecastMesh = Cast<ARecastNavMesh>(NavSys->GetDefaultNavDataInstance());
@@ -226,8 +219,8 @@ TArray<FVector> UNavigationHelperComponent::GetCorridorPathPoints(FVector Start,
 		
 		PathPoints.Add(LastPathPoint);
 		
-		/*//Debug to show the adjusted Path Points in the world.
-		for (FVector PathPoint : PathPoints)
+		//Debug to show the adjusted Path Points in the world.
+		/*for (FVector PathPoint : PathPoints)
 		{
 			DrawDebugSphere(GetWorld(), PathPoint, 10, 10, FColor::Green, false, 10.0f);
 		}*/

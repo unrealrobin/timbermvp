@@ -53,9 +53,12 @@ bool ARampBase::bIsRampProxyBlocked()
 	{
 		for (FHitResult IndividualHit : Hits)
 		{
+			//Ignoring Self 
+			if (IndividualHit.GetActor() == this) continue;
+			
 			if (Cast<ATimberSeeda>(IndividualHit.GetActor()) || Cast<ARampBase>(IndividualHit.GetActor()) || Cast<ABuildableBase>(IndividualHit.GetActor()))
 			{
-				//UE_LOG(LogTemp, Display, TEXT("Ramp Blocked by: %s"), *IndividualHit.GetActor()->GetName());
+				UE_LOG(LogTemp, Display, TEXT("Ramp Blocked by: %s"), *IndividualHit.GetActor()->GetName());
 				return true;
 			}
 		}

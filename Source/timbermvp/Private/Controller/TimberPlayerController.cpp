@@ -535,7 +535,7 @@ void ATimberPlayerController::DeleteBuildingComponent(const FInputActionValue& V
 	{
 		if (TimberCharacter->HoveredBuildingComponent->BuildableType == EBuildableType::Environment)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
+			UE_LOG(LogTemp, Warning, TEXT("Timber Player Controller - DeleteBuildingComponent() - Cannot Delete Environment"));
 			return;
 		}
 

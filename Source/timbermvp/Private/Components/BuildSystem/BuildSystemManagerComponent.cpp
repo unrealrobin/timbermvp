@@ -982,9 +982,8 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 			//Ensures we don't place a floor structure on an environment type structure
 			if (FirstHitBuildingComponent && FirstHitBuildingComponent->BuildingComponentType == EBuildingComponentType::Environment)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Structure is an Environment Buildable that can not be built on."));
 				MakeBuildableNotFinalizable(BuildableProxyInstance);
-				/*BuildableProxyInstance->bCanBuildableBeFinalized = false;
-				MakeMaterialHoloColor(BuildableProxyInstance, RedHoloMaterial);*/
 				MoveBuildable(FirstHitBuildingComponentHitResult.ImpactPoint, FloorComponent);
 				return;
 			}
@@ -999,7 +998,11 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 		if(FirstHitBuildingComponentHitResult.GetComponent()->IsA(UBoxComponent::StaticClass()))
 		{
 			HandleBuildingComponentSnapping(FirstHitBuildingComponentHitResult);
-			if (BuildableProxyInstance->bIsOverlappingPerimeter || BuildableProxyInstance->GetActorLocation().Z < 0)
+
+			//TODO:: We need to clean up this elevation issue. We dont want players to unknowingly snap walls to below the floor.
+			// Snapping right now, snaps the Wall Buildable to the lowest most floor to -11.0f. Im chushioning it to -15.0f.
+			// We need a cleaner way of handling this.
+			if (BuildableProxyInstance->bIsOverlappingPerimeter || BuildableProxyInstance->GetActorLocation().Z < -15.0f)
 			{
 				MakeBuildableNotFinalizable(BuildableProxyInstance);
 			}

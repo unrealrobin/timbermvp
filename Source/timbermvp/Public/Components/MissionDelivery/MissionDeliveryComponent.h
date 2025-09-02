@@ -37,6 +37,8 @@ private:
 
 	UFUNCTION()
 	void HandleCombatEvent(FMissionEventPayload Payload);
+
+	void BindToMissionViewModel();
 	void BindToMissionEventSystems();
 
 };

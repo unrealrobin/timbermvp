@@ -3,6 +3,7 @@
 
 #include "Components/MissionDelivery/MissionDeliveryComponent.h"
 
+#include "MVVMViewModelBase.h"
 #include "Subsystems/Events/BuildEventSubsystem.h"
 #include "Subsystems/Events/CombatEventSubsystem.h"
 
@@ -33,6 +34,11 @@ void UMissionDeliveryComponent::HandleCombatEvent(FMissionEventPayload Payload)
 	
 }
 
+void UMissionDeliveryComponent::BindToMissionViewModel()
+{
+	
+}
+
 void UMissionDeliveryComponent::BindToMissionEventSystems()
 {
 	UCombatEventSubsystem* CES = GetWorld()->GetGameInstance()->GetSubsystem<UCombatEventSubsystem>();
@@ -40,7 +46,7 @@ void UMissionDeliveryComponent::BindToMissionEventSystems()
 
 	if (!BES || !CES) return;
 	
-	BES->OnBuildEvent.AddDynamic(this, UMissionDeliveryComponent::HandleBuildEvent);
+	BES->OnBuildEvent.AddDynamic(this, &UMissionDeliveryComponent::HandleBuildEvent);
 	UE_LOG(LogTemp, Warning, TEXT("Bound to Build Event Subsystem."));
 	
 	CES->OnCombatEvent.AddDynamic(this, &UMissionDeliveryComponent::HandleCombatEvent);

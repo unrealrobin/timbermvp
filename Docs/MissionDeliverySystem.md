@@ -67,14 +67,21 @@ title: MDS - Event Data Flow
       - int Count (How Many To Destroy)
       - FGameplayTag Weapon.Melle
         - What Type of Weapon to look for in the Context Tags.
-### MissionViewModel - U
+        
+### Mission List Data Asset
+    - List of MissionDataAssets
+    - Can be packaged for certain setups
+        - Ex. Tutorials, Standard, End Game, Endless
+
+### MissionViewModel
   - Structured Data for Display/Mission UI
   - UI Binds to this Class.
   - FText Title
   - FText Description
   - FText Progress
   - Float Progress
-  - TArray<UDataAsset> Rewards / Quantity
+  - This is bound directly to from the Widgets that need it in BP's
+    - Ex. MissionDisplayUI
 ### MissionDisplayUI
   - Displays Current Mission Goals and Progress
   - Display
@@ -89,7 +96,7 @@ title: MDS - Event Data Flow
     - Rewards
 ### MissionActorComponent
   - Handles Logic for Mission Progress.
-  - Updates Mission View Model
+  - Updates Mission View Model.
   - Binds to CombatEventsSubsystem
     - CES Broadcasts at Every Damage Dealing Combat event with Payload.
     - Payload
@@ -101,17 +108,15 @@ title: MDS - Event Data Flow
         - Damaged vs Destroyed.
   - Binds to BuildEventsSubsystem
     - BES Broadcasts at Every Build Event
-### MissionSystem
   - Gets Called at Start of Game
   - Assigns Current Mission
-  - Binds to BuildingEventsSubsystem
-  - Updates the Mission View Model
-### CombatEventsSubsystem
-  - Gets Called after Every Combat Event with Payload
+
+### CombatEventsSubsystem & BuildEventsSubsystem
+  - Gets Called after Every Combat Event or Build Event with Payload
   - PublishDamageEvent
   - PublishKillEvent
-### BuildEventsSubsystem
-  - Gets Called after Every Build Event
+  - Uses Payload to Broadcast Relevant Data back to the MissionActorComponent
+
 ### SaveLoadSystem
   - Saves Overall Mission Status
   - Tracks Missions Completed 

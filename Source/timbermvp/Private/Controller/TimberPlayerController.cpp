@@ -4,7 +4,6 @@
 #include "Controller/TimberPlayerController.h"
 #include "Interfaces/Interactable.h"
 #include "EnhancedInputSubsystems.h"
-#include "HighResScreenshot.h"
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "Character/TimberAnimInstance.h"
 #include "UI/BuildingComponent.h"
@@ -12,11 +11,13 @@
 #include "Components/BuildSystem/BuildSystemManagerComponent.h"
 #include "Components/Combat/CombatComponent.h"
 #include "Data/DataAssets/BuildComponentDataAsset.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "UI/TimberHUDBase.h"
 #include "Weapons/Abilities/WeaponAbilityBase.h"
+#include "MVVMGameSubsystem.h"           
+#include "ViewModels/MissionViewModel.h"
+
 
 class UDialogueManager;
 
@@ -24,38 +25,45 @@ void ATimberPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	PrepareInputSettings();
 
-	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
-	TimberCharacterSpringArmComponent = TimberCharacter->CameraSpringArm;
-	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
-	EnableStandardKeyboardInput();
+	InitializeCharacterAndCamera();
+	
+	InitializeTutorialStateBinding();
 
-	{
-		//When switching from Game Start Menu to Level, we switch back the Input Mode to Game and UI
-		FInputModeGameAndUI GameAndUIInputMode;
-		FInputModeGameOnly GameOnlyInputMode;
-		SetInputMode(GameOnlyInputMode);
-	}
+	MissionViewModelInstantiation();
 
-	//Delegate Subscription
 	TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberPlayerController::HandlePlayerDeath);
+}
+
+void ATimberPlayerController::PrepareInputSettings()
+{
+	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	//When switching from Game Start Menu to Level, we switch back the Input Mode to Game and UI
+	FInputModeGameAndUI GameAndUIInputMode;
+	FInputModeGameOnly GameOnlyInputMode;
+	SetInputMode(GameOnlyInputMode);
 
 	ATimberGameModeBase* GameMode = Cast<ATimberGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
 		GameMode->EnableStandardInputMappingContext.BindUFunction(this, FName("EnableStandardKeyboardInput"));
 	}
+	
+	EnableStandardKeyboardInput();
 
-	//Binds to Tutorial State Changes
-	InitializeTutorialStateBinding();
-
-	//We force call this because binding may take place after broadcast from GameState.
 	//Initial Broadcast should be ok since it's called from the GameMode on Begin play. This is just a redundant safety measure.
 	if (GetTutorialState() == ETutorialState::Wake1)
 	{
 		DisableAllKeyboardInput();
 	}
+}
+
+void ATimberPlayerController::InitializeCharacterAndCamera()
+{
+	TimberCharacter = Cast<ATimberPlayableCharacter>(GetPawn());
+	TimberCharacterSpringArmComponent = TimberCharacter->CameraSpringArm;
+	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 }
 
 void ATimberPlayerController::SetupInputComponent()
@@ -687,6 +695,29 @@ void ATimberPlayerController::HandleTutorialStateChanges(ETutorialState NewState
 		break;
 	}
 }
+
+void ATimberPlayerController::MissionViewModelInstantiation()
+{
+	TObjectPtr<UMVVMGameSubsystem> MVGS = GetWorld()->GetGameInstance()->GetSubsystem<UMVVMGameSubsystem>();
+	if (IsValid(MVGS))
+	{
+		TObjectPtr<UMVVMViewModelCollectionObject> Collection = MVGS->GetViewModelCollection();
+		if (IsValid(Collection))
+		{
+			TObjectPtr<UMissionViewModel> MissionVM = NewObject<UMissionViewModel>(GetLocalPlayer());
+			if (!MissionVM)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("PlayerController - Could not create the Mission View Model."));
+				return;
+			}
+			FMVVMViewModelContext Context;
+			Context.ContextClass = UMissionViewModel::StaticClass();
+			Context.ContextName = "MissionVM";
+			Collection->AddViewModelInstance(Context, MissionVM );
+		}
+	}
+}
+
 
 ETutorialState ATimberPlayerController::GetTutorialState() const
 {

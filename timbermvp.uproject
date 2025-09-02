@@ -159,6 +159,10 @@
 		{
 			"Name": "AdvancedRenamer",
 			"Enabled": true
+		},
+		{
+			"Name": "ModelViewViewModel",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [

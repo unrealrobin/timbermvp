@@ -12,6 +12,7 @@
 #include "Character/TimberAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Combat/CombatComponent.h"
+#include "Components/MissionDelivery/MissionDeliveryComponent.h"
 #include "Components/Vignette/PlayerVignetteComponent.h"
 #include "Containers/Ticker.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -35,6 +36,7 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 	InventoryManager = CreateDefaultSubobject<UInventoryManagerComponent>("InventoryManager");
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 	VignetteComponent = CreateDefaultSubobject<UPlayerVignetteComponent>("VignetteComponent");
+	MissionDeliveryComponent = CreateDefaultSubobject<UMissionDeliveryComponent>("MissionDeliveryComponent");
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("DR_PlayerCharacterCapsule"));
 	GetMesh()->SetCollisionProfileName(TEXT("DR_AestheticMeshOnly"));

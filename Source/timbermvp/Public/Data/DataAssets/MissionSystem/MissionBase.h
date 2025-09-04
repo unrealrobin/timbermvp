@@ -26,11 +26,11 @@ class TIMBERMVP_API UMissionBase : public UDataAsset
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mission Info")
 	FGuid MissionID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
-	FText MissionName;
+	FText MissionTitle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	FText MissionDescription;
@@ -41,5 +41,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	EMissionState MissionState = EMissionState::Incomplete;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
+	bool MultipleObjectives = false;
 	
 };

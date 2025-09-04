@@ -8,6 +8,7 @@
 #include "MissionDeliveryComponent.generated.h"
 
 
+class UMissionViewModel;
 class UMissionBase;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -21,7 +22,10 @@ public:
 
 	//Stores a List of Missions - To be Populated in BP's
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Missions")
-	TArray<UDataAsset*> MissionsList;
+	UDataAsset* MissionsList;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Missions")
+	TArray<FGuid> CompletedMissionGuids;
 	
 protected:
 	// Called when the game starts
@@ -30,15 +34,32 @@ protected:
 	//Stores the In Progress Mission
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Missions")
 	TObjectPtr<UMissionBase> ActiveMission = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Missions")
+	TObjectPtr<UMissionViewModel> MissionViewModel = nullptr;
 	
 private:
 	UFUNCTION()
-	void HandleBuildEvent(FMissionEventPayload MissionEventPayload);
+	void HandleBuildEvent(FMissionEventPayload Payload);
 
 	UFUNCTION()
 	void HandleCombatEvent(FMissionEventPayload Payload);
-
-	void BindToMissionViewModel();
+	
 	void BindToMissionEventSystems();
+
+	void SetActiveMission();
+
+	void GetMissionViewModel();
+
+	UMissionBase* GetActiveMission();
+
+	void InitializeActiveMission(UMissionBase* NewActiveMission);
+
+	void MarkMissionAsCompleted();
+
+	void CreateObjectivesFromMission();
+	
+	void HandleCombatObjectiveTags(FGameplayTag EventTag);
+	void HandleBuildObjectiveTags(FGameplayTag EventTag);
 
 };

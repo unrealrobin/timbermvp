@@ -13,6 +13,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Payload")
 	AActor* DamageInstigator = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Payload")
+	AActor* DamageOwner = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Payload")
 	FStatusEffect StatusEffect;

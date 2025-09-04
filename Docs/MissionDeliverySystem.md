@@ -35,19 +35,20 @@ sequenceDiagram
 ```mermaid
 
 ---
-title: MDS - Event Data Flow
+title: MDS - Combat Event Data Flow
 ---
     sequenceDiagram
     autonumber
-    participant E as EnemyHealthComponent
-    participant Hub as CombatEventsSubsystem (Broker)
-    participant M as MissionComponent (Listener)
+    participant E as Enemy
+    participant CES as CombatEventsSubsystem
+    participant M as MissionActorComponent
+    participant MVVM as MissionViewModel
 
-    E->>E: TakeDamage() finalized
-    E->>Hub: PublishDamage{Instigator, Target, Amount, ContextTags}
-    Hub-->>M: OnDamageDealt broadcast (one binding)
+    E->>E: TakeDamage()
+    E->>CES: PublishDamageEvent()
+    CES->>M: BroadcastEvent(Payload)
     M->>M: Filter (player? right EventTag? TagQuery match?)
-    M->>M: Increment mission progress, update ViewModel
+    M->>MVVM: Increment mission progress, update ViewModel
 ```
 
 ## Required Classes
@@ -67,6 +68,7 @@ title: MDS - Event Data Flow
       - int Count (How Many To Destroy)
       - FGameplayTag Weapon.Melle
         - What Type of Weapon to look for in the Context Tags.
+  - Has a Specific GUID used for Player Saving/Progress.
         
 ### Mission List Data Asset
     - List of MissionDataAssets
@@ -120,5 +122,20 @@ title: MDS - Event Data Flow
 ### SaveLoadSystem
   - Saves Overall Mission Status
   - Tracks Missions Completed 
-  
+
+
+### Objective Display
+- Destroy [10] Carbonites
+- Destroy [10] Carbonites with [Hammer]
+- Destroy [10] Carbonites with [Rifle]
+- Destroy [10] Carbonites with [Traps]
+- Destroy [10] [Grunts] with [Traps]
+- Destroy [10] [Brutes] with [Rifle]
+- Build [3] [Structures]
+- Build [3] [Components]
+- Build [3] [Traps]
+- Defeat Wave with only [Trap]
+- Ensure the Data Seed Takes 0 Damage for [1] Wave
+
+- Objectives should be able to Stack. IE, multiple objects per mission.
 

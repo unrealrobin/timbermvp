@@ -19,5 +19,5 @@ public:
 
 	//List of All Possible Missions
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Missions List")
-	TMap<int, TSubclassOf<UMissionBase>> Missions;
+	TArray<UMissionBase*> Missions;
 };

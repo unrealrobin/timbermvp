@@ -3,7 +3,7 @@
 
 #include "Subsystems/Events/CombatEventSubsystem.h"
 
-void UCombatEventSubsystem::HandleCombatEvent(FMissionEventPayload Payload)
+void UCombatEventSubsystem::BroadcastCombatEvent(FMissionEventPayload Payload)
 {
 	OnCombatEvent.Broadcast(Payload);
 	UE_LOG(LogTemp, Warning, TEXT("Combat Event Broadcasted."));

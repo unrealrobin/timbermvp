@@ -75,11 +75,11 @@ void ATimberWeaponMeleeBase::OnWeaponOverlapBegin(
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(GetOwner());
 
-	if (EnemyCharacter)
+	if (IsValid(EnemyCharacter))
 	{
 		OnAiWeaponOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 	}
-	else if (PlayerCharacter)
+	else if (IsValid(PlayerCharacter))
 	{
 		OnPlayerWeaponOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 	}
@@ -113,6 +113,8 @@ void ATimberWeaponMeleeBase::OnPlayerWeaponOverlap(UPrimitiveComponent* Overlapp
 
 		FDamagePayload Payload;
 		Payload.DamageAmount = BaseWeaponDamage;
+		Payload.DamageInstigator = GetOwner();
+		Payload.DamageOwner = this;
 		HitEnemy->TakeDamage(Payload);
 	}
 }

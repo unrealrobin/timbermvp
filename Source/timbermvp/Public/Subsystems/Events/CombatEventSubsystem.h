@@ -19,5 +19,5 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatEvent, FMissionEventPayload, Payload);
 	FOnCombatEvent OnCombatEvent;
 
-	void HandleCombatEvent(FMissionEventPayload Payload);
+	void BroadcastCombatEvent(FMissionEventPayload Payload);
 };

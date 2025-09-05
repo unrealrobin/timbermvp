@@ -53,7 +53,10 @@ EMissionState UMissionViewModel::GetActiveMissionState() const
 
 void UMissionViewModel::SetActiveMissionState(EMissionState NewActiveMissionState)
 {
-	ActiveMissionState = NewActiveMissionState;
+	if (UE_MVVM_SET_PROPERTY_VALUE(ActiveMissionState, NewActiveMissionState))
+	{
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(ActiveMissionState);
+	}
 }
 
 FString UMissionViewModel::GetMissionObjectiveString() const
@@ -66,6 +69,19 @@ void UMissionViewModel::SetMissionObjectiveString(FString NewMissionObjectiveStr
 	if (UE_MVVM_SET_PROPERTY_VALUE(MissionObjectiveString, NewMissionObjectiveString))
 	{
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(MissionObjectiveString);
+	}
+}
+
+int UMissionViewModel::GetGoalValue() const
+{
+	return GoalValue;
+}
+
+void UMissionViewModel::SetGoalValue(int NewGoalValue)
+{
+	if (UE_MVVM_SET_PROPERTY_VALUE(GoalValue, NewGoalValue))
+	{
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GoalValue);
 	}
 }
 
@@ -91,4 +107,17 @@ float UMissionViewModel::GetProgressPercent() const
 int UMissionViewModel::GetProgressAmount() const
 {
 	return ProgressAmount;
+}
+
+bool UMissionViewModel::GetbHasCount() const
+{
+	return bHasCount;
+}
+
+void UMissionViewModel::SetbHasCount(bool NewbHasCount)
+{
+	if (UE_MVVM_SET_PROPERTY_VALUE(bHasCount, NewbHasCount))
+	{
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(bHasCount);
+	}
 }

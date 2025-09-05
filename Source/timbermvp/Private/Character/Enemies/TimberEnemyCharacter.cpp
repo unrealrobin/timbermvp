@@ -374,15 +374,15 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 
 		return;
 	}
-	else if (IsValid(DamagePayload.DamageInstigator))
+	
+	if (IsValid(DamagePayload.DamageInstigator))
 	{
 		//TODO:: Potential Removed from Game. - Delete Later is Unused still.
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamagePayload.DamageInstigator, DamagePayload.DamageAmount, DamageAccumulatedDuringWindow);
 		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
-
-	//TODO:: Damage Event
-	//Broadcast to the Mission System 
+	
+	//Damage Event
 	UCombatEventSubsystem* CombatEventSubsystem = GetGameInstance()->GetSubsystem<UCombatEventSubsystem>();
 	const FMissionEventPayload Payload = GenerateDamageEventPayload(DamagePayload);
 	CombatEventSubsystem->BroadcastCombatEvent(Payload);

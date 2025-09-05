@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MVVMViewModelBase.h"
+#include "Components/MissionDelivery/MissionDeliveryComponent.h"
 #include "Data/DataAssets/MissionSystem/MissionBase.h"
 #include "MissionViewModel.generated.h"
 
@@ -16,6 +17,11 @@ class TIMBERMVP_API UMissionViewModel : public UMVVMViewModelBase
 	GENERATED_BODY()
 
 public:
+
+	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGuid ActiveMissionGuid;
 
 	void GenerateMissionObjectiveString(UMissionBase* ActiveMission);
 	
@@ -36,7 +42,13 @@ public:
 
 	FString GetMissionObjectiveString() const;
 	void SetMissionObjectiveString(FString NewMissionObjectiveString);
+	
+	int GetGoalValue() const;
+	void SetGoalValue(int NewGoalValue);
 
+	bool GetbHasCount() const;
+	void SetbHasCount(bool NewbHasCount);
+	
 protected:
 
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
@@ -55,7 +67,13 @@ protected:
 	int ProgressAmount = 0;
 
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
+	int GoalValue = 0;
+	
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
 	FString MissionObjectiveString = "Mission Objective";
+	
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
+	bool bHasCount = false;
 
 	//TODO:: Have an Objective String. With Dynamic Values Highlighted.
 	// EX. Destroy [10] [Grunts] with [Hammer] (0/10)
@@ -66,3 +84,5 @@ protected:
 	
 	
 };
+
+

@@ -7,15 +7,6 @@
 #include "Engine/DataAsset.h"
 #include "MissionBase.generated.h"
 
-UENUM(BlueprintType) 
-enum class EMissionState : uint8
-{
-	Incomplete UMETA(DisplayName = "Not Complete"),
-	InProgress UMETA(DisplayName = "In Progress"),
-	Complete UMETA(DisplayName = "Complete"),
-	Default UMETA(DisplayName = "Default")
-};
-
 /**
  * 
  */
@@ -26,8 +17,8 @@ class TIMBERMVP_API UMissionBase : public UDataAsset
 
 public:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mission Info")
-	FGuid MissionID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
+	FGuid MissionID; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	FText MissionTitle;
@@ -39,10 +30,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	FGameplayTag MissionEventType;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mission Info")
-	EMissionState MissionState = EMissionState::Incomplete;
+	//Events must contain all RequiredContextTags to be countable for this mission.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
+	FGameplayTagContainer RequiredContextTags;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	bool MultipleObjectives = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
+	int NumericMissionGoal = 0;
 	
 };

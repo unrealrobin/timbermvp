@@ -4,12 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Data/DataAssets/MissionSystem/MissionBase.h"
 #include "Types/MissionEventPayloads/MissionEventPayload.h"
 #include "MissionDeliveryComponent.generated.h"
 
 
 class UMissionViewModel;
 class UMissionBase;
+
+UENUM(BlueprintType) 
+enum class EMissionState : uint8
+{
+	Incomplete UMETA(DisplayName = "Not Complete"),
+	InProgress UMETA(DisplayName = "In Progress"),
+	Complete UMETA(DisplayName = "Complete"),
+	Default UMETA(DisplayName = "Default")
+};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TIMBERMVP_API UMissionDeliveryComponent : public UActorComponent
@@ -22,10 +32,13 @@ public:
 
 	//Stores a List of Missions - To be Populated in BP's
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Missions")
-	UDataAsset* MissionsList;
+	TObjectPtr<UDataAsset> MissionsListDataAsset = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Missions")
 	TArray<FGuid> CompletedMissionGuids;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Missions")
+	EMissionState ActiveMissionState = EMissionState::Default;
 	
 protected:
 	// Called when the game starts
@@ -41,25 +54,19 @@ protected:
 private:
 	UFUNCTION()
 	void HandleBuildEvent(FMissionEventPayload Payload);
-
 	UFUNCTION()
 	void HandleCombatEvent(FMissionEventPayload Payload);
-	
+
+	void UpdateMissionState(EMissionState NewMissionState);
 	void BindToMissionEventSystems();
-
 	void SetActiveMission();
-
 	void GetMissionViewModel();
-
-	UMissionBase* GetActiveMission();
-
 	void InitializeActiveMission(UMissionBase* NewActiveMission);
-
 	void MarkMissionAsCompleted();
-
+	void MarkMissionAsIncomplete();
 	void CreateObjectivesFromMission();
-	
-	void HandleCombatObjectiveTags(FGameplayTag EventTag);
-	void HandleBuildObjectiveTags(FGameplayTag EventTag);
-
+	void FormCombatObjectivesFromTag(FGameplayTag EventTag);
+	void FormBuildObjectiveFromTag(FGameplayTag EventTag);
+	bool CheckMissionContext(FMissionEventPayload& Payload, TWeakObjectPtr<UMissionBase> ActiveMissionRef);
+	UMissionBase* GetActiveMission();
 };

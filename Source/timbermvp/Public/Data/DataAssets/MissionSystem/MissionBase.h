@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "MetasoundSource.h"
 #include "Engine/DataAsset.h"
 #include "MissionBase.generated.h"
 
@@ -34,11 +35,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	FGameplayTagContainer RequiredContextTags;
 	
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	bool MultipleObjectives = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	int NumericMissionGoal = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
+	UMetaSoundSource* MissionDialogue;
 	
 };

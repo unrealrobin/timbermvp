@@ -152,7 +152,9 @@ void UWaveGameInstanceSubsystem::StartWave()
 				}
 			}),
 		2.0f,  
-		false);  
+		false);
+
+	OnWaveStart.Broadcast(CurrentWaveNumber);
 }
 
 void UWaveGameInstanceSubsystem::ComposeWaveFromDataTable()
@@ -622,7 +624,7 @@ void UWaveGameInstanceSubsystem::SuccessfulWaveEnd()
 	PlayWaveEndSound();
 		
 	//Broadcasts the Completed Wave Number
-	HandleWaveComplete.Broadcast(CurrentWaveNumber);
+	OnWaveComplete.Broadcast(CurrentWaveNumber);
 		
 	//Process of Closing Doors
 	CloseLabDoorHandle.Broadcast();

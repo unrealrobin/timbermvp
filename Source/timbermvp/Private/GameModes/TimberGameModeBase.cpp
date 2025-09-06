@@ -44,7 +44,7 @@ void ATimberGameModeBase::BeginPlay()
 	{//Binding to Delegates
 		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
-		GetWaveGameInstanceSubsystem()->HandleWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
+		GetWaveGameInstanceSubsystem()->OnWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
 
 		//GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
 		/*Subscribing to Player Death Delegate Signature*/

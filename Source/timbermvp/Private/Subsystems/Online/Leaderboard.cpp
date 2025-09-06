@@ -16,7 +16,7 @@ void ULeaderboard::HandleBindToWaveSubsytem()
 	//Gets called from the WaveGameInstanceSubsystem after initialization to ensure we can bind to OnWaveComplete Delegate.
 	if (UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>())
 	{
-		WaveSubsystem->HandleWaveComplete.AddDynamic(this, &ULeaderboard::OnWaveComplete);
+		WaveSubsystem->OnWaveComplete.AddDynamic(this, &ULeaderboard::OnWaveComplete);
 		UE_LOG(LogLeaderboard, Warning, TEXT("Bound to Wave Subsystem. WORKING."));
 	}
 	else

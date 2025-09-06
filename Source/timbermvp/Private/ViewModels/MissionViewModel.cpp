@@ -11,6 +11,7 @@ void UMissionViewModel::GenerateMissionObjectiveString(UMissionBase* ActiveMissi
 
 		if (ActiveMission->MissionEventType == FGameplayTag::RequestGameplayTag("Event.Combat.Destroy"))
 		{
+			//TODO::Tentative, Maybe Unnecessary.
 			// Now we need to take into consideration whether the other Context Tags Exist. Which we don't like. 
 		}
 	}

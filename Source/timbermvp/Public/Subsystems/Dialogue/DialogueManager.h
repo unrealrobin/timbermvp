@@ -39,19 +39,12 @@ public:
 	UFUNCTION()
 	void RemoveNarrativeSoundMix();
 
-
 	UFUNCTION()
 	UMetaSoundSource* GetDialogueVoiceover(FName DialogueName);
 
 	UFUNCTION(BlueprintCallable)
 	void PlayVoiceover(FName VoiceoverName);
 
-	UFUNCTION()
-	void HandleWake3Finish();
-	UFUNCTION()
-	void HandleParts1Finish();
-	UFUNCTION()
-	void HandleWaveStartDialogueFinish();
 	UFUNCTION()
 	void HandlePlayedDialogue(FName VoiceoverName);
 	UFUNCTION()
@@ -60,6 +53,12 @@ public:
 	/*Tutorial Dialogue Handling*/
 	UFUNCTION()
 	void HandleWake1Finish();
+	UFUNCTION()
+	void HandleParts1Finish();
+	UFUNCTION()
+	void HandleWake3Finish();
+	UFUNCTION()
+	void HandleWaveStartDialogueFinish();
 
 	UFUNCTION()
 	void BindToGameState();

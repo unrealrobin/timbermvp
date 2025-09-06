@@ -5,10 +5,13 @@
 
 #include "MVVMGameSubsystem.h"
 #include "MVVMViewModelBase.h"
+#include "Components/AudioComponent.h"
 #include "Data/DataAssets/MissionSystem/MissionBase.h"
 #include "Data/DataAssets/MissionSystem/MissionList.h"
+#include "Subsystems/Dialogue/DialogueManager.h"
 #include "Subsystems/Events/BuildEventSubsystem.h"
 #include "Subsystems/Events/CombatEventSubsystem.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "ViewModels/MissionViewModel.h"
 
 
@@ -18,6 +21,16 @@ UMissionDeliveryComponent::UMissionDeliveryComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UMissionDeliveryComponent::BindToWaveSubsystem()
+{
+	TObjectPtr<UWaveGameInstanceSubsystem> WGIS = GetWorld()->GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+	if (WGIS)
+	{
+		WGIS->OnWaveStart.AddDynamic(this, &UMissionDeliveryComponent::HandleWaveStart);
+		WGIS->OnWaveComplete.AddDynamic(this, &UMissionDeliveryComponent::HandleWaveEnd);
+	}
+}
+
 // Called when the game starts
 void UMissionDeliveryComponent::BeginPlay()
 {
@@ -25,11 +38,8 @@ void UMissionDeliveryComponent::BeginPlay()
 	
 	BindToMissionEventSystems();
 	GetMissionViewModel();
-
-	//This to be Called from some other Event, Like the start of a Wave.
-	//This only looks through the Mission List and Sets the next available mission as the Active Mission.
-	//Should be Called from Wave Start.
-	SetActiveMission();
+	BindToWaveSubsystem();
+	
 }
 
 void UMissionDeliveryComponent::HandleBuildEvent(FMissionEventPayload Payload)
@@ -62,6 +72,56 @@ void UMissionDeliveryComponent::HandleCombatEvent(FMissionEventPayload Payload)
 					MarkMissionAsCompleted();
 				}
 			}
+		}
+	}
+}
+
+void UMissionDeliveryComponent::HandleWaveStart(int CompletedWaveNumber)
+{
+	CurrentWaveNumber = CompletedWaveNumber + 1;
+
+	SetActiveMission();
+}
+
+void UMissionDeliveryComponent::HandleWaveEnd(int CompletedWaveNumber)
+{
+	if (ActiveMissionState != EMissionState::Complete)
+	{
+		MarkMissionAsIncomplete();
+
+		//Clearing all Existing Data.
+		ResetMissionViewModel();
+	}
+}
+
+void UMissionDeliveryComponent::ResetMissionViewModel()
+{
+	if (MissionViewModel)
+	{
+		UpdateMissionState(EMissionState::Default);
+		MissionViewModel->ActiveMissionGuid = FGuid();
+		MissionViewModel->SetMissionTitle("NO MISSION SET.");
+		MissionViewModel->SetMissionDescription("NO MISSION SET.");
+		MissionViewModel->SetProgressAmount(0.0f);
+		MissionViewModel->SetProgressPercent(0.0f);
+		MissionViewModel->SetGoalValue(0);
+	}
+		
+}
+
+void UMissionDeliveryComponent::PlayMissionDialogue()
+{
+	if (ActiveMission && ActiveMission->MissionDialogue)
+	{
+		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
+		if (DialogueManager && DialogueManager->DialoguePlayer)
+		{
+			DialogueManager->DialoguePlayer->SetSound(ActiveMission->MissionDialogue);
+			DialogueManager->DialoguePlayer->Play();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Could Not Play Mission Dialogue."));
 		}
 	}
 }
@@ -130,7 +190,9 @@ void UMissionDeliveryComponent::InitializeActiveMission(UMissionBase* NewActiveM
 		MissionViewModel->SetProgressAmount(0.0f);
 		MissionViewModel->SetProgressPercent(0.0f);
 		MissionViewModel->SetGoalValue(NewActiveMission->NumericMissionGoal);
-		
+
+		//TODO:: Adjust function in Dialogue Manager to Handle the Setting and Playing and Timing of this Call.
+		PlayMissionDialogue();
 		UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Active Mission Initialized."));
 	}
 	else
@@ -154,9 +216,11 @@ void UMissionDeliveryComponent::MarkMissionAsCompleted()
 void UMissionDeliveryComponent::MarkMissionAsIncomplete()
 {
 	//This is for when a player fails to complete the mission by the end of the Wave.
-	if (ActiveMission)
+	if (ActiveMission && MissionViewModel)
 	{
 		UpdateMissionState(EMissionState::Incomplete);
+
+		//TODO:: Reset View Model - Prep for new Mission at start of Next Wave. 
 	}
 }
 

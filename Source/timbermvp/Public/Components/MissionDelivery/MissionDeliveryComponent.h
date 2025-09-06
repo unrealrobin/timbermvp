@@ -8,7 +8,6 @@
 #include "Types/MissionEventPayloads/MissionEventPayload.h"
 #include "MissionDeliveryComponent.generated.h"
 
-
 class UMissionViewModel;
 class UMissionBase;
 
@@ -29,6 +28,8 @@ class TIMBERMVP_API UMissionDeliveryComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UMissionDeliveryComponent();
+	
+	void BindToWaveSubsystem();
 
 	//Stores a List of Missions - To be Populated in BP's
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Missions")
@@ -41,6 +42,7 @@ public:
 	EMissionState ActiveMissionState = EMissionState::Default;
 	
 protected:
+	
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
@@ -52,11 +54,17 @@ protected:
 	TObjectPtr<UMissionViewModel> MissionViewModel = nullptr;
 	
 private:
+	/* Delegate Callbacks*/
 	UFUNCTION()
 	void HandleBuildEvent(FMissionEventPayload Payload);
 	UFUNCTION()
 	void HandleCombatEvent(FMissionEventPayload Payload);
-
+	UFUNCTION()
+	void HandleWaveStart(int CompletedWaveNumber);
+	UFUNCTION()
+	void HandleWaveEnd(int CompletedWaveNumber);
+	void ResetMissionViewModel();
+	void PlayMissionDialogue();
 	void UpdateMissionState(EMissionState NewMissionState);
 	void BindToMissionEventSystems();
 	void SetActiveMission();
@@ -69,4 +77,9 @@ private:
 	void FormBuildObjectiveFromTag(FGameplayTag EventTag);
 	bool CheckMissionContext(FMissionEventPayload& Payload, TWeakObjectPtr<UMissionBase> ActiveMissionRef);
 	UMissionBase* GetActiveMission();
+
+	UPROPERTY()
+	int CurrentWaveNumber = 0;
+
+	
 };

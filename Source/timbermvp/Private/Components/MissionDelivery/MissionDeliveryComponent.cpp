@@ -15,7 +15,7 @@
 #include "ViewModels/MissionViewModel.h"
 
 
-// Sets default values for this component's properties
+
 UMissionDeliveryComponent::UMissionDeliveryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -31,7 +31,6 @@ void UMissionDeliveryComponent::BindToWaveSubsystem()
 	}
 }
 
-// Called when the game starts
 void UMissionDeliveryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -39,12 +38,38 @@ void UMissionDeliveryComponent::BeginPlay()
 	BindToMissionEventSystems();
 	GetMissionViewModel();
 	BindToWaveSubsystem();
+
+	//Temporarily here. Should be called from the Wave Start Event.
+	SetActiveMission();
 	
 }
 
 void UMissionDeliveryComponent::HandleBuildEvent(FMissionEventPayload Payload)
 {
 	UE_LOG(LogTemp, Warning, TEXT("MDC - Handling Build Event."));
+	if (ActiveMission && ActiveMissionState == EMissionState::InProgress && MissionViewModel)
+	{
+		if (CheckMissionContext(Payload, ActiveMission))
+		{
+			int CurrentCount = MissionViewModel->GetProgressAmount();
+			int UpdatedCount = CurrentCount + Payload.Count;
+			int ObjectiveGoal = MissionViewModel->GetGoalValue();
+			MissionViewModel->SetProgressAmount(UpdatedCount);
+			MissionViewModel->SetProgressPercent(static_cast<float>(UpdatedCount) / static_cast<float>(ObjectiveGoal));
+
+			//TODO:: Need a Way to update completion of mission.
+			// Some goal state that is usable for combat missions.
+
+			if (Payload.Count >= ObjectiveGoal)
+			{
+				int ProgressAmount = MissionViewModel->GetProgressAmount();
+				if (ProgressAmount >= ObjectiveGoal)
+				{
+					MarkMissionAsCompleted();
+				}
+			}
+		}
+	}
 }
 
 void UMissionDeliveryComponent::HandleCombatEvent(FMissionEventPayload Payload)
@@ -106,7 +131,6 @@ void UMissionDeliveryComponent::ResetMissionViewModel()
 		MissionViewModel->SetProgressPercent(0.0f);
 		MissionViewModel->SetGoalValue(0);
 	}
-		
 }
 
 void UMissionDeliveryComponent::PlayMissionDialogue()
@@ -220,6 +244,9 @@ void UMissionDeliveryComponent::MarkMissionAsIncomplete()
 	{
 		UpdateMissionState(EMissionState::Incomplete);
 
+		//Resetting wipes the data so the UI will not display the mission information anymore.
+		//Need a design perspective on when to Reset/Wipe the Mission Panel info.
+		ResetMissionViewModel();
 		//TODO:: Reset View Model - Prep for new Mission at start of Next Wave. 
 	}
 }

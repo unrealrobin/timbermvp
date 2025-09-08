@@ -5,7 +5,10 @@
 
 #include "MVVMGameSubsystem.h"
 #include "MVVMViewModelBase.h"
+#include "SentryDataTypes.h"
+#include "Character/TimberPlayableCharacter.h"
 #include "Components/AudioComponent.h"
+#include "Components/Inventory/InventoryManagerComponent.h"
 #include "Data/DataAssets/MissionSystem/MissionBase.h"
 #include "Data/DataAssets/MissionSystem/MissionList.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
@@ -130,6 +133,9 @@ void UMissionDeliveryComponent::ResetMissionViewModel()
 		MissionViewModel->SetProgressAmount(0.0f);
 		MissionViewModel->SetProgressPercent(0.0f);
 		MissionViewModel->SetGoalValue(0);
+		MissionViewModel->SetRewardsParts(0);
+		MissionViewModel->SetRewardsMechanisms(0);
+		MissionViewModel->SetRewardsUniques(0);
 	}
 }
 
@@ -201,6 +207,35 @@ UMissionBase* UMissionDeliveryComponent::GetActiveMission()
 	return ActiveMission;
 }
 
+void UMissionDeliveryComponent::HandleRewards(TObjectPtr<UMissionBase>& ActiveMissionRef)
+{
+	if (IsValid(ActiveMissionRef))
+	{
+		switch (ActiveMissionRef->RewardType)
+		{
+			case ERewardType::Currency: 
+				HandleCurrencyRewards(ActiveMissionRef);
+			break;
+			
+			default:
+				UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - No Rewards Set."));
+			break;
+		}
+	}
+}
+
+void UMissionDeliveryComponent::HandleCurrencyRewards(TObjectPtr<UMissionBase>& ActiveMissionRef)
+{
+	TObjectPtr<ATimberPlayableCharacter> Player = Cast<ATimberPlayableCharacter>(GetOwner());
+	if (IsValid(Player) && IsValid(Player->InventoryManager))
+	{
+		Player->InventoryManager->AddPartsToInventory(ActiveMissionRef->CurrencyReward.PartsReward);
+		Player->InventoryManager->AddMechanismsToInventory(ActiveMissionRef->CurrencyReward.MechanismsReward);
+		Player->InventoryManager->AddUniquesToInventory(ActiveMissionRef->CurrencyReward.UniquesReward);
+	}
+	
+}
+
 void UMissionDeliveryComponent::InitializeActiveMission(UMissionBase* NewActiveMission)
 {
 	if (NewActiveMission && MissionViewModel)
@@ -214,6 +249,13 @@ void UMissionDeliveryComponent::InitializeActiveMission(UMissionBase* NewActiveM
 		MissionViewModel->SetProgressAmount(0.0f);
 		MissionViewModel->SetProgressPercent(0.0f);
 		MissionViewModel->SetGoalValue(NewActiveMission->NumericMissionGoal);
+
+		if (NewActiveMission->RewardType == ERewardType::Currency)
+		{
+			MissionViewModel->SetRewardsParts(NewActiveMission->CurrencyReward.PartsReward);
+			MissionViewModel->SetRewardsMechanisms(NewActiveMission->CurrencyReward.MechanismsReward);
+			MissionViewModel->SetRewardsUniques(NewActiveMission->CurrencyReward.UniquesReward); 
+		}
 
 		//TODO:: Adjust function in Dialogue Manager to Handle the Setting and Playing and Timing of this Call.
 		PlayMissionDialogue();
@@ -230,7 +272,9 @@ void UMissionDeliveryComponent::MarkMissionAsCompleted()
 	if (ActiveMission)
 	{
 		UpdateMissionState(EMissionState::Complete);
-		//TODO::Should Show Completed State Widget after change to completion. 
+		//TODO::Should Show Completed State Widget after change to completion.
+		
+		HandleRewards(ActiveMission);
 		
 		//Storing the Completed Mission for Saving.
 		CompletedMissionGuids.Add(ActiveMission->MissionID);

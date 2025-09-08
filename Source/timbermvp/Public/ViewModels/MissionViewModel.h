@@ -17,9 +17,7 @@ class TIMBERMVP_API UMissionViewModel : public UMVVMViewModelBase
 	GENERATED_BODY()
 
 public:
-
 	
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FGuid ActiveMissionGuid;
 
@@ -48,6 +46,15 @@ public:
 
 	bool GetbHasCount() const;
 	void SetbHasCount(bool NewbHasCount);
+
+	int GetRewardsParts() const;
+	void SetRewardsParts(int NewRewardsParts);
+	
+	int GetRewardsMechanisms() const;
+	void SetRewardsMechanisms(int NewRewardsMechanisms);
+
+	int GetRewardsUniques() const;
+	void SetRewardsUniques(int NewRewardsUniques);
 	
 protected:
 
@@ -68,6 +75,15 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
 	int GoalValue = 0;
+	
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
+	int RewardsParts;
+	
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
+	int RewardsMechanisms;
+
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
+	int RewardsUniques;
 	
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
 	FString MissionObjectiveString = "Mission Objective";

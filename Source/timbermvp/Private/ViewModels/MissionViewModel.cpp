@@ -122,3 +122,42 @@ void UMissionViewModel::SetbHasCount(bool NewbHasCount)
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(bHasCount);
 	}
 }
+
+int UMissionViewModel::GetRewardsParts() const
+{
+	return RewardsParts;
+}
+
+void UMissionViewModel::SetRewardsParts(int NewRewardsParts)
+{
+	if (UE_MVVM_SET_PROPERTY_VALUE(RewardsParts, NewRewardsParts))
+	{
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(RewardsParts);
+	}
+}
+
+int UMissionViewModel::GetRewardsMechanisms() const
+{
+	return RewardsMechanisms;
+}
+
+void UMissionViewModel::SetRewardsMechanisms(int NewRewardsMechanisms)
+{
+	if (UE_MVVM_SET_PROPERTY_VALUE(RewardsMechanisms, NewRewardsMechanisms))
+	{
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(RewardsParts);
+	}
+}
+
+int UMissionViewModel::GetRewardsUniques() const
+{
+	return RewardsUniques;
+}
+
+void UMissionViewModel::SetRewardsUniques(int NewRewardsUniques)
+{
+	if (UE_MVVM_SET_PROPERTY_VALUE(RewardsUniques, NewRewardsUniques))
+	{
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(RewardsUniques);
+	}
+}

@@ -54,7 +54,10 @@ protected:
 	TObjectPtr<UMissionViewModel> MissionViewModel = nullptr;
 	
 private:
-	/* Delegate Callbacks*/
+
+	UPROPERTY()
+	int CurrentWaveNumber = 0;
+	
 	UFUNCTION()
 	void HandleBuildEvent(FMissionEventPayload Payload);
 	UFUNCTION()
@@ -63,6 +66,7 @@ private:
 	void HandleWaveStart(int CompletedWaveNumber);
 	UFUNCTION()
 	void HandleWaveEnd(int CompletedWaveNumber);
+	
 	void ResetMissionViewModel();
 	void PlayMissionDialogue();
 	void UpdateMissionState(EMissionState NewMissionState);
@@ -76,10 +80,9 @@ private:
 	void FormCombatObjectivesFromTag(FGameplayTag EventTag);
 	void FormBuildObjectiveFromTag(FGameplayTag EventTag);
 	bool CheckMissionContext(FMissionEventPayload& Payload, TWeakObjectPtr<UMissionBase> ActiveMissionRef);
+	void HandleRewards(TObjectPtr<UMissionBase>& ActiveMissionRef);
+	void HandleCurrencyRewards(TObjectPtr<UMissionBase>& ActiveMissionRef);
 	UMissionBase* GetActiveMission();
-
-	UPROPERTY()
-	int CurrentWaveNumber = 0;
 
 	
 };

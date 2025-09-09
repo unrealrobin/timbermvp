@@ -13,6 +13,7 @@ enum class ERewardType: uint8
 {
 	Currency,
 	None,
+	Default,
 };
 
 USTRUCT(BlueprintType)
@@ -69,5 +70,5 @@ public:
 	FCurrencyStruct CurrencyReward;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Rewards")
-	ERewardType RewardType = ERewardType::None;
+	ERewardType RewardType = ERewardType::Default;
 };

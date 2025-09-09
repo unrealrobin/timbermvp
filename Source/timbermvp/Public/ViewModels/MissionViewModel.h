@@ -55,11 +55,17 @@ public:
 
 	int GetRewardsUniques() const;
 	void SetRewardsUniques(int NewRewardsUniques);
+
+	ERewardType GetActiveMissionRewardsType() const;
+	void SetActiveMissionRewardsType(ERewardType NewActiveMissionRewardsType);
 	
 protected:
 
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
 	EMissionState ActiveMissionState = EMissionState::Default;
+	
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
+	ERewardType ActiveMissionRewardsType = ERewardType::Default;
 	
 	UPROPERTY(BlueprintReadOnly, FieldNotify, Getter)
 	FString MissionTitle = "Test Mission Title";
@@ -100,5 +106,6 @@ protected:
 	
 	
 };
+
 
 

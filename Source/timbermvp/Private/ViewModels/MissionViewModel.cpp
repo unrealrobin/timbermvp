@@ -161,3 +161,16 @@ void UMissionViewModel::SetRewardsUniques(int NewRewardsUniques)
 		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(RewardsUniques);
 	}
 }
+
+ERewardType UMissionViewModel::GetActiveMissionRewardsType() const
+{
+	return ActiveMissionRewardsType;
+}
+
+void UMissionViewModel::SetActiveMissionRewardsType(ERewardType NewActiveMissionRewardsType)
+{
+	if (UE_MVVM_SET_PROPERTY_VALUE(ActiveMissionRewardsType, NewActiveMissionRewardsType))
+	{
+		UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(ActiveMissionRewardsType);
+	}
+}

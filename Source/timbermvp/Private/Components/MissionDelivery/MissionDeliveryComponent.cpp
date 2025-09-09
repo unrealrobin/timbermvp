@@ -43,7 +43,7 @@ void UMissionDeliveryComponent::BeginPlay()
 	BindToWaveSubsystem();
 
 	//Temporarily here. Should be called from the Wave Start Event.
-	SetActiveMission();
+	//SetActiveMission();
 	
 }
 
@@ -146,8 +146,10 @@ void UMissionDeliveryComponent::PlayMissionDialogue()
 		UDialogueManager* DialogueManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueManager>();
 		if (DialogueManager && DialogueManager->DialoguePlayer)
 		{
+			DialogueManager->DialoguePlayer->Stop();
 			DialogueManager->DialoguePlayer->SetSound(ActiveMission->MissionDialogue);
 			DialogueManager->DialoguePlayer->Play();
+			UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Playing Mission Dialogue."));
 		}
 		else
 		{
@@ -252,14 +254,15 @@ void UMissionDeliveryComponent::InitializeActiveMission(UMissionBase* NewActiveM
 
 		if (NewActiveMission->RewardType == ERewardType::Currency)
 		{
+			MissionViewModel->SetActiveMissionRewardsType(ERewardType::Currency);
 			MissionViewModel->SetRewardsParts(NewActiveMission->CurrencyReward.PartsReward);
 			MissionViewModel->SetRewardsMechanisms(NewActiveMission->CurrencyReward.MechanismsReward);
 			MissionViewModel->SetRewardsUniques(NewActiveMission->CurrencyReward.UniquesReward); 
 		}
 
 		//TODO:: Adjust function in Dialogue Manager to Handle the Setting and Playing and Timing of this Call.
-		PlayMissionDialogue();
 		UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Active Mission Initialized."));
+		PlayMissionDialogue();
 	}
 	else
 	{

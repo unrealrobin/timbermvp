@@ -73,7 +73,7 @@ FPathResult UNavigationHelperComponent::CalculatePathToTarget(FVector Start, FVe
 			Result.ClosestAccessiblePoint = ClosestPoint;
 			Result.FailureReason = EPathFailureReason::TargetUnreachable;
 
-			UE_LOG(LogTemp, Warning, TEXT("No direct path - moving to closest accessible point"));
+			//UE_LOG(LogTemp, Warning, TEXT("No direct path - moving to closest accessible point"));
 			return Result;
 		}
 	}

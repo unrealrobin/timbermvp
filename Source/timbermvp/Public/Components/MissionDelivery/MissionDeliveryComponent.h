@@ -59,9 +59,9 @@ private:
 	int CurrentWaveNumber = 0;
 	
 	UFUNCTION()
-	void HandleBuildEvent(FMissionEventPayload Payload);
+	void ProcessBuildEvent(FMissionEventPayload Payload);
 	UFUNCTION()
-	void HandleCombatEvent(FMissionEventPayload Payload);
+	void ProcessCombatEvent(FMissionEventPayload Payload);
 	UFUNCTION()
 	void HandleWaveStart(int CompletedWaveNumber);
 	UFUNCTION()

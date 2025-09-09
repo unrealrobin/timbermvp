@@ -936,7 +936,7 @@ void UBuildSystemManagerComponent::SendBuildEventPayload(TObjectPtr<AActor> Buil
 	GenerateBuildEventsContextTags(BuildEventContextTags, Buildable);
 	Payload.ContextTags = BuildEventContextTags;
 
-	BES->HandleBuildEvent(Payload);
+	BES->BroadcastBuildEvent(Payload);
 	
 }
 

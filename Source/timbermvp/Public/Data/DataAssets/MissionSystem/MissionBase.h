@@ -55,7 +55,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	FGameplayTagContainer RequiredContextTags;
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission Info")
 	bool MultipleObjectives = false;

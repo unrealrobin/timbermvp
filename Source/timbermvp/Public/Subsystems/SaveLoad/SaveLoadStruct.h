@@ -101,6 +101,9 @@ struct FPlayerData
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FInventoryData PlayerInventory;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TArray<FGuid> CompletedMissionList;
 
 	FPlayerData() :
 		PlayerLocation(FVector::ZeroVector), PlayerRotation(FRotator::ZeroRotator), PlayerInventory(FInventoryData())

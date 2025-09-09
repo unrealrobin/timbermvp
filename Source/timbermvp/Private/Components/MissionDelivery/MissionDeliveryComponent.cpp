@@ -47,7 +47,7 @@ void UMissionDeliveryComponent::BeginPlay()
 	
 }
 
-void UMissionDeliveryComponent::HandleBuildEvent(FMissionEventPayload Payload)
+void UMissionDeliveryComponent::ProcessBuildEvent(FMissionEventPayload Payload)
 {
 	UE_LOG(LogTemp, Warning, TEXT("MDC - Handling Build Event."));
 	if (ActiveMission && ActiveMissionState == EMissionState::InProgress && MissionViewModel)
@@ -75,7 +75,7 @@ void UMissionDeliveryComponent::HandleBuildEvent(FMissionEventPayload Payload)
 	}
 }
 
-void UMissionDeliveryComponent::HandleCombatEvent(FMissionEventPayload Payload)
+void UMissionDeliveryComponent::ProcessCombatEvent(FMissionEventPayload Payload)
 {
 	//Pushes all Damage Event Info to the View Model IF Active Mission Event Matches Payload Event.
 	UE_LOG(LogTemp, Warning, TEXT("MDC - Handling Combat Event."));
@@ -174,10 +174,10 @@ void UMissionDeliveryComponent::BindToMissionEventSystems()
 
 	if (!BES || !CES) return;
 	
-	BES->OnBuildEvent.AddDynamic(this, &UMissionDeliveryComponent::HandleBuildEvent);
+	BES->OnBuildEvent.AddDynamic(this, &UMissionDeliveryComponent::ProcessBuildEvent);
 	UE_LOG(LogTemp, Warning, TEXT("Bound to Build Event Subsystem."));
 	
-	CES->OnCombatEvent.AddDynamic(this, &UMissionDeliveryComponent::HandleCombatEvent);
+	CES->OnCombatEvent.AddDynamic(this, &UMissionDeliveryComponent::ProcessCombatEvent);
 	UE_LOG(LogTemp, Warning, TEXT("Bound to Combat Event Subsystem."));
 	
 }

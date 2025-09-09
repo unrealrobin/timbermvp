@@ -3,7 +3,7 @@
 
 #include "Subsystems/Events/BuildEventSubsystem.h"
 
-void UBuildEventSubsystem::HandleBuildEvent(FMissionEventPayload Payload)
+void UBuildEventSubsystem::BroadcastBuildEvent(FMissionEventPayload Payload)
 {
 	OnBuildEvent.Broadcast(Payload);
 

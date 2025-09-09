@@ -1,14 +1,30 @@
-﻿```mermaid
+﻿# Mission System Code Map
+
+| Class                                         | Role                                                           | Key Methods                                                                         | Jump                                                                                                                                                                       |
+|-----------------------------------------------|----------------------------------------------------------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `UMissionDeliveryComponent` (Actor Component) | Owns mission state and handles mission filtering/processing.   | `InitializeActiveMission`, `SetActiveMission`, `CheckMissionContext`, `HandleEvent` | [H](Source/timbermvp/Public/Components/MissionDelivery/MissionDeliveryComponent.h)·[CPP](Source/timbermvp/Private/Components/MissionDelivery/MissionDeliveryComponent.cpp) |
+| `UMissionViewModel` (View Model)              | Single Source of Truth for Mission Data. UI Facing.            |                                                                                     | [H](Source/timbermvp/Public/ViewModels/MissionViewModel.h)·[CPP](Source/timbermvp/Private/ViewModels/MissionViewModel.cpp)                                                                                                       |
+| `UCombatEventSubsystem` (Game Subsystem)      | Broadcasts Payload to MDC Actor Component                      | `BroadcastCombatEvent`                                                              | [H](Source/timbermvp/Public/Subsystems/Events/CombatEventSubsystem.h)·[CPP](Source/timbermvp/Private/Subsystems/Events/CombatEventSubsystem.cpp)                                                                                                    |
+| `UBuildEventSubsystem` (Game Subsystem)       | Broadcasts Payload to MDC Actor Component                      | `BroadcastBuildEvent`                                                               | [H](Source/timbermvp/Public/Subsystems/Events/BuildEventSubsystem.h)·[CPP](Source/timbermvp/Private/Subsystems/Events/BuildEventSubsystem.cpp)                                                                                                      |
+| `UMissionList` (Data Asset)                   | Stores a set of Missions. Lives in UMissiongDeliveryComponent. |                                                                                     | [H](Source/timbermvp/Public/Data/DataAssets/MissionSystem/MissionList.h)                                                                                                   |
+| `UMissionBase` (Data Asset)                   | Data + state for one mission                                   |                                                                                     | [H](Source/timbermvp/Public/Data/DataAssets/MissionSystem/MissionBase.h)                                                                                                   |
+
+
+```mermaid
 ---
 title: MVVMC Pattern
 ---
-flowchart TD
+flowchart LR
     A(Data Mission Actor Component   -----)
-    C[ModelView   ---]
-    D[View  --]
+    C[ModelView -]
+    D[UI]
+    E{{Event Subsystem A --}}
+    F{{Event Subsystem B --}}
     
-    A --> |Send Data  --| C
-    D --> |Binds Values  -- | C
+    E -.-> A
+    F -.-> A
+    A --> |Process & Update Values  ---| C
+    C <--> |Bound Values  -- | D
     
 ```
 
@@ -24,31 +40,56 @@ sequenceDiagram
     
     GameMode->>GameMode: Initialize Missions (Load DA)
     GameMode->>Mission-ActorComponent: Assign Current Mission
-    Mission-ActorComponent->>Mission-ActorComponent: Bind to CombatEventsSubsystem
-    Mission-ActorComponent->>Mission-ActorComponent: Bind to BuildEventsSubsystem
+    Mission-ActorComponent->>Mission-ActorComponent: Bind to Event Subsystems
     Mission-ActorComponent->>ViewModel: Structure Mission Data for Display
-    Mission-Display-UI->>ViewModel: Binds to ViewModel
     ViewModel->>Mission-Display-UI: Updates Display
+
+```
+```mermaid
+---
+title: Mission Delivery System - Damage Event Pipeline
+---
+sequenceDiagram
+    participant E as Event Dispatcher
+    participant A as Event Subsystem A
+    participant B as Mission-ActorComponent
+    participant C as ViewModel
+    participant D as Mission-Display-UI
+    
+    E->> E: Generate Payload.
+    E->> A: Fires event with Payload.
+    A->> A: Broadcasts event to listeners.
+    B->> B: Filter Payload via GameplayTags
+    B->> B: Process Payload & Mission State
+    B->> C: Updates ViewModel
+    C->> C: Structures Data for Display
+    C->> D: Updates Display Values
+    D->> D: Updates Display
 
 ```
 
 ```mermaid
 
 ---
-title: MDS - Combat Event Data Flow
+title: MDS - Save/Load Mission Completion State
 ---
-    sequenceDiagram
-    autonumber
-    participant E as Enemy
-    participant CES as CombatEventsSubsystem
-    participant M as MissionActorComponent
-    participant MVVM as MissionViewModel
+sequenceDiagram
+    
+participant A as GameMode
+participant B as SaveLoadSystem
+participant C as Mission-ActorComponent
 
-    E->>E: TakeDamage()
-    E->>CES: PublishDamageEvent()
-    CES->>M: BroadcastEvent(Payload)
-    M->>M: Filter (player? right EventTag? TagQuery match?)
-    M->>MVVM: Increment mission progress, update ViewModel
+A ->> B: Save Game
+B ->> B: Save Player State
+B ->> C: Get Completed Mission GUID's (TArray)
+C ->> B: Save Completed Mission GUID's (TArray)
+
+A ->> B: Load Game
+B ->> B: Load Player State
+B ->> C: Populate Mission GUID's (MDS Actor Component)
+B ->> B: Assign Uncompleted Mission
+
+    
 ```
 
 ## Required Classes
@@ -71,9 +112,9 @@ title: MDS - Combat Event Data Flow
   - Has a Specific GUID used for Player Saving/Progress.
         
 ### Mission List Data Asset
-    - List of MissionDataAssets
-    - Can be packaged for certain setups
-        - Ex. Tutorials, Standard, End Game, Endless
+- List of MissionDataAssets
+- Can be packaged for certain setups
+    - Ex. Tutorials, Standard, End Game, Endless
 
 ### MissionViewModel
   - Structured Data for Display/Mission UI
@@ -84,6 +125,7 @@ title: MDS - Combat Event Data Flow
   - Float Progress
   - This is bound directly to from the Widgets that need it in BP's
     - Ex. MissionDisplayUI
+    - 
 ### MissionDisplayUI
   - Displays Current Mission Goals and Progress
   - Display
@@ -96,6 +138,7 @@ title: MDS - Combat Event Data Flow
         - Weapon Type
     - Progress Bar
     - Rewards
+    
 ### MissionActorComponent
   - Handles Logic for Mission Progress.
   - Updates Mission View Model.
@@ -122,7 +165,6 @@ title: MDS - Combat Event Data Flow
 ### SaveLoadSystem
   - Saves Overall Mission Status
   - Tracks Missions Completed 
-
 
 ### Objective Display
 - Destroy [10] Carbonites

@@ -9,6 +9,7 @@
 #include "Character/TimberSeeda.h"
 #include "Components/Combat/CombatComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Components/MissionDelivery/MissionDeliveryComponent.h"
 #include "Components/Vignette/PlayerVignetteComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
@@ -283,6 +284,11 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 					SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts,
 					SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism,
 					SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques);*/
+			}
+			 /*Save Players Completed Missions*/
+			if (Character->MissionDeliveryComponent)
+			{
+				SaveGameInstance->PlayerData.CompletedMissionList = Character->MissionDeliveryComponent->CompletedMissionGuids;
 			}
 		}
 	}

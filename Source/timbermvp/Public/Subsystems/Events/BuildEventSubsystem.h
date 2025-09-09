@@ -19,5 +19,5 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildEvent, FMissionEventPayload, Payload);
 	FOnBuildEvent OnBuildEvent;
 
-	void HandleBuildEvent(FMissionEventPayload Payload);
+	void BroadcastBuildEvent(FMissionEventPayload Payload);
 };

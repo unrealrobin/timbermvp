@@ -1,26 +1,55 @@
-﻿### Robin Lifshitz
+﻿# Die Robot – Game Systems Portfolio
 
-# Mission System (Unreal Engine 5)
+**Die Robot** is a 3rd-person tower-defense/action game built solo in **Unreal Engine 5.4 (C++)**.  
+Players defend a lab from waves of robots by building traps, chaining trap combos, and fighting directly.
 
-A modular, data-driven quest framework built in **C++ with UE5.4**.  
-This page is the entry point for all Mission System documentation, code maps, and demo media.
-
----
-
-## 🚀 Quick Start
-- Download and open the [Die Robot Demo](https://github.com/RobinLifshitz/MissionSystemDemo).
-- Press **Play** → Mission UI updates in real time.
-- Watch objectives complete and persist across save/load.
+This portfolio highlights the **three core gameplay systems** I’m most proud of.
 
 ---
 
-## 📂 Documentation
+## 🎮 Game Overview
+- **Genre:** Tower Defense + Action Combat
+- **Engine:** Unreal Engine 5.4 (C++)
+- **Team Size:** Solo Developer
+- **Target Release:** Summer 2026
 
-- [Architecture Overview](./MissionDeliverySystem.md)
-  > Diagrams + explanations of MVVMC, initialization, event pipeline, save/load.
-- [Demo](./demo.md)
-  > Screenshots, animated GIFs, and a short video showing missions in action.
+![Gameplay Screenshot](./images/gameplay.png)
+
 ---
+
+## ⚙️ Featured Systems
+
+### [Mission System](./portfolio/missiondeliverysystem.md)
+A modular, data-driven quest framework.
+- Subsystem-based manager, fully persistent.
+- Actor components + GameplayTags for event filtering.
+- MVVM pattern with bound UI updates.
+
+---
+
+### [Player Ability System](./weapon-abilities.md)
+Flexible weapon component handling combat abilities.
+- Energy-driven alt-fires and knockback.
+- Encapsulated `UObject`-based abilities.
+- Scalable design for future ability types.
+
+---
+
+### [Build System](./build-system.md)
+Framework for placing, validating, and managing traps/structures.
+- Placement rules (collision, grid, NavMesh integration).
+- Modular trap components with upgrade paths.
+- **Includes Trap Synergy Effects** – emergent combos (fire + gas → explosion).
+
+---
+
+## 📌 About Me
+I’m a gameplay programmer passionate about **system design and combat mechanics**.  
+Looking for **gameplay engineering roles** in Unreal Engine projects.
+
+- [Resume (PDF)](./resume.pdf)
+- [LinkedIn](https://linkedin.com/in/yourprofile)
+- [GitHub Repo](https://github.com/you/yourrepo)
 
 ## 🎥 Highlight Demo
 [![Watch the Demo](./images/demo-thumbnail.png)](https://youtu.be/your-video-link)  
@@ -28,13 +57,3 @@ This page is the entry point for all Mission System documentation, code maps, an
 
 ---
 
-## 📌 Why This Matters
-- Demonstrates **system architecture** in Unreal (Subsystems + Components).
-- Shows **event-driven gameplay programming**.
-- Designed for **extensibility** (easy to add new mission/objective types).
-
----
-
-## 🔗 Links
-- [View Code on GitHub](https://github.com/robinnnnnn/timbermvp)
-- [Return to Main Project Repo](https://github.com/yourname/yourrepo)  

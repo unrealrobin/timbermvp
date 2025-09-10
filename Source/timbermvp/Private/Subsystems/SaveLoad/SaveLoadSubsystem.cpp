@@ -500,6 +500,11 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 				if (!IsValid(MeleeWeapon)) return;
 				MeleeWeapon->CurrentWeaponEnergy = MeleeWeapon->MaxWeaponEnergy;
 			}
+
+			if (IsValid(TimberCharacter->MissionDeliveryComponent))
+			{
+				TimberCharacter->MissionDeliveryComponent->CompletedMissionGuids = LoadGameInstance->PlayerData.CompletedMissionList;
+			}
 		}
 		else
 		{

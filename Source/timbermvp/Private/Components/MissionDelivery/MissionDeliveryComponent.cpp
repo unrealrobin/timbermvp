@@ -5,7 +5,6 @@
 
 #include "MVVMGameSubsystem.h"
 #include "MVVMViewModelBase.h"
-#include "SentryDataTypes.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/AudioComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
@@ -59,17 +58,12 @@ void UMissionDeliveryComponent::ProcessBuildEvent(FMissionEventPayload Payload)
 			int ObjectiveGoal = MissionViewModel->GetGoalValue();
 			MissionViewModel->SetProgressAmount(UpdatedCount);
 			MissionViewModel->SetProgressPercent(static_cast<float>(UpdatedCount) / static_cast<float>(ObjectiveGoal));
+			
 
-			//TODO:: Need a Way to update completion of mission.
-			// Some goal state that is usable for combat missions.
-
-			if (Payload.Count >= ObjectiveGoal)
+			//Handling Completion
+			if (MissionViewModel->GetProgressAmount() >= ObjectiveGoal)
 			{
-				int ProgressAmount = MissionViewModel->GetProgressAmount();
-				if (ProgressAmount >= ObjectiveGoal)
-				{
-					MarkMissionAsCompleted();
-				}
+				MarkMissionAsCompleted();
 			}
 		}
 	}
@@ -91,15 +85,12 @@ void UMissionDeliveryComponent::ProcessCombatEvent(FMissionEventPayload Payload)
 
 			//TODO:: Need a Way to update completion of mission.
 			// Some goal state that is usable for combat missions.
-
-			if (Payload.Count >= ObjectiveGoal)
+			
+			if (MissionViewModel->GetProgressAmount() >= ObjectiveGoal)
 			{
-				int ProgressAmount = MissionViewModel->GetProgressAmount();
-				if (ProgressAmount >= ObjectiveGoal)
-				{
-					MarkMissionAsCompleted();
-				}
+				MarkMissionAsCompleted();
 			}
+			
 		}
 	}
 }
@@ -217,6 +208,7 @@ void UMissionDeliveryComponent::HandleRewards(TObjectPtr<UMissionBase>& ActiveMi
 		{
 			case ERewardType::Currency: 
 				HandleCurrencyRewards(ActiveMissionRef);
+			UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Rewards added to inventory."))
 			break;
 			
 			default:
@@ -275,12 +267,13 @@ void UMissionDeliveryComponent::MarkMissionAsCompleted()
 	if (ActiveMission)
 	{
 		UpdateMissionState(EMissionState::Complete);
-		//TODO::Should Show Completed State Widget after change to completion.
 		
 		HandleRewards(ActiveMission);
 		
 		//Storing the Completed Mission for Saving.
 		CompletedMissionGuids.Add(ActiveMission->MissionID);
+
+		UE_LOG(LogTemp, Warning, TEXT("Mission set to Complete."));
 	}
 }
 

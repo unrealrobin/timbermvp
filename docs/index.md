@@ -19,7 +19,7 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 
 ## ⚙️ Featured Systems
 
-### [Mission System](./portfolio/missiondeliverysystem.md)
+### [Mission System](./portfolio/MissionDeliverySystem.md)
 A modular, data-driven quest framework.
 - Subsystem-based manager, fully persistent.
 - Actor components + GameplayTags for event filtering.
@@ -27,7 +27,7 @@ A modular, data-driven quest framework.
 
 ---
 
-### [Player Ability System](./weapon-abilities.md)
+### [Player Ability System](./portfolio/PlayerCombatSystem.md)
 Flexible weapon component handling combat abilities.
 - Energy-driven alt-fires and knockback.
 - Encapsulated `UObject`-based abilities.
@@ -35,7 +35,7 @@ Flexible weapon component handling combat abilities.
 
 ---
 
-### [Build System](./build-system.md)
+### [Build System](./portfolio/BuildSystem.md)
 Framework for placing, validating, and managing traps/structures.
 - Placement rules (collision, grid, NavMesh integration).
 - Modular trap components with upgrade paths.

@@ -183,6 +183,7 @@ private:
 	void BroadcastControllerUpdateNewBuildable(AActor* Buildable);
 
 	void SendBuildEventPayload(TObjectPtr<AActor> Buildable);
+	
 	void GenerateBuildEventsContextTags(FGameplayTagContainer& TagContainer, const TObjectPtr<AActor>& Buildable);
 
 	/*Tutorial*/

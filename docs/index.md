@@ -1,7 +1,7 @@
 ﻿# Die Robot – Game Systems Portfolio
 
-**Die Robot** is a 3rd-person tower-defense/action game built solo in **Unreal Engine 5.4 (C++)**.  
-Players defend a lab from waves of robots by building traps, chaining trap combos, and fighting directly.
+**Die Robot** is a 3rd-person tower-defense/action game I built solo in **Unreal Engine 5.4 (C++)**.  
+Players defend a lab from waves of robots by building traps, chaining trap combos, and fighting directly with weapons and weapon abilities..
 
 This portfolio highlights the **three core gameplay systems** I’m most proud of.
 
@@ -11,7 +11,6 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 - **Genre:** Tower Defense + Action Combat
 - **Engine:** Unreal Engine 5.4 (C++)
 - **Team Size:** Solo Developer
-- **Target Release:** Summer 2026
 
 ![Gameplay Screenshot](./images/gameplay.png)
 
@@ -19,15 +18,15 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 
 ## ⚙️ Featured Systems
 
-### [Mission System](./portfolio/MissionDeliverySystem.md)
+### [Mission System](./Portfolio/MissionDeliverySystem.md)
 A modular, data-driven quest framework.
-- Subsystem-based manager, fully persistent.
-- Actor components + GameplayTags for event filtering.
-- MVVM pattern with bound UI updates.
+- Actor Component based manager, fully persistent.
+- GameplayTags for event filtering & easy mission creation.
+- MVVM-C pattern with bound UI updates.
 
 ---
 
-### [Player Ability System](./portfolio/PlayerCombatSystem.md)
+### [Player Ability System](./Portfolio/PlayerCombatSystem.md)
 Flexible weapon component handling combat abilities.
 - Energy-driven alt-fires and knockback.
 - Encapsulated `UObject`-based abilities.
@@ -35,11 +34,11 @@ Flexible weapon component handling combat abilities.
 
 ---
 
-### [Build System](./portfolio/BuildSystem.md)
-Framework for placing, validating, and managing traps/structures.
+### [Build System](./Portfolio/BuildSystem.md)
+Logic for placing, validating, and managing traps/structures.
 - Placement rules (collision, grid, NavMesh integration).
-- Modular trap components with upgrade paths.
-- **Includes Trap Synergy Effects** – emergent combos (fire + gas → explosion).
+- Dynamic Traps with Synergistic Effects - emergent combos (fire + gas → explosion).
+- Save & Load via GUID's and persistant parent-child relationships (Walls & Traps).
 
 ---
 
@@ -48,8 +47,8 @@ I’m a gameplay programmer passionate about **system design and combat mechanic
 Looking for **gameplay engineering roles** in Unreal Engine projects.
 
 - [Resume (PDF)](./resume.pdf)
-- [LinkedIn](https://linkedin.com/in/yourprofile)
-- [GitHub Repo](https://github.com/you/yourrepo)
+- [LinkedIn](https://linkedin.com/in/robinlifshitz)
+- [GitHub Repo](https://github.com/robinnnnnn/timbermvp)
 
 ## 🎥 Highlight Demo
 [![Watch the Demo](./images/demo-thumbnail.png)](https://youtu.be/your-video-link)  

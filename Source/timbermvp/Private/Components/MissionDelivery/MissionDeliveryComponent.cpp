@@ -15,11 +15,22 @@
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "ViewModels/MissionViewModel.h"
 
-
-
 UMissionDeliveryComponent::UMissionDeliveryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UMissionDeliveryComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	BindToMissionEventSystems();
+	GetMissionViewModel();
+	BindToWaveSubsystem();
+
+	//Temporarily here. Should be called from the Wave Start Event.
+	//SetActiveMission();
+	
 }
 
 void UMissionDeliveryComponent::BindToWaveSubsystem()
@@ -40,42 +51,6 @@ FString UMissionDeliveryComponent::GetMissionTitle()
 	}
 	
 	return "NO ACTIVE MISSION SET.";
-}
-
-void UMissionDeliveryComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	
-	BindToMissionEventSystems();
-	GetMissionViewModel();
-	BindToWaveSubsystem();
-
-	//Temporarily here. Should be called from the Wave Start Event.
-	//SetActiveMission();
-	
-}
-
-void UMissionDeliveryComponent::ProcessBuildEvent(FMissionEventPayload Payload)
-{
-	UE_LOG(LogTemp, Warning, TEXT("MDC - Handling Build Event."));
-	if (ActiveMission && ActiveMissionState == EMissionState::InProgress && MissionViewModel)
-	{
-		if (CheckMissionContext(Payload, ActiveMission))
-		{
-			int CurrentCount = MissionViewModel->GetProgressAmount();
-			int UpdatedCount = CurrentCount + Payload.Count;
-			int ObjectiveGoal = MissionViewModel->GetGoalValue();
-			MissionViewModel->SetProgressAmount(UpdatedCount);
-			MissionViewModel->SetProgressPercent(static_cast<float>(UpdatedCount) / static_cast<float>(ObjectiveGoal));
-			
-
-			//Handling Completion
-			if (MissionViewModel->GetProgressAmount() >= ObjectiveGoal)
-			{
-				MarkMissionAsCompleted();
-			}
-		}
-	}
 }
 
 void UMissionDeliveryComponent::ProcessMissionEvent(FMissionEventPayload Payload)
@@ -203,12 +178,7 @@ void UMissionDeliveryComponent::SetActiveMission()
 	}
 }
 
-UMissionBase* UMissionDeliveryComponent::GetActiveMission()
-{
-	return ActiveMission;
-}
-
-void UMissionDeliveryComponent::HandleRewards(TObjectPtr<UMissionBase>& ActiveMissionRef)
+void UMissionDeliveryComponent::ProcessRewards(TObjectPtr<UMissionBase>& ActiveMissionRef)
 {
 	if (IsValid(ActiveMissionRef))
 	{
@@ -276,7 +246,7 @@ void UMissionDeliveryComponent::MarkMissionAsCompleted()
 	{
 		UpdateMissionState(EMissionState::Complete);
 		
-		HandleRewards(ActiveMission);
+		ProcessRewards(ActiveMission);
 		
 		//Storing the Completed Mission for Saving.
 		CompletedMissionGuids.Add(ActiveMission->MissionID);
@@ -321,20 +291,11 @@ void UMissionDeliveryComponent::CreateObjectivesFromMission()
 void UMissionDeliveryComponent::FormCombatObjectivesFromTag(FGameplayTag EventTag)
 {
 	//TODO:: Populate View Model with Specific Objectives for Combat Objectives
-	//Used During Initialize Active Mission.
-	if (MissionViewModel && ActiveMission)
-	{
-		
-	}
 }
 
 void UMissionDeliveryComponent::FormBuildObjectiveFromTag(FGameplayTag EventTag)
 {
 	//TODO:: Populate View Model with Specific Objectives for Build Objectives
-	if (MissionViewModel && ActiveMission)
-	{
-		
-	}
 }
 
 bool UMissionDeliveryComponent::CheckMissionContext(FMissionEventPayload& Payload,

@@ -63,27 +63,29 @@ private:
 	UFUNCTION()
 	void ProcessBuildEvent(FMissionEventPayload Payload);
 	UFUNCTION()
-	void ProcessCombatEvent(FMissionEventPayload Payload);
+	void ProcessMissionEvent(FMissionEventPayload Payload);
 	UFUNCTION()
 	void HandleWaveStart(int CompletedWaveNumber);
 	UFUNCTION()
 	void HandleWaveEnd(int CompletedWaveNumber);
 	
+	void BindToMissionEventSystems();
+	void SetActiveMission();
+	void InitializeActiveMission(UMissionBase* NewActiveMission);
 	void ResetMissionViewModel();
 	void PlayMissionDialogue();
 	void UpdateMissionState(EMissionState NewMissionState);
-	void BindToMissionEventSystems();
-	void SetActiveMission();
 	void GetMissionViewModel();
-	void InitializeActiveMission(UMissionBase* NewActiveMission);
 	void MarkMissionAsCompleted();
 	void MarkMissionAsIncomplete();
 	void CreateObjectivesFromMission();
 	void FormCombatObjectivesFromTag(FGameplayTag EventTag);
 	void FormBuildObjectiveFromTag(FGameplayTag EventTag);
-	bool CheckMissionContext(FMissionEventPayload& Payload, TWeakObjectPtr<UMissionBase> ActiveMissionRef);
 	void HandleRewards(TObjectPtr<UMissionBase>& ActiveMissionRef);
 	void RewardPlayerCurrency(TObjectPtr<UMissionBase>& ActiveMissionRef);
+	
+	bool CheckMissionContext(FMissionEventPayload& Payload, TWeakObjectPtr<UMissionBase> ActiveMissionRef);
+	
 	UMissionBase* GetActiveMission();
 
 	

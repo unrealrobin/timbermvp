@@ -11,8 +11,7 @@
 #include "Data/DataAssets/MissionSystem/MissionBase.h"
 #include "Data/DataAssets/MissionSystem/MissionList.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
-#include "Subsystems/Events/BuildEventSubsystem.h"
-#include "Subsystems/Events/CombatEventSubsystem.h"
+#include "Subsystems/Events/MissionEventSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "ViewModels/MissionViewModel.h"
 
@@ -41,7 +40,6 @@ FString UMissionDeliveryComponent::GetMissionTitle()
 	}
 	
 	return "NO ACTIVE MISSION SET.";
-	
 }
 
 void UMissionDeliveryComponent::BeginPlay()
@@ -80,10 +78,10 @@ void UMissionDeliveryComponent::ProcessBuildEvent(FMissionEventPayload Payload)
 	}
 }
 
-void UMissionDeliveryComponent::ProcessCombatEvent(FMissionEventPayload Payload)
+void UMissionDeliveryComponent::ProcessMissionEvent(FMissionEventPayload Payload)
 {
 	//Pushes all Damage Event Info to the View Model IF Active Mission Event Matches Payload Event.
-	UE_LOG(LogTemp, Warning, TEXT("MDC - Handling Combat Event."));
+	UE_LOG(LogTemp, Warning, TEXT("MDC - Handling Mission Event."));
 	
 	if (ActiveMission && ActiveMissionState == EMissionState::InProgress && MissionViewModel)
 	{
@@ -101,7 +99,6 @@ void UMissionDeliveryComponent::ProcessCombatEvent(FMissionEventPayload Payload)
 			{
 				MarkMissionAsCompleted();
 			}
-			
 		}
 	}
 }
@@ -171,15 +168,15 @@ void UMissionDeliveryComponent::UpdateMissionState(EMissionState NewMissionState
 
 void UMissionDeliveryComponent::BindToMissionEventSystems()
 {
-	UCombatEventSubsystem* CES = GetWorld()->GetGameInstance()->GetSubsystem<UCombatEventSubsystem>();
-	UBuildEventSubsystem* BES = GetWorld()->GetGameInstance()->GetSubsystem<UBuildEventSubsystem>();
+	//UCombatEventSubsystem* CES = GetWorld()->GetGameInstance()->GetSubsystem<UCombatEventSubsystem>();
+	UMissionEventSubsystem* MES = GetWorld()->GetGameInstance()->GetSubsystem<UMissionEventSubsystem>();
 
-	if (!BES || !CES) return;
+	if (!MES) return;
 	
-	BES->OnBuildEvent.AddDynamic(this, &UMissionDeliveryComponent::ProcessBuildEvent);
-	UE_LOG(LogTemp, Warning, TEXT("Bound to Build Event Subsystem."));
+	/*MES->OnMissionEvent.AddDynamic(this, &UMissionDeliveryComponent::ProcessBuildEvent);
+	UE_LOG(LogTemp, Warning, TEXT("Bound to Build Event Subsystem."));*/
 	
-	CES->OnCombatEvent.AddDynamic(this, &UMissionDeliveryComponent::ProcessCombatEvent);
+	MES->OnMissionEvent.AddDynamic(this, &UMissionDeliveryComponent::ProcessMissionEvent);
 	UE_LOG(LogTemp, Warning, TEXT("Bound to Combat Event Subsystem."));
 	
 }

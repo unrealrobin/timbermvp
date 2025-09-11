@@ -20,7 +20,7 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Loot/EnemyLootDropBase.h"
-#include "Subsystems/Events/CombatEventSubsystem.h"
+#include "Subsystems/Events/MissionEventSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Types/Combat/DamagePayload.h"
 #include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
@@ -364,12 +364,10 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 		}
 
 		//Broadcast to the Mission System 
-		UCombatEventSubsystem* CombatEventSubsystem = GetGameInstance()->GetSubsystem<UCombatEventSubsystem>();
+		UMissionEventSubsystem* CombatEventSubsystem = GetGameInstance()->GetSubsystem<UMissionEventSubsystem>();
 		const FMissionEventPayload Payload = GenerateDestroyEventPayload(DamagePayload);
-		CombatEventSubsystem->BroadcastCombatEvent(Payload);
-
+		CombatEventSubsystem->BroadcastMissionEvent(Payload);
 		
-		//Drops Any Loot set on the Characters Loot Drop
 		OnDeath_DropLoot();
 
 		return;
@@ -383,9 +381,9 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 	}
 	
 	//Damage Event
-	UCombatEventSubsystem* CombatEventSubsystem = GetGameInstance()->GetSubsystem<UCombatEventSubsystem>();
+	UMissionEventSubsystem* CombatEventSubsystem = GetGameInstance()->GetSubsystem<UMissionEventSubsystem>();
 	const FMissionEventPayload Payload = GenerateDamageEventPayload(DamagePayload);
-	CombatEventSubsystem->BroadcastCombatEvent(Payload);
+	CombatEventSubsystem->BroadcastMissionEvent(Payload);
 }
 
 bool ATimberEnemyCharacter::HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float fDamageAccumulatedDuringWindow)

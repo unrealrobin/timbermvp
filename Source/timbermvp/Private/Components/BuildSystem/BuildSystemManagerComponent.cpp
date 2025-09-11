@@ -17,7 +17,7 @@
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "States/DieRobotGameStateBase.h"
-#include "Subsystems/Events/BuildEventSubsystem.h"
+#include "Subsystems/Events/MissionEventSubsystem.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
 #include "Types/MissionEventPayloads/MissionEventPayload.h"
 
@@ -924,8 +924,8 @@ void UBuildSystemManagerComponent::HandleIsTeleporter(ATeleportConstruct* Telepo
 void UBuildSystemManagerComponent::SendBuildEventPayload(TObjectPtr<AActor> Buildable)
 {
 	//Gets called on all successful Build Type Placements
-	UBuildEventSubsystem* BES = GetWorld()->GetGameInstance()->GetSubsystem<UBuildEventSubsystem>();
-	if (!BES) return;
+	UMissionEventSubsystem* MES = GetWorld()->GetGameInstance()->GetSubsystem<UMissionEventSubsystem>();
+	if (!MES) return;
 	
 	FMissionEventPayload Payload;
 	Payload.InstigatingActor = GetOwner();
@@ -936,7 +936,7 @@ void UBuildSystemManagerComponent::SendBuildEventPayload(TObjectPtr<AActor> Buil
 	GenerateBuildEventsContextTags(BuildEventContextTags, Buildable);
 	Payload.ContextTags = BuildEventContextTags;
 
-	BES->BroadcastBuildEvent(Payload);
+	MES->BroadcastMissionEvent(Payload);
 	
 }
 

@@ -17,7 +17,7 @@ For instance, you can have multiple UI views that show data in a different form 
 Having a single subsystem that only broadcasts events with a Payload to the Mission Actor Component is Simple and easy to use.
 
 ## In Game Screenshot
-![Mission System Screenshot](./Images/MissionDisplayWithRewards.png)
+![Mission System Screenshot](Images/MissionDisplayWithRewards.png)
 
 ## Code Map
 | Class                                         | Role                                                           | Key Methods                                                                         | Jump                                                                                                                                                                       |
@@ -38,18 +38,18 @@ Having a single subsystem that only broadcasts events with a Payload to the Miss
 
 # Mission System Architecture
 ### Pattern Overview
-![Pattern Overview](./Images/Pattern.png)
+![Pattern Overview](Images/Pattern.png)
 
 
 ### Mission Delivery System Initialization
-![Initialization](./Images/Initialization.png)
+![Initialization](Images/Initialization.png)
 
 
 ### Example Damage Event Pipeline
-![Damage Event Pipeline](./Images/DamageEventPipeline.png)
+![Damage Event Pipeline](Images/DamageEventPipeline.png)
 
 ### Save/Load Mission State
-![Save and Load](./Images/SaveLoad.png)
+![Save and Load](Images/SaveLoad.png)
 
 
 ## 🔗 Links

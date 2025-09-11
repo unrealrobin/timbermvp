@@ -12,7 +12,7 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 - **Engine:** Unreal Engine 5.4 (C++)
 - **Team Size:** Solo Developer
 
-![Gameplay Screenshot](./images/gameplay.png)
+![Gameplay Screenshot](./Portolfio/Images/MissionDisplayWithRewards.png)
 
 ---
 

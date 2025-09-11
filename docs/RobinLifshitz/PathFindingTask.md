@@ -1,0 +1,13 @@
+```mermaid
+flowchart TD
+    A[MoveToNextWaypoint] --> B[InProgress]
+    B --> C{OnMoveFinished}
+    C -->|Success| D[HandleSuccessfulMove]
+    C -->|Blocked| E[HandleBlockedPath]
+    C -->|Aborted| F[FinishLatentTask::Failed]
+    E --> G[RecalculatePathFromCurrentPos]
+    G --> H[Path Valid] 
+    G --> I[PathInvalid]
+    H --> A
+    I --> F
+```

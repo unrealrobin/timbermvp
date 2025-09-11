@@ -35,7 +35,8 @@
 # Exclude certain files from LFS tracking
 #*.txt -text -filter -merge -diff
 
-
+#Ignore Docs Folder
+docs/** -filter -diff -merge -text
 
 #Notes:
 #Asset Files: Unreal Engine asset files (.uasset, .umap) are typically large and are best managed with Git LFS.
@@ -58,3 +59,4 @@
 #Git LFS Initialization: Ensure that Git LFS is initialized in your repository (git lfs install) before you start adding files.
 
 #This .gitattributes file should provide a good starting point for most basic Unreal Engine 5 game projects, ensuring that large files are efficiently managed and version-controlled with Git LFS.
+docs/** -filter -diff -merge -text

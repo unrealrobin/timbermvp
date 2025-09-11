@@ -104,6 +104,7 @@ void UChargedSwing::HandleCollisionSphereBeginOverlap(UPrimitiveComponent* Overl
 
 		FDamagePayload Payload;
 		Payload.DamageAmount = PerEnemyHitDamage;
+		Payload.DamageInstigator = AbilityContext.Instigator;
 		EnemyCharacter->TakeDamage(Payload);
 	}
 }

@@ -29,6 +29,8 @@ class TIMBERMVP_API ATimberPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	void PrepareInputSettings();
+	void InitializeCharacterAndCamera();
 	virtual void BeginPlay() override;
 
 	/*Delegates*/
@@ -256,7 +258,8 @@ private:
 	UFUNCTION()
 	void HandleTutorialStateChanges(ETutorialState NewState);
 
-	
+
+	void MissionViewModelInstantiation();
 };
 
 

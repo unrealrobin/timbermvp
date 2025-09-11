@@ -9,6 +9,7 @@
 #include "Interfaces/DamageableEnemy.h"
 #include "TimberEnemyCharacter.generated.h"
 
+struct FMissionEventPayload;
 class AFloatingDataContainer;
 class UMetaSoundSource;
 class UNavigationHelperComponent;
@@ -179,4 +180,8 @@ private:
 	void HandleRemoveStatusEffectComponent();
 	void SetupCharacterMovementDelegates();
 	void SetupDataClusterComponent();
+	
+	FMissionEventPayload GenerateDamageEventPayload(FDamagePayload DamagePayload);
+	FMissionEventPayload GenerateDestroyEventPayload(FDamagePayload DamagePayload);
+	void PopulateCombatEventContextTags(FGameplayTagContainer& ContextTagsContainer, const FDamagePayload& DamagePayload) const;
 };

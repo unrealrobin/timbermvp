@@ -9,9 +9,10 @@
 #include "Weapons/TimberWeaponBase.h"
 #include "TimberPlayableCharacter.generated.h"
 
+enum class ETutorialState : uint8;
+class UMissionDeliveryComponent;
 class UPlayerVignetteComponent;
 class UCombatComponent;
-enum class ETutorialState : uint8;
 class ABuildableBase;
 class UInventoryObject;
 class ATimberPlayerController;
@@ -76,6 +77,8 @@ public:
 	UCombatComponent* CombatComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Vignette Component")
 	UPlayerVignetteComponent* VignetteComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Missions Component")
+	UMissionDeliveryComponent* MissionDeliveryComponent;
 	
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
@@ -88,15 +91,13 @@ public:
 	UAnimMontage* TutorialWakeMontage;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
 	UAnimMontage* TurnInPlaceMontage;
-	
 	UFUNCTION()
 	void StopAllAnimMontages();
 	UFUNCTION()
 	void PlayWakeAnimationMontage();
-
 	void PlayAnimationMontageAtSection(UAnimMontage* MontageToPlay, FName SectionName);
-	/*Smooth Character Rotation*/
 
+	/*Smooth Character Rotation*/
 	//Checks if the player is undergoing a Timed Rotation
 	bool IsRotating = false;
 	//Time Elapsed in-between timer calls.

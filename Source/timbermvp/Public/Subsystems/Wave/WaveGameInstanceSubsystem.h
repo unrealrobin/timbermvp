@@ -46,7 +46,9 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTimeToNextWaveSecondsHandle, int, TimeToNextWaveSeconds);
 	FTimeToNextWaveSecondsHandle TimeToNextWaveSecondsHandle;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandleWaveComplete, int, CompletedWaveNumber);
-	FHandleWaveComplete HandleWaveComplete;
+	FHandleWaveComplete OnWaveComplete;
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHandleWaveStart, int, CompletedWaveNumber);
+	FHandleWaveComplete OnWaveStart;
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, AActor*, BossActor);
 	FOnBossSpawned OnBossSpawned;
 

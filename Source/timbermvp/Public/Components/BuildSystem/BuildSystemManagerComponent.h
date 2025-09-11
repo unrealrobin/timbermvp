@@ -81,6 +81,7 @@ protected:
 	/*Static Mesh Utilities*/
 	UPROPERTY(VisibleAnywhere, Category="Building Component")
 	TArray<UStaticMeshComponent*> StaticMeshs;
+	
 	UFUNCTION()
 	void MakeMaterialHoloColor(AActor* BuildingComponentActor, UMaterial* HoloMaterialColor);
 	void GetStaticMeshComponents(AActor* BuildingComponentActor);
@@ -108,8 +109,7 @@ public:
 	void SpawnFinalRampBuildable(FActorSpawnParameters SpawnParameters);
 	void SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActorSpawnParameters SpawnParameters);
 	void HandleIsTeleporter(ATeleportConstruct* TeleportConstruct);
-
-
+	
 	//New Build Placement Functions
 	UFUNCTION()
 	void HandleProxyPlacement(TArray<FHitResult> HitResults, TSubclassOf<ABuildableBase> BuildableProxyClass);
@@ -173,7 +173,7 @@ public:
 	TPair<ATeleportConstruct*, ATeleportConstruct*> TeleportTempPair;
 private:
 	/*Buildable Placement Functions*/
-	//Used for Traps and Constructs
+
 	FBuildablePlacementData GetTrapSnapTransform(
 		FVector ImpactPoint, ATimberBuildingComponentBase*
 		BuildingComponent, ATrapBase* TrapComponentProxy);
@@ -181,6 +181,10 @@ private:
 	USceneComponent* GetClosestFaceSnapPoint(FHitResult HitResult);
 
 	void BroadcastControllerUpdateNewBuildable(AActor* Buildable);
+
+	void SendBuildEventPayload(TObjectPtr<AActor> Buildable);
+	
+	void GenerateBuildEventsContextTags(FGameplayTagContainer& TagContainer, const TObjectPtr<AActor>& Buildable);
 
 	/*Tutorial*/
 	UPROPERTY()

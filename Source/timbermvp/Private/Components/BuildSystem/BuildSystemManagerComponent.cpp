@@ -17,7 +17,9 @@
 #include "Controller/TimberPlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "States/DieRobotGameStateBase.h"
+#include "Subsystems/Events/MissionEventSubsystem.h"
 #include "Subsystems/SFX/SFXManagerSubsystem.h"
+#include "Types/MissionEventPayloads/MissionEventPayload.h"
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
@@ -31,7 +33,6 @@ void UBuildSystemManagerComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-/*Component to Component Snapping*/
 void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult HitResult)
 {
 	if (ATimberBuildingComponentBase* BuildingComponentProxy = Cast<ATimberBuildingComponentBase>(BuildableProxyInstance))
@@ -638,8 +639,14 @@ void UBuildSystemManagerComponent::SpawnFinalRampBuildable(FActorSpawnParameters
 			PlayBuildablePlacementSound();
 			//Adding Ramp to Hovered Building Components Attachment Array, on Deletion or Destruction, Ramp will also be deleted.
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
-			
-			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+
+			//Build Event Subsystem 
+			SendBuildEventPayload(SpawnedActor);
+
+			if (TObjectPtr<ATimberPlayableCharacter> Player = Cast<ATimberPlayableCharacter>(GetOwner()))
+			{
+				Player->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+			}
 		}
 	}
 	else
@@ -705,7 +712,14 @@ void UBuildSystemManagerComponent::SpawnFinalCenterSnapBuildable(FActorSpawnPara
 			PlayBuildablePlacementSound();
 			BroadcastControllerUpdateNewBuildable(SpawnedActor);
 			AddToBuildableAttachments(Cast<ABuildableBase>(FinalizedCenterSnapBuildable));
-			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(FinalizedCenterSnapBuildable->BuildableCost);
+			
+			//Build Event Subsystem 
+			SendBuildEventPayload(SpawnedActor);
+
+			if (TObjectPtr<ATimberPlayableCharacter> Player = Cast<ATimberPlayableCharacter>(GetOwner()))
+			{
+				Player->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+			}
 		}
 		ResetBuildableComponents();
 	}
@@ -736,7 +750,14 @@ void UBuildSystemManagerComponent::SpawnFinalBuildingComponent(FActorSpawnParame
 			SpawnedActor->SetActorEnableCollision(true);
 			BroadcastControllerUpdateNewBuildable(SpawnedActor);
 			PlayBuildablePlacementSound();
-			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+
+			//Build Event Subsystem 
+			SendBuildEventPayload(SpawnedActor);
+
+			if (TObjectPtr<ATimberPlayableCharacter> Player = Cast<ATimberPlayableCharacter>(GetOwner()))
+			{
+				Player->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+			}
 		}
 	}
 	else if (!ActiveBuildingComponentProxy->bCanBuildableBeFinalized)
@@ -786,6 +807,9 @@ void UBuildSystemManagerComponent::SpawnFinalFloorEdgeSnapTopOnlyBuildable(FActo
 			{
 				HandleIsTeleporter(TeleportConstruct);
 			}
+			
+			SendBuildEventPayload(SpawnedActor);
+			
 		}
 	}
 	else
@@ -800,8 +824,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FAc
 	 * Classes Using this Snap:
 	 * PowerPlate
 	 */
-	if (BuildableProxyInstance && 
-	BuildableProxyInstance->bCanBuildableBeFinalized)
+	if (BuildableProxyInstance && BuildableProxyInstance->bCanBuildableBeFinalized)
 	{
 		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>
 		(
@@ -817,7 +840,7 @@ void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FAc
 			 * Lets the player know that another Buildable can not be placed in this slot.
 			 */
 			ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-			if (PlayerCharacter && PlayerCharacter->HoveredBuildingComponent)
+			if (PlayerCharacter && IsValid(PlayerCharacter->HoveredBuildingComponent))
 			{
 				if (ATimberBuildingComponentBase* BuildingComponent = Cast<ATimberBuildingComponentBase>(PlayerCharacter->HoveredBuildingComponent))
 				{
@@ -835,7 +858,11 @@ void UBuildSystemManagerComponent::SpawnFinalFloorCenterSnapTopOnlyBuildable(FAc
 			BroadcastControllerUpdateNewBuildable(SpawnedActor);
 			AddToBuildableAttachments(Cast<ABuildableBase>(SpawnedActor));
 			PlayBuildablePlacementSound();
-			Cast<ATimberPlayableCharacter>(GetOwner())->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+			SendBuildEventPayload(SpawnedActor);
+			if (TObjectPtr<ATimberPlayableCharacter> Player = Cast<ATimberPlayableCharacter>(GetOwner()))
+			{
+				Player->InventoryManager->bHandleBuildableTransaction(BuildableProxyInstance->BuildableCost);
+			}
 		}
 	}
 	else
@@ -894,7 +921,52 @@ void UBuildSystemManagerComponent::HandleIsTeleporter(ATeleportConstruct* Telepo
 	}
 }
 
-/*Collision*/
+void UBuildSystemManagerComponent::SendBuildEventPayload(TObjectPtr<AActor> Buildable)
+{
+	//Gets called on all successful Build Type Placements
+	UMissionEventSubsystem* MES = GetWorld()->GetGameInstance()->GetSubsystem<UMissionEventSubsystem>();
+	if (!MES) return;
+	
+	FMissionEventPayload Payload;
+	Payload.InstigatingActor = GetOwner();
+	Payload.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Build.Placed"));
+	Payload.Count = 1;
+
+	FGameplayTagContainer BuildEventContextTags;
+	GenerateBuildEventsContextTags(BuildEventContextTags, Buildable);
+	Payload.ContextTags = BuildEventContextTags;
+
+	MES->BroadcastMissionEvent(Payload);
+	
+}
+
+void UBuildSystemManagerComponent::GenerateBuildEventsContextTags(FGameplayTagContainer& TagContainer, const TObjectPtr<AActor>& Buildable)
+{
+	if (Buildable)
+	{
+		if (Buildable.IsA(ATimberBuildingComponentBase::StaticClass()))
+		{
+			TagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Event.Build.Placed.Structure")));
+		}
+		else if (Buildable.IsA(ATrapBase::StaticClass()))
+		{
+			TagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Event.Build.Placed.Trap")));
+		}
+		else if (Buildable.IsA(AConstructBase::StaticClass()))
+		{
+			TagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Event.Build.Placed.Construct")));
+		}
+		else if (Buildable.IsA(ARampBase::StaticClass()))
+		{
+			TagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Event.Build.Placed.Ramp")));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("BSMC - GenerateBuildEventsContextTags - Unknown Buildable Type."));
+		}
+	}
+}
+
 void UBuildSystemManagerComponent::DisableBuildableProxyCollisions(ABuildableBase* BuildingComponent)
 {
 	/*
@@ -1016,7 +1088,6 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 	}
 }
 
-/* Buildable Utils*/
 void UBuildSystemManagerComponent::MoveBuildable(
 	FVector_NetQuantize Location, ABuildableBase*
 	BuildingComponent, const FRotator& Rotation)
@@ -1096,7 +1167,6 @@ void UBuildSystemManagerComponent::GetStaticMeshComponents(AActor* BuildingCompo
 	}
 }
 
-/*Input Callbacks*/
 void UBuildSystemManagerComponent::RotateBuildingComponent()
 {
 	if (BuildableProxyInstance)

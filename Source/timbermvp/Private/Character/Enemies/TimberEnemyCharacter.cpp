@@ -20,10 +20,12 @@
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Loot/EnemyLootDropBase.h"
+#include "Subsystems/Events/MissionEventSubsystem.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Types/Combat/DamagePayload.h"
 #include "timbermvp/Public/UI/FloatingData/FloatingDataContainer.h"
 #include "UI/EnemyDataCluster/EnemyDataCluster.h"
+#include "Weapons/TimberWeaponMeleeBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
 ATimberEnemyCharacter::ATimberEnemyCharacter()
@@ -228,12 +230,83 @@ void ATimberEnemyCharacter::HandleOnLanded(const FHitResult& Hit)
 	}
 }
 
+FMissionEventPayload ATimberEnemyCharacter:: GenerateDamageEventPayload(FDamagePayload DamagePayload)
+{
+	FMissionEventPayload Payload;
+	Payload.EventTag = FGameplayTag::RequestGameplayTag("Event.Combat.Damage");
+	Payload.InstigatingActor = DamagePayload.DamageInstigator;
+	Payload.TargetActor = this;
+	Payload.Count = DamagePayload.DamageAmount;
+	PopulateCombatEventContextTags(Payload.ContextTags, DamagePayload);
+
+	return Payload;
+}
+
+FMissionEventPayload ATimberEnemyCharacter::GenerateDestroyEventPayload(FDamagePayload DamagePayload)
+{
+	FMissionEventPayload Payload;
+	Payload.EventTag = FGameplayTag::RequestGameplayTag("Event.Combat.Destroy");
+	Payload.InstigatingActor = DamagePayload.DamageInstigator;
+	Payload.TargetActor = this;
+	Payload.Count = 1;
+	PopulateCombatEventContextTags(Payload.ContextTags, DamagePayload);
+
+	return Payload;
+}
+
+void ATimberEnemyCharacter::PopulateCombatEventContextTags(FGameplayTagContainer& ContextTagsContainer, const FDamagePayload& DamagePayload) const
+{
+	//Hit Enemy Context Tag
+	if (this->IsA(ATimberEnemyMeleeWeaponBase::StaticClass()))
+	{
+		ContextTagsContainer.AddTag(FGameplayTag::RequestGameplayTag("Event.Enemy.Carbonite.Bruiser"));
+	}
+	else if (this->IsA(ATimberEnemyRangedBase::StaticClass()))
+	{
+		ContextTagsContainer.AddTag(FGameplayTag::RequestGameplayTag("Event.Enemy.Carbonite.Shooter"));
+	}
+	else if (this->IsA(ATimberEnemyMeleeBase::StaticClass()))
+	{
+		ContextTagsContainer.AddTag(FGameplayTag::RequestGameplayTag("Event.Enemy.Carbonite.Grunt"));
+	}
+
+	
+	//Instigator Context
+	AActor* Src = DamagePayload.DamageInstigator;
+	if (Src && Src->IsA(ATimberPlayableCharacter::StaticClass()))
+	{
+		ContextTagsContainer.AddTag(FGameplayTag::RequestGameplayTag("Event.Combat.Player"));
+		TWeakObjectPtr<ATimberPlayableCharacter> Kip = Cast<ATimberPlayableCharacter>(Src);
+		if (Kip.IsValid())
+		{
+			//Weapon Context
+			TWeakObjectPtr<ATimberWeaponBase> Weapon =  Kip->CombatComponent->GetCurrentlyEquippedWeapon();
+			if (Weapon.IsValid())
+			{
+				if (Weapon->IsA(ATimberWeaponMeleeBase::StaticClass()))
+				{
+					ContextTagsContainer.AddTag(FGameplayTag::RequestGameplayTag("Event.Weapon.Melee.Hammer"));
+				}
+				if (Weapon->IsA(ATimberWeaponRangedBase::StaticClass()))
+				{
+					ContextTagsContainer.AddTag(FGameplayTag::RequestGameplayTag("Event.Weapon.Ranged.Rifle"));
+				}
+			}
+		}
+	}
+	else if (this->IsA(ATrapBase::StaticClass()))
+	{
+		ContextTagsContainer.AddTag(FGameplayTag::RequestGameplayTag("Event.Combat.Trap"));
+	}
+}
+
+
 void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 {
-	/*if (IsValid(DamagePayload.DamageInstigator))
+	if (IsValid(DamagePayload.DamageInstigator))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyCharacter - TakeDamage() - %s took %f damage from %s."), *GetName(), DamagePayload.DamageAmount, *DamagePayload.DamageInstigator->GetName());
-	}*/
+	}
 	
 	//Applying damage to Character Health
 	CurrentHealth -= DamagePayload.DamageAmount;
@@ -290,15 +363,27 @@ void ATimberEnemyCharacter::TakeDamage(FDamagePayload DamagePayload)
 			}
 		}
 
-		//Drops Any Loot set on the Characters Loot Drop
+		//Broadcast to the Mission System 
+		UMissionEventSubsystem* CombatEventSubsystem = GetGameInstance()->GetSubsystem<UMissionEventSubsystem>();
+		const FMissionEventPayload Payload = GenerateDestroyEventPayload(DamagePayload);
+		CombatEventSubsystem->BroadcastMissionEvent(Payload);
+		
 		OnDeath_DropLoot();
+
+		return;
 	}
-	else if (IsValid(DamagePayload.DamageInstigator))
+	
+	if (IsValid(DamagePayload.DamageInstigator))
 	{
 		//TODO:: Potential Removed from Game. - Delete Later is Unused still.
 		bHasBeenAggroByPlayer = HandleAggroCheck(DamagePayload.DamageInstigator, DamagePayload.DamageAmount, DamageAccumulatedDuringWindow);
 		//UE_LOG(LogTemp, Warning, TEXT("Target hit for: %f. CurrentHealth: %f."), DamageAmount, CurrentHealth);
 	}
+	
+	//Damage Event
+	UMissionEventSubsystem* CombatEventSubsystem = GetGameInstance()->GetSubsystem<UMissionEventSubsystem>();
+	const FMissionEventPayload Payload = GenerateDamageEventPayload(DamagePayload);
+	CombatEventSubsystem->BroadcastMissionEvent(Payload);
 }
 
 bool ATimberEnemyCharacter::HandleAggroCheck(AActor* DamageInstigator, float DamageReceived, float fDamageAccumulatedDuringWindow)

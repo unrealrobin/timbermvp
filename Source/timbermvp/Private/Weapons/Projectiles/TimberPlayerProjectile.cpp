@@ -38,9 +38,7 @@ void ATimberPlayerProjectile::HandleBlocked(
 	UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 	const FHitResult& Hit)
 {
-	//if the projectile is blocked by a wall or other object, destroy the projectile. This is only for the Players 
-	// Projectile. Different collisions for enemy projectile.
-	//UE_LOG(LogTemp, Warning, TEXT("Projectile Owner: %s"), *GetOwner()->GetName());
+	
 	IDamageableEnemy* HitEnemy = Cast<IDamageableEnemy>(OtherActor);
 
 	if (HitEnemy)
@@ -56,24 +54,12 @@ void ATimberPlayerProjectile::HandleBlocked(
 			//HitEnemy->TakeDamage(CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner())), PlayerProjectileOwner, TODO);
 			FDamagePayload Payload;
 			Payload.DamageAmount = CalculateOutputDamage(Cast<ATimberWeaponRangedBase>(GetOwner()));
+			Payload.DamageInstigator = PlayerProjectileOwner;
 			HitEnemy->TakeDamage(Payload);
 		}
-		else
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Owning Weapon Not Valid."));
-		}
-		
-		//Destroys the projectile on hitting an enemy that may take damage from this projectile.
-		//UE_LOG(LogTemp, Warning, TEXT("Timer Started to Handle Destruction."));
-		FTimerHandle OnHandleDestroy;
-		//GetWorld()->GetTimerManager().SetTimer(OnHandleDestroy, this, &ATimberPlayerProjectile::HandleDestroy, 0.2f, false);
-		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATimberPlayerProjectile::HandleDestroy);
 	}
-	else
-	{
-		Destroy();
-	}
-	//UE_LOG(LogTemp, Warning, TEXT("PlayerProjectile - Player Projectile has been Blocked and Destroyed."))
+	
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATimberPlayerProjectile::HandleDestroy);
 }
 
 float ATimberPlayerProjectile::CalculateOutputDamage(ATimberWeaponRangedBase* Weapon)

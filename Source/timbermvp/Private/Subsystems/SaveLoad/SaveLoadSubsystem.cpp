@@ -9,6 +9,7 @@
 #include "Character/TimberSeeda.h"
 #include "Components/Combat/CombatComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Components/MissionDelivery/MissionDeliveryComponent.h"
 #include "Components/Vignette/PlayerVignetteComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/TimberGameModeBase.h"
@@ -284,6 +285,15 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 					SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism,
 					SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques);*/
 			}
+			 /*Save Players Completed Missions*/
+			if (Character->MissionDeliveryComponent)
+			{
+				for (FGuid MissionGuid : Character->MissionDeliveryComponent->CompletedMissionGuids)
+				{
+					SaveGameInstance->PlayerData.CompletedMissionList.Add(MissionGuid);
+					UE_LOG(LogTemp, Warning, TEXT(" Saved Mission: %s. GUID: %ls"), *Character->MissionDeliveryComponent->GetMissionTitle(), *LexToString(MissionGuid));
+				}
+			}
 		}
 	}
 }
@@ -493,6 +503,11 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			{
 				if (!IsValid(MeleeWeapon)) return;
 				MeleeWeapon->CurrentWeaponEnergy = MeleeWeapon->MaxWeaponEnergy;
+			}
+
+			if (IsValid(TimberCharacter->MissionDeliveryComponent))
+			{
+				TimberCharacter->MissionDeliveryComponent->CompletedMissionGuids = LoadGameInstance->PlayerData.CompletedMissionList;
 			}
 		}
 		else

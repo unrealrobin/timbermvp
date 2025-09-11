@@ -33,6 +33,17 @@ void UMissionDeliveryComponent::BindToWaveSubsystem()
 	}
 }
 
+FString UMissionDeliveryComponent::GetMissionTitle()
+{
+	if (ActiveMission)
+	{
+		return ActiveMission->MissionTitle.ToString();
+	}
+	
+	return "NO ACTIVE MISSION SET.";
+	
+}
+
 void UMissionDeliveryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -207,7 +218,7 @@ void UMissionDeliveryComponent::HandleRewards(TObjectPtr<UMissionBase>& ActiveMi
 		switch (ActiveMissionRef->RewardType)
 		{
 			case ERewardType::Currency: 
-				HandleCurrencyRewards(ActiveMissionRef);
+				RewardPlayerCurrency(ActiveMissionRef);
 			UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Rewards added to inventory."))
 			break;
 			
@@ -218,7 +229,7 @@ void UMissionDeliveryComponent::HandleRewards(TObjectPtr<UMissionBase>& ActiveMi
 	}
 }
 
-void UMissionDeliveryComponent::HandleCurrencyRewards(TObjectPtr<UMissionBase>& ActiveMissionRef)
+void UMissionDeliveryComponent::RewardPlayerCurrency(TObjectPtr<UMissionBase>& ActiveMissionRef)
 {
 	TObjectPtr<ATimberPlayableCharacter> Player = Cast<ATimberPlayableCharacter>(GetOwner());
 	if (IsValid(Player) && IsValid(Player->InventoryManager))
@@ -246,10 +257,10 @@ void UMissionDeliveryComponent::InitializeActiveMission(UMissionBase* NewActiveM
 
 		if (NewActiveMission->RewardType == ERewardType::Currency)
 		{
-			MissionViewModel->SetActiveMissionRewardsType(ERewardType::Currency);
 			MissionViewModel->SetRewardsParts(NewActiveMission->CurrencyReward.PartsReward);
 			MissionViewModel->SetRewardsMechanisms(NewActiveMission->CurrencyReward.MechanismsReward);
 			MissionViewModel->SetRewardsUniques(NewActiveMission->CurrencyReward.UniquesReward); 
+			MissionViewModel->SetActiveMissionRewardsType(ERewardType::Currency);
 		}
 
 		//TODO:: Adjust function in Dialogue Manager to Handle the Setting and Playing and Timing of this Call.

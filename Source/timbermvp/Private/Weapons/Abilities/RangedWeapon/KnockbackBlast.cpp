@@ -141,6 +141,7 @@ void UKnockbackBlast::HandleOverlap(
 
 			FDamagePayload Payload;
 			Payload.DamageAmount = DamageAmount;
+			Payload.DamageInstigator = LocalContext.Instigator;
 			Enemy->TakeDamage(Payload);
 		
 		}

@@ -2,16 +2,18 @@
 
 ## Mission System Goals
 1. Simplicity.
-   2. Extendable to other systems. (Ex. Achievements, Tutotirals)
+   2. Extendable to other systems. (Ex. Achievements, Tutorials)
    3. Mission Design should be as simple as possible & require no code.
 3. Dynamic.
    4. Mission Lists should be able to be changed at runtime.
 5. Light Weight.
 
 ## Why this works
-The MVVMC (Model View ViewModel Component) pattern is used to more easily share data between gameplay and UI. Multiple UI components can all bind to the same View Model without neededing to know how or when the dats is updated or evaluated. The View Model
+The MVVMC (Model View ViewModel Component) pattern is used to more easily share data between gameplay and UI without needing the UI to know anything about gameplay. Multiple UI components can all bind to the same View Model without neededing to know how or when the data is updated or evaluated. The View Model
 is the single source of truth for all the "Views" that bind to it. This is a highly flexible and scalable design. For instance, you can have multiple UI views that show data in a different form that all get updated when the View Model is updated.
 
+## In Game Screenshot
+![Mission System Screenshot](./Images/MissionDisplayWithRewards.png)
 
 ## Code Map
 | Class                                         | Role                                                           | Key Methods                                                                         | Jump                                                                                                                                                                       |
@@ -23,7 +25,7 @@ is the single source of truth for all the "Views" that bind to it. This is a hig
 | `UMissionList` (Data Asset)                   | Stores a set of Missions. Lives in UMissiongDeliveryComponent. |                                                                                     | [H](Source/timbermvp/Public/Data/DataAssets/MissionSystem/MissionList.h)                                                                                                   |
 | `UMissionBase` (Data Asset)                   | Data + state for one mission                                   |                                                                                     | [H](Source/timbermvp/Public/Data/DataAssets/MissionSystem/MissionBase.h)                                                                                                   |
 
-# Architecture Diagrams
+# Mission System Architecture
 
 ### Pattern Overview
 ```mermaid

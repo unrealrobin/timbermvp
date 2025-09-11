@@ -41,6 +41,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Missions")
 	EMissionState ActiveMissionState = EMissionState::Default;
 	
+	FString GetMissionTitle();
+	
 protected:
 	
 	// Called when the game starts
@@ -81,7 +83,7 @@ private:
 	void FormBuildObjectiveFromTag(FGameplayTag EventTag);
 	bool CheckMissionContext(FMissionEventPayload& Payload, TWeakObjectPtr<UMissionBase> ActiveMissionRef);
 	void HandleRewards(TObjectPtr<UMissionBase>& ActiveMissionRef);
-	void HandleCurrencyRewards(TObjectPtr<UMissionBase>& ActiveMissionRef);
+	void RewardPlayerCurrency(TObjectPtr<UMissionBase>& ActiveMissionRef);
 	UMissionBase* GetActiveMission();
 
 	

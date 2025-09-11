@@ -288,7 +288,11 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 			 /*Save Players Completed Missions*/
 			if (Character->MissionDeliveryComponent)
 			{
-				SaveGameInstance->PlayerData.CompletedMissionList = Character->MissionDeliveryComponent->CompletedMissionGuids;
+				for (FGuid MissionGuid : Character->MissionDeliveryComponent->CompletedMissionGuids)
+				{
+					SaveGameInstance->PlayerData.CompletedMissionList.Add(MissionGuid);
+					UE_LOG(LogTemp, Warning, TEXT(" Saved Mission: %s. GUID: %ls"), *Character->MissionDeliveryComponent->GetMissionTitle(), *LexToString(MissionGuid));
+				}
 			}
 		}
 	}

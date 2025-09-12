@@ -11,6 +11,8 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 - **Genre:** Tower Defense + Action Combat
 - **Engine:** Unreal Engine 5.4 (C++)
 - **Team Size:** Solo Developer
+- **Website:** ![www.paracosm.gg](https://www.paracosm.gg)
+- **Steam:** ![Steam Page](https://store.steampowered.com/app/3704770/Die_Robot/)
 
 ![Gameplay Screenshot](./Portolfio/Images/MissionDisplayWithRewards.png)
 

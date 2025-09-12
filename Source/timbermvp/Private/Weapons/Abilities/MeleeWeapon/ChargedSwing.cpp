@@ -36,12 +36,12 @@ void UChargedSwing::Execute_Completed(FAbilityContext Context)
 {
 	Context.WeaponInstance->ConsumePower(PowerCost);
 
-	//TODO:: Revisit if applying damage before of after the animation matters.
+	//TODO:: Revisit if applying damage before or after the animation matters.
 	
 	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargedAttack", 1.0f);
 	CurrentMontageStage = EMontageStage::Final;
-	
 
+	HandleCleanup(Context);
 }
 
 void UChargedSwing::Execute_Cancelled(FAbilityContext Context)
@@ -84,8 +84,6 @@ void UChargedSwing::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 		HandleCleanup(AbilityContext);
 		UE_LOG(LogTemp, Warning, TEXT("Charged Swing Completed."));
 	}
-	
-	
 }
 
 void UChargedSwing::HandleCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

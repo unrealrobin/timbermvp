@@ -317,49 +317,37 @@ void UCombatComponent::UpdateCurrentWeaponState(EOwnerWeaponState NewWeaponState
 
 void UCombatComponent::HandlePrimaryAbility(const FInputActionValue& Value)
 {
-	//Player wants the primary ability of the equipped weapon.
 	if (CurrentlyEquippedWeapon && CurrentlyEquippedWeapon->PrimaryWeaponAbility)
 	{
-		
-		//For Abilities with Combo potential we dont want to create a new instance of the Ability.
-		//The ability at its end will Reset CurrentWeaponAbility - so if there is still an ability there, we can use it and run its execute function.
-		//The Key here is that the ability MUST reset CurrentWeaponAbility. (This needs to be checked and double-checked.)
-		if (CurrentWeaponAbility && CurrentWeaponAbility->IsA(CurrentlyEquippedWeapon->PrimaryWeaponAbility))
-		{
-			//Getting the default object of the primary ability. (Grants access before making Instance)
-			const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
-			//Checking if the ability can be fired.
-			bool bIsAbilityValidated = ValidateWeaponAbility(PrimaryAbility);
-
-			if (bIsAbilityValidated)
-			{
-				CurrentWeaponAbility->Execute(GenerateCurrentAbilityContext(Value));
-				return;
-			}
-			return;
-		}
-
-		
-		//Getting the default object of the primary ability. (Grants access before making Instance)
+		/*
+		 * Getting the default object of the primary ability. (Grants access before making Instance)
+		 * Can check ability defaults validity before creating the ability object. 
+		 */ 
 		const UWeaponAbilityBase* PrimaryAbility = CurrentlyEquippedWeapon->PrimaryWeaponAbility->GetDefaultObject<UWeaponAbilityBase>();
 		//Checking if the ability can be fired.
-		bool bIsAbilityValidated = ValidateWeaponAbility(PrimaryAbility);
-
-		if (bIsAbilityValidated)
+		if (ValidateWeaponAbility(PrimaryAbility))
 		{
-			TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->PrimaryWeaponAbility;
-			//Creating Instance of the Ability.
-			UWeaponAbilityBase* Ability = NewObject<UWeaponAbilityBase>(this, AbilityClass);
-
-			if (Ability)
+			/*
+			 * Ability already Instantiated (Ex. Combo Attacks)
+			 */
+			if (CurrentWeaponAbility)
 			{
-				CurrentWeaponAbility = Ability;
-				Ability->Execute(GenerateCurrentAbilityContext(Value));
+				CurrentWeaponAbility->Execute(GenerateCurrentAbilityContext(Value));
 			}
-		}
-		else
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Primary skill could not be validated."));
+			else
+			{
+				/*
+				 * Instantiating Ability Object from Ability Class
+				 */
+				TSubclassOf<UWeaponAbilityBase> AbilityClass = CurrentlyEquippedWeapon->PrimaryWeaponAbility;
+				//Creating Instance of the Ability.
+				UWeaponAbilityBase* Ability = NewObject<UWeaponAbilityBase>(this, AbilityClass);
+				if (IsValid(Ability))
+				{
+					CurrentWeaponAbility = Ability;
+					CurrentWeaponAbility->Execute(GenerateCurrentAbilityContext(Value));
+				}
+			}
 		}
 	}
 }
@@ -389,14 +377,6 @@ void UCombatComponent::HandleSecondaryAbility(const FInputActionValue& Value)
 				Ability->Execute(GenerateCurrentAbilityContext(Value));
 			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Secondary skill could not be validated."));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Secondary Ability to Execute."));
 	}
 }
 

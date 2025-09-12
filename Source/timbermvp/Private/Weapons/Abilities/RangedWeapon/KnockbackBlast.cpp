@@ -42,7 +42,6 @@ void UKnockbackBlast::Execute(FAbilityContext Context)
 		HitBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 		HitBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		
-		
 		HitBox->RegisterComponent();
 
 		//HitBox->OnComponentHit.AddDynamic(this, &UKnockbackBlast::HandleHit);
@@ -55,6 +54,8 @@ void UKnockbackBlast::Execute(FAbilityContext Context)
 		PlayNiagaraEffectAttached(NiagaraEffect, HitBox, NAME_None, EffectVectorOffset, FRotator::ZeroRotator, EAttachLocation::SnapToTargetIncludingScale, false, true);
 		
 		PlayEffectSFX(HitBox->GetComponentLocation(), SoundFXTrackName);
+
+		HandleCleanup(Context);
 	}
 }
 

@@ -37,7 +37,7 @@ public:
 	/* Load System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame(FString SlotToLoad = TEXT("StandardSaveSlot"));
-	void LoadBuildingComponents(USaveLoadStruct* LoadGameInstance);
+	void LoadBuildableData(USaveLoadStruct* LoadGameInstance);
 	void LoadWaveData(USaveLoadStruct* LoadGameInstance);
 	void LoadPlayerState(USaveLoadStruct* LoadGameInstance);
 	void LoadSeedaData(USaveLoadStruct* LoadGameInstance);

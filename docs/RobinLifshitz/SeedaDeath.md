@@ -35,5 +35,5 @@ sequenceDiagram
 
 ---
 Note:
-1. When the Data Seed (Seeda) dies, the play is also destroyed directly after. The player also tries to update the 
+1. When the Data Seed (Seeda) dies, the player is also destroyed directly after. The player also tries to update the 
    death reason ui so we have a check to make sure it can only be set when its the default reason.

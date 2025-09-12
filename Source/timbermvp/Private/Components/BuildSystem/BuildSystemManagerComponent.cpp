@@ -23,8 +23,6 @@
 
 UBuildSystemManagerComponent::UBuildSystemManagerComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -75,8 +73,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentSnapping(FHitResult Hi
 	}
 }
 
-int UBuildSystemManagerComponent::SnappingCondition(
-	EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2)
+int UBuildSystemManagerComponent::SnappingCondition(EBuildingComponentOrientation Orientation1, EBuildingComponentOrientation Orientation2)
 {
 	if (Orientation1 == Orientation2 && Orientation1 == EBuildingComponentOrientation::Vertical)
 	{
@@ -413,8 +410,7 @@ void UBuildSystemManagerComponent::MoveBuildingComponentProxyToSnapLocation(FVec
 	DrawDebugBox(GetWorld(), ActorBox.GetCenter(), ActorBox.GetExtent(), FColor::Red, false, 1.0f, 0, 5.0f);*/
 }
 
-EBuildingComponentOrientation UBuildSystemManagerComponent::CheckClassBuildingComponentOrientation(
-	AActor* ClassToBeChecked)
+EBuildingComponentOrientation UBuildSystemManagerComponent::CheckClassBuildingComponentOrientation(AActor* ClassToBeChecked)
 {
 	if (const ATimberVerticalBuildingComponent* VBC = Cast<ATimberVerticalBuildingComponent>(ClassToBeChecked))
 	{
@@ -491,7 +487,6 @@ void UBuildSystemManagerComponent::RotateProxyToSnapRotation(
 	BuildingComponent->SetActorRotation(HitActorRotation);
 }
 
-/* Material Shading */
 void UBuildSystemManagerComponent::HandleTrapMaterialChange(bool bCanTrapBeFinalized)
 {
 	if (bCanTrapBeFinalized)
@@ -551,7 +546,6 @@ void UBuildSystemManagerComponent::AddToBuildableAttachments(ABuildableBase* Att
 	}
 }
 
-/* Spawn Final */
 void UBuildSystemManagerComponent::SpawnFinalBuildable()
 {
 	if(ActiveBuildableComponentClass && BuildableProxyInstance)
@@ -1019,13 +1013,13 @@ USceneComponent* UBuildSystemManagerComponent::GetClosestFaceSnapPoint(FHitResul
 void UBuildSystemManagerComponent::BroadcastControllerUpdateNewBuildable(AActor* Buildable)
 {
 	ABuildableBase* CastBuildable = Cast<ABuildableBase>(Buildable);
-	
 	ATimberPlayableCharacter* PlayerCharacter = Cast<ATimberPlayableCharacter>(GetOwner());
-	if (PlayerCharacter && CastBuildable)
+	
+	if (IsValid(PlayerCharacter) && IsValid(CastBuildable))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Changed Buildable Name: %s"), *CastBuildable->GetName());
 		ATimberPlayerController* PC = PlayerCharacter->GetController<ATimberPlayerController>();
-		if (PC)
+		if (IsValid(PC))
 		{
 			//Used for Enemy to Update Path.
 			PC->OnBuildableAdded.Broadcast(CastBuildable);
@@ -1088,9 +1082,7 @@ void UBuildSystemManagerComponent::HandleBuildingComponentPlacement(FHitResult F
 	}
 }
 
-void UBuildSystemManagerComponent::MoveBuildable(
-	FVector_NetQuantize Location, ABuildableBase*
-	BuildingComponent, const FRotator& Rotation)
+void UBuildSystemManagerComponent::MoveBuildable(FVector_NetQuantize Location, ABuildableBase* BuildingComponent, const FRotator& Rotation)
 {
 	if (BuildingComponent)
 	{
@@ -1200,7 +1192,6 @@ void UBuildSystemManagerComponent::SetActiveBuildingComponentClass(TSubclassOf<A
 	ActiveBuildableComponentClass = BuildingComponentClass;
 }
 
-/*SFX*/
 void UBuildSystemManagerComponent::PlayBuildablePlacementSound()
 {
 	USFXManagerSubsystem* SFXManager = GetWorld()->GetGameInstance()->GetSubsystem<USFXManagerSubsystem>();
@@ -1219,7 +1210,6 @@ void UBuildSystemManagerComponent::PlayBuildDeniedSound()
 	}
 }
 
-/* Placement */
 AActor* UBuildSystemManagerComponent::SpawnProxy(TSubclassOf<ABuildableBase> ActiveBuildableClass, FVector SpawnLocation, FRotator SpawnRotation)
 {
 	FActorSpawnParameters SpawnParams;
@@ -1536,9 +1526,7 @@ void UBuildSystemManagerComponent::HandleRampPlacement(FHitResult FirstHitBuildi
 	}
 }
 
-// Returns the closest snap location based on the impact point of the raycast for the building component.
-FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(
-	FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponentProxy)
+FBuildablePlacementData UBuildSystemManagerComponent::GetTrapSnapTransform(FVector ImpactPoint, ATimberBuildingComponentBase* BuildingComponent, ATrapBase* TrapComponentProxy)
 {
 	// Default Snap Data is facing the player at the impact point
 	FBuildablePlacementData TrapSnapData;

@@ -91,8 +91,9 @@ public:
 	//Overridden in Child Ability Classes
 	virtual void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted){};
 
-	/* Clears the Stored Ability on the Combat Component
-	 * Required for Abilities with Press & Hold functionality.
+	/*
+	 * Clears the Stored Ability on the Combat Component
+	 * Required for All Abilities.
 	 */
 	virtual void HandleCleanup(FAbilityContext Context);
 

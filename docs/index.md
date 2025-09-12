@@ -16,7 +16,7 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 
 ---
 
-## ⚙️ Featured Systems
+##  Featured Systems
 
 ### [Mission System](./Portfolio/MissionDeliverySystem.md)
 A modular, data-driven quest framework.
@@ -42,7 +42,7 @@ Logic for placing, validating, and managing traps/structures.
 
 ---
 
-## 📌 About Me
+##  About Me
 I’m a gameplay programmer passionate about **system design and combat mechanics**.  
 Looking for **gameplay engineering roles** in Unreal Engine projects.
 
@@ -50,7 +50,7 @@ Looking for **gameplay engineering roles** in Unreal Engine projects.
 - [LinkedIn](https://linkedin.com/in/robinlifshitz)
 - [GitHub Repo](https://github.com/robinnnnnn/timbermvp)
 
-## 🎥 Highlight Demo
+##  Highlight Demo
 [![Watch the Demo](./images/demo-thumbnail.png)](https://youtu.be/your-video-link)  
 *(Click to open video walkthrough on YouTube.)*
 

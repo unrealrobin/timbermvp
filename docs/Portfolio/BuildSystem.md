@@ -1,33 +1,59 @@
-﻿# Build System (Deep Dive)
+﻿# Build System
 
-The Build System is a core feature of the game. The player can build structures, components and traps that all snap together. The Build System Component is responsible
-for all logic related to how the player can build the structures and how each structure interacts with the rest of the world.
+## Build System Goals
+1. Snap Walls and Floors Together.
+2. Snap Components to Walls and Floors.
+3. Snap Traps to Walls and Floors.
+4. Save and Load Buildables.
+5. Payment, Refunding, Deletion of buildables.
+6. Incorrect Placement visual representation.
 
----
+## Why this works
+1. There is a lot of logic required to make different buildable types snap together. Encompassing it all in a single actor component gives better seperation of concers.
+2. The Controller simply calls input events that the Build System Manager handles.
+3. The HUD, Build Menu Panel, and Build Icons give a clear way for the player to interact with the build system.
 
-## 🔑 Key Features
+## In Game Screenshots
+
+### Build Menu
+![Build Menu Screenshot](./Images/BuildMenuUI.png)
+
+### Build Placement
+![Building Screenshot](./Images/BuildingScreenshot.png)
+
+### Invalid Build Placement
+![Incorrect Placement Screenshot](./Images/InvalidPlacementScreenshot.png)
+
+##  Key Features
 - Walls and Floors Snap Together via a Quadrant & Snap Point System.
-- Traps & Component Snap to Walls and Floors, Utilizing open "Slots".
-- Save and Load using GUID's to spawn the same buildable at a later time.
+- Traps, Constructs and Structures snap to Walls and Floors, utilizing open "Slots" & "Snap Points" .
+- Save and Load using GUID's to spawn the same buildable at load.
 - Payment, Refunding, Deletion of buildables.
-- Incorrect Placement visual representation.
+- Placement visual representation.
 
 ---
 
-## 📂 Code Map
-| Class                                            | Role                                                                                                             | Key Methods | GitHub                                                                      |
-|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------|-------------|-----------------------------------------------------------------------------|
-| `UBuildSystemManagerComponent` (Actor Component) | Handles Spawning, Placement and Snapping of all Buildables. (Structures, Components, Traps)                      | `ImportantMethod()` | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
-| `ABuildableBase` (Actor)                         | Base class for any buildable class.                                                                              | `ImportantMethod()` | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
-| `AComponentBase` (Actor)                         | Base Class for a specialized type of Buildable.                                                                  | `ImportantMethod()` | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
-| `ATrapBase` (Actor)                              | Base Class for how Traps interact with Environment and Snapping Features.                                        | `ImportantMethod()` | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
-| `ATimberBuildingComponentBase` (Actor)           | Base Class for Walls and floors. Handles the Complex Snapping utilizing Snap Points (Scene Components)           | `ImportantMethod()` | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
-| `UBuildingComponentPanel` (UI)                   | The UI for selecting a Buildable to Place and get all Buildable info, like synergies and costs.                  | `ImportantMethod()` | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
-| `UBuildingComponent`  (UI)                       | The UI for selecting a Buildable to Place and get all Buildable info, like synergies and costs.                  | `ImportantMethod()` | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
-| `UBuildComponentDataAsset`  (UI)                 | Data Asset used for Loading specific buildable information into the Building Component Panel. |  | [Code](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) |
+##  Code Map
+
+<!-- blank line above! -->
+
+| Class                                            | Role                                                                                            | Key Methods                                                                                                 | GitHub                                                                                |
+|--------------------------------------------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| `UBuildSystemManagerComponent` (Actor Component) | Handles Spawning, Placement and Snapping of all Buildables. (Structures, Components, Traps)     | `ImportantMethod()`                                                                                         | [H](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) - [CPP](...) |
+| `ABuildableBase` (Actor)                         | Base class for any buildable class.                                                             | `ImportantMethod()`                                                                                         | [H](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) - [CPP](...) |
+| `UBuildingComponentPanel` (UI)                   | The UI for selecting a Buildable to Place and get all Buildable info, like synergies and costs. | `ImportantMethod()`                                                                                         | [H](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) - [CPP](...) |
+| `USaveLoadSubsystem`  (Game Instance Subsystem)  | Saves and Load Data.                                                                            | `SaveBuildableData(USaveLoadStruct* SaveGameInstance)`,`LoadBuildableData(USaveLoadStruct* LoadGameInstance)` | [H]() - [CPP](...)                                                                    |
+| `UBuildingComponent`  (UI)                       | The UI for selecting a Buildable to Place and get all Buildable info, like synergies and costs. |                                                                                           | [H](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) - [CPP](...) |
+| `UBuildComponentDataAsset`  (DA)                 | Data Asset used for Loading specific buildable information into the Building Component Panel.   |                                                                                                             | [H](https://github.com/you/yourrepo/blob/main/Source/MyGame/Path/File.h) - [CPP](...) |
 
 ---
 
-## 🗂 Architecture
+## Build System Sequence
 
-- **Mermaid Diagram** Showing Build Flow.
+![Build System Sequence Diagram](./Images/BuildSystemSequence.png)
+
+
+The build system includes multiple components needed to generate a build in game. The player enters build mode, selects a buildable from the build menu, spawns the proxy,
+which is simply a representation of the buildable, and then if possible, spawns the final buildable. The build menu is populated
+at the games initialization using Data Assets for each buildable type. The Data Assets comprise all the information about buildable cost and name
+and are stored in their respective icons in the build menu.

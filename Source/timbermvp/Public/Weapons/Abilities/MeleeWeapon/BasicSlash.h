@@ -18,30 +18,34 @@ public:
 	
 	UBasicSlash();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Data")
-	FAbilityContext BasicSlashContext;
-	
 	virtual void Execute(FAbilityContext Context) override;
 
-	virtual void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted) override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability Data")
+	FAbilityContext BasicSlashContext;
 
+	/* Ability Montage*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability Data")
 	UAnimMontage* BasicSlashMontage = nullptr;
 
-	/*Combo Data*/
-
-	//Initialized to -1 (No Section Played Yet)
+	/* Current Anim Montage Section for Combo Animation */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
 	int32 SectionIndex = 0;
-
-	//Whether the player attacked again within the CanCombo window.
+	
+	/*
+	 * true if the player attacked again during an open combo window.
+	 * Combo windows open and close via Anim Montage Notifies
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
 	bool bComboInitiated = false;
 
-	//The Window for when additional attack inputs will be allowed to make combo attacks.
+	/*The Window for when additional attack inputs will be allowed to make combo attacks.*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
 	bool bComboWindowOpen = false;
-
+	
+private:
+	
+	virtual void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted) override;
+	
 	UFUNCTION(BlueprintCallable, Category = "Combo")
 	void ResetComboData();
 };

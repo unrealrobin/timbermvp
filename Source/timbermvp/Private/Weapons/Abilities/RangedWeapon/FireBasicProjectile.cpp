@@ -19,7 +19,7 @@ UFireBasicProjectile::UFireBasicProjectile()
 
 void UFireBasicProjectile::Execute(FAbilityContext Context)
 {
-	UE_LOG(LogTemp, Warning, TEXT("In Fire Ranged Weapon"));
+	//UE_LOG(LogTemp, Warning, TEXT("In Fire Ranged Weapon"));
 	if (ProjectileClass)
 	{
 		if (ATimberWeaponRangedBase* OwningWeapon = Cast<ATimberWeaponRangedBase>(Context.WeaponInstance))
@@ -54,6 +54,8 @@ void UFireBasicProjectile::Execute(FAbilityContext Context)
 
 				//Controls the Ammo Cost of the Weapon and what happens at 0.
 				OwningWeapon->ConsumePower(PowerCost);
+
+				HandleCleanup(Context);
 			}
 		};
 	}

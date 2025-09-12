@@ -33,9 +33,3 @@ protected:
 	void HandleMuzzleFlash(UNiagaraSystem* NiagaraSystem, FVector Location, FRotator Rotation = FRotator::ZeroRotator, bool AutoDestroy = true, bool AutoActive = true);
 	
 };
-/*
- * Validation Needs.
- * 1. has enough power for this ability.
- *	- need to access this via specific class not generic
- *	2. is the weapon on any cooldowns.
- */

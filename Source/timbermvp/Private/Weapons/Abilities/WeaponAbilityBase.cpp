@@ -9,6 +9,7 @@
 void UWeaponAbilityBase::HandleCleanup(FAbilityContext Context)
 {
 	Context.CombatComponent->CurrentWeaponAbility = nullptr;
+	Context.CombatComponent->bCanMeleeAttack = true;
 }
 
 void UWeaponAbilityBase::PlayNiagaraEffectAtLocation(

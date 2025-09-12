@@ -356,7 +356,7 @@ void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
 
 		if (LoadGameInstance)
 		{
-			LoadBuildingComponents(LoadGameInstance);
+			LoadBuildableData(LoadGameInstance);
 			LoadWaveData(LoadGameInstance);
 			LoadPlayerState(LoadGameInstance);
 			LoadSeedaData(LoadGameInstance);
@@ -385,7 +385,7 @@ void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
 	}
 }
 
-void USaveLoadSubsystem::LoadBuildingComponents(USaveLoadStruct* LoadGameInstance)
+void USaveLoadSubsystem::LoadBuildableData(USaveLoadStruct* LoadGameInstance)
 {
 	if (LoadGameInstance)
 	{

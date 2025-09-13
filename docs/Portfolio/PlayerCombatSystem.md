@@ -1,9 +1,5 @@
 ﻿# Player Combat Ability System
 
-The Player combat system is comprised of an Actor Component that handles the players abilties dependent on which weapon is equipped.
-Each weapon has encapsulated abilities that control their own behavior. Abilties can be swapped out at runtime and can be created by 
-subclassing the UWeaponAbility class. Abilities control the Life Time of the Instantiated Ability Object.
-
 ## Goals
 1. Encapsulate Ability Logic
 - All ability logic lives in the ability.
@@ -13,6 +9,12 @@ subclassing the UWeaponAbility class. Abilities control the Life Time of the Ins
 3. Dynamic Ability
 - Abilities should be able to be swapped at Runtime, upgraded, etc.
 ---
+
+## Why this works
+The Player combat system is comprised of an Actor Component that handles the players abilties dependent on which weapon is equipped.
+Each weapon has encapsulated abilities that control their own behavior. Abilties can be swapped out at runtime and can be created by 
+subclassing the UWeaponAbility class. Abilities control the Life Time of the Instantiated Ability Object.
+
 
 ## Code Map
 <!-- blank line above! -->
@@ -32,8 +34,7 @@ subclassing the UWeaponAbility class. Abilities control the Life Time of the Ins
 - Abilities use a context payload to communicate with the Combat Component.
 
 ---
-## System Architecture
-
+# System Architecture
 
 ## Pattern
 ![Pattern Image](./Images/CombatComponentPattern.png)
@@ -49,3 +50,5 @@ us to not have to instantiate the ability if it is not valid (valid means the ab
 instantiated and the ability is executed. The ability cleans itself up after it is done executing. It removes all references to itsels from the combat component
 and then is garbage collected.
 
+## 🔗 Links
+- [View Full Repo on GitHub](https://github.com/unrealrobin/timbermvp)

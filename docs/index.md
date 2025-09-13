@@ -11,27 +11,27 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 - **Genre:** Tower Defense + Action Combat
 - **Engine:** Unreal Engine 5.4 (C++)
 - **Team Size:** Solo Developer
-- **Website:** ![www.paracosm.gg](https://www.paracosm.gg)
-- **Steam:** ![Steam Page](https://store.steampowered.com/app/3704770/Die_Robot/)
+- **Game Website:** [www.paracosm.gg](https://www.paracosm.gg)
+- **Steam:** [Steam Page](https://store.steampowered.com/app/3704770/Die_Robot/)
 
-![Gameplay Screenshot](./Portolfio/Images/MissionDisplayWithRewards.png)
+![Gameplay Screenshot](./Portfolio/Images/GameplayScreenshot.png)
 
 ---
 
 ##  Featured Systems
 
 ### [Mission System](./Portfolio/MissionDeliverySystem.md)
-A modular, data-driven quest framework.
-- Actor Component based manager, fully persistent.
+A modular, data-driven quest framework, using the MVVM-C Pattern.
+- Actor Component based manager.
 - GameplayTags for event filtering & easy mission creation.
-- MVVM-C pattern with bound UI updates.
+- Uses Unreal Engines View Model Pattern.
 
 ---
 
 ### [Player Ability System](./Portfolio/PlayerCombatSystem.md)
 Flexible weapon component handling combat abilities.
 - Energy-driven alt-fires and knockback.
-- Encapsulated `UObject`-based abilities.
+- Encapsulated `UObject`based abilities.
 - Scalable design for future ability types.
 
 ---
@@ -44,13 +44,18 @@ Logic for placing, validating, and managing traps/structures.
 
 ---
 
+## Other Systems
+ - Custom AI behavior and pathfinding.
+ - Trap Synergy System.
+
+
 ##  About Me
 I’m a gameplay programmer passionate about **system design and combat mechanics**.  
 Looking for **gameplay engineering roles** in Unreal Engine projects.
 
 - [Resume (PDF)](./resume.pdf)
 - [LinkedIn](https://linkedin.com/in/robinlifshitz)
-- [GitHub Repo](https://github.com/robinnnnnn/timbermvp)
+- [GitHub Repo](https://github.com/unrealrobin/timbermvp)
 
 ##  Highlight Demo
 [![Watch the Demo](./images/demo-thumbnail.png)](https://youtu.be/your-video-link)  

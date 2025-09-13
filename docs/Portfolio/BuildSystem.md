@@ -1,6 +1,6 @@
 ﻿# Build System
 
-## Build System Goals
+## Goals
 1. Snap Walls and Floors Together.
 2. Snap Components to Walls and Floors.
 3. Snap Traps to Walls and Floors.
@@ -9,7 +9,7 @@
 6. Incorrect Placement visual representation.
 
 ## Why this works
-1. There is a lot of logic required to make different buildable types snap together. Encompassing it all in a single actor component gives better seperation of concers.
+1. There is a lot of logic required to make different buildable types snap together. Encompassing it all in a single actor component gives better seperation of concerns.
 2. The Controller simply calls input events that the Build System Manager handles.
 3. The HUD, Build Menu Panel, and Build Icons give a clear way for the player to interact with the build system.
 
@@ -23,13 +23,6 @@
 
 ### Invalid Build Placement
 ![Incorrect Placement Screenshot](./Images/InvalidPlacementScreenshot.png)
-
-##  Key Features
-- Walls and Floors Snap Together via a Quadrant & Snap Point System.
-- Traps, Constructs and Structures snap to Walls and Floors, utilizing open "Slots" & "Snap Points" .
-- Save and Load using GUID's to spawn the same buildable at load.
-- Payment, Refunding, Deletion of buildables.
-- Placement visual representation.
 
 ---
 
@@ -48,12 +41,25 @@
 
 ---
 
-## Build System Sequence
+##  Key Features
+- Walls and Floors Snap Together via a Quadrant & Snap Point System.
+- Traps, Constructs and Structures snap to Walls and Floors, utilizing open "Slots" & "Snap Points" .
+- Save and Load using GUID's to spawn the same buildable at load.
+- Payment, Refunding, Deletion of buildables.
+- Placement visual representation.
 
+---
+
+
+# Architecture
+
+## Sequence Diagram
 ![Build System Sequence Diagram](./Images/BuildSystemSequence.png)
-
 
 The build system includes multiple components needed to generate a build in game. The player enters build mode, selects a buildable from the build menu, spawns the proxy,
 which is simply a representation of the buildable, and then if possible, spawns the final buildable. The build menu is populated
 at the games initialization using Data Assets for each buildable type. The Data Assets comprise all the information about buildable cost and name
 and are stored in their respective icons in the build menu.
+
+## 🔗 Links
+- [View Full Repo on GitHub](https://github.com/unrealrobin/timbermvp)

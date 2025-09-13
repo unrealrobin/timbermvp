@@ -1,6 +1,6 @@
 ﻿# Mission System
 
-## Mission System Goals
+## Goals
 1. Simplicity.
 - Extendable to other systems. (Ex. Achievements, Tutorials)
 - Mission Design should be as simple as possible & require low/no code.
@@ -24,14 +24,14 @@ Having a single subsystem that only broadcasts events with a Payload ensures the
 
 | Class                                   | Role                                                     | Key Methods                                                                                                            | Github                                                                                                                                                                                                                                                                            |
 |-----------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`UMissionDeliveryComponent` (Actor Component) |Owns mission state and handles mission filtering/processing. | `InitializeActiveMission`, `SetActiveMission`, `CheckMissionContext`, `HandleEvent`                                    | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/Components/MissionDelivery/MissionDeliveryComponent.h) - [CPP]((https://github.com/robinnnnnn/timbermvp/blob/main/Source/timbermvp/Private/Components/MissionDelivery/MissionDeliveryComponent.h)) |
+|`UMissionDeliveryComponent` (Actor Component) |Owns mission state and handles mission filtering/processing. | `InitializeActiveMission`, `SetActiveMission`, `CheckMissionContext`, `HandleEvent`                                    | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/Components/MissionDelivery/MissionDeliveryComponent.h) - [CPP](https://github.com/robinnnnnn/timbermvp/blob/main/Source/timbermvp/Private/Components/MissionDelivery/MissionDeliveryComponent.cpp) |
 |`UMissionViewModel` (View Model)         |Single Source of Truth for Mission Data. UI Facing.       | **Getters & Setters with Broadcast Macros**, `UE_MVVM_SET_PROPERTY_VALUE()`, `UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED()` | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/ViewModels/MissionViewModel.h) - [CPP](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Private/ViewModels/MissionViewModel.cpp)                                                |
-|`UMissionEventSubsystem` (Game Subsystem) |Broadcasts Payload to MDC Actor Component                 | `BroadcastMissionEvent()`                                                                                              | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/Subsystems/Events/CombatEventSubsystem.h) - [CPP](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Private/Subsystems/Events/CombatEventSubsystem.cpp)                          |
+|`UMissionEventSubsystem` (Game Subsystem) |Broadcasts Payload to MDC Actor Component                 | `BroadcastMissionEvent()`                                                                                              | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/Subsystems/Events/MissionEventSubsystem.h) - [CPP](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Private/Subsystems/Events/MissionEventSubsystem.cpp)                        |
 |`UMissionList` (Data Asset)              |Stores a set of Missions. Lives in UMissiongDeliveryComponent. | ** No Logic in Data Asset **                                                                                           | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/Data/DataAssets/MissionSystem/MissionList.h)                                                                                                                                                       |
-|`UMissionBase` (Data Asset)              |Data + state for one mission                              | ** No Logic in Data Asset **                                                                                           | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/Data/DataAssets/MissionSystem/MissionBase.h)                      |
+|`UMissionBase` (Data Asset)              |Data + state for one mission                              | ** No Logic in Data Asset **                                                                                           | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/Data/DataAssets/MissionSystem/MissionBase.h)                                                                                                                                                       |
 |`UMissionDisplayWidget` (View/UI)        |Displays Data / Handles Animations and Visuals            | ** Functions in Blueprint **                                                                                           | [H](https://github.com/unrealrobin/timbermvp/blob/main/Source/timbermvp/Public/UI/MissionSystem/MissionDisplayWidget.h)                                                                                                                                                           |
 
-## Features
+## Key Features
 1. Event Driven Mission System.
 2. Easy Mission Design via in editor Data Assets.
 2. Gameplay Tags are used for both mission design and event filtering.
@@ -64,4 +64,4 @@ Completed missions are saved via Mission GUID's. When a save occurs, the MDC's C
 repopulated with the Completed Missions GUID's.
 
 ## 🔗 Links
-- [View Full Repo on GitHub](https://github.com/robinnnnnn/timbermvp)
+- [View Full Repo on GitHub](https://github.com/unrealrobin/timbermvp)

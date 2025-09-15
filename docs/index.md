@@ -13,6 +13,7 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 - **Team Size:** Solo Developer
 - **Game Website:** [www.paracosm.gg](https://www.paracosm.gg)
 - **Steam:** [Steam Page](https://store.steampowered.com/app/3704770/Die_Robot/)
+- **Github:** [Github Repo](https://github.com/unrealrobin/timbermvp)
 
 ![Gameplay Screenshot](./Portfolio/Images/GameplayScreenshot.png)
 
@@ -23,23 +24,23 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 ### [Mission System](./Portfolio/MissionDeliverySystem.md)
 A modular, data-driven quest framework, using the MVVM-C Pattern.
 - Actor Component based manager.
-- GameplayTags for event filtering & easy mission creation.
-- Uses Unreal Engines View Model Pattern.
+- GameplayTags for event filtering & easy mission iteration.
+- Uses Unreal Engine's MVVM View Model Pattern.'
 
 ---
 
 ### [Player Ability System](./Portfolio/PlayerCombatSystem.md)
-Flexible weapon component handling combat abilities.
+A flexible weapon component that drives combat abilities..
 - Energy-driven alt-fires and knockback.
-- Encapsulated `UObject`based abilities.
-- Scalable design for future ability types.
+- Encapsulated UObject based abilities.
+- Scalable design for adding new ability types.
 
 ---
 
 ### [Build System](./Portfolio/BuildSystem.md)
-Logic for placing, validating, and managing traps/structures.
+Logic for placing, validating, and managing traps & structures.
 - Placement rules (collision, grid, NavMesh integration).
-- Dynamic Traps with Synergistic Effects - emergent combos (fire + gas → explosion).
+- Dynamic Traps with Synergistic Effects. (fire + gas → explosion).
 - Save & Load via GUID's and persistant parent-child relationships (Walls & Traps).
 
 ---
@@ -51,15 +52,11 @@ Logic for placing, validating, and managing traps/structures.
 
 ##  About Me
 I’m a gameplay programmer passionate about **system design and combat mechanics**.  
-Looking for **gameplay engineering roles** in Unreal Engine projects.
+Looking for **gameplay engineering & technical design roles** in Unreal Engine projects.
 
 - [Resume (PDF)](./resume.pdf)
 - [LinkedIn](https://linkedin.com/in/robinlifshitz)
 - [GitHub Repo](https://github.com/unrealrobin/timbermvp)
-
-##  Highlight Demo
-[![Watch the Demo](./images/demo-thumbnail.png)](https://youtu.be/your-video-link)  
-*(Click to open video walkthrough on YouTube.)*
 
 ---
 

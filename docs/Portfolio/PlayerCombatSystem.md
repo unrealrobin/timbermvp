@@ -5,15 +5,16 @@
 - All ability logic lives in the ability.
 - All VFX/Sounds/Animations are Encapsulated in the ability class.
 2. Drag and Drop Actor Component
-- Any Playable Character can have the Component added to them.
+- Any Playable Character can have the Component added.
 3. Dynamic Ability
-- Abilities should be able to be swapped at Runtime, upgraded, etc.
+- Abilities should be able to be swapped at runtime and upgraded.
 ---
 
 ## Why this works
-The Player combat system is comprised of an Actor Component that handles the players abilties dependent on which weapon is equipped.
-Each weapon has encapsulated abilities that control their own behavior. Abilties can be swapped out at runtime and can be created by 
-subclassing the UWeaponAbility class. Abilities control the Life Time of the Instantiated Ability Object.
+The player combat system uses an Actor Component that manages the player’s abilities based on the currently equipped weapon.  
+Each weapon owns encapsulated abilities that control their own behavior. Abilities can be swapped at runtime and are created by subclassing the `UWeaponAbilityBase` class.  
+Each ability manages the lifetime of its instantiated object and cleans itself up when execution completes.
+
 
 
 ## Code Map
@@ -30,8 +31,8 @@ subclassing the UWeaponAbility class. Abilities control the Life Time of the Ins
 ## Key Features
 - All Ability logic is encapsulated.
 - Abilities are stored on the Weapon.
-- Combat Component knows nothing about ability logic. Simply calls its `Execute()` method.
-- Abilities use a context payload to communicate with the Combat Component.
+- The Combat Component is decoupled from ability internals and simply calls `Execute()`.
+- Abilities communicate via a context payload passed to the Combat Component.
 
 ---
 # System Architecture
@@ -39,16 +40,17 @@ subclassing the UWeaponAbility class. Abilities control the Life Time of the Ins
 ## Pattern
 ![Pattern Image](./Images/CombatComponentPattern.png)
 
-The Combat Component is the main entry point for all abilities. This is helpful by reducing the amount of process logic and evaluation that would have
-otherwise been written in the ability, character class, or controller. Now, the controller sends all combat/weapon related events to the Combat Component.
+The Combat Component is the entry point for all abilities. This is helpful by reducing the amount of process logic and evaluation that would have
+otherwise been written in the ability, character class, or controller. Controllers route combat and weapon events to the Combat Component .
 
 ## Primary Ability Sequence
 ![Ability Sequence](./Images/PrimaryAbilitySequence.png)
 
-The key idea here, is to have a base UObject Class that encapsulated the all the data for the ability. When an ability is requested, it is first validated, allowing
-us to not have to instantiate the ability if it is not valid (valid means the ability is available and ready to use). If the ability is valid, then it is
-instantiated and the ability is executed. The ability cleans itself up after it is done executing. It removes all references to itsels from the combat component
-and then is garbage collected.
+A base UObject class encapsulates the data and behavior for each ability. When an ability is requested:
+1. It is validated first (availability, resources, cooldown).
+2. If valid, the ability is instantiated and executed.
+3. The ability cleans itself up after execution, removes its references from the Combat Component, and is garbage-collected.
+
 
 ## 🔗 Links
 - [View Full Repo on GitHub](https://github.com/unrealrobin/timbermvp)

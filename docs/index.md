@@ -54,7 +54,6 @@ Logic for placing, validating, and managing traps & structures.
 I’m a gameplay programmer passionate about **system design and combat mechanics**.  
 Looking for **gameplay engineering & technical design roles** in Unreal Engine projects.
 
-- [Resume (PDF)](./resume.pdf)
 - [LinkedIn](https://linkedin.com/in/robinlifshitz)
 - [GitHub Repo](https://github.com/unrealrobin/timbermvp)
 

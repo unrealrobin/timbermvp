@@ -5,6 +5,10 @@ Players defend a lab from waves of robots by building traps, chaining trap combo
 
 This portfolio highlights the **three core gameplay systems** I’m most proud of.
 
+
+<iframe width="1280" height="720" src="https://youtu.be/X6uwQZvJpAY" frameborder="0" allowfullscreen></iframe>
+
+
 ---
 
 ## 🎮 Game Overview

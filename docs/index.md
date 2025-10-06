@@ -5,9 +5,22 @@ Players defend a lab from waves of robots by building traps, chaining trap combo
 
 This portfolio highlights the **three core gameplay systems** I’m most proud of.
 
+<div class="video-wrap">
+  <iframe
+    src="https://youtu.be/X6uwQZvJpAY"
+    title="Gameplay Trailer"
+    loading="lazy"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen>
+  </iframe>
+</div>
 
-<iframe width="1280" height="720" src="https://youtu.be/X6uwQZvJpAY" frameborder="0" allowfullscreen></iframe>
-
+<style>
+.video-wrap{position:relative;max-width:960px;margin:1.5rem auto;}
+.video-wrap:before{content:"";display:block;padding-top:56.25%;} /* 16:9 */
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;}
+</style>
 
 ---
 

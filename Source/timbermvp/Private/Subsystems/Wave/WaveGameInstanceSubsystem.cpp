@@ -57,7 +57,7 @@ void UWaveGameInstanceSubsystem::PrepareSpawnPoints()
 {
 	GetAllStandardSpawnPointsInLab();
 	StageAllStandardSpawnPointLocations();
-	GetBossSpawnPointLocation();
+	//GetBossSpawnPointLocation();
 	GetGarageDoor();
 }
 

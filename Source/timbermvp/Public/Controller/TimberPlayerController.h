@@ -92,8 +92,8 @@ public:
 	UInputAction* ToggleBuildMenuStatusEffectWindowAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* ToggleDataViewAction;
-	/*UPROPERTY(EditAnywhere)
-	UInputAction* HideBuildMenuAction;*/
+	UPROPERTY(EditAnywhere)
+	UInputAction* StartWaveEarlyAction;
 
 	//Not for SHippings Builds.
 	UPROPERTY(EditAnywhere)
@@ -140,6 +140,8 @@ public:
 	void ToggleBuildMenuStatusEffectWindow(const FInputActionValue& Value);
 	UFUNCTION()
 	void ToggleDataView(const FInputActionValue& Value);
+	UFUNCTION()
+	void HandleStartWaveEarly();
 
 	/* COMBAT */
 	UFUNCTION()

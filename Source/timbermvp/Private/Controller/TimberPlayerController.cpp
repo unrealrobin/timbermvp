@@ -16,6 +16,7 @@
 #include "UI/TimberHUDBase.h"
 #include "Weapons/Abilities/WeaponAbilityBase.h"
 #include "MVVMGameSubsystem.h"           
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "ViewModels/MissionViewModel.h"
 
 
@@ -90,6 +91,7 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ReloadWeaponInputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ReloadWeapon);
 	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
 	EnhancedInputComponent->BindAction(ToggleDataViewAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleDataView);
+	EnhancedInputComponent->BindAction(StartWaveEarlyAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HandleStartWaveEarly);
 
 	/*Build Inputs*/
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EnterBuildMode);
@@ -99,7 +101,6 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(SelectIconAction_Controller, ETriggerEvent::Triggered, this, &ATimberPlayerController::SelectBCIcon_Controller);
 	EnhancedInputComponent->BindAction(ToggleBuildMenuStatusEffectWindowAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleBuildMenuStatusEffectWindow);
 	EnhancedInputComponent->BindAction(ExitBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ExitBuildMode);
-	//EnhancedInputComponent->BindAction(HideBuildMenuAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HideBuildMenu);
 
 	#if !UE_BUILD_SHIPPING
 	EnhancedInputComponent->BindAction(HighResShotWithUI_InputAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::TakeHighResShotWithUI);
@@ -492,6 +493,14 @@ void ATimberPlayerController::ToggleBuildMenuStatusEffectWindow(const FInputActi
 void ATimberPlayerController::ToggleDataView(const FInputActionValue& Value)
 {
 	ToggleDataView_DelegateHandle.Broadcast(Value);
+}
+
+void ATimberPlayerController::HandleStartWaveEarly()
+{
+	if (UWaveGameInstanceSubsystem* WS = GetWorld()->GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>())
+	{
+		WS->EarlyStartWave();
+	}
 }
 
 void ATimberPlayerController::HandleControllerExitBuildMode()

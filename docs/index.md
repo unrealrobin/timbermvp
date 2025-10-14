@@ -16,13 +16,13 @@ This portfolio highlights the **three core gameplay systems** I’m most proud o
 </style>
 
 
-## You can try the Demo here -> [Demo](https://drive.google.com/drive/folders/1hJQrmnM6F_LmO74WHoozdmP9ByduKGBU?usp=drive_link)
+## You can try the Demo here -> [DEMO](https://drive.google.com/drive/folders/1hJQrmnM6F_LmO74WHoozdmP9ByduKGBU?usp=drive_link)
 
 ---
 
 ## 🎮 Game Overview
 - **Genre:** Tower Defense + Action Combat
-- **Engine:** Unreal Engine 5.4 (C++)
+- **Engine:** Unreal Engine 5.4 (C++) (Updated to 5.6)
 - **Team Size:** Solo Developer
 - **Game Website:** [www.paracosm.gg](https://www.paracosm.gg)
 - **Steam:** [Steam Page](https://store.steampowered.com/app/3704770/Die_Robot/)

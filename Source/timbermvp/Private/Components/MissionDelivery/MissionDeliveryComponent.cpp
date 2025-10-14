@@ -8,6 +8,7 @@
 #include "Character/TimberPlayableCharacter.h"
 #include "Components/AudioComponent.h"
 #include "Components/Inventory/InventoryManagerComponent.h"
+#include "Controller/TimberPlayerController.h"
 #include "Data/DataAssets/MissionSystem/MissionBase.h"
 #include "Data/DataAssets/MissionSystem/MissionList.h"
 #include "Subsystems/Dialogue/DialogueManager.h"
@@ -326,17 +327,29 @@ void UMissionDeliveryComponent::GetMissionViewModel()
 		{
 			FMVVMViewModelContext Context;
 			Context.ContextClass = UMissionViewModel::StaticClass();
-			Context.ContextName = "MissionVM";
+			Context.ContextName = "MissionViewModel";
 			
 			TObjectPtr<UMVVMViewModelBase> VM_Base = Collection->FindViewModelInstance(Context);
 			if (IsValid(VM_Base))
 			{
 				MissionViewModel = Cast<UMissionViewModel>(VM_Base);
 				UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Found the Mission View Model."));
-				return;
+			}
+			else
+			{
+				MissionViewModel = NewObject<UMissionViewModel>(this);
+				Collection->AddViewModelInstance(Context, MissionViewModel);
+				UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Created View Model and Added it to Collection."));
+				
 			}
 
-			UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - Could Not Get the Mission View Model from Global Collection."));
+			//Mission Widget is waiting on the MVVM Initialization to Bind events so we need to initiate that here.
+			if (IsValid(MissionViewModel))
+			{
+				//We need to call to the controller to get the HUD to check the Root Base Widget to Get to Mission Widget
+				UE_LOG(LogTemp, Warning, TEXT("Mission Delivery Component - View Model is Active in Collection."));
+				
+			}
 		}
 	}
 }

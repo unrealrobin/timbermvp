@@ -497,9 +497,20 @@ void ATimberPlayerController::ToggleDataView(const FInputActionValue& Value)
 
 void ATimberPlayerController::HandleStartWaveEarly()
 {
+	//Adding cooldown to the actual Controller Trigger.
+	if (bStartWaveEarlyIsOnCooldown) return;
+	
 	if (UWaveGameInstanceSubsystem* WS = GetWorld()->GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>())
 	{
+		if (WS->bIsWaveActive) return;
+		
 		WS->EarlyStartWave();
+		bStartWaveEarlyIsOnCooldown = true;
+
+		//After five seconds, allow the control to be triggered again.
+		GetWorld()->GetTimerManager().SetTimer(OnStartWaveEarlyCooldownTimerHandle, FTimerDelegate::CreateLambda([this]() {
+			bStartWaveEarlyIsOnCooldown = false;
+		}), 5.0f, false);
 	}
 }
 

@@ -102,8 +102,6 @@ protected:
 	// EX. Destroy {Count} {Enemy.Carbonite.Grunts} with {Weapon.Hammer} 
 	// Content in [content] to be highlightable.
 	// Multiple Objectives Should Stack.
-
-	
 	
 };
 

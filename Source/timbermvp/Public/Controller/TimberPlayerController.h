@@ -259,9 +259,11 @@ private:
 
 	UFUNCTION()
 	void HandleTutorialStateChanges(ETutorialState NewState);
-
-
+	
 	void MissionViewModelInstantiation();
+
+	FTimerHandle OnStartWaveEarlyCooldownTimerHandle;
+	bool bStartWaveEarlyIsOnCooldown = false;
 };
 
 

@@ -53,10 +53,10 @@ void ATimberGameModeBase::BeginPlay()
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
 
 	//TODO:: Remove when not showing Publishers. 
-	UDialogueManager* DialogueManager = GetGameInstance()->GetSubsystem<UDialogueManager>();
+	/*UDialogueManager* DialogueManager = GetGameInstance()->GetSubsystem<UDialogueManager>();
 	if (DialogueManager)
 	{
-		TWeakObjectPtr<UDialogueManager> WeakDM = DialogueManager;
+		TWeakObjectPtr WeakDM = DialogueManager;
 		FTimerHandle Handle;
 		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([WeakDM]() {
 			if (WeakDM.IsValid())
@@ -64,7 +64,7 @@ void ATimberGameModeBase::BeginPlay()
 				WeakDM->PlayVoiceover("Molly_PubDemoIntro");
 			}
 		}), 1.0f, false);
-	}
+	}*/
 	
 	GatherSeedaData();
 	GatherAllLabDoors();

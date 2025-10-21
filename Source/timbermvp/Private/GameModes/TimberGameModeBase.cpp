@@ -11,7 +11,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Environment/LabDoorBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "Subsystems/Dialogue/DialogueManager.h"
 #include "Subsystems/GameConfig/DieRobotGameConfigSubsystem.h"
 #include "Subsystems/Music/UMusicManagerSubsystem.h"
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
@@ -21,65 +20,26 @@
 class UDialogueManager;
 class UBuildingComponentPanel;
 
-void ATimberGameModeBase::LoadPublisherDemo()
-{
-	USaveLoadSubsystem* SLSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
-	if (SLSubsystem)
-	{
-		SLSubsystem->LoadPublisherDemo();
-	}
-}
-
 void ATimberGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	PlayBuildMusic();
-
-	//TODO:: Remove when not showing Publishers.
-	//LoadPublisherDemo();
 	
 	InitializeGameState();
 	
-	{//Binding to Delegates
-		GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
-		GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
-		GetWaveGameInstanceSubsystem()->OnWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
-
-		//GetWaveGameInstanceSubsystem()->SaveCurrentGameHandle.AddDynamic(this, &ATimberGameModeBase::SaveCurrentGame);
-		/*Subscribing to Player Death Delegate Signature*/
-	}
+	GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
+	GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
+	GetWaveGameInstanceSubsystem()->OnWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
 	
 	GetWaveGameInstanceSubsystem()->PrepareSpawnPoints();
-
-	//TODO:: Remove when not showing Publishers. 
-	/*UDialogueManager* DialogueManager = GetGameInstance()->GetSubsystem<UDialogueManager>();
-	if (DialogueManager)
-	{
-		TWeakObjectPtr WeakDM = DialogueManager;
-		FTimerHandle Handle;
-		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([WeakDM]() {
-			if (WeakDM.IsValid())
-			{
-				WeakDM->PlayVoiceover("Molly_PubDemoIntro");
-			}
-		}), 1.0f, false);
-	}*/
-	
 	GatherSeedaData();
 	GatherAllLabDoors();
-
-	/*if(WaveCompositionDataTable)
-	{
-		PassDataTableToWaveSubsystem(WaveCompositionDataTable);
-	}*/
 
 	if (WaveCompositionCurveTable)
 	{
 		GetWaveGameInstanceSubsystem()->SetWaveCompositionCurveTable(WaveCompositionCurveTable);
 	}
-
-	//TestSentry();
 }
 
 void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
@@ -300,6 +260,15 @@ void ATimberGameModeBase::TestSentry()
 	USentrySubsystem* SentrySubsystem = GEngine->GetEngineSubsystem<USentrySubsystem>();
 	SentrySubsystem->CaptureMessage(TEXT("Captured Message from Die Robot"));
 	
+}
+
+void ATimberGameModeBase::InitializeSaveLoadSession()
+{
+	USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+	if (SaveLoadSubsystem)
+	{
+		
+	}
 }
 
 void ATimberGameModeBase::GatherAllLabDoors()

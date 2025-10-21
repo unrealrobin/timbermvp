@@ -2,7 +2,6 @@
 
 
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
-
 #include "BuildSystem/Constructs/ConstructBase.h"
 #include "BuildSystem/Constructs/TeleportConstruct.h"
 #include "Character/TimberPlayableCharacter.h"
@@ -16,6 +15,7 @@
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "States/PlayerStateBase.h"
+#include "Subsystems/SaveLoad/Types/GlobalSaveDataStruct.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -30,12 +30,32 @@
 	return StandardSaveSlot;
 }*/
 
+void USaveLoadSubsystem::SetNewGameSaveSlot()
+{
+	FGuid SaveSlotID = FGuid();
+
+	//Converts to string and removes dashes.
+	FString IDasString = SaveSlotID.ToString(EGuidFormats::Digits);
+
+	//Adding the new ID for this save slot to the list of saved games.
+	SaveSlots.Add(IDasString);
+
+	//Setting the sessions Save Slot to use.
+	SetCurrentSessionSaveSlot(IDasString);
+}
+
+void USaveLoadSubsystem::SetLoadGameSaveSlot(FString SlotName)
+{
+	//Load an Existing Game from the List of Saved Games
+}
+
 /*Save System*/
 void USaveLoadSubsystem::SaveCurrentGame()
 {
-	FString SaveSlot = StandardSaveSlot;
-	//FString SaveSlot = PubDemoSaveSlot;
-	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *SaveSlot);
+	if (CurrentSessionSaveSlot == "NO_SAVE_SLOT_ASSIGNED") return;
+	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *CurrentSessionSaveSlot)
+	
+	FString SaveSlot = CurrentSessionSaveSlot;
 	//Creating an instance of the Save Game Object
 	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(
 		UGameplayStatics::CreateSaveGameObject
@@ -119,6 +139,59 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 	{
 		BuildableData.BackLeftAttachmentGUID = BuildingComponent->BackLeftAttachment->GetGUID();
 	}
+}
+
+void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
+{
+	CurrentSessionSaveSlot = SlotName;
+	UGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
+	if (GlobalSaveDataInstance)
+	{
+		GlobalSaveDataInstance->Data.LastSavedGame = CurrentSessionSaveSlot;
+		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, "GLOBAL_SAVE_DATA", 0);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to Load or Create Global Save Data Instance from the GLOBAL_SAVE_DATA slot."));
+	}
+}
+
+UGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
+{
+	/* Attempt to Load the an Existing GLobal Save Data File*/
+	UGlobalSaveData* LoadedGlobalSaveData = Cast<UGlobalSaveData>(
+		UGameplayStatics::LoadGameFromSlot("GLOBAL_SAVE_DATA", 0));
+	if (LoadedGlobalSaveData)
+	{
+		return LoadedGlobalSaveData;
+	}
+	
+	UGlobalSaveData* GlobalSaveDataInstance = Cast<UGlobalSaveData>(
+		UGameplayStatics::CreateSaveGameObject
+		(USaveLoadStruct::StaticClass()));
+	if (GlobalSaveDataInstance)
+	{
+		return GlobalSaveDataInstance;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Could not Load or Create Global Save Data Instance."));
+	return nullptr;
+	
+	
+	
+}
+
+FString USaveLoadSubsystem::GetLastPlayedSaveSlot()
+{
+	UGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
+	if (GlobalSaveDataInstance)
+	{
+		return GlobalSaveDataInstance->Data.LastSavedGame;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve Last Saved Game Save Slot FString."));
+	return CurrentSessionSaveSlot;
+	
 }
 
 void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
@@ -313,7 +386,7 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 	}
 }
 
-void USaveLoadSubsystem::SetupSaveForPublisherDemo()
+/*void USaveLoadSubsystem::SetupSaveForPublisherDemo()
 {
 	//We are checking their save slot location if the Slot/Save File Exists.
 	if (!UGameplayStatics::DoesSaveGameExist(PubDemoSaveSlot, 0))
@@ -331,7 +404,7 @@ void USaveLoadSubsystem::SetupSaveForPublisherDemo()
 			IFileManager::Get().Copy(*Destination, *Source);
 		}
 	}
-}
+}*/
 
 /* Load System */
 void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
@@ -545,7 +618,7 @@ void USaveLoadSubsystem::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 
 }
 
-void USaveLoadSubsystem::LoadPublisherDemo()
+/*void USaveLoadSubsystem::LoadPublisherDemo()
 {
 	//Does the Save Directory Container this Save File?
 	if (FPaths::FileExists(FPaths::ProjectSavedDir() + TEXT("SaveGames/PubDemoSaveSlot.sav")))
@@ -556,7 +629,7 @@ void USaveLoadSubsystem::LoadPublisherDemo()
 		return;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("SaveGames/PubDemoSaveSlot.sav DOES NOT Exist, Starting game from StartUp Level."));
-}
+}*/
 
 void USaveLoadSubsystem::BindToGameModeBaseDelegate(ATimberGameModeBase* GameModeBase)
 {
@@ -579,7 +652,7 @@ void USaveLoadSubsystem::OnCharacterInitialization()
 	// Also, this will only get called when switching from StartUp to LabLevel, Otherwise the Character should already be initialized.
 	// This Chain Starts in the Begin Play of the TimberPlayableCharacter Class ->GameMode Braodcast -> SaveLoadSubsystem -> OnCharacterInitialization
 	
-	USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(UGameplayStatics::LoadGameFromSlot(PubDemoSaveSlot, 0));
+	USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(UGameplayStatics::LoadGameFromSlot(CurrentSessionSaveSlot, 0));
 	LoadPlayerState(LoadGameInstance);
 }
 

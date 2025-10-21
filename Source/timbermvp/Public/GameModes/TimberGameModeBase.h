@@ -41,9 +41,6 @@ public:
 	FEnableStandardInputMappingContext EnableStandardInputMappingContext;
 	FOnCharacterInitialization OnCharacterInitialization;
 	FOnSeedaSpawn OnSeedaSpawn;
-
-	/*PUBLISHER DEMO ONLY*/
-	void LoadPublisherDemo();
 	
 	virtual void BeginPlay() override;
 	
@@ -92,31 +89,7 @@ public:
 	FVector SeedaLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<AActor*> ArrayOfSpawnedSeedas;
-
-	/*Save/Load Slots*/
-	FString DEVELOPER_SAVE_BASE_MIDGAME = TEXT("DEVELOPER_BASE_SAVE");
-	FString MidGameDemoSaveSlot = TEXT("MidGameDemoSaveSlot");
-	FString StandardSaveSlot = TEXT("StandardSaveSlot");
-
-	/*UFUNCTION()
-	FString GetSaveSlot();
 	
-	/* Save System#1#
-	UFUNCTION(BlueprintCallable, Category="Save System")
-	void SaveCurrentGame();
-	void SaveBuildingComponentData(USaveLoadStruct* SaveGameInstance);
-	void SaveWaveData(USaveLoadStruct* SaveGameInstance);
-	void SavePlayerData(USaveLoadStruct* SaveGameInstance);
-	void SaveSeedaData(USaveLoadStruct* SaveGameInstance);
-
-	/*Load System#1#
-	UFUNCTION(BlueprintCallable, Category="Save System")
-	void LoadGame();
-	void LoadBuildingComponents(USaveLoadStruct* LoadGameInstance);
-	void LoadWaveData(USaveLoadStruct* LoadGameInstance);
-	void LoadPlayerState(USaveLoadStruct* LoadGameInstance);
-	void LoadSeedaData(USaveLoadStruct* LoadGameInstance);*/
-
 	UFUNCTION()
 	void HandleWaveComplete(int CompletedWave);
 	
@@ -160,6 +133,10 @@ protected:
 	void PlayAttackMusic();
 
 private:
+
+	//CI/CD
 	void TestSentry();
+
+	void InitializeSaveLoadSession();
 	
 };

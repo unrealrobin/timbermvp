@@ -114,27 +114,27 @@ void UPlayerVignetteComponent::HandleHealthChange(float HealthPercent)
 	if (HealthPercent > .8f)
 	{
 		TargetState = FullState;
-		CurrentVignetteState = EDamageVignetteState::FullHealth;
+		CurrentVignetteState = EDamageVignetteRate::FullHealth;
 	}
 	else if (HealthPercent > .5f)
 	{
 		TargetState = LightState;
-		CurrentVignetteState = EDamageVignetteState::LightDamage;
+		CurrentVignetteState = EDamageVignetteRate::LightDamage;
 	}
 	else if (HealthPercent > .25f)
 	{
 		TargetState = HighState;
-		CurrentVignetteState = EDamageVignetteState::HighDamage;
+		CurrentVignetteState = EDamageVignetteRate::HighDamage;
 	}
 	else if (HealthPercent <= 0.25f)
 	{
 		TargetState = CriticalState;
-		CurrentVignetteState = EDamageVignetteState::Critical;
+		CurrentVignetteState = EDamageVignetteRate::Critical;
 	}
 	else
 	{
 		TargetState = FullState;
-		CurrentVignetteState = EDamageVignetteState::FullHealth;
+		CurrentVignetteState = EDamageVignetteRate::FullHealth;
 	}
     
 	//Only lerp if target state type is different

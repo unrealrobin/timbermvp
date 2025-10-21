@@ -7,9 +7,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SaveLoadSubsystem.generated.h"
 
-
 class ATimberGameModeBase;
-
+class UGlobalSaveData;
 /**
  * 
  */
@@ -19,24 +18,42 @@ class TIMBERMVP_API USaveLoadSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY()
 	TMap<FGuid, ABuildableBase*> GuidToBuildableMap;
-	FString PubDemoSaveSlot = TEXT("PubDemoSaveSlot");
-	FString StandardSaveSlot = TEXT("StandardSaveSlot");
 	UClass* SeedaClass = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+	void SetNewGameSaveSlot();
+	UFUNCTION(BlueprintCallable)
+	void SetLoadGameSaveSlot(FString SlotName);
 	
 	/* Save System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
-	void SaveBuildableData(USaveLoadStruct* SaveGameInstance);
-	void SaveWaveData(USaveLoadStruct* SaveGameInstance);
-	void SavePlayerData(USaveLoadStruct* SaveGameInstance);
-	void SaveSeedaData(USaveLoadStruct* SaveGameInstance);
 
 	/* Load System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void LoadGame(FString SlotToLoad = TEXT("StandardSaveSlot"));
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE FString GetCurrentSessionSaveSlot() { return CurrentSessionSaveSlot; }
+
+private:
+
+	UPROPERTY()
+	TArray<FString> SaveSlots;
+	UPROPERTY()
+	FString CurrentSessionSaveSlot = "NO_SAVE_SLOT_ASSIGNED";
+
+	void SetCurrentSessionSaveSlot(FString SlotName);
+	UGlobalSaveData* GetGlobalSaveDataInstance();
+	FString GetLastPlayedSaveSlot();
+	
+	void SaveBuildableData(USaveLoadStruct* SaveGameInstance);
+	void SaveWaveData(USaveLoadStruct* SaveGameInstance);
+	void SavePlayerData(USaveLoadStruct* SaveGameInstance);
+	void SaveSeedaData(USaveLoadStruct* SaveGameInstance);
+	
 	void LoadBuildableData(USaveLoadStruct* LoadGameInstance);
 	void LoadWaveData(USaveLoadStruct* LoadGameInstance);
 	void LoadPlayerState(USaveLoadStruct* LoadGameInstance);
@@ -59,6 +76,7 @@ public:
 	bool bIsBuildableRegistered(FGuid BuildableGUID);
 	//Resolving Linking of Parents/Pairs/Attached Buildables.
 	void ResolveBuildableReferences(TArray<FBuildableData> BuildableData);
+	
 	/* Publisher Demo Functions */
 	void SetupSaveForPublisherDemo();
 	void LoadPublisherDemo();

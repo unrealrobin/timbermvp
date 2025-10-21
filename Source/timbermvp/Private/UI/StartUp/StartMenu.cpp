@@ -2,6 +2,9 @@
 
 
 #include "UI/StartUp/StartMenu.h"
+
+#include "Blueprint/WidgetTree.h"
+#include "Components/VerticalBox.h"
 #include "Subsystems/Online/Login.h"
 
 void UStartMenu::NativeConstruct()
@@ -22,5 +25,21 @@ void UStartMenu::HandleUserLogin(bool bIsPlayerLoggedIn)
 	if (bIsPlayerLoggedInOnline)
 	{
 		LoggedInUserDisplayName = LoginSubsystem->LocalUserInfo.OnlineUserDisplayName;
+	}
+}
+
+void UStartMenu::HideStartMenuSelections()
+{
+	if (UWidget* FoundWidget = WidgetTree->FindWidget("StartUpMenuVBox"))
+	{
+		MenuVBox = Cast<UVerticalBox>(FoundWidget);
+		if (MenuVBox)
+		{
+			TArray<UWidget*> ChildrenWidgets = MenuVBox->GetAllChildren();
+			for (UWidget* Child : ChildrenWidgets)
+			{
+				Child->SetVisibility(ESlateVisibility::Collapsed);
+			}
+		}
 	}
 }

@@ -22,6 +22,6 @@ void UDieRobotGameInstance::Init()
 	USaveLoadSubsystem* SaveLoadSubsystem = GetSubsystem<USaveLoadSubsystem>();
 	if (SaveLoadSubsystem)
 	{
-		SaveLoadSubsystem->SetupSaveForPublisherDemo();
+		//SaveLoadSubsystem->SetupSaveForPublisherDemo();
 	}
 }

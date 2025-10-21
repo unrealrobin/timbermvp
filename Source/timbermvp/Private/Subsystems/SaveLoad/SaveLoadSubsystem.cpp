@@ -19,21 +19,10 @@
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
-/*FString USaveLoadSubsystem::GetSaveSlot()
-{
-	UDieRobotGameConfigSubsystem* GameConfigSubsystem = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
-	if (GameConfigSubsystem)
-	{
-		return GameConfigSubsystem->GameConfig == EDieRobotGameConfigType::MidGameDemo ? MidGameDemoSaveSlot : StandardSaveSlot;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Using Standard Save Slot."))
-	return StandardSaveSlot;
-}*/
-
 void USaveLoadSubsystem::SetNewGameSaveSlot()
 {
-	FGuid SaveSlotID = FGuid();
-
+	FGuid SaveSlotID = FGuid::NewGuid();
+	UE_LOG(LogTemp, Warning, TEXT("SetNewGameSaveSlot() - SaveLoadSubsystem - GUID: %s"), *SaveSlotID.ToString(EGuidFormats::Digits))
 	//Converts to string and removes dashes.
 	FString IDasString = SaveSlotID.ToString(EGuidFormats::Digits);
 
@@ -148,7 +137,7 @@ void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
 	if (GlobalSaveDataInstance)
 	{
 		GlobalSaveDataInstance->Data.LastSavedGame = CurrentSessionSaveSlot;
-		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, "GLOBAL_SAVE_DATA", 0);
+		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, GlobalSaveDataSlotName, 0);
 	}
 	else
 	{
@@ -160,15 +149,16 @@ UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 {
 	 //Attempt to Load the an Existing GLobal Save Data File
 	UDieRobotGlobalSaveData* LoadedGlobalSaveData = Cast<UDieRobotGlobalSaveData>(
-		UGameplayStatics::LoadGameFromSlot("GLOBAL_SAVE_DATA", 0));
+		UGameplayStatics::LoadGameFromSlot(GlobalSaveDataSlotName, 0));
 	if (LoadedGlobalSaveData)
 	{
 		return LoadedGlobalSaveData;
 	}
-	
+
+	//Creating a Save Slot for the Global Save Data.
 	UDieRobotGlobalSaveData* GlobalSaveDataInstance = Cast<UDieRobotGlobalSaveData>(
 		UGameplayStatics::CreateSaveGameObject
-		(USaveLoadStruct::StaticClass()));
+		(UDieRobotGlobalSaveData::StaticClass()));
 	if (GlobalSaveDataInstance)
 	{
 		return GlobalSaveDataInstance;
@@ -386,26 +376,6 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 	}
 }
 
-/*void USaveLoadSubsystem::SetupSaveForPublisherDemo()
-{
-	//We are checking their save slot location if the Slot/Save File Exists.
-	if (!UGameplayStatics::DoesSaveGameExist(PubDemoSaveSlot, 0))
-	{
-		//This is the file we added to the project in the Content Folder that has our Save.
-		FString Source = FPaths::ProjectContentDir() + TEXT("Saves/PubDemoSaveSlot.sav");
-
-		//This is where we need to move the file to so that when they begin play, and we call load it will play.
-		FString Destination = FPaths::ProjectSavedDir() + TEXT("SaveGames/PubDemoSaveSlot.sav");
-
-		//Checking if our Save File Exists. (This is what we sent with the game.)
-		if (FPaths::FileExists(Source))
-		{
-			//This is the actual copy function to that directory.
-			IFileManager::Get().Copy(*Destination, *Source);
-		}
-	}
-}*/
-
 /* Load System */
 void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
 {
@@ -532,9 +502,12 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 		ATimberPlayableCharacter* TimberCharacter = GameMode->TimberCharacter;
 		if (IsValid(TimberCharacter))
 		{
-			TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
-			TimberCharacter->SetActorRotation(LoadGameInstance->PlayerData.PlayerRotation);
-			
+			//Spawns at last set location, else spawns at the Set Player Spawn Location
+			if(LoadGameInstance->PlayerData.PlayerLocation != FVector::ZeroVector)
+			{
+				TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
+				TimberCharacter->SetActorRotation(LoadGameInstance->PlayerData.PlayerRotation);
+			}
 			Cast<APlayerController>(TimberCharacter->GetController())->FlushPressedKeys();
 			TimberCharacter->GetCharacterMovement()->StopMovementImmediately();
 			
@@ -617,19 +590,6 @@ void USaveLoadSubsystem::LoadSeedaData(USaveLoadStruct* LoadGameInstance)
 	}
 
 }
-
-/*void USaveLoadSubsystem::LoadPublisherDemo()
-{
-	//Does the Save Directory Container this Save File?
-	if (FPaths::FileExists(FPaths::ProjectSavedDir() + TEXT("SaveGames/PubDemoSaveSlot.sav")))
-	{
-		//Check if the save Slot Exists.
-		UE_LOG(LogTemp, Warning, TEXT("Loading Publisher Demo."));
-		LoadGame(PubDemoSaveSlot);
-		return;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("SaveGames/PubDemoSaveSlot.sav DOES NOT Exist, Starting game from StartUp Level."));
-}*/
 
 void USaveLoadSubsystem::BindToGameModeBaseDelegate(ATimberGameModeBase* GameModeBase)
 {
@@ -866,3 +826,7 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 	}
 }
 
+void USaveLoadSubsystem::SetLastPlayedSaveSlot()
+{
+	CurrentSessionSaveSlot = GetLastPlayedSaveSlot();
+}

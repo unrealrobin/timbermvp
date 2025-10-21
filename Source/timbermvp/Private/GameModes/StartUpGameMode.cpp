@@ -40,6 +40,8 @@ void AStartUpGameMode::BeginPlay()
 		
 		UE_LOG(LogTemp, Warning, TEXT("Startup Level Initialized the Music Manager and Played Song."))
 	}
+
+	InitializeLastLoadedGameSlot();
 	
 }
 
@@ -91,6 +93,19 @@ void AStartUpGameMode::SwitchToMidgameDemo()
 
 		
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
+	}
+}
+
+void AStartUpGameMode::InitializeLastLoadedGameSlot()
+{
+	USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+	if (SaveLoadSubsystem)
+	{
+		//When a game is loaded it sets the Current Save Slot on the Save Load Subsystem.
+		// WHen the Game is saved, the value is then set on the Global Save Data File.
+		//Here we retrieve from the Global Save Data and repopulate that data
+		//TimberGameModeBase then uses that value
+		SaveLoadSubsystem->SetLastPlayedSaveSlot();
 	}
 }
 

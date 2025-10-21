@@ -28,6 +28,7 @@ void ATimberGameModeBase::BeginPlay()
 	
 	InitializeGameState();
 	
+	
 	GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 	GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
 	GetWaveGameInstanceSubsystem()->OnWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
@@ -40,6 +41,8 @@ void ATimberGameModeBase::BeginPlay()
 	{
 		GetWaveGameInstanceSubsystem()->SetWaveCompositionCurveTable(WaveCompositionCurveTable);
 	}
+
+	InitializeSaveLoadSession();
 }
 
 void ATimberGameModeBase::PathTracer_RedrawDelegateBinding()
@@ -266,8 +269,9 @@ void ATimberGameModeBase::InitializeSaveLoadSession()
 {
 	USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
 	if (SaveLoadSubsystem)
-	{
-		
+	{ 
+		SaveLoadSubsystem->LoadGame(SaveLoadSubsystem->GetCurrentSessionSaveSlot());
+		SaveLoadSubsystem->SaveCurrentGame();
 	}
 }
 

@@ -33,5 +33,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToMidgameDemo();
+
+	void InitializeLastLoadedGameSlot();
 	
 };

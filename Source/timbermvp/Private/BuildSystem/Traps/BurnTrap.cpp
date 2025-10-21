@@ -76,7 +76,7 @@ void ABurnTrap::CheckNiagaraActive()
 
 		if (!BurnTrapInternalsNiagara->IsActive())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Burn Trap Niagra is Inactive."));
+			//UE_LOG(LogTemp, Warning, TEXT("Burn Trap Niagra is Inactive."));
 		}
 	}
 	else

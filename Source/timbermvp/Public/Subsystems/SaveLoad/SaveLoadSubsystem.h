@@ -26,7 +26,8 @@ public:
 	void SetNewGameSaveSlot();
 	UFUNCTION(BlueprintCallable)
 	void SetLoadGameSaveSlot(FString SlotName);
-	
+	UFUNCTION(BlueprintCallable)
+	void SetLastPlayedSaveSlot();
 	/* Save System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
@@ -44,6 +45,8 @@ private:
 	TArray<FString> SaveSlots;
 	UPROPERTY()
 	FString CurrentSessionSaveSlot = "NO_SAVE_SLOT_ASSIGNED";
+	UPROPERTY()
+	FString GlobalSaveDataSlotName = "GLOBAL_SAVE_DATA";
 
 	void SetCurrentSessionSaveSlot(FString SlotName);
 	UDieRobotGlobalSaveData* GetGlobalSaveDataInstance();
@@ -77,8 +80,7 @@ private:
 	//Resolving Linking of Parents/Pairs/Attached Buildables.
 	void ResolveBuildableReferences(TArray<FBuildableData> BuildableData);
 	
-	/* Publisher Demo Functions */
-	void SetupSaveForPublisherDemo();
-	void LoadPublisherDemo();
+
+	
 };
 

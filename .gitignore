@@ -57,3 +57,4 @@ Build/*
 
 #Keys Etc.
 LocalEngine.ini
+.sentry-native/

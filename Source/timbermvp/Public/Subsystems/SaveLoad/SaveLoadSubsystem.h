@@ -8,7 +8,7 @@
 #include "SaveLoadSubsystem.generated.h"
 
 class ATimberGameModeBase;
-class UGlobalSaveData;
+class UDieRobotGlobalSaveData;
 /**
  * 
  */
@@ -46,7 +46,7 @@ private:
 	FString CurrentSessionSaveSlot = "NO_SAVE_SLOT_ASSIGNED";
 
 	void SetCurrentSessionSaveSlot(FString SlotName);
-	UGlobalSaveData* GetGlobalSaveDataInstance();
+	UDieRobotGlobalSaveData* GetGlobalSaveDataInstance();
 	FString GetLastPlayedSaveSlot();
 	
 	void SaveBuildableData(USaveLoadStruct* SaveGameInstance);

@@ -18,10 +18,4 @@ void UDieRobotGameInstance::Init()
 			Settings->ApplySettings(false);  
 		}
 	}
-
-	USaveLoadSubsystem* SaveLoadSubsystem = GetSubsystem<USaveLoadSubsystem>();
-	if (SaveLoadSubsystem)
-	{
-		//SaveLoadSubsystem->SetupSaveForPublisherDemo();
-	}
 }

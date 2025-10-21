@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PlayerVignetteComponent.generated.h"
 
-UENUM(BlueprintType)
+UENUM(BlueprintType , meta = (ScriptName = "DieRobotDamageVignetteState"))
 enum class EDamageVignetteRate: uint8
 {
 	FullHealth UMETA(DisplayName = "100%"),

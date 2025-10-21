@@ -15,7 +15,7 @@
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "States/PlayerStateBase.h"
-#include "Subsystems/SaveLoad/Types/GlobalSaveDataStruct.h"
+#include "Subsystems/SaveLoad/Types/DieRobotGlobalSaveDataStruct.h"
 #include "Weapons/TimberWeaponMeleeBase.h"
 #include "Weapons/TimberWeaponRangedBase.h"
 
@@ -144,7 +144,7 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
 {
 	CurrentSessionSaveSlot = SlotName;
-	UGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
+	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
 	if (GlobalSaveDataInstance)
 	{
 		GlobalSaveDataInstance->Data.LastSavedGame = CurrentSessionSaveSlot;
@@ -156,17 +156,17 @@ void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
 	}
 }
 
-UGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
+UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 {
-	/* Attempt to Load the an Existing GLobal Save Data File*/
-	UGlobalSaveData* LoadedGlobalSaveData = Cast<UGlobalSaveData>(
+	 //Attempt to Load the an Existing GLobal Save Data File
+	UDieRobotGlobalSaveData* LoadedGlobalSaveData = Cast<UDieRobotGlobalSaveData>(
 		UGameplayStatics::LoadGameFromSlot("GLOBAL_SAVE_DATA", 0));
 	if (LoadedGlobalSaveData)
 	{
 		return LoadedGlobalSaveData;
 	}
 	
-	UGlobalSaveData* GlobalSaveDataInstance = Cast<UGlobalSaveData>(
+	UDieRobotGlobalSaveData* GlobalSaveDataInstance = Cast<UDieRobotGlobalSaveData>(
 		UGameplayStatics::CreateSaveGameObject
 		(USaveLoadStruct::StaticClass()));
 	if (GlobalSaveDataInstance)
@@ -183,14 +183,14 @@ UGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 
 FString USaveLoadSubsystem::GetLastPlayedSaveSlot()
 {
-	UGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
+	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
 	if (GlobalSaveDataInstance)
 	{
 		return GlobalSaveDataInstance->Data.LastSavedGame;
 	}
-	
 	UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve Last Saved Game Save Slot FString."));
 	return CurrentSessionSaveSlot;
+	
 	
 }
 

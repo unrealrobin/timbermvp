@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SaveLoadStruct.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Types/DieRobotGlobalSaveDataStruct.h"
 #include "SaveLoadSubsystem.generated.h"
 
 class ATimberGameModeBase;
@@ -28,6 +29,7 @@ public:
 	void SetLoadGameSaveSlot(FString SlotName);
 	UFUNCTION(BlueprintCallable)
 	void SetLastPlayedSaveSlot();
+	
 	/* Save System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
 	void SaveCurrentGame();
@@ -39,6 +41,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE FString GetCurrentSessionSaveSlot() { return CurrentSessionSaveSlot; }
 
+	/* Retrieves the Global Save Data from the GLOBAL_SAVE_DATA file*/
+	UDieRobotGlobalSaveData* GetGlobalSaveDataInstance();
 private:
 
 	UPROPERTY()
@@ -49,7 +53,6 @@ private:
 	FString GlobalSaveDataSlotName = "GLOBAL_SAVE_DATA";
 
 	void SetCurrentSessionSaveSlot(FString SlotName);
-	UDieRobotGlobalSaveData* GetGlobalSaveDataInstance();
 	FString GetLastPlayedSaveSlot();
 	
 	void SaveBuildableData(USaveLoadStruct* SaveGameInstance);
@@ -79,7 +82,11 @@ private:
 	bool bIsBuildableRegistered(FGuid BuildableGUID);
 	//Resolving Linking of Parents/Pairs/Attached Buildables.
 	void ResolveBuildableReferences(TArray<FBuildableData> BuildableData);
-	
+
+	void AddNewSaveSlotToGlobalSaveSlotList();
+
+	/* Generates an up to Data Save Slot Struct that lives in the ActiveSaveSlots.*/
+	FSaveSlotDataStruct GenerateSaveSlotDataStruct(FString SlotName);
 
 	
 };

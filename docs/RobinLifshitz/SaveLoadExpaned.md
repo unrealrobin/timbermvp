@@ -1,15 +1,7 @@
 ```mermaid
 
 flowchart TD
-    A(Load Game Button) --> B(Load Game Panel Widget)
-    
-   B(Load Game Panel Widget) -->|Option| C(Exisiting Save)
-   B(Load Game Panel Widget) -->|Option| D(Exisiting Save)
-   B(Load Game Panel Widget) -->|Option| E(Exisiting Save)
-   
-   D --> F(Get Save Name) --> G(SaveLoadSubsystem)
-
-    G(SaveLoadSubsystem) --> H(Find File With Name) --> I(Load Game from File)
+    A(NewGame Button Selected) -->|"Creates Id"| B(SetNewGameSaveSlot)
     
 
 ```

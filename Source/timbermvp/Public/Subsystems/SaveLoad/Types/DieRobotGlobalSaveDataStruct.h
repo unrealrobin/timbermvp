@@ -14,6 +14,24 @@ struct FDieRobotGlobalSaveDataStruct
 	FString LastSavedGame;
 };
 
+USTRUCT(BlueprintType, meta=(scriptName="GlobalSaveDataStruct"))
+struct FSaveSlotDataStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString SlotName;
+
+	UPROPERTY()
+	FGuid SlotGuid;
+
+	UPROPERTY()
+	int SlotCurrentWave;
+
+	UPROPERTY();
+	FString LastTimeStamp;
+};
+
 UCLASS()
 class TIMBERMVP_API UDieRobotGlobalSaveData : public USaveGame
 {
@@ -21,5 +39,12 @@ class TIMBERMVP_API UDieRobotGlobalSaveData : public USaveGame
 
 public:
 	UPROPERTY()
-	FDieRobotGlobalSaveDataStruct Data;
+	FDieRobotGlobalSaveDataStruct LastSavedSlot;
+
+	UPROPERTY()
+	TArray<FSaveSlotDataStruct> ActiveSaveSlots;
+
+	UFUNCTION()
+	FString GetCurrentTimeStamp();
 };
+

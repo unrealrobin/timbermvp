@@ -269,7 +269,7 @@ void ATimberGameModeBase::InitializeSaveLoadSession()
 {
 	USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
 	if (SaveLoadSubsystem)
-	{ 
+	{
 		SaveLoadSubsystem->LoadGame(SaveLoadSubsystem->GetCurrentSessionSaveSlot());
 		SaveLoadSubsystem->SaveCurrentGame();
 	}

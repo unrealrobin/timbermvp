@@ -8,6 +8,7 @@
 #include "StartMenu.generated.h"
 
 
+class UDRLoadMenu;
 using namespace UE::Online;
 class ULogin;
 class UVerticalBox;
@@ -22,6 +23,9 @@ class TIMBERMVP_API UStartMenu : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Load Menu WBP Class")
+	TSubclassOf<UDRLoadMenu> LoadMenuWidgetClass;
 	
 	UPROPERTY()
 	ULogin* LoginSubsystem = nullptr;
@@ -31,6 +35,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void HideStartMenuSelections();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowStartMenuSelections();
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayLoadMenu();
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category="Start Menu")
@@ -42,4 +52,7 @@ protected:
 private:
 	UPROPERTY()
 	UVerticalBox* MenuVBox = nullptr;
+
+	UPROPERTY()
+	UDRLoadMenu* LoadMenuWidgetRef = nullptr;
 };

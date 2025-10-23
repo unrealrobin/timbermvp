@@ -2,8 +2,11 @@
 
 
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
+
+#include "ToolWidgetsSlateTypes.h"
 #include "BuildSystem/Constructs/ConstructBase.h"
 #include "BuildSystem/Constructs/TeleportConstruct.h"
+#include "Chaos/Deformable/MuscleActivationConstraints.h"
 #include "Character/TimberPlayableCharacter.h"
 #include "Character/TimberSeeda.h"
 #include "Components/Combat/CombatComponent.h"
@@ -31,11 +34,13 @@ void USaveLoadSubsystem::SetNewGameSaveSlot()
 
 	//Setting the sessions Save Slot to use.
 	SetCurrentSessionSaveSlot(IDasString);
+	AddNewSaveSlotToGlobalSaveSlotList();
 }
 
 void USaveLoadSubsystem::SetLoadGameSaveSlot(FString SlotName)
 {
 	//Load an Existing Game from the List of Saved Games
+	CurrentSessionSaveSlot = SlotName;
 }
 
 /*Save System*/
@@ -136,7 +141,7 @@ void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
 	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
 	if (GlobalSaveDataInstance)
 	{
-		GlobalSaveDataInstance->Data.LastSavedGame = CurrentSessionSaveSlot;
+		GlobalSaveDataInstance->LastSavedSlot.LastSavedGame = CurrentSessionSaveSlot;
 		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, GlobalSaveDataSlotName, 0);
 	}
 	else
@@ -152,6 +157,7 @@ UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 		UGameplayStatics::LoadGameFromSlot(GlobalSaveDataSlotName, 0));
 	if (LoadedGlobalSaveData)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Loaded Global Save Data from File"));
 		return LoadedGlobalSaveData;
 	}
 
@@ -161,6 +167,7 @@ UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 		(UDieRobotGlobalSaveData::StaticClass()));
 	if (GlobalSaveDataInstance)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Created and loaded a new Global Save Data File."));
 		return GlobalSaveDataInstance;
 	}
 	
@@ -176,7 +183,7 @@ FString USaveLoadSubsystem::GetLastPlayedSaveSlot()
 	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
 	if (GlobalSaveDataInstance)
 	{
-		return GlobalSaveDataInstance->Data.LastSavedGame;
+		return GlobalSaveDataInstance->LastSavedSlot.LastSavedGame;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve Last Saved Game Save Slot FString."));
 	return CurrentSessionSaveSlot;
@@ -824,6 +831,58 @@ void USaveLoadSubsystem::ResolveBuildableReferences(TArray<FBuildableData> Build
 			//UE_LOG(LogTemp, Error, TEXT("Buildable is not set in TMap. GUID: %s"), *Data.GUID.ToString());
 		}
 	}
+}
+
+void USaveLoadSubsystem::AddNewSaveSlotToGlobalSaveSlotList()
+{
+	UDieRobotGlobalSaveData* GSD = GetGlobalSaveDataInstance();
+	if (GSD)
+	{
+		GSD->ActiveSaveSlots.Add(GenerateSaveSlotDataStruct(CurrentSessionSaveSlot));
+		bool bSuccessfulSaveSlot = UGameplayStatics::SaveGameToSlot(GSD, GlobalSaveDataSlotName, 0);
+		if (bSuccessfulSaveSlot)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - Added New Save Slot to Global Save Slot List."));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("SaveLoadSubsystem - Failed to Add New Save Slot to Global Save Slot List."));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("SaveLoadSubsystem - Failed Add New Save Slot to Global Save Instance because couldnt Load the GSD."));
+	}
+}
+
+FSaveSlotDataStruct USaveLoadSubsystem::GenerateSaveSlotDataStruct(FString SlotName)
+{
+	FSaveSlotDataStruct Data;
+	Data.SlotName = SlotName;
+
+
+	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+	if (WaveSubsystem)
+	{
+		Data.SlotCurrentWave = WaveSubsystem->CurrentWaveNumber;
+	}
+	else
+	{
+		Data.SlotCurrentWave = 1;
+	}
+
+	FGuid OutGuid;
+	FGuid::ParseExact(SlotName, EGuidFormats::Digits, OutGuid);
+	Data.SlotGuid = OutGuid;
+
+	UDieRobotGlobalSaveData* GSD = GetGlobalSaveDataInstance();
+	if (GSD)
+	{
+		FString TimeStamp = GSD->GetCurrentTimeStamp();
+		Data.LastTimeStamp = TimeStamp;
+	}
+
+	return Data;
 }
 
 void USaveLoadSubsystem::SetLastPlayedSaveSlot()

@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/VerticalBox.h"
 #include "Subsystems/Online/Login.h"
+#include "UI/StartUp/DRLoadMenu.h"
 
 void UStartMenu::NativeConstruct()
 {
@@ -42,4 +43,39 @@ void UStartMenu::HideStartMenuSelections()
 			}
 		}
 	}
+}
+
+void UStartMenu::ShowStartMenuSelections()
+{
+	if (MenuVBox && LoadMenuWidgetRef)
+	{
+		TArray<UWidget*> ChildrenWidgets = MenuVBox->GetAllChildren();
+		for (UWidget* Child : ChildrenWidgets)
+		{
+			Child->SetVisibility(ESlateVisibility::Visible);
+			LoadMenuWidgetRef->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+}
+
+void UStartMenu::DisplayLoadMenu()
+{
+	HideStartMenuSelections();
+
+	if (LoadMenuWidgetClass)
+	{
+		UUserWidget* Widget = CreateWidget(this, LoadMenuWidgetClass);
+		LoadMenuWidgetRef = Cast<UDRLoadMenu>(Widget);
+		if (LoadMenuWidgetRef)
+		{
+			LoadMenuWidgetRef->AddToViewport(2);
+			LoadMenuWidgetRef->SetVisibility(ESlateVisibility::Visible);
+			LoadMenuWidgetRef->DisplayAllSavedGames();
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadMenuWidgetClass is NULL"));
+	}
+	
 }

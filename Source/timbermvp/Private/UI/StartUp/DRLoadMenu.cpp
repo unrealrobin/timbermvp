@@ -4,10 +4,11 @@
 #include "UI/StartUp/DRLoadMenu.h"
 
 #include "Components/TextBlock.h"
-#include "Components/VerticalBox.h"
+#include "Components/ScrollBox.h"
 #include "Subsystems/SaveLoad/SaveLoadSubsystem.h"
 #include "Subsystems/SaveLoad/Types/DieRobotGlobalSaveDataStruct.h"
 #include "UI/StartUp/DRLoadItem.h"
+#include "UI/StartUp/StartMenu.h"
 
 
 void UDRLoadMenu::NativeConstruct()
@@ -15,6 +16,11 @@ void UDRLoadMenu::NativeConstruct()
 	Super::NativeConstruct();
 
 	GetAllSavedGames();
+}
+
+void UDRLoadMenu::HandleMainMenuButtonClicked()
+{
+	OnMainMenuButtonClickedDelegate.Broadcast();
 }
 
 void UDRLoadMenu::GetAllSavedGames()
@@ -50,8 +56,6 @@ void UDRLoadMenu::DisplayAllSavedGames()
 				LoadItemWidget->SaveSlotIdBlock->SetText(FText::FromString(SaveSlot.SlotName));
 				
 				VerticalLoadItemBlock->AddChild(LoadItemWidget);
-				/*LoadItemWidget->AddToViewport();
-				LoadItemWidget->SetVisibility(ESlateVisibility::Visible);*/
 
 				UE_LOG(LogTemp, Warning, TEXT("Added LoadItemWidget to Vertical Box."));
 			}

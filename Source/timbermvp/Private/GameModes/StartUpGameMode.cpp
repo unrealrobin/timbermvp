@@ -55,7 +55,7 @@ void AStartUpGameMode::SetGameConfig(EDieRobotGameConfigType InGameState)
 	}
 }
 
-void AStartUpGameMode::SwitchToGameLevel()
+void AStartUpGameMode::SwitchToLabLevel()
 {
 	//Called from the PlayDemo Button in the Startup Menu - See Startup Widget
 	if (StartUpMenu)

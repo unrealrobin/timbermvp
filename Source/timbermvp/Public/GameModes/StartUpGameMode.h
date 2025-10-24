@@ -15,6 +15,10 @@ class TIMBERMVP_API AStartUpGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+public:
+	UFUNCTION(BlueprintCallable)
+	void SwitchToLabLevel();
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -27,9 +31,6 @@ protected:
 
 	UFUNCTION()
 	void SetGameConfig(EDieRobotGameConfigType InGameState);
-
-	UFUNCTION(BlueprintCallable)
-	void SwitchToGameLevel();
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToMidgameDemo();

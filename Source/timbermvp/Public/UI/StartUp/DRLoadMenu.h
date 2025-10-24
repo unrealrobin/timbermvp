@@ -6,8 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "DRLoadMenu.generated.h"
 
-class UVerticalBox;
+
+class UScrollBox;
 class UDRLoadItem;
+class UButton;
 struct FSaveSlotDataStruct;
 /**
  * 
@@ -18,7 +20,10 @@ class TIMBERMVP_API UDRLoadMenu : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void GetAllSavedGames();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMainMenuButtonClicked);
+	FOnMainMenuButtonClicked OnMainMenuButtonClickedDelegate;
+	
 	virtual void NativeConstruct() override;
 	
 	void DisplayAllSavedGames();
@@ -27,10 +32,17 @@ public:
 	TSubclassOf<UDRLoadItem> LoadItemWidgetClass;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UVerticalBox> VerticalLoadItemBlock;
+	TObjectPtr<UScrollBox> VerticalLoadItemBlock;
+
+protected:
+
+	UFUNCTION(BlueprintCallable)
+	void HandleMainMenuButtonClicked();
 	
 private:
 	UPROPERTY()
 	TArray<FSaveSlotDataStruct> AllSavedGames;
+
+	void GetAllSavedGames();
 
 };

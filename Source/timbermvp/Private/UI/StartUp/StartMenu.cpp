@@ -45,15 +45,26 @@ void UStartMenu::HideStartMenuSelections()
 	}
 }
 
+void UStartMenu::CloseLoadMenu()
+{
+	if (LoadMenuWidgetRef)
+	{
+		LoadMenuWidgetRef->OnMainMenuButtonClickedDelegate.RemoveDynamic(this, &UStartMenu::CloseLoadMenu);
+		LoadMenuWidgetRef->RemoveFromParent();
+		LoadMenuWidgetRef = nullptr;
+	}
+
+	ShowStartMenuSelections();
+}
+
 void UStartMenu::ShowStartMenuSelections()
 {
-	if (MenuVBox && LoadMenuWidgetRef)
+	if (MenuVBox)
 	{
 		TArray<UWidget*> ChildrenWidgets = MenuVBox->GetAllChildren();
 		for (UWidget* Child : ChildrenWidgets)
 		{
 			Child->SetVisibility(ESlateVisibility::Visible);
-			LoadMenuWidgetRef->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }
@@ -71,6 +82,8 @@ void UStartMenu::DisplayLoadMenu()
 			LoadMenuWidgetRef->AddToViewport(2);
 			LoadMenuWidgetRef->SetVisibility(ESlateVisibility::Visible);
 			LoadMenuWidgetRef->DisplayAllSavedGames();
+			
+			LoadMenuWidgetRef->OnMainMenuButtonClickedDelegate.AddDynamic(this, &UStartMenu::CloseLoadMenu);
 		}
 	}
 	else

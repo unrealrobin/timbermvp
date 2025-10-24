@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Online/Leaderboards.h"
 #include "StartMenu.generated.h"
 
 
@@ -35,6 +34,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void HideStartMenuSelections();
+
+	UFUNCTION(BlueprintCallable)
+	void CloseLoadMenu();
 
 	UFUNCTION(BlueprintCallable)
 	void ShowStartMenuSelections();

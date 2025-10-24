@@ -16,7 +16,6 @@ class TIMBERMVP_API UDRLoadItem : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Wave Data", meta = (BindWidget))
 	TObjectPtr<UTextBlock> WaveTextBlock;
 
@@ -25,4 +24,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Wave Data", meta = (BindWidget))
 	TObjectPtr<UTextBlock> SaveSlotIdBlock;
+
+protected:
+
+	UFUNCTION(BlueprintCallable)
+	void HandleClick();
 };

@@ -20,13 +20,14 @@ UChargedSwing::UChargedSwing()
 
 void UChargedSwing::Execute(FAbilityContext Context)
 {
-	//Storing the Time since the Ability was pressed.
+	
 	ChargeTimer = GetWorld()->GetTimeSeconds();
 
 	AbilityContext = Context;
-
-	//Cannot Primary Ability Melee during animation
+	
 	Context.CombatComponent->bCanMeleeAttack = false;
+
+	UE_LOG(LogTemp, Warning, TEXT("Charged Swing Started."));
 
 	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "WindUp", 1, true);
 	CurrentMontageStage = EMontageStage::WindUp;
@@ -35,13 +36,13 @@ void UChargedSwing::Execute(FAbilityContext Context)
 void UChargedSwing::Execute_Completed(FAbilityContext Context)
 {
 	Context.WeaponInstance->ConsumePower(PowerCost);
-
-	//TODO:: Revisit if applying damage before or after the animation matters.
 	
+	UE_LOG(LogTemp, Warning, TEXT("Charged Swing Attack Started."));
 	Context.CombatComponent->PlayCharacterAnimationMontage(ChargedSwingMontage, "ChargedAttack", 1.0f);
 	CurrentMontageStage = EMontageStage::Final;
 
-	HandleCleanup(Context);
+	/* Cleanup Removed from here because it Cleans up Ability Reference before execution of Collision Creation*/
+	//HandleCleanup(Context);
 }
 
 void UChargedSwing::Execute_Cancelled(FAbilityContext Context)
@@ -81,8 +82,8 @@ void UChargedSwing::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	{
 		//Cannot Primary Ability Melee during animation
 		AbilityContext.CombatComponent->bCanMeleeAttack = true;
-		HandleCleanup(AbilityContext);
 		UE_LOG(LogTemp, Warning, TEXT("Charged Swing Completed."));
+		HandleCleanup(AbilityContext);
 	}
 }
 
@@ -90,6 +91,8 @@ void UChargedSwing::HandleCollisionSphereBeginOverlap(UPrimitiveComponent* Overl
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ATimberEnemyCharacter* EnemyCharacter = Cast<ATimberEnemyCharacter>(OtherActor);
+	UE_LOG(LogTemp, Warning, TEXT("Heavy Attack Collision Sphere Overlap Triggered."));
+	
 	if (ActorsToIgnore.Contains(OtherActor))
 	{
 		return;
@@ -97,7 +100,6 @@ void UChargedSwing::HandleCollisionSphereBeginOverlap(UPrimitiveComponent* Overl
 	
 	if (EnemyCharacter && AbilityContext.Instigator)
 	{
-		//TODO:: Add Potential Stun Here with Timer. Make use of Status Effects?
 		ActorsToIgnore.Add(EnemyCharacter);
 
 		FDamagePayload Payload;
@@ -121,20 +123,25 @@ void UChargedSwing::HandleDamage(FAbilityContext Context)
 			CollisionSphere->RegisterComponent();
 			CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &UChargedSwing::HandleCollisionSphereBeginOverlap);
 			CollisionSphere->SetSphereRadius(CollisionSphereRadius);
-			CollisionSphere->SetCollisionProfileName("DR_HitEventOnly");
+			CollisionSphere->SetCollisionProfileName("DR_MeleeAttackShapes");
 			CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 			CollisionSphere->SetCanEverAffectNavigation(false);
-
+			
+			//UE_LOG(LogTemp, Warning, TEXT("Heavy Melee Attack Collision Sphere Created."));
+			
 			//DrawDebugSphere(GetWorld(), Weapon->GetActorLocation(), CollisionSphereRadius, 12, FColor::Red, false, 10.0f);
 
 			//Handles Destruction of the Collision Sphere and Emptys the Abilities ActorsToIgnore Array. (Clean up)
 			FTimerHandle DestroyCollisionSphereTimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(DestroyCollisionSphereTimerHandle, [this, CollisionSphere]()
+			GetWorld()->GetTimerManager().SetTimer(DestroyCollisionSphereTimerHandle, [this, CollisionSphere, Context]()
 			{
 					if (CollisionSphere)
 					{
 						CollisionSphere->DestroyComponent();
 						ActorsToIgnore.Empty();
+
+						/* After Successful Creation of Damage Collision Sphere, Clean up Ability on Combat Actor Component.*/
+						HandleCleanup(Context);
 					}
 			}, .3f, false);
 		}

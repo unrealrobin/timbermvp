@@ -37,10 +37,10 @@ void UDRLoadMenu::GetAllSavedGames()
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("LoadMenu - GetAllSavedGames() - Failed to Retrieve Global Save Data Instance."));
+			//UE_LOG(LogTemp, Error, TEXT("LoadMenu - GetAllSavedGames() - Failed to Retrieve Global Save Data Instance."));
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Retrieving %d saved games from Global Save Data Instance."), AllSavedGames.Num());
+		//UE_LOG(LogTemp, Warning, TEXT("Retrieving %d saved games from Global Save Data Instance."), AllSavedGames.Num());
 	}
 }
 
@@ -52,11 +52,11 @@ void UDRLoadMenu::DisplayAllSavedGames()
 	
 	if (AllSavedGames.Num() > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Beginning Display of Global Save Slots."));
+		//UE_LOG(LogTemp, Warning, TEXT("Beginning Display of Global Save Slots."));
 		for (FSaveSlotDataStruct SaveSlot: AllSavedGames)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Save Slot: %ls"), *SaveSlot.SlotName);
-			UE_LOG(LogTemp, Warning, TEXT("CurrentWave: %i"), SaveSlot.SlotCurrentWave);
+			//UE_LOG(LogTemp, Warning, TEXT("Save Slot: %ls"), *SaveSlot.SlotName);
+			//UE_LOG(LogTemp, Warning, TEXT("CurrentWave: %i"), SaveSlot.SlotCurrentWave);
 			//Create Load Menu Item Widgets
 			UUserWidget* Widget = CreateWidget(this, LoadItemWidgetClass);
 			UDRLoadItem* LoadItemWidget = Cast<UDRLoadItem>(Widget);
@@ -67,7 +67,7 @@ void UDRLoadMenu::DisplayAllSavedGames()
 				LoadItemWidget->SaveSlotIdBlock->SetText(FText::FromString(SaveSlot.SlotName));
 				
 				VerticalLoadItemBlock->AddChild(LoadItemWidget);
-				UE_LOG(LogTemp, Warning, TEXT("Save Slot Complete."));
+				//UE_LOG(LogTemp, Warning, TEXT("Save Slot Complete."));
 			}
 		}
 	}

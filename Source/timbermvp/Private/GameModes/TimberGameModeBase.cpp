@@ -275,7 +275,7 @@ void ATimberGameModeBase::InitializeSaveLoadSession()
 		SaveLoadSubsystem->LoadGame(SaveLoadSubsystem->GetCurrentSessionSaveSlot());
 
 		/*
-		 * On a new game, this creates the original save file. Otherwise it is a redundant Save.
+		 * On a new game, this creates the original save file. Otherwise, it is a redundant Save.
 		 */
 		SaveLoadSubsystem->SaveCurrentGame();
 	}

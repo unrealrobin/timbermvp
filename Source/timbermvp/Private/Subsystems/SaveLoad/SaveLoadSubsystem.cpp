@@ -49,7 +49,7 @@ void USaveLoadSubsystem::SaveCurrentGame()
 	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *CurrentSessionSaveSlot)
 	
 	FString SaveSlot = CurrentSessionSaveSlot;
-	//Creating an instance of the Save Game Object
+	//Creating a new/empty instance of the Save Game Object
 	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(
 		UGameplayStatics::CreateSaveGameObject
 		(USaveLoadStruct::StaticClass()));
@@ -59,140 +59,11 @@ void USaveLoadSubsystem::SaveCurrentGame()
 	SavePlayerData(SaveGameInstance);
 	SaveSeedaData(SaveGameInstance);
 
+	//Saves this sessions Data to the Current SaveSlot and SaveGameInstance
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlot, 0);
+
 	/*Update Save Slot Info for Global List used for Load Menu*/
 	SaveSessionDataToGlobalSaveSlotList();
-	
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlot, 0);
-}
-
-void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData& BuildableData, ATimberBuildingComponentBase* BuildingComponent)
-{
-	//Individual Snap Points used for information player if snap is available.
-	if (BuildingComponent->FrontBottomAttachment &&
-		BuildingComponent->FrontBottomAttachment->GetGUID().IsValid())
-	{
-		BuildableData.FrontBottomAttachmentGUID = BuildingComponent->FrontBottomAttachment->GetGUID();
-		UE_LOG(LogTemp, Warning, TEXT("FrontBottomAttachment Found: %s. Set GUID: %s"), *BuildingComponent->FrontBottomAttachment->GetName(), *BuildingComponent->FrontBottomAttachment->GetGUID().ToString());
-
-	}
-
-	if (BuildingComponent->FrontCenterAttachment &&
-		BuildingComponent->FrontCenterAttachment->GetGUID().IsValid())
-	{
-		BuildableData.FrontCenterAttachmentGUID = BuildingComponent->FrontCenterAttachment->GetGUID();
-		UE_LOG(LogTemp, Warning, TEXT("FrontCenterAttachment Found: %s. Set GUID: %s"), 
-			*BuildingComponent->FrontCenterAttachment->GetName(),
-			*BuildingComponent->FrontCenterAttachment->GetGUID().ToString());
-
-	}
-
-	if (BuildingComponent->FrontTopAttachment &&
-		BuildingComponent->FrontTopAttachment->GetGUID().IsValid())
-	{
-		BuildableData.FrontTopAttachmentGUID = BuildingComponent->FrontTopAttachment->GetGUID();
-	}
-
-	if (BuildingComponent->FrontRightAttachment &&
-		BuildingComponent->FrontRightAttachment->GetGUID().IsValid())
-	{
-		BuildableData.FrontRightAttachmentGUID = BuildingComponent->FrontRightAttachment->GetGUID();
-	}
-
-	if (BuildingComponent->FrontLeftAttachment &&
-		BuildingComponent->FrontLeftAttachment->GetGUID().IsValid())
-	{
-		BuildableData.FrontLeftAttachmentGUID = BuildingComponent->FrontLeftAttachment->GetGUID();
-	}
-
-	if (BuildingComponent->BackBottomAttachment &&
-		BuildingComponent->BackBottomAttachment->GetGUID().IsValid())
-	{
-		BuildableData.BackBottomAttachmentGUID = BuildingComponent->BackBottomAttachment->GetGUID();
-	}
-
-	if (BuildingComponent->BackCenterAttachment &&
-		BuildingComponent->BackCenterAttachment->GetGUID().IsValid())
-	{
-		BuildableData.BackCenterAttachmentGUID = BuildingComponent->BackCenterAttachment->GetGUID();
-		UE_LOG(LogTemp, Warning, TEXT("BackCenterAttachment Found: %s. Set GUID: %s,"), *BuildingComponent->BackCenterAttachment->GetName(), *BuildingComponent->BackCenterAttachment->GetGUID().ToString());
-
-	}
-
-	if (BuildingComponent->BackTopAttachment &&
-		BuildingComponent->BackTopAttachment->GetGUID().IsValid())
-	{
-		BuildableData.BackTopAttachmentGUID = BuildingComponent->BackTopAttachment->GetGUID();
-	}
-
-	if (BuildingComponent->BackRightAttachment &&
-		BuildingComponent->BackRightAttachment->GetGUID().IsValid())
-	{
-		BuildableData.BackRightAttachmentGUID = BuildingComponent->BackRightAttachment->GetGUID();
-	}
-
-	if (BuildingComponent->BackLeftAttachment &&
-		BuildingComponent->BackLeftAttachment->GetGUID().IsValid())
-	{
-		BuildableData.BackLeftAttachmentGUID = BuildingComponent->BackLeftAttachment->GetGUID();
-	}
-}
-
-void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
-{
-	CurrentSessionSaveSlot = SlotName;
-	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
-	if (IsValid(GlobalSaveDataInstance))
-	{
-		GlobalSaveDataInstance->LastSavedSlot.LastSavedGame = CurrentSessionSaveSlot;
-		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, GlobalSaveDataSlotName, 0);
-		UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - SetCurrentSessionSaveSlot - Saving Global Save Data"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to Load or Create Global Save Data Instance from the GLOBAL_SAVE_DATA slot."));
-	}
-}
-
-UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
-{
-	 //Attempt to Load the an Existing GLobal Save Data File
-	UDieRobotGlobalSaveData* LoadedGlobalSaveData = Cast<UDieRobotGlobalSaveData>(
-		UGameplayStatics::LoadGameFromSlot(GlobalSaveDataSlotName, 0));
-	
-	if (LoadedGlobalSaveData)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Global Save Data from Exising File"));
-		return LoadedGlobalSaveData;
-	}
-
-	//Creating a Save Slot for the Global Save Data.
-	UDieRobotGlobalSaveData* GlobalSaveDataInstance = Cast<UDieRobotGlobalSaveData>(
-		UGameplayStatics::CreateSaveGameObject
-		(UDieRobotGlobalSaveData::StaticClass()));
-	if (GlobalSaveDataInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Created and loaded a new Global Save Data File."));
-		return GlobalSaveDataInstance;
-	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("Could not Load or Create Global Save Data Instance."));
-	return nullptr;
-	
-	
-	
-}
-
-FString USaveLoadSubsystem::GetLastPlayedSaveSlot()
-{
-	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
-	if (GlobalSaveDataInstance)
-	{
-		return GlobalSaveDataInstance->LastSavedSlot.LastSavedGame;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve Last Saved Game Save Slot FString."));
-	return CurrentSessionSaveSlot;
-	
-	
 }
 
 void USaveLoadSubsystem::SaveBuildableData(USaveLoadStruct* SaveGameInstance)
@@ -350,14 +221,19 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 			APlayerStateBase* PS = Cast<APlayerStateBase>(Character->GetPlayerState());
 			if (PS)
 			{
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts = PS->MainInventory->NumberOfParts;
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;
+				FInventoryData& PlayerInventory = SaveGameInstance->PlayerData.PlayerInventory;
+				PlayerInventory.NumberOfParts = PS->MainInventory->NumberOfParts;
+				PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
+				PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;
 				
-				/*UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
-					SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts,
-					SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism,
-					SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques);*/
+				/*SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts = PS->MainInventory->NumberOfParts;
+				SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
+				SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;*/
+				
+				UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
+					PlayerInventory.NumberOfParts,
+					PlayerInventory.NumberOfMechanism,
+					PlayerInventory.NumberOfUniques);
 			}
 			 /*Save Players Completed Missions*/
 			if (Character->MissionDeliveryComponent)
@@ -367,6 +243,7 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 					SaveGameInstance->PlayerData.CompletedMissionList.Add(MissionGuid);
 					UE_LOG(LogTemp, Warning, TEXT(" Saved Mission: %s. GUID: %ls"), *Character->MissionDeliveryComponent->GetMissionTitle(), *LexToString(MissionGuid));
 				}
+				UE_LOG(LogTemp, Warning, TEXT(" Saved %d Missions"), SaveGameInstance->PlayerData.CompletedMissionList.Num())
 			}
 		}
 	}
@@ -385,6 +262,136 @@ void USaveLoadSubsystem::SaveSeedaData(USaveLoadStruct* SaveGameInstance)
 		//When dieing Seeda Health is Regenerated.
 		SaveGameInstance->SeedaData.SeedaHealth = Seeda->MaxHealth;
 	}
+}
+
+void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData& BuildableData, ATimberBuildingComponentBase* BuildingComponent)
+{
+	//Individual Snap Points used for information player if snap is available.
+	if (BuildingComponent->FrontBottomAttachment &&
+		BuildingComponent->FrontBottomAttachment->GetGUID().IsValid())
+	{
+		BuildableData.FrontBottomAttachmentGUID = BuildingComponent->FrontBottomAttachment->GetGUID();
+		UE_LOG(LogTemp, Warning, TEXT("FrontBottomAttachment Found: %s. Set GUID: %s"), *BuildingComponent->FrontBottomAttachment->GetName(), *BuildingComponent->FrontBottomAttachment->GetGUID().ToString());
+
+	}
+
+	if (BuildingComponent->FrontCenterAttachment &&
+		BuildingComponent->FrontCenterAttachment->GetGUID().IsValid())
+	{
+		BuildableData.FrontCenterAttachmentGUID = BuildingComponent->FrontCenterAttachment->GetGUID();
+		UE_LOG(LogTemp, Warning, TEXT("FrontCenterAttachment Found: %s. Set GUID: %s"), 
+			*BuildingComponent->FrontCenterAttachment->GetName(),
+			*BuildingComponent->FrontCenterAttachment->GetGUID().ToString());
+
+	}
+
+	if (BuildingComponent->FrontTopAttachment &&
+		BuildingComponent->FrontTopAttachment->GetGUID().IsValid())
+	{
+		BuildableData.FrontTopAttachmentGUID = BuildingComponent->FrontTopAttachment->GetGUID();
+	}
+
+	if (BuildingComponent->FrontRightAttachment &&
+		BuildingComponent->FrontRightAttachment->GetGUID().IsValid())
+	{
+		BuildableData.FrontRightAttachmentGUID = BuildingComponent->FrontRightAttachment->GetGUID();
+	}
+
+	if (BuildingComponent->FrontLeftAttachment &&
+		BuildingComponent->FrontLeftAttachment->GetGUID().IsValid())
+	{
+		BuildableData.FrontLeftAttachmentGUID = BuildingComponent->FrontLeftAttachment->GetGUID();
+	}
+
+	if (BuildingComponent->BackBottomAttachment &&
+		BuildingComponent->BackBottomAttachment->GetGUID().IsValid())
+	{
+		BuildableData.BackBottomAttachmentGUID = BuildingComponent->BackBottomAttachment->GetGUID();
+	}
+
+	if (BuildingComponent->BackCenterAttachment &&
+		BuildingComponent->BackCenterAttachment->GetGUID().IsValid())
+	{
+		BuildableData.BackCenterAttachmentGUID = BuildingComponent->BackCenterAttachment->GetGUID();
+		UE_LOG(LogTemp, Warning, TEXT("BackCenterAttachment Found: %s. Set GUID: %s,"), *BuildingComponent->BackCenterAttachment->GetName(), *BuildingComponent->BackCenterAttachment->GetGUID().ToString());
+
+	}
+
+	if (BuildingComponent->BackTopAttachment &&
+		BuildingComponent->BackTopAttachment->GetGUID().IsValid())
+	{
+		BuildableData.BackTopAttachmentGUID = BuildingComponent->BackTopAttachment->GetGUID();
+	}
+
+	if (BuildingComponent->BackRightAttachment &&
+		BuildingComponent->BackRightAttachment->GetGUID().IsValid())
+	{
+		BuildableData.BackRightAttachmentGUID = BuildingComponent->BackRightAttachment->GetGUID();
+	}
+
+	if (BuildingComponent->BackLeftAttachment &&
+		BuildingComponent->BackLeftAttachment->GetGUID().IsValid())
+	{
+		BuildableData.BackLeftAttachmentGUID = BuildingComponent->BackLeftAttachment->GetGUID();
+	}
+}
+
+void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
+{
+	CurrentSessionSaveSlot = SlotName;
+	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
+	if (IsValid(GlobalSaveDataInstance))
+	{
+		GlobalSaveDataInstance->LastSavedSlot.LastSavedGame = CurrentSessionSaveSlot;
+		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, GlobalSaveDataSlotName, 0);
+		UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - SetCurrentSessionSaveSlot - Saving Global Save Data"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to Load or Create Global Save Data Instance from the GLOBAL_SAVE_DATA slot."));
+	}
+}
+
+UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
+{
+	 //Attempt to Load the an Existing GLobal Save Data File
+	UDieRobotGlobalSaveData* LoadedGlobalSaveData = Cast<UDieRobotGlobalSaveData>(
+		UGameplayStatics::LoadGameFromSlot(GlobalSaveDataSlotName, 0));
+	
+	if (LoadedGlobalSaveData)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Loaded Global Save Data from Exising File"));
+		return LoadedGlobalSaveData;
+	}
+
+	//Creating a Save Slot for the Global Save Data.
+	UDieRobotGlobalSaveData* GlobalSaveDataInstance = Cast<UDieRobotGlobalSaveData>(
+		UGameplayStatics::CreateSaveGameObject
+		(UDieRobotGlobalSaveData::StaticClass()));
+	if (GlobalSaveDataInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Created and loaded a new Global Save Data File."));
+		return GlobalSaveDataInstance;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Could not Load or Create Global Save Data Instance."));
+	return nullptr;
+	
+	
+	
+}
+
+FString USaveLoadSubsystem::GetLastPlayedSaveSlot()
+{
+	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
+	if (GlobalSaveDataInstance)
+	{
+		return GlobalSaveDataInstance->LastSavedSlot.LastSavedGame;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve Last Saved Game Save Slot FString."));
+	return CurrentSessionSaveSlot;
+	
+	
 }
 
 /* Load System */
@@ -566,10 +573,6 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			{
 				TimberCharacter->MissionDeliveryComponent->CompletedMissionGuids = LoadGameInstance->PlayerData.CompletedMissionList;
 			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - TimberCharacter is NULL."));
 		}
 	}
 }
@@ -902,6 +905,7 @@ void USaveLoadSubsystem::SaveSessionDataToGlobalSaveSlotList()
 				Slot.LastTimeStamp = UpdatedSaveInfo.LastTimeStamp;
 				Slot.SlotCurrentWave = UpdatedSaveInfo.SlotCurrentWave;
 				bool Saved = UGameplayStatics::SaveGameToSlot(GlobalSaveInstance, GlobalSaveDataSlotName, 0);
+
 				if (!Saved)
 				{
 					UE_LOG(LogTemp, Error, TEXT("SaveLoadSubsystem - Failed to Save Global Save Data."));

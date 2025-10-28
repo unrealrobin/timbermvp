@@ -36,7 +36,7 @@ public:
 
 	/* Load System */
 	UFUNCTION(BlueprintCallable, Category="Save System")
-	void LoadGame(FString SlotToLoad = TEXT("StandardSaveSlot"));
+	void LoadGame(FString SlotToLoad);
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE FString GetCurrentSessionSaveSlot() { return CurrentSessionSaveSlot; }
@@ -48,7 +48,7 @@ private:
 	UPROPERTY()
 	TArray<FString> SaveSlots;
 	UPROPERTY()
-	FString CurrentSessionSaveSlot = "NO_SAVE_SLOT_ASSIGNED";
+	FString CurrentSessionSaveSlot;
 	UPROPERTY()
 	FString GlobalSaveDataSlotName = "GLOBAL_SAVE_DATA";
 
@@ -83,11 +83,13 @@ private:
 	//Resolving Linking of Parents/Pairs/Attached Buildables.
 	void ResolveBuildableReferences(TArray<FBuildableData> BuildableData);
 
-	void AddNewSaveSlotToGlobalSaveSlotList();
-
+	/* Global Save Data Utils */
+	
 	/* Generates an up to Data Save Slot Struct that lives in the ActiveSaveSlots.*/
 	FSaveSlotDataStruct GenerateSaveSlotDataStruct(FString SlotName);
-
+	
+	void AddNewSaveSlotToGlobalSaveSlotList();
+	void SaveSessionDataToGlobalSaveSlotList();
 	
 };
 

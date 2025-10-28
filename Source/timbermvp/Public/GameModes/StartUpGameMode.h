@@ -20,7 +20,10 @@ public:
 	void SwitchToLabLevel();
 
 protected:
-	
+	void InitializeMusicManager();
+	void InitializeStartUpMenu();
+	void InitializeGameConfigSubsystem();
+	void ResetWaveSubsystem();
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")

@@ -79,7 +79,7 @@ void UStartMenu::DisplayLoadMenu()
 		LoadMenuWidgetRef = Cast<UDRLoadMenu>(Widget);
 		if (LoadMenuWidgetRef)
 		{
-			LoadMenuWidgetRef->AddToViewport(2);
+			LoadMenuWidgetRef->AddToViewport();
 			LoadMenuWidgetRef->SetVisibility(ESlateVisibility::Visible);
 			LoadMenuWidgetRef->DisplayAllSavedGames();
 			

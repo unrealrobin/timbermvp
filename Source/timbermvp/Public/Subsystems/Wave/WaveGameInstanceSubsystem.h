@@ -176,6 +176,9 @@ public:
 	void PlayWaveEndSound();
 	void PlayBossSpawnSound();
 
+	UFUNCTION(BlueprintCallable)
+	void ResetWaveSubsystem();
+
 private:
 	void AddClassToEnemiesToSpawnArray(TSubclassOf<ATimberEnemyCharacter> ClassToAdd, int NumberToAdd);
 	int GetNumberOfEnemiesToSpawnPerGroup(); //Scales Number of enemies to spawn per "Grouping" by wave Number.

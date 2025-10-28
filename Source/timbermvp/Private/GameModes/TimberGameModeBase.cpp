@@ -28,7 +28,6 @@ void ATimberGameModeBase::BeginPlay()
 	
 	InitializeGameState();
 	
-	
 	GetWaveGameInstanceSubsystem()->OpenLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::OpenLabDoors);
 	GetWaveGameInstanceSubsystem()->CloseLabDoorHandle.AddDynamic(this, &ATimberGameModeBase::CloseLabDoors);
 	GetWaveGameInstanceSubsystem()->OnWaveComplete.AddDynamic(this, &ATimberGameModeBase::HandleWaveComplete);
@@ -193,7 +192,7 @@ void ATimberGameModeBase::PlayerIsInitialized(AActor* InitializedPlayer)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("TimberGameModeBase - Player Is Initialized."));
 	TimberCharacter = Cast<ATimberPlayableCharacter>(InitializedPlayer);
-	if(TimberCharacter)
+	if(IsValid(TimberCharacter))
 	{
 		TimberCharacter->HandlePlayerDeath_DelegateHandle.RemoveDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
 		TimberCharacter->HandlePlayerDeath_DelegateHandle.AddDynamic(this, &ATimberGameModeBase::FreezeAllAICharacters);
@@ -270,7 +269,14 @@ void ATimberGameModeBase::InitializeSaveLoadSession()
 	USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
 	if (SaveLoadSubsystem)
 	{
+		/* Tries to load the current session from the GUID ID on the Save Load Subsystem
+		 * If this is a new game, this will fail on the first run because no SaveLoadStruct file is created.
+		 */
 		SaveLoadSubsystem->LoadGame(SaveLoadSubsystem->GetCurrentSessionSaveSlot());
+
+		/*
+		 * On a new game, this creates the original save file. Otherwise it is a redundant Save.
+		 */
 		SaveLoadSubsystem->SaveCurrentGame();
 	}
 }

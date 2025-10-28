@@ -28,6 +28,7 @@ void USaveLoadSubsystem::SetNewGameSaveSlot()
 	FString IDasString = SaveSlotID.ToString(EGuidFormats::Digits);
 
 	//Adding the new ID for this save slot to the list of saved games.
+	//Saved Locally on the Save Load Subsystem. Potentially can be removed.
 	SaveSlots.Add(IDasString);
 
 	//Setting the sessions Save Slot to use.
@@ -44,7 +45,7 @@ void USaveLoadSubsystem::SetLoadGameSaveSlot(FString SlotName)
 /*Save System*/
 void USaveLoadSubsystem::SaveCurrentGame()
 {
-	if (CurrentSessionSaveSlot == "NO_SAVE_SLOT_ASSIGNED") return;
+	if (CurrentSessionSaveSlot.IsEmpty()) return;
 	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *CurrentSessionSaveSlot)
 	
 	FString SaveSlot = CurrentSessionSaveSlot;
@@ -57,6 +58,9 @@ void USaveLoadSubsystem::SaveCurrentGame()
 	SaveWaveData(SaveGameInstance);
 	SavePlayerData(SaveGameInstance);
 	SaveSeedaData(SaveGameInstance);
+
+	/*Update Save Slot Info for Global List used for Load Menu*/
+	SaveSessionDataToGlobalSaveSlotList();
 	
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveSlot, 0);
 }
@@ -137,10 +141,11 @@ void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
 {
 	CurrentSessionSaveSlot = SlotName;
 	UDieRobotGlobalSaveData* GlobalSaveDataInstance = GetGlobalSaveDataInstance();
-	if (GlobalSaveDataInstance)
+	if (IsValid(GlobalSaveDataInstance))
 	{
 		GlobalSaveDataInstance->LastSavedSlot.LastSavedGame = CurrentSessionSaveSlot;
 		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, GlobalSaveDataSlotName, 0);
+		UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - SetCurrentSessionSaveSlot - Saving Global Save Data"));
 	}
 	else
 	{
@@ -155,7 +160,7 @@ UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 		UGameplayStatics::LoadGameFromSlot(GlobalSaveDataSlotName, 0));
 	if (LoadedGlobalSaveData)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Global Save Data from File"));
+		UE_LOG(LogTemp, Warning, TEXT("Loaded Global Save Data from Exising File"));
 		return LoadedGlobalSaveData;
 	}
 
@@ -402,7 +407,7 @@ void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
 		USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(
 			UGameplayStatics::LoadGameFromSlot(LoadSlot, 0));
 
-		if (LoadGameInstance)
+		if (IsValid(LoadGameInstance))
 		{
 			LoadBuildableData(LoadGameInstance);
 			LoadWaveData(LoadGameInstance);
@@ -508,7 +513,7 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 		if (IsValid(TimberCharacter))
 		{
 			//Spawns at last set location, else spawns at the Set Player Spawn Location
-			if(LoadGameInstance->PlayerData.PlayerLocation != FVector::ZeroVector)
+			if(!LoadGameInstance->PlayerData.PlayerLocation.IsZero())
 			{
 				TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
 				TimberCharacter->SetActorRotation(LoadGameInstance->PlayerData.PlayerRotation);
@@ -610,15 +615,12 @@ void USaveLoadSubsystem::BindToGameModeBaseDelegate(ATimberGameModeBase* GameMod
 void USaveLoadSubsystem::OnCharacterInitialization()
 {
 	UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - OnCharacterInitialization"));
-
-	//TODO:: We are Hardcoding the Slot to Load here specifically for the Publisher Demo.
-	// In the future this wont work. BUT the tricky thing we are doing here is using 2 different Save Slots. PubDemo for Game Launch and
-	// then Standard for during GamePlay. Later we will have only 1 Save Slot, so we need to just track like CurrentSaveSlot and use that here.
-	// Also, this will only get called when switching from StartUp to LabLevel, Otherwise the Character should already be initialized.
-	// This Chain Starts in the Begin Play of the TimberPlayableCharacter Class ->GameMode Braodcast -> SaveLoadSubsystem -> OnCharacterInitialization
 	
 	USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(UGameplayStatics::LoadGameFromSlot(CurrentSessionSaveSlot, 0));
-	LoadPlayerState(LoadGameInstance);
+	if (IsValid(LoadGameInstance))
+	{
+		LoadPlayerState(LoadGameInstance);
+	}
 }
 
 /* Utils */
@@ -857,8 +859,7 @@ FSaveSlotDataStruct USaveLoadSubsystem::GenerateSaveSlotDataStruct(FString SlotN
 {
 	FSaveSlotDataStruct Data;
 	Data.SlotName = SlotName;
-
-
+	
 	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 	if (WaveSubsystem)
 	{
@@ -881,6 +882,28 @@ FSaveSlotDataStruct USaveLoadSubsystem::GenerateSaveSlotDataStruct(FString SlotN
 	}
 
 	return Data;
+}
+
+void USaveLoadSubsystem::SaveSessionDataToGlobalSaveSlotList()
+{
+	//WHen saving, Find the Load Slot for the current session based on ID
+	UDieRobotGlobalSaveData* GlobalSaveInstance = GetGlobalSaveDataInstance();
+	if (IsValid(GlobalSaveInstance))
+	{
+		//Generate a new SaveSlotDataStruct
+		FSaveSlotDataStruct UpdatedSaveInfo = GenerateSaveSlotDataStruct(CurrentSessionSaveSlot);
+		//Update the Data struct on the Global Save Data List.
+		for (FSaveSlotDataStruct Slot: GlobalSaveInstance->ActiveSaveSlots)
+		{
+			if (Slot.SlotName == UpdatedSaveInfo.SlotName)
+			{
+				Slot.SlotName = UpdatedSaveInfo.SlotName;
+				Slot.LastTimeStamp = UpdatedSaveInfo.LastTimeStamp;
+				UGameplayStatics::SaveGameToSlot(GlobalSaveInstance, GlobalSaveDataSlotName, 0);
+				break;
+			}
+		}
+	}
 }
 
 void USaveLoadSubsystem::SetLastPlayedSaveSlot()

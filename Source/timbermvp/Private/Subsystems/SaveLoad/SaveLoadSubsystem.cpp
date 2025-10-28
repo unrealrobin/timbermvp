@@ -158,6 +158,7 @@ UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 	 //Attempt to Load the an Existing GLobal Save Data File
 	UDieRobotGlobalSaveData* LoadedGlobalSaveData = Cast<UDieRobotGlobalSaveData>(
 		UGameplayStatics::LoadGameFromSlot(GlobalSaveDataSlotName, 0));
+	
 	if (LoadedGlobalSaveData)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Loaded Global Save Data from Exising File"));
@@ -886,21 +887,25 @@ FSaveSlotDataStruct USaveLoadSubsystem::GenerateSaveSlotDataStruct(FString SlotN
 
 void USaveLoadSubsystem::SaveSessionDataToGlobalSaveSlotList()
 {
-	//WHen saving, Find the Load Slot for the current session based on ID
+	//When saving, Find the Load Slot for the current session based on ID
 	UDieRobotGlobalSaveData* GlobalSaveInstance = GetGlobalSaveDataInstance();
 	if (IsValid(GlobalSaveInstance))
 	{
 		//Generate a new SaveSlotDataStruct
 		FSaveSlotDataStruct UpdatedSaveInfo = GenerateSaveSlotDataStruct(CurrentSessionSaveSlot);
 		//Update the Data struct on the Global Save Data List.
-		for (FSaveSlotDataStruct Slot: GlobalSaveInstance->ActiveSaveSlots)
+		for (FSaveSlotDataStruct& Slot: GlobalSaveInstance->ActiveSaveSlots)
 		{
 			if (Slot.SlotName == UpdatedSaveInfo.SlotName)
 			{
-				Slot.SlotName = UpdatedSaveInfo.SlotName;
+				UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - Found Matching Save Slot."));
 				Slot.LastTimeStamp = UpdatedSaveInfo.LastTimeStamp;
-				UGameplayStatics::SaveGameToSlot(GlobalSaveInstance, GlobalSaveDataSlotName, 0);
-				break;
+				Slot.SlotCurrentWave = UpdatedSaveInfo.SlotCurrentWave;
+				bool Saved = UGameplayStatics::SaveGameToSlot(GlobalSaveInstance, GlobalSaveDataSlotName, 0);
+				if (!Saved)
+				{
+					UE_LOG(LogTemp, Error, TEXT("SaveLoadSubsystem - Failed to Save Global Save Data."));
+				}
 			}
 		}
 	}

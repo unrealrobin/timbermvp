@@ -30,7 +30,15 @@ void UDRLoadMenu::GetAllSavedGames()
 	USaveLoadSubsystem* SLS = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
 	if (SLS)
 	{
-		AllSavedGames = SLS->GetGlobalSaveDataInstance()->ActiveSaveSlots;
+		UDieRobotGlobalSaveData* GSDInstance = SLS->GetGlobalSaveDataInstance();
+		if (IsValid(GSDInstance))
+		{
+			AllSavedGames = GSDInstance->ActiveSaveSlots;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("LoadMenu - GetAllSavedGames() - Failed to Retrieve Global Save Data Instance."));
+		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Retrieving %d saved games from Global Save Data Instance."), AllSavedGames.Num());
 	}
@@ -39,6 +47,7 @@ void UDRLoadMenu::GetAllSavedGames()
 
 void UDRLoadMenu::DisplayAllSavedGames()
 {
+	/* Loads Global Save Data Slot and Updated the AllSavedGames Variable*/
 	GetAllSavedGames();
 	
 	if (AllSavedGames.Num() > 0)

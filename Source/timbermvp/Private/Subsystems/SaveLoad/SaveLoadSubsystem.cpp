@@ -49,10 +49,21 @@ void USaveLoadSubsystem::SaveCurrentGame()
 	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *CurrentSessionSaveSlot)
 	
 	FString SaveSlot = CurrentSessionSaveSlot;
-	//Creating a new/empty instance of the Save Game Object
-	USaveLoadStruct* SaveGameInstance = Cast<USaveLoadStruct>(
+	
+	//Checking for existing Save Slot and Loading, Otherwise, creating a new save file for the slot.
+
+	bool bDoesSaveExist = UGameplayStatics::DoesSaveGameExist(CurrentSessionSaveSlot, 0);
+	USaveLoadStruct* SaveGameInstance;
+	if (!bDoesSaveExist)
+	{
+		SaveGameInstance = Cast<USaveLoadStruct>(
 		UGameplayStatics::CreateSaveGameObject
 		(USaveLoadStruct::StaticClass()));
+	}
+	else
+	{
+		SaveGameInstance = Cast<USaveLoadStruct>(UGameplayStatics::LoadGameFromSlot(CurrentSessionSaveSlot, 0));
+	}
 
 	SaveBuildableData(SaveGameInstance);
 	SaveWaveData(SaveGameInstance);

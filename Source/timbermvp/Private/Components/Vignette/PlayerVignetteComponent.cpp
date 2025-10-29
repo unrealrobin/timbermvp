@@ -1,10 +1,7 @@
 ﻿// Property of Paracosm.
 
-
 #include "Components/Vignette/PlayerVignetteComponent.h"
-
 #include "Components/PostProcessComponent.h"
-
 
 // Sets default values for this component's properties
 UPlayerVignetteComponent::UPlayerVignetteComponent()
@@ -107,7 +104,7 @@ void UPlayerVignetteComponent::HandleHealthChange(float HealthPercent)
 	//Ensures percent values are clamped.
 	HealthPercent = FMath::Clamp(HealthPercent, 0.0f, 1.0f);
 	
-	//CHecks health percent
+	//Checks health percent
 	CurrentState = GetCurrentDamageVignetteState();
 	FDamageVignetteState TargetState;
 	
@@ -116,12 +113,12 @@ void UPlayerVignetteComponent::HandleHealthChange(float HealthPercent)
 		TargetState = FullState;
 		CurrentVignetteState = EDamageVignetteRate::FullHealth;
 	}
-	else if (HealthPercent > .5f)
+	else if (HealthPercent > .5f && HealthPercent <= .8f)
 	{
 		TargetState = LightState;
 		CurrentVignetteState = EDamageVignetteRate::LightDamage;
 	}
-	else if (HealthPercent > .25f)
+	else if (HealthPercent > .25f && HealthPercent <= .5f)
 	{
 		TargetState = HighState;
 		CurrentVignetteState = EDamageVignetteRate::HighDamage;
@@ -140,10 +137,25 @@ void UPlayerVignetteComponent::HandleHealthChange(float HealthPercent)
 	//Only lerp if target state type is different
 	if (CurrentState.State != TargetState.State)
 	{
-		LerpDamageVignetteState(CurrentState, TargetState, 1.0f);
+		LerpDamageVignetteState(CurrentState, TargetState, VignetteLerpTime);
 	}
 
 	
+}
+
+void UPlayerVignetteComponent::SetVignetteStateToFullHealth()
+{
+	if (IsValid(DamageVignetteMid))
+	{
+		CurrentVignetteState = EDamageVignetteRate::FullHealth;
+		DamageVignetteMid->SetScalarParameterValue("DamageIntensity",0.f);
+		DamageVignetteMid->SetScalarParameterValue("EdgeFalloff", 0.f);
+		DamageVignetteMid->SetVectorParameterValue("DamageColor", FLinearColor::Red);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Attempting to adjust Player Vignette but Vignette Material is Invalid."))
+	}
 }
 
 void UPlayerVignetteComponent::LerpDamageVignetteState(FDamageVignetteState From, FDamageVignetteState To, float Time)

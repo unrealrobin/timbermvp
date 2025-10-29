@@ -71,6 +71,11 @@ public:
 	UFUNCTION()
 	void HandleHealthChange(float HealthPercent);
 
+	void SetVignetteStateToFullHealth();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vignette")
+	float VignetteLerpTime = 0.5f;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

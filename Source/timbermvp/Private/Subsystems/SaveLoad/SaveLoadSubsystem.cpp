@@ -23,7 +23,7 @@
 void USaveLoadSubsystem::SetNewGameSaveSlot()
 {
 	FGuid SaveSlotID = FGuid::NewGuid();
-	UE_LOG(LogTemp, Warning, TEXT("SetNewGameSaveSlot() - SaveLoadSubsystem - GUID: %s"), *SaveSlotID.ToString(EGuidFormats::Digits))
+	/*UE_LOG(LogTemp, Warning, TEXT("SetNewGameSaveSlot() - SaveLoadSubsystem - GUID: %s"), *SaveSlotID.ToString(EGuidFormats::Digits));*/
 	//Converts to string and removes dashes.
 	FString IDasString = SaveSlotID.ToString(EGuidFormats::Digits);
 
@@ -46,7 +46,7 @@ void USaveLoadSubsystem::SetLoadGameSaveSlot(FString SlotName)
 void USaveLoadSubsystem::SaveCurrentGame()
 {
 	if (CurrentSessionSaveSlot.IsEmpty()) return;
-	UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *CurrentSessionSaveSlot)
+	/*UE_LOG(LogTemp, Warning, TEXT("Saving Game to Slot: %s"), *CurrentSessionSaveSlot);*/
 	
 	FString SaveSlot = CurrentSessionSaveSlot;
 	
@@ -213,7 +213,7 @@ void USaveLoadSubsystem::SaveWaveData(USaveLoadStruct* SaveGameInstance)
 	
 	SaveGameInstance->WaveNumber = WaveSubsystem->CurrentWaveNumber;
 	
-	UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), SaveGameInstance->WaveNumber);
+	/*UE_LOG(LogTemp, Warning, TEXT("Saved Current Wave Number: %d"), SaveGameInstance->WaveNumber);*/
 }
 
 void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
@@ -237,14 +237,10 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 				PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
 				PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;
 				
-				/*SaveGameInstance->PlayerData.PlayerInventory.NumberOfParts = PS->MainInventory->NumberOfParts;
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfMechanism = PS->MainInventory->NumberOfMechanism;
-				SaveGameInstance->PlayerData.PlayerInventory.NumberOfUniques = PS->MainInventory->NumberOfUniques;*/
-				
-				UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
+				/*UE_LOG(LogTemp, Warning, TEXT("Saved Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
 					PlayerInventory.NumberOfParts,
 					PlayerInventory.NumberOfMechanism,
-					PlayerInventory.NumberOfUniques);
+					PlayerInventory.NumberOfUniques);*/
 			}
 			 /*Save Players Completed Missions*/
 			if (Character->MissionDeliveryComponent)
@@ -252,9 +248,9 @@ void USaveLoadSubsystem::SavePlayerData(USaveLoadStruct* SaveGameInstance)
 				for (FGuid MissionGuid : Character->MissionDeliveryComponent->CompletedMissionGuids)
 				{
 					SaveGameInstance->PlayerData.CompletedMissionList.Add(MissionGuid);
-					UE_LOG(LogTemp, Warning, TEXT(" Saved Mission: %s. GUID: %ls"), *Character->MissionDeliveryComponent->GetMissionTitle(), *LexToString(MissionGuid));
+					/*UE_LOG(LogTemp, Warning, TEXT(" Saved Mission: %s. GUID: %ls"), *Character->MissionDeliveryComponent->GetMissionTitle(), *LexToString(MissionGuid));*/
 				}
-				UE_LOG(LogTemp, Warning, TEXT(" Saved %d Missions"), SaveGameInstance->PlayerData.CompletedMissionList.Num())
+				/*UE_LOG(LogTemp, Warning, TEXT(" Saved %d Missions"), SaveGameInstance->PlayerData.CompletedMissionList.Num());*/
 			}
 		}
 	}
@@ -324,7 +320,9 @@ void USaveLoadSubsystem::CheckBuildingComponentForSnapAttachments(FBuildableData
 		BuildingComponent->BackCenterAttachment->GetGUID().IsValid())
 	{
 		BuildableData.BackCenterAttachmentGUID = BuildingComponent->BackCenterAttachment->GetGUID();
+		/*
 		UE_LOG(LogTemp, Warning, TEXT("BackCenterAttachment Found: %s. Set GUID: %s,"), *BuildingComponent->BackCenterAttachment->GetName(), *BuildingComponent->BackCenterAttachment->GetGUID().ToString());
+		*/
 
 	}
 
@@ -355,7 +353,6 @@ void USaveLoadSubsystem::SetCurrentSessionSaveSlot(FString SlotName)
 	{
 		GlobalSaveDataInstance->LastSavedSlot.LastSavedGame = CurrentSessionSaveSlot;
 		UGameplayStatics::SaveGameToSlot(GlobalSaveDataInstance, GlobalSaveDataSlotName, 0);
-		UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - SetCurrentSessionSaveSlot - Saving Global Save Data"));
 	}
 	else
 	{
@@ -371,7 +368,6 @@ UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 	
 	if (LoadedGlobalSaveData)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Global Save Data from Exising File"));
 		return LoadedGlobalSaveData;
 	}
 
@@ -381,7 +377,7 @@ UDieRobotGlobalSaveData* USaveLoadSubsystem::GetGlobalSaveDataInstance()
 		(UDieRobotGlobalSaveData::StaticClass()));
 	if (GlobalSaveDataInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Created and loaded a new Global Save Data File."));
+		/*UE_LOG(LogTemp, Warning, TEXT("Created and loaded a new Global Save Data File."));*/
 		return GlobalSaveDataInstance;
 	}
 	
@@ -450,10 +446,6 @@ void USaveLoadSubsystem::LoadGame(FString SlotToLoad)
 				GameMode->EnableStandardInputMappingContext.Execute();
 			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Failed to load Game - No Save/Load Slot."));
-		}
 	}
 }
 
@@ -515,11 +507,7 @@ void USaveLoadSubsystem::LoadWaveData(USaveLoadStruct* LoadGameInstance)
 		WaveSubsystem->SetCurrentWaveNumber(LoadGameInstance->WaveNumber);
 		
 		WaveSubsystem->bIsWaveActive = false;
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), WaveSubsystem->CurrentWaveNumber);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - Some Issue with LoadWaveData."));
+		/*UE_LOG(LogTemp, Warning, TEXT("Loaded Current Wave Number: %d"), WaveSubsystem->CurrentWaveNumber);*/
 	}
 }
 
@@ -531,7 +519,6 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 		ATimberPlayableCharacter* TimberCharacter = GameMode->TimberCharacter;
 		if (IsValid(TimberCharacter))
 		{
-			//Spawns at last set location, else spawns at the Set Player Spawn Location
 			if(!LoadGameInstance->PlayerData.PlayerLocation.IsZero())
 			{
 				TimberCharacter->SetActorLocation(LoadGameInstance->PlayerData.PlayerLocation);
@@ -541,11 +528,12 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 			TimberCharacter->GetCharacterMovement()->StopMovementImmediately();
 			
 			TimberCharacter->bIsPlayerDead = false;
-			
+
+			//Resetting Vignette to Full health
 			TimberCharacter->CurrentHealth = TimberCharacter->MaxHealth;
 			if (IsValid(TimberCharacter->VignetteComponent))
 			{
-				TimberCharacter->VignetteComponent->HandleHealthChange(100);
+				TimberCharacter->VignetteComponent->SetVignetteStateToFullHealth();
 			}
 			
 			
@@ -560,10 +548,10 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 				//Broadcast update so HUD Reflects Inventory
 				TimberCharacter->InventoryManager->UpdateInventoryHandle.Broadcast();
 
-				UE_LOG(LogTemp, Warning, TEXT("Loaded Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
+				/*UE_LOG(LogTemp, Warning, TEXT("Loaded Player Inventory - Parts: %d, Mechanisms: %d, Uniques: %d"),
 	                PS->MainInventory->NumberOfParts,
 	                PS->MainInventory->NumberOfMechanism,
-	                PS->MainInventory->NumberOfUniques);
+	                PS->MainInventory->NumberOfUniques);*/
 			}
 
 			//Ensuring weapons are loaded
@@ -580,6 +568,7 @@ void USaveLoadSubsystem::LoadPlayerState(USaveLoadStruct* LoadGameInstance)
 				MeleeWeapon->CurrentWeaponEnergy = MeleeWeapon->MaxWeaponEnergy;
 			}
 
+			
 			if (IsValid(TimberCharacter->MissionDeliveryComponent))
 			{
 				TimberCharacter->MissionDeliveryComponent->CompletedMissionGuids = LoadGameInstance->PlayerData.CompletedMissionList;
@@ -629,7 +618,7 @@ void USaveLoadSubsystem::BindToGameModeBaseDelegate(ATimberGameModeBase* GameMod
 
 void USaveLoadSubsystem::OnCharacterInitialization()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - OnCharacterInitialization"));
+	/*UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - OnCharacterInitialization"));*/
 	
 	USaveLoadStruct* LoadGameInstance = Cast<USaveLoadStruct>(UGameplayStatics::LoadGameFromSlot(CurrentSessionSaveSlot, 0));
 	if (IsValid(LoadGameInstance))
@@ -857,7 +846,7 @@ void USaveLoadSubsystem::AddNewSaveSlotToGlobalSaveSlotList()
 		bool bSuccessfulSaveSlot = UGameplayStatics::SaveGameToSlot(GSD, GlobalSaveDataSlotName, 0);
 		if (bSuccessfulSaveSlot)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - Added New Save Slot to Global Save Slot List."));
+			/*UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - Added New Save Slot to Global Save Slot List."));*/
 		}
 		else
 		{
@@ -912,7 +901,6 @@ void USaveLoadSubsystem::SaveSessionDataToGlobalSaveSlotList()
 		{
 			if (Slot.SlotName == UpdatedSaveInfo.SlotName)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("SaveLoadSubsystem - Found Matching Save Slot."));
 				Slot.LastTimeStamp = UpdatedSaveInfo.LastTimeStamp;
 				Slot.SlotCurrentWave = UpdatedSaveInfo.SlotCurrentWave;
 				bool Saved = UGameplayStatics::SaveGameToSlot(GlobalSaveInstance, GlobalSaveDataSlotName, 0);

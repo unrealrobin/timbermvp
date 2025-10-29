@@ -97,6 +97,12 @@ void ATimberPlayableCharacter::BeginPlay()
 	{
 		PlayWakeAnimationMontage();
 	}
+
+	/* Vignette */
+	if (VignetteComponent)
+	{
+		VignetteComponent->HandleHealthChange(CurrentHealth/MaxHealth);
+	}
 }
 
 void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
@@ -430,7 +436,7 @@ void ATimberPlayableCharacter::PlayWeaponEquipAnimationMontage(FName SectionName
 void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
 {
 	//Build in function on the ACharacter Class.
-	PlayAnimMontage(EquipWeaponMontage, 1.f, SectionName);
+	PlayAnimMontage(EquipWeaponMontage, EquipWeaponPlayRate, SectionName);
 }
 
 

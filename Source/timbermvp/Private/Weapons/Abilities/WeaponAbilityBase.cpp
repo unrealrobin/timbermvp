@@ -8,6 +8,7 @@
 
 void UWeaponAbilityBase::HandleCleanup(FAbilityContext Context)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Handling Ability Cleanup"));
 	Context.CombatComponent->CurrentWeaponAbility = nullptr;
 	Context.CombatComponent->bCanMeleeAttack = true;
 }

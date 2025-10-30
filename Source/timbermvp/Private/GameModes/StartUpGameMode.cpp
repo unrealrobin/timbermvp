@@ -12,22 +12,18 @@
 void AStartUpGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	InitializeGameConfigSubsystem();
+	InitializeStartUpMenu();
+	InitializeMusicManager();
+	
+	ResetWaveSubsystem();
 
-	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
-	if (DieRobotGameConfig)
-	{
-		DieRobotGameConfig->GameConfig = EDieRobotGameConfigType::MainMenu;
-	}
+	InitializeLastLoadedGameSlot();
+}
 
-	if (!StartUpMenu )
-	{
-		StartUpMenu = CreateWidget<UUserWidget>(GetWorld(), StartUpMenuClass );
-		if (StartUpMenu)
-		{
-			StartUpMenu->AddToViewport();
-		}
-	}
-
+void AStartUpGameMode::InitializeMusicManager()
+{
 	//We must Initialize the Music Manager in Every Game Mode so that it has the World Context to play Audio
 	UUMusicManagerSubsystem* MusicManager = GetWorld()->GetGameInstance()->GetSubsystem<UUMusicManagerSubsystem>();
 	if (MusicManager)
@@ -40,7 +36,48 @@ void AStartUpGameMode::BeginPlay()
 		
 		UE_LOG(LogTemp, Warning, TEXT("Startup Level Initialized the Music Manager and Played Song."))
 	}
-	
+}
+
+void AStartUpGameMode::InitializeStartUpMenu()
+{
+	if (!StartUpMenu )
+	{
+		StartUpMenu = CreateWidget<UUserWidget>(GetWorld(), StartUpMenuClass );
+		if (StartUpMenu)
+		{
+			StartUpMenu->AddToViewport();
+		}
+	}
+}
+
+void AStartUpGameMode::InitializeGameConfigSubsystem()
+{
+	UDieRobotGameConfigSubsystem* DieRobotGameConfig = GetGameInstance()->GetSubsystem<UDieRobotGameConfigSubsystem>();
+	if (DieRobotGameConfig)
+	{
+		DieRobotGameConfig->GameConfig = EDieRobotGameConfigType::MainMenu;
+	}
+}
+
+void AStartUpGameMode::InitializeLastLoadedGameSlot()
+{
+	USaveLoadSubsystem* SaveLoadSubsystem = GetGameInstance()->GetSubsystem<USaveLoadSubsystem>();
+	if (SaveLoadSubsystem)
+	{
+		//When a game is loaded it sets the Current Save Slot on the Save Load Subsystem.
+		// WHen the Game is saved, the value is then set on the Global Save Data File.
+		//Here we retrieve from the Global Save Data and repopulate that data
+		//TimberGameModeBase then uses that value
+		SaveLoadSubsystem->SetLastPlayedSaveSlot();
+	}
+}
+
+void AStartUpGameMode::ResetWaveSubsystem()
+{
+	if (UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>())
+	{
+		WaveSubsystem->ResetWaveSubsystem();
+	}
 }
 
 void AStartUpGameMode::SetGameConfig(EDieRobotGameConfigType InGameState)
@@ -53,7 +90,7 @@ void AStartUpGameMode::SetGameConfig(EDieRobotGameConfigType InGameState)
 	}
 }
 
-void AStartUpGameMode::SwitchToGameLevel()
+void AStartUpGameMode::SwitchToLabLevel()
 {
 	//Called from the PlayDemo Button in the Startup Menu - See Startup Widget
 	if (StartUpMenu)
@@ -93,4 +130,6 @@ void AStartUpGameMode::SwitchToMidgameDemo()
 		UGameplayStatics::OpenLevel(GetWorld(), FName("TheLab"));
 	}
 }
+
+
 

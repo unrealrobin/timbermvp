@@ -249,8 +249,10 @@ void UMissionDeliveryComponent::MarkMissionAsCompleted()
 		
 		ProcessRewards(ActiveMission);
 		
-		//Storing the Completed Mission for Saving.
-		CompletedMissionGuids.Add(ActiveMission->MissionID);
+		if (!CompletedMissionGuids.Contains(ActiveMission->MissionID))
+		{
+			CompletedMissionGuids.Add(ActiveMission->MissionID);
+		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Mission set to Complete."));
 	}
@@ -266,7 +268,7 @@ void UMissionDeliveryComponent::MarkMissionAsIncomplete()
 		//Resetting wipes the data so the UI will not display the mission information anymore.
 		//Need a design perspective on when to Reset/Wipe the Mission Panel info.
 		ResetMissionViewModel();
-		//TODO:: Reset View Model - Prep for new Mission at start of Next Wave. 
+		
 	}
 }
 

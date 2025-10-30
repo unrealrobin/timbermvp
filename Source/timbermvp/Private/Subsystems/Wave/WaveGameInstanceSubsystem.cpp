@@ -609,8 +609,15 @@ void UWaveGameInstanceSubsystem::PlayBossSpawnSound()
 	}
 }
 
+void UWaveGameInstanceSubsystem::ResetWaveSubsystem()
+{
+	ResetWaveEnemies();
+	CurrentWaveNumber = 1;
+	CurrentWaveHandle.Broadcast(CurrentWaveNumber);
+}
+
 void UWaveGameInstanceSubsystem::AddClassToEnemiesToSpawnArray(TSubclassOf<ATimberEnemyCharacter> ClassToAdd,
-	int NumberToAdd)
+                                                               int NumberToAdd)
 {
 	for (int i = 0; i < NumberToAdd; i++)
 	{

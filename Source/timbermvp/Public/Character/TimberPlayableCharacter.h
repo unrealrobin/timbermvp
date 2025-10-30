@@ -56,6 +56,8 @@ public:
 
 	/*Interface Overrides*/
 	virtual void PlayWeaponEquipAnimationMontage(FName SectionName) override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation Data")
+	float EquipWeaponPlayRate = 3.0f;
 	
 	//CharacterState
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")

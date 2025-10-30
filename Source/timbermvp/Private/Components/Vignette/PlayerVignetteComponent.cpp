@@ -1,10 +1,7 @@
 ﻿// Property of Paracosm.
 
-
 #include "Components/Vignette/PlayerVignetteComponent.h"
-
 #include "Components/PostProcessComponent.h"
-
 
 // Sets default values for this component's properties
 UPlayerVignetteComponent::UPlayerVignetteComponent()
@@ -107,43 +104,58 @@ void UPlayerVignetteComponent::HandleHealthChange(float HealthPercent)
 	//Ensures percent values are clamped.
 	HealthPercent = FMath::Clamp(HealthPercent, 0.0f, 1.0f);
 	
-	//CHecks health percent
+	//Checks health percent
 	CurrentState = GetCurrentDamageVignetteState();
 	FDamageVignetteState TargetState;
 	
 	if (HealthPercent > .8f)
 	{
 		TargetState = FullState;
-		CurrentVignetteState = EDamageVignetteState::FullHealth;
+		CurrentVignetteState = EDamageVignetteRate::FullHealth;
 	}
-	else if (HealthPercent > .5f)
+	else if (HealthPercent > .5f && HealthPercent <= .8f)
 	{
 		TargetState = LightState;
-		CurrentVignetteState = EDamageVignetteState::LightDamage;
+		CurrentVignetteState = EDamageVignetteRate::LightDamage;
 	}
-	else if (HealthPercent > .25f)
+	else if (HealthPercent > .25f && HealthPercent <= .5f)
 	{
 		TargetState = HighState;
-		CurrentVignetteState = EDamageVignetteState::HighDamage;
+		CurrentVignetteState = EDamageVignetteRate::HighDamage;
 	}
 	else if (HealthPercent <= 0.25f)
 	{
 		TargetState = CriticalState;
-		CurrentVignetteState = EDamageVignetteState::Critical;
+		CurrentVignetteState = EDamageVignetteRate::Critical;
 	}
 	else
 	{
 		TargetState = FullState;
-		CurrentVignetteState = EDamageVignetteState::FullHealth;
+		CurrentVignetteState = EDamageVignetteRate::FullHealth;
 	}
     
 	//Only lerp if target state type is different
 	if (CurrentState.State != TargetState.State)
 	{
-		LerpDamageVignetteState(CurrentState, TargetState, 1.0f);
+		LerpDamageVignetteState(CurrentState, TargetState, VignetteLerpTime);
 	}
 
 	
+}
+
+void UPlayerVignetteComponent::SetVignetteStateToFullHealth()
+{
+	if (IsValid(DamageVignetteMid))
+	{
+		CurrentVignetteState = EDamageVignetteRate::FullHealth;
+		DamageVignetteMid->SetScalarParameterValue("DamageIntensity",0.f);
+		DamageVignetteMid->SetScalarParameterValue("EdgeFalloff", 0.f);
+		DamageVignetteMid->SetVectorParameterValue("DamageColor", FLinearColor::Red);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Attempting to adjust Player Vignette but Vignette Material is Invalid."))
+	}
 }
 
 void UPlayerVignetteComponent::LerpDamageVignetteState(FDamageVignetteState From, FDamageVignetteState To, float Time)

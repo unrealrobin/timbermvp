@@ -8,7 +8,7 @@
 
 class ARecastNavMesh;
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta = (ScriptName = "DieRobotTutorialState_ScriptName"))
 enum class ETutorialState : uint8
 {
 	Wake1 UMETA(DisplayName = "Wake1"),

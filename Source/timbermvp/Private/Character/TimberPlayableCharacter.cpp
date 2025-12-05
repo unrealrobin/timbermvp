@@ -267,6 +267,7 @@ void ATimberPlayableCharacter::PlayDeathAnimation()
 	PlayAnimMontage(DeathMontage, 1.f, FName("1"));
 }
 
+
 void ATimberPlayableCharacter::GetPlayerInventoryFromPlayerState()
 {
 	if (IsValid(PlayerController))
@@ -433,11 +434,90 @@ void ATimberPlayableCharacter::PlayWeaponEquipAnimationMontage(FName SectionName
 	PlayEquipWeaponMontage(SectionName);
 }
 
+void ATimberPlayableCharacter::SetIsAmplified(bool bIsAmplified)
+{
+	if (bIsAmplified)
+	{
+		CharacterState = ECharacterState::Amplified;
+		
+		if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+		{
+			CMC->MaxWalkSpeed = 100.0f;
+		}
+		CreateAmplificationSphere();
+	}
+	else
+	{
+		CharacterState = ECharacterState::Standard;
+
+		//Reverts characters walk speed back to base walk speed
+		if (UCharacterMovementComponent* CMC = GetCharacterMovement())
+		{
+			CMC->MaxWalkSpeed = 600.0f;
+		}
+
+		
+		TempAmplifyCapsule->DestroyComponent();
+		TempAmplifyCapsule = nullptr;
+		TempAmplifyStaticMeshComponent->DestroyComponent();
+		TempAmplifyStaticMeshComponent = nullptr;
+		
+	}
+	
+}
+
 void ATimberPlayableCharacter::PlayEquipWeaponMontage(FName SectionName)
 {
 	//Build in function on the ACharacter Class.
 	PlayAnimMontage(EquipWeaponMontage, EquipWeaponPlayRate, SectionName);
 }
+
+/* Amplification */
+void ATimberPlayableCharacter::CreateAmplificationSphere()
+{
+	//Create the Sphere used for Overlap
+	TempAmplifyCapsule = NewObject<UCapsuleComponent>(this);
+	TempAmplifyCapsule->SetCapsuleSize(1000.f, 1000.f);
+	TempAmplifyCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	TempAmplifyCapsule->SetCollisionObjectType(ECC_WorldDynamic);
+	TempAmplifyCapsule->RegisterComponent();
+	TempAmplifyCapsule->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+	TempAmplifyStaticMeshComponent = NewObject<UStaticMeshComponent>(this);
+	TempAmplifyStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TempAmplifyStaticMeshComponent->SetRelativeScale3D(FVector(1000/100.f, 1000/100.f, 1000/100.f));
+	TempAmplifyStaticMeshComponent->SetStaticMesh(AmplifyMesh);
+	TempAmplifyStaticMeshComponent->RegisterComponent();
+	TempAmplifyStaticMeshComponent->AttachToComponent(TempAmplifyCapsule, FAttachmentTransformRules::KeepRelativeTransform);
+
+	TempAmplifyCapsule->OnComponentBeginOverlap.AddDynamic(this, &ATimberPlayableCharacter::HandleAmplificationCapsuleOverlap);
+	TempAmplifyCapsule->OnComponentEndOverlap.AddDynamic(this, &ATimberPlayableCharacter::HandleAmplificationCapsuleEndOverlap);
+	
+}
+
+void ATimberPlayableCharacter::HandleAmplificationCapsuleEndOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	IAmplifiable* AmplifiableActor = Cast<IAmplifiable>(OtherActor);
+	if (AmplifiableActor && AmplifiableActor != this)
+	{
+		AmplifiableActor->SetIsAmplified(false);
+		UE_LOG(LogTemp, Warning, TEXT("Ended Overlap on Amplifiable Actor: %s"), *OtherActor->GetName());
+	}
+}
+
+void ATimberPlayableCharacter::HandleAmplificationCapsuleOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	IAmplifiable* AmplifiableActor = Cast<IAmplifiable>(OtherActor);
+	if (AmplifiableActor && AmplifiableActor != this)
+	{
+		AmplifiableActor->SetIsAmplified(true);
+		UE_LOG(LogTemp, Warning, TEXT("Ended Overlap on Amplifiable Actor: %s"), *OtherActor->GetName());
+	}
+}
+
 
 
 

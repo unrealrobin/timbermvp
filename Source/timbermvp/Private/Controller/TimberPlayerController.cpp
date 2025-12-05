@@ -92,6 +92,10 @@ void ATimberPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(ToggleSettingsPanelAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleSettingsPanel);
 	EnhancedInputComponent->BindAction(ToggleDataViewAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::ToggleDataView);
 	EnhancedInputComponent->BindAction(StartWaveEarlyAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::HandleStartWaveEarly);
+	
+	EnhancedInputComponent->BindAction(CharacterAmplifyAction, ETriggerEvent::Started, this, &ATimberPlayerController::ActivateAmplify);
+	EnhancedInputComponent->BindAction(CharacterAmplifyAction, ETriggerEvent::Completed, this, &ATimberPlayerController::DeactivateAmplify);
+	
 
 	/*Build Inputs*/
 	EnhancedInputComponent->BindAction(ToggleBuildModeAction, ETriggerEvent::Triggered, this, &ATimberPlayerController::EnterBuildMode);
@@ -610,6 +614,26 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 	if (TimberCharacter && TimberCharacter->CombatComponent)
 	{
 		TimberCharacter->CombatComponent->ReloadRangedWeapon();
+	}
+}
+
+void ATimberPlayerController::ActivateAmplify(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Activate Amplify Value: %s"), Value.Get<bool>() ? TEXT("true") : TEXT("false"));
+	if (Value.Get<bool>() && TimberCharacter)
+	{
+		TimberCharacter->SetIsAmplified(true);
+	}
+	
+}
+
+void ATimberPlayerController::DeactivateAmplify(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ActivateAmplify Button Released"))
+
+	if (TimberCharacter)
+	{
+		TimberCharacter->SetIsAmplified(false);
 	}
 }
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/TimberCharacterBase.h"
+#include "Interfaces/Amplifiable.h"
 #include "Interfaces/CombatComponentAnimUser.h"
 #include "States/PlayerStateBase.h"
 #include "Weapons/TimberWeaponBase.h"
@@ -28,14 +29,15 @@ UENUM(BlueprintType)
 enum class ECharacterState: uint8
 {
 	Standard UMETA(DisplayName = "Standard"),
-	Building UMETA(DisplayName = "Building")
+	Building UMETA(DisplayName = "Building"),
+	Amplified UMETA(DisplayName = "Amplified")
 };
 
 /**
  * 
  */
 UCLASS()
-class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase, public ICombatComponentAnimUser
+class TIMBERMVP_API ATimberPlayableCharacter : public ATimberCharacterBase, public ICombatComponentAnimUser, public IAmplifiable
 {
 	GENERATED_BODY()
 
@@ -58,6 +60,10 @@ public:
 	virtual void PlayWeaponEquipAnimationMontage(FName SectionName) override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation Data")
 	float EquipWeaponPlayRate = 3.0f;
+
+	
+	//IAmplifiable
+	virtual void SetIsAmplified(bool bIsAmplified) override;
 	
 	//CharacterState
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")
@@ -81,6 +87,13 @@ public:
 	UPlayerVignetteComponent* VignetteComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Missions Component")
 	UMissionDeliveryComponent* MissionDeliveryComponent;
+
+	UPROPERTY()
+	TObjectPtr<UCapsuleComponent> TempAmplifyCapsule;
+	UPROPERTY()
+	TObjectPtr<UStaticMeshComponent> TempAmplifyStaticMeshComponent;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Amplify Static Mesh")
+	TObjectPtr<UStaticMesh> AmplifyMesh;
 	
 	/*Attributes / Defaults*/
 	bool IsRunning = true;
@@ -191,6 +204,16 @@ protected:
 
 	UFUNCTION()
 	void PlayDeathAnimation();
+
+private:
+
+	UFUNCTION()
+	void HandleAmplificationCapsuleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void HandleAmplificationCapsuleEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);	
+
+	void CreateAmplificationSphere();
 	
 };
 

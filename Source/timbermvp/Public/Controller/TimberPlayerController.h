@@ -94,14 +94,14 @@ public:
 	UInputAction* ToggleDataViewAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* StartWaveEarlyAction;
+	UPROPERTY(EditAnywhere)
+	UInputAction* CharacterAmplifyAction;
 
-	//Not for SHippings Builds.
+	//Not for Shippings Builds / Dev Only.
 	UPROPERTY(EditAnywhere)
 	UInputAction* HighResShotWithUI_InputAction;
 	UPROPERTY(EditAnywhere)
 	UInputAction* HighResShot_InputAction;
-
-	/*Development Only*/
 	UFUNCTION()
 	void TakeHighResShotWithUI();
 	UFUNCTION()
@@ -142,6 +142,7 @@ public:
 	void ToggleDataView(const FInputActionValue& Value);
 	UFUNCTION()
 	void HandleStartWaveEarly();
+	
 
 	/* COMBAT */
 	UFUNCTION()
@@ -160,6 +161,10 @@ public:
 	void UseSecondaryAbilityTriggered(const FInputActionValue& Value);
 	UFUNCTION()
 	void ReloadWeapon(const FInputActionValue& Value);
+	UFUNCTION()
+	void ActivateAmplify(const FInputActionValue& Value);
+	UFUNCTION()
+	void DeactivateAmplify(const FInputActionValue& Value);
 	
 	// Stores the value of the Move input action
 	FInputActionValue MoveInputActionValue;
@@ -197,6 +202,7 @@ public:
 	bool CanAttackAgain = true;
 	
 protected:
+	
 	virtual void SetupInputComponent() override;
 
 	/*Move Data*/

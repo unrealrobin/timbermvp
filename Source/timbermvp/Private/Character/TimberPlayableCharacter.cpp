@@ -478,10 +478,11 @@ void ATimberPlayableCharacter::CreateAmplificationSphere()
 	//Create the Sphere used for Overlap
 	TempAmplifyCapsule = NewObject<UCapsuleComponent>(this);
 	TempAmplifyCapsule->SetCapsuleSize(1000.f, 1000.f);
-	TempAmplifyCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	TempAmplifyCapsule->SetCollisionObjectType(ECC_WorldDynamic);
 	TempAmplifyCapsule->RegisterComponent();
 	TempAmplifyCapsule->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	TempAmplifyCapsule->OnComponentBeginOverlap.AddDynamic(this, &ATimberPlayableCharacter::HandleAmplificationCapsuleOverlap);
+	TempAmplifyCapsule->OnComponentEndOverlap.AddDynamic(this, &ATimberPlayableCharacter::HandleAmplificationCapsuleEndOverlap);
+	TempAmplifyCapsule->SetCollisionProfileName("DR_QueryBuildables");
 
 	TempAmplifyStaticMeshComponent = NewObject<UStaticMeshComponent>(this);
 	TempAmplifyStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -490,8 +491,6 @@ void ATimberPlayableCharacter::CreateAmplificationSphere()
 	TempAmplifyStaticMeshComponent->RegisterComponent();
 	TempAmplifyStaticMeshComponent->AttachToComponent(TempAmplifyCapsule, FAttachmentTransformRules::KeepRelativeTransform);
 
-	TempAmplifyCapsule->OnComponentBeginOverlap.AddDynamic(this, &ATimberPlayableCharacter::HandleAmplificationCapsuleOverlap);
-	TempAmplifyCapsule->OnComponentEndOverlap.AddDynamic(this, &ATimberPlayableCharacter::HandleAmplificationCapsuleEndOverlap);
 	
 }
 
@@ -502,7 +501,7 @@ void ATimberPlayableCharacter::HandleAmplificationCapsuleEndOverlap(UPrimitiveCo
 	if (AmplifiableActor && AmplifiableActor != this)
 	{
 		AmplifiableActor->SetIsAmplified(false);
-		UE_LOG(LogTemp, Warning, TEXT("Ended Overlap on Amplifiable Actor: %s"), *OtherActor->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Ended Overlap on Amplifiable Actor: %s"), *OtherActor->GetName());
 	}
 }
 
@@ -513,8 +512,8 @@ void ATimberPlayableCharacter::HandleAmplificationCapsuleOverlap(UPrimitiveCompo
 	IAmplifiable* AmplifiableActor = Cast<IAmplifiable>(OtherActor);
 	if (AmplifiableActor && AmplifiableActor != this)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("Overlapped Amplifiable Actor: %s"), *OtherActor->GetName())
 		AmplifiableActor->SetIsAmplified(true);
-		UE_LOG(LogTemp, Warning, TEXT("Ended Overlap on Amplifiable Actor: %s"), *OtherActor->GetName());
 	}
 }
 

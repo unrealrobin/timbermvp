@@ -54,6 +54,18 @@ void ATrapBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ATrapBase::SetIsAmplified(bool bIsAmplified)
+{
+	if (bIsAmplified)
+	{
+		AmplificationState = EAmplificationState::Amplified;
+	}
+	else
+	{
+		AmplificationState = EAmplificationState::NotAmplified;
+	}
+}
+
 void ATrapBase::FreeUpTrapSlotOnBuildingComponent()
 {
 	if (ATimberBuildingComponentBase* ParentBuildingComponent = Cast<ATimberBuildingComponentBase>(ParentBuildable))

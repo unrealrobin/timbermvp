@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "TrapBase.h"
+#include "Interfaces/Amplifiable.h"
 #include "SpikeTrap.generated.h"
 
 class UCurveVector;
@@ -24,6 +25,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void SetSpikeOutAttackTimer();
 
+	virtual void SetIsAmplified(bool bIsAmplified) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Trap Component")
 	UStaticMeshComponent* TrapSpikeMesh;
 
@@ -37,12 +40,19 @@ public:
 
 	UFUNCTION()
 	void HandleSpikeOutAttack();
-	
+
+	UFUNCTION(BlueprintCallable)
 	void ApplyStatusEffectToEnemy();
 
 	/*Timeline Animation*/
 	void SetupTimelineComponents();
 	void SetupTimelineData();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartAmplifiedTimelineAnimationLoop();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StopAmplifiedTimelineAnimationLoop();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UTimelineComponent* SpikeOutTimeline;
@@ -64,10 +74,13 @@ public:
 	/*Timers*/
 	FTimerHandle TimeToActiveSpikeOutAttack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
-	float TimeToActiveSpikeOutAttackValue = 0.3f;
+	float TimeToActiveSpikeOutAttackValue = 1.3f;
 	FTimerHandle SpikeOutCooldown;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timers")
 	float SpikeOutCooldownValue = 3.0f;
 	bool IsSpikeOnCooldown = false;
 	void EndSpikeTrapCooldown(); // Empty function to be used in the timer manager.
+
+	/* Amplified*/
+	FTimerHandle AmplifiedSpikeOutHandle;
 };

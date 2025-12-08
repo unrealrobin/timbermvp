@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "BuildSystem/BuildableBase.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/Amplifiable.h"
+#include "Interfaces/Interactable.h"
 #include "TrapBase.generated.h"
 
 class UStatusEffectDefinition;
@@ -15,6 +17,13 @@ class ATimberBuildingComponentBase;
 class UBoxComponent;
 
 UENUM(BlueprintType)
+enum class EAmplificationState : uint8
+{
+	Amplified UMETA(DisplayName = "Amplified"),
+	NotAmplified UMETA(DisplayName = "Not Amplified")
+};
+
+UENUM(BlueprintType)
 enum class EBuildingComponentTrapDirection : uint8
 {
 	Front UMETA(DisplayName = "Front Snap"),
@@ -23,7 +32,7 @@ enum class EBuildingComponentTrapDirection : uint8
 };
 
 UCLASS()
-class TIMBERMVP_API ATrapBase : public ABuildableBase
+class TIMBERMVP_API ATrapBase : public ABuildableBase, public IAmplifiable
 {
 	GENERATED_BODY()
 
@@ -56,6 +65,9 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	/* Amplify Prototype*/
+	virtual void SetIsAmplified(bool bIsAmplified) override;
 	
 	void FreeUpTrapSlotOnBuildingComponent();
 
@@ -90,6 +102,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap Components")
 	EBuildingComponentTrapDirection BuildingComponentTrapDirection = EBuildingComponentTrapDirection::Default;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Amplification")
+	EAmplificationState AmplificationState = EAmplificationState::NotAmplified;
+	
+	
 	/*Hit Area Utilities*/
 	/* Adds Enemies to the Inside Hit Box Array*/
 	UFUNCTION()

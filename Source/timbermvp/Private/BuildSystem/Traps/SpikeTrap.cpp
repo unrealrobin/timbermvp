@@ -2,27 +2,20 @@
 
 
 #include "BuildSystem/Traps/SpikeTrap.h"
-
-#include "Character/TimberPlayableCharacter.h"
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Components/StatusEffect/StatusConditionManager.h"
-#include "Data/DataAssets/StatusEffects/StatusEffectBase.h"
-
 
 // Sets default values
 ASpikeTrap::ASpikeTrap()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 	SnapCondition = ESnapCondition::CenterSnap;
-	
 	TrapSpikeMesh = CreateDefaultSubobject<UStaticMeshComponent>("Spikes");
 	TrapSpikeMesh->SetupAttachment(TrapBaseStaticMesh);
 	TrapSpikeMesh->SetCollisionProfileName(TEXT("NoCollision"));
-	
 	SpikeOutTimeline = CreateDefaultSubobject<UTimelineComponent>("SpikeOutTimeline");
 }
 
@@ -40,11 +33,10 @@ void ASpikeTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	{ //Enemies pile up but don't Begin Overlap within the spike trap, so we force the spike out attack if the Trap is off cooldown.
-		if(InsideHitBoxArray.Num() != 0 && !IsSpikeOnCooldown)
-		{
-			SetSpikeOutAttackTimer();
-		}
+	//Enemies pile up but don't Begin Overlap within the spike trap, so we force the spike out attack if the Trap is off cooldown.
+	if(InsideHitBoxArray.Num() != 0 && !IsSpikeOnCooldown && AmplificationState != EAmplificationState::Amplified)
+	{
+		SetSpikeOutAttackTimer();
 	}
 }
 
@@ -56,10 +48,26 @@ void ASpikeTrap::SetSpikeOutAttackTimer()
 	IsSpikeOnCooldown = true;
 }
 
+void ASpikeTrap::SetIsAmplified(bool bIsAmplified)
+{
+	Super::SetIsAmplified(bIsAmplified);
+	//Changes that need to be made to this trap when it is amplified.
+	if (bIsAmplified)
+	{
+		StartAmplifiedTimelineAnimationLoop();
+	}
+	else
+	{
+		StopAmplifiedTimelineAnimationLoop();
+	}
+}
+
 void ASpikeTrap::HandleSpikeTrapOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent*
 	OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (AmplificationState == EAmplificationState::Amplified) return;
+	
 	//Timer from initial activation to spike out attack
 	ATimberEnemyCharacter* Enemy = Cast<ATimberEnemyCharacter>(OtherActor);
 	if (Enemy)
@@ -164,5 +172,4 @@ void ASpikeTrap::PlaySpikeOutTimeline_Reverse()
 void ASpikeTrap::EndSpikeTrapCooldown()
 {
 	IsSpikeOnCooldown = false;
-	//UE_LOG(LogTemp, Warning, TEXT("Spike Cooldown Finished."));
 }

@@ -2,10 +2,10 @@
 
 
 #include "BuildSystem/Traps/ElectroStaticPulseTrap.h"
-
 #include "Character/Enemies/TimberEnemyCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/StatusEffect/StatusConditionManager.h"
+
 AElectroStaticPulseTrap::AElectroStaticPulseTrap()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -60,19 +60,20 @@ void AElectroStaticPulseTrap::Tick(float DeltaTime)
 	{
 		MovePulseHitSphere(DeltaTime);
 		
-		if (ElectroPulseSphereInstances.Num() > 0)
+		for (FGuid ids : DestroyedSphereGuids)
 		{
-			for (FElectroPulseSphereData SphereInstance : ElectroPulseSphereInstances)
+			FElectroPulseSphereData* Found = ElectroPulseSphereInstances.FindByPredicate([&, ids](const FElectroPulseSphereData& Sphere)
 			{
-				if (DestroyedSphereGuids.Contains(SphereInstance.ElectroPulseSphereGuid))
-				{
-					ElectroPulseSphereInstances.RemoveAtSwap(ElectroPulseSphereInstances.Find(SphereInstance));
-					UE_LOG(LogTemp, Warning, TEXT("Removed Sphere from Array"));
-					DestroyedSphereGuids.RemoveAtSwap(DestroyedSphereGuids.Find(SphereInstance.ElectroPulseSphereGuid));
-				}
-			}
+				return Sphere.ElectroPulseSphereGuid == ids;
+			});
 			
+			if (Found)
+			{
+				ElectroPulseSphereInstances.RemoveSingleSwap(*Found);
+			}
 		}
+		
+		DestroyedSphereGuids.Empty();
 	}
 }
 

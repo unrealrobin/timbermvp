@@ -512,7 +512,7 @@ void ATimberPlayableCharacter::HandleAmplificationCapsuleOverlap(UPrimitiveCompo
 	IAmplifiable* AmplifiableActor = Cast<IAmplifiable>(OtherActor);
 	if (AmplifiableActor && AmplifiableActor != this)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Overlapped Amplifiable Actor: %s"), *OtherActor->GetName())
+		UE_LOG(LogTemp, Warning, TEXT("Overlapped Amplifiable Actor: %s"), *OtherActor->GetName())
 		AmplifiableActor->SetIsAmplified(true);
 	}
 }

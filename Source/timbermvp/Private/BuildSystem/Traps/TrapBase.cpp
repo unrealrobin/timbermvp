@@ -58,10 +58,12 @@ void ATrapBase::SetIsAmplified(bool bIsAmplified)
 {
 	if (bIsAmplified)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Trap Base - Trap is now Amplified."));
 		AmplificationState = EAmplificationState::Amplified;
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Trap Base - Trap is now De-Amplified."));
 		AmplificationState = EAmplificationState::NotAmplified;
 	}
 }

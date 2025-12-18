@@ -623,6 +623,7 @@ void ATimberPlayerController::ActivateAmplify(const FInputActionValue& Value)
 	if (Value.Get<bool>() && TimberCharacter)
 	{
 		TimberCharacter->SetIsAmplified(true);
+		TimberCharacter->CharacterState = ECharacterState::Amplified;
 	}
 	
 }
@@ -634,6 +635,7 @@ void ATimberPlayerController::DeactivateAmplify(const FInputActionValue& Value)
 	if (TimberCharacter)
 	{
 		TimberCharacter->SetIsAmplified(false);
+		TimberCharacter->CharacterState = ECharacterState::Standard;
 	}
 }
 

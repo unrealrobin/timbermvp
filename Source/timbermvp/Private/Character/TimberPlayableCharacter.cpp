@@ -20,6 +20,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "UI/TimberHUDBase.h"
 
 ATimberPlayableCharacter::ATimberPlayableCharacter()
@@ -40,6 +41,19 @@ ATimberPlayableCharacter::ATimberPlayableCharacter()
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("DR_PlayerCharacterCapsule"));
 	GetMesh()->SetCollisionProfileName(TEXT("DR_AestheticMeshOnly"));
+}
+
+void ATimberPlayableCharacter::SetAmplificationPower(float DeltaPower)
+{
+	AmplificationPower = FMath::Clamp(AmplificationPower + DeltaPower, 0.f, 100.f);
+}
+
+void ATimberPlayableCharacter::HandleWaveEnd(int CompletedWaveNumber)
+{
+	if (!bIsPlayerDead)
+	{
+		PlayerGainHealth(MaxHealth);
+	}
 }
 
 void ATimberPlayableCharacter::BeginPlay()
@@ -103,6 +117,13 @@ void ATimberPlayableCharacter::BeginPlay()
 	{
 		VignetteComponent->HandleHealthChange(CurrentHealth/MaxHealth);
 	}
+	
+	/* Wave Completion Binding */
+	UWaveGameInstanceSubsystem* W = GetWorld()->GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
+	if (W)
+	{
+		W->OnWaveComplete.AddDynamic(this, &ATimberPlayableCharacter::HandleWaveEnd);
+	}
 }
 
 void ATimberPlayableCharacter::BindToSeedaDelegates(AActor* Seeda)
@@ -145,6 +166,29 @@ void ATimberPlayableCharacter::Tick(float DeltaSeconds)
 	{
 		PerformBuildSystemRaycast();
 	}
+	
+	if (CharacterState != ECharacterState::Amplified)
+	{
+		if (NotAmplifiedTime > 5.0f)
+		{
+			SetAmplificationPower(5.0f);
+			NotAmplifiedTime = 0.0f;
+		}
+		else
+		{
+			NotAmplifiedTime += DeltaSeconds;
+		}
+	}
+	else //Is Amplified
+	{
+		AmplificationPower -= 10 * DeltaSeconds;
+		if (AmplificationPower <= 0.0f)
+		{
+			SetIsAmplified(false);
+		}
+	}
+	
+	
 }
 
 /*Build System Stuff*/
@@ -439,10 +483,10 @@ void ATimberPlayableCharacter::SetIsAmplified(bool bIsAmplified)
 	if (bIsAmplified)
 	{
 		CharacterState = ECharacterState::Amplified;
-		
+		CombatComponent->UnEquipAllWeapons();
 		if (UCharacterMovementComponent* CMC = GetCharacterMovement())
 		{
-			CMC->MaxWalkSpeed = 100.0f;
+			CMC->MaxWalkSpeed = 0.0f;
 		}
 		CreateAmplificationSphere();
 	}
@@ -455,13 +499,17 @@ void ATimberPlayableCharacter::SetIsAmplified(bool bIsAmplified)
 		{
 			CMC->MaxWalkSpeed = 600.0f;
 		}
-
 		
-		TempAmplifyCapsule->DestroyComponent();
-		TempAmplifyCapsule = nullptr;
-		TempAmplifyStaticMeshComponent->DestroyComponent();
-		TempAmplifyStaticMeshComponent = nullptr;
-		
+		if (TempAmplifyCapsule)
+		{
+			TempAmplifyCapsule->DestroyComponent();
+			TempAmplifyCapsule = nullptr;
+		}
+		if (TempAmplifyStaticMeshComponent)
+		{
+			TempAmplifyStaticMeshComponent->DestroyComponent();
+			TempAmplifyStaticMeshComponent = nullptr;
+		}
 	}
 	
 }
@@ -494,8 +542,23 @@ void ATimberPlayableCharacter::CreateAmplificationSphere()
 	
 }
 
+bool ATimberPlayableCharacter::bEnoughPowerToAmplify()
+{
+	if (AmplificationPower >= 5) return true;
+	
+	return false;
+}
+
+void ATimberPlayableCharacter::UsePowerForAmplification()
+{
+}
+
+void ATimberPlayableCharacter::GainPowerForAmplification()
+{
+}
+
 void ATimberPlayableCharacter::HandleAmplificationCapsuleEndOverlap(UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                                                                    AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	IAmplifiable* AmplifiableActor = Cast<IAmplifiable>(OtherActor);
 	if (AmplifiableActor && AmplifiableActor != this)

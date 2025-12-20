@@ -60,10 +60,10 @@ public:
 	virtual void PlayWeaponEquipAnimationMontage(FName SectionName) override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation Data")
 	float EquipWeaponPlayRate = 3.0f;
-
 	
 	//IAmplifiable
 	virtual void SetIsAmplified(bool bIsAmplified) override;
+	
 	
 	//CharacterState
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character State")
@@ -193,11 +193,22 @@ public:
 	
 	UFUNCTION()
 	void BindToSeedaDelegates(AActor* Seeda);
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetAmplificationPower(){return AmplificationPower;}
+	
+	UFUNCTION()
+	void SetAmplificationPower(float DeltaPower);
 
 protected:
 	virtual void BeginPlay() override;
 	
 	virtual void Tick(float DeltaSeconds) override;
+	
+	
+	UFUNCTION()
+	void HandleWaveEnd(int CompletedWaveNumber);
+	
 
 	UFUNCTION()
 	void HandleBuildMenuOpen(bool IsBuildMenuOpen);
@@ -214,6 +225,13 @@ private:
 	void HandleAmplificationCapsuleEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);	
 
 	void CreateAmplificationSphere();
+	
+	//We want to add some form of reducing power here when in amplification, when out of amplified, the resource rebuilds its power.
+	float AmplificationPower = 100.0f;
+	float NotAmplifiedTime = 0.0f;
+	bool bEnoughPowerToAmplify();
+	void UsePowerForAmplification();
+	void GainPowerForAmplification();
 	
 };
 

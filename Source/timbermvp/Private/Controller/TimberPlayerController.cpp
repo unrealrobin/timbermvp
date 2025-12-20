@@ -619,23 +619,21 @@ void ATimberPlayerController::ReloadWeapon(const FInputActionValue& Value)
 
 void ATimberPlayerController::ActivateAmplify(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Activate Amplify Value: %s"), Value.Get<bool>() ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("Amplification Start."));
 	if (Value.Get<bool>() && TimberCharacter)
 	{
 		TimberCharacter->SetIsAmplified(true);
-		TimberCharacter->CharacterState = ECharacterState::Amplified;
 	}
 	
 }
 
 void ATimberPlayerController::DeactivateAmplify(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ActivateAmplify Button Released"))
+	UE_LOG(LogTemp, Warning, TEXT("Amplification End."))
 
 	if (TimberCharacter)
 	{
 		TimberCharacter->SetIsAmplified(false);
-		TimberCharacter->CharacterState = ECharacterState::Standard;
 	}
 }
 

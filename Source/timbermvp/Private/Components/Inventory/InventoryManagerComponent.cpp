@@ -36,7 +36,7 @@ void UInventoryManagerComponent::LoadOwningPlayerState()
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player Controller Loaded."));
 			PS = PC->GetPlayerState<APlayerStateBase>();
-			if(PS == nullptr )
+			if(PS == nullptr)
 			{
 				//UE_LOG(LogTemp, Warning, TEXT("Inventory Manager Component - Player State Cast Failed."));
 			}

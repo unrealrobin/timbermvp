@@ -28,6 +28,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Inventory")
 	UInventoryObject* PlayerInventory = nullptr;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Player Inventory")
 	ATimberPlayableCharacter* PlayerCharacter;
 };

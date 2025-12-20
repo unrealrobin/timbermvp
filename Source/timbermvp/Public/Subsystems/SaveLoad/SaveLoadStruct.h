@@ -23,7 +23,7 @@ struct FInventoryData
 	int NumberOfUniques;
 
 	FInventoryData() :
-		NumberOfParts(0), NumberOfMechanism(0), NumberOfUniques(0)
+		NumberOfParts(10), NumberOfMechanism(10), NumberOfUniques(4)
 	{}
 };
 

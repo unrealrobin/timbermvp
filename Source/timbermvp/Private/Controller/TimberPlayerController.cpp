@@ -67,6 +67,17 @@ void ATimberPlayerController::InitializeCharacterAndCamera()
 	TimberCharacterMovementComponent = TimberCharacter->GetCharacterMovement();
 }
 
+void ATimberPlayerController::HideWelcomeWidget()
+{
+	//Shows Welcome Widget on Controller Start up
+	ATimberHUDBase* HUD = Cast<ATimberHUDBase>(GetHUD());
+	if (HUD && HUD->WelcomeWidget)
+	{
+		DisableCursor();
+		HUD->WelcomeWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
 void ATimberPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -118,17 +129,19 @@ void ATimberPlayerController::EnableCursor()
 	FRotator SavedControllerRotation = GetControlRotation();
 	
 	bShowMouseCursor = true;
-
+	if (TimberCharacter && TimberCharacter->CameraSpringArm)
+	{
+		TimberCharacter->CameraSpringArm->bUsePawnControlRotation = false;
+	}
 	SetControlRotation(SavedControllerRotation);
 }
 
 void ATimberPlayerController::DisableCursor()
 {
 	bShowMouseCursor = false;
-	if (TimberCharacter)
+	if (TimberCharacter && TimberCharacter->CameraSpringArm)
 	{
-		USpringArmComponent* CharacterSpringArm = Cast<USpringArmComponent>(TimberCharacter->GetComponentByClass(USpringArmComponent::StaticClass()));
-		CharacterSpringArm->bUsePawnControlRotation = true;
+		TimberCharacter->CameraSpringArm->bUsePawnControlRotation = true;
 	}
 	
 }
@@ -270,8 +283,6 @@ void ATimberPlayerController::LookRight(const FInputActionValue& Value)
 
 	//Handles if needed character rotation adjustments.
 	//HandleCharacterRotation();
-	
-	
 }
 
 void ATimberPlayerController::CharacterJump(const FInputActionValue& Value)

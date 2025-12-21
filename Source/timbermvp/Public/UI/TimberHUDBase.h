@@ -72,7 +72,9 @@ public:
 	TSubclassOf<UUserWidget> BossHealthBarWidgetClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
 	TSubclassOf<UUserWidget> SettingsPanelWidgetClass;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
+	TSubclassOf<UUserWidget> WelcomeWidgetClass;
+	
 	//Widget References
 	UPROPERTY(BlueprintReadOnly)
 	UUserWidget* RootWidget;
@@ -96,6 +98,8 @@ public:
 	UUserWidget* BossHealthBarWidget;
 	UPROPERTY(VisibleAnywhere)
 	UUserWidget* SettingsPanelWidget;
+	UPROPERTY(BlueprintReadOnly)
+	UUserWidget* WelcomeWidget;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<ATimberPlayerController> TimberPlayerController;

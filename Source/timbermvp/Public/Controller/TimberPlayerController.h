@@ -29,9 +29,9 @@ class TIMBERMVP_API ATimberPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
 	void PrepareInputSettings();
 	void InitializeCharacterAndCamera();
-	virtual void BeginPlay() override;
 
 	/*Delegates*/
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildMenuToggle, bool, bIsBuildPanelOpen);
@@ -201,6 +201,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attack")
 	bool CanAttackAgain = true;
 	
+	UFUNCTION(BlueprintCallable)
+	void HideWelcomeWidget();
+	
 protected:
 	
 	virtual void SetupInputComponent() override;
@@ -270,6 +273,7 @@ private:
 
 	FTimerHandle OnStartWaveEarlyCooldownTimerHandle;
 	bool bStartWaveEarlyIsOnCooldown = false;
+	
 };
 
 

@@ -6,10 +6,12 @@
 #include "Blueprint/WidgetTree.h"
 #include "Character/TimberSeeda.h"
 #include "Character/Enemies/Boss/BossBase.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GameModes/TimberGameModeBase.h"
 #include "Subsystems/Wave/WaveGameInstanceSubsystem.h"
 #include "UI/BossHealthBar.h"
 #include "UI/BuildingComponentPanel.h"
+#include "UI/Admin/WelcomeLetter.h"
 #include "UI/Death/TimberDeathWidget.h"
 
 
@@ -18,7 +20,7 @@ void ATimberHUDBase::BindToWaveSubsystem()
 	UWaveGameInstanceSubsystem* WaveSubsystem = GetGameInstance()->GetSubsystem<UWaveGameInstanceSubsystem>();
 	if (WaveSubsystem)
 	{
-		//Broadcast from Wave Subsytem when Boss is spawned, passes in a ref to the spawned boss.
+		//Broadcast from Wave Subsystem when Boss is spawned, passes in a ref to the spawned boss.
 		WaveSubsystem->OnBossSpawned.AddDynamic(this, &ATimberHUDBase::HandleBossSpawned);
 	}
 }
@@ -26,6 +28,9 @@ void ATimberHUDBase::BindToWaveSubsystem()
 void ATimberHUDBase::BeginPlay()
 {
 	Super::BeginPlay();
+	//Setting Controller Owner
+	TimberPlayerController = Cast<ATimberPlayerController>(GetOwner());
+	
 	InitializeWidgets();
 	CharacterAndControllerBindings();
 	GameModeBindings();
@@ -51,6 +56,20 @@ void ATimberHUDBase::InitializeWidgets()
 	DeathWidget = CreateHiddenWidget(DeathWidgetClass, 100);
 	BossHealthBarWidget = CreateHiddenWidget(BossHealthBarWidgetClass, 2);
 	SettingsPanelWidget = CreateHiddenWidget(SettingsPanelWidgetClass, 10);
+	
+	//Welcome Widget - Dev Only
+	WelcomeWidget = CreateVisibleWidget(WelcomeWidgetClass, 100);
+	if (WelcomeWidget)
+	{
+		if (TimberPlayerController)
+		{
+			TimberPlayerController->EnableCursor();
+			UWelcomeLetter* WelcomeLetter = Cast<UWelcomeLetter>(WelcomeWidget);
+			WelcomeLetter->DrPlayerController = TimberPlayerController;
+			WelcomeLetter->SetFocus();
+		}
+	}
+	
 }
 
 UUserWidget* ATimberHUDBase::CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetClass, int32 ZOrder)
@@ -71,7 +90,7 @@ UUserWidget* ATimberHUDBase::CreateHiddenWidget(TSubclassOf<UUserWidget> WidgetC
 
 void ATimberHUDBase::CharacterAndControllerBindings()
 {
-	TimberPlayerController = Cast<ATimberPlayerController>(GetWorld()->GetFirstPlayerController());
+	
 	if (TimberPlayerController)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("HUD has Cached Timber Character Controller"));
